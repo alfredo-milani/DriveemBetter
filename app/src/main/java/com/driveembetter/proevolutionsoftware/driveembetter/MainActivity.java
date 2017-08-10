@@ -98,7 +98,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_send) {
 
         } else if (id == R.id.save_me) {
-            getSupportFragmentManager().beginTransaction()
+
+            getSupportFragmentManager()
+                    .beginTransaction()
                     .add(R.id.save_me_placeholder, new SaveMe())
                     .commit();
         }

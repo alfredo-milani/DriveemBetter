@@ -1,7 +1,13 @@
 package com.driveembetter.proevolutionsoftware.driveembetter;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -11,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -24,11 +31,15 @@ public class SaveMe extends Fragment {
 
     MapView mMapView;
     private GoogleMap googleMap;
+    private Context context;
+    private LocationManager locationManager;
+
+
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
-
+        context = getActivity().getApplicationContext();
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
@@ -46,26 +57,43 @@ public class SaveMe extends Fragment {
                 googleMap = mMap;
 
                 // For showing a move to my location button
-                /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getActivity(),
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            1);
                 }
                 googleMap.setMyLocationEnabled(true);
-                */
+                // Get LocationManager object from System Service LOCATION_SERVICE
+                LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-                // For dropping a marker at a point on the Map
-                LatLng sydney = new LatLng(-34, 151);
-                googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
+                // Create a criteria object to retrieve provider
+                Criteria criteria = new Criteria();
 
-                // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                // Get the name of the best provider
+                String provider = locationManager.getBestProvider(criteria, true);
+
+                // Get Current Location
+                Location myLocation = locationManager.getLastKnownLocation(provider);
+
+                // set map type
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+                // Get latitude of the current location
+                double latitude = myLocation.getLatitude();
+
+                // Get longitude of the current location
+                double longitude = myLocation.getLongitude();
+
+                // Create a LatLng object for the current location
+                LatLng latLng = new LatLng(latitude, longitude);
+
+                // Show the current location in Google Map
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+                // Zoom in the Google Map
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
+                //mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!").snippet("Consider yourself located"));
+
             }
         });
 
