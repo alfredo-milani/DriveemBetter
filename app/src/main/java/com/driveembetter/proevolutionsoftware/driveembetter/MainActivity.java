@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -98,6 +99,13 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_send) {
 
         } else if (id == R.id.save_me) {
+            
+            if (getSupportFragmentManager().findFragmentById(R.id.save_me_placeholder) != null) {
+
+                FrameLayout frameLayout = (FrameLayout) findViewById(R.id.save_me_placeholder);
+                frameLayout.removeAllViews();
+
+            }
 
             getSupportFragmentManager()
                     .beginTransaction()
