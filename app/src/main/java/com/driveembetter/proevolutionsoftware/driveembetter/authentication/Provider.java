@@ -42,6 +42,7 @@ class Provider extends Authentication {
                             return;
                         }
 
+                        getCurrentFirebaseUser();
                         getUserInformation();
                         if (firebaseUser != null) {
                             String str = "UTENTE: " + firebaseUser.getDisplayName() +
