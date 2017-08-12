@@ -2,9 +2,8 @@ package com.driveembetter.proevolutionsoftware.driveembetter;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,9 +11,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Authentication;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.AuthenticationProviderCreator;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private final static String TAG = "Authentication";
+
+    // variabili di debug
+    TextView test;
+    TextView test2;
+    Button signin;
+    Button signout;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +54,35 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+
+
+        // var per debug. DA CANCELLARE
+        test = (TextView) findViewById(R.id.test);
+        test2 = (TextView) findViewById(R.id.test2);
+        signin = (Button) findViewById(R.id.signin);
+        signout = (Button) findViewById(R.id.signout);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar2);
+
+        final Authentication Provider = AuthenticationProviderCreator.getSingletonAuthenticationProvider(1, MainActivity.this);
+
+        signin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                progressBar.setVisibility(View.VISIBLE);
+                Provider.signIn("diocanino@dio.cane", "diocanino");
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
+        signout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Provider.signOut();
+            }
+        });
     }
 
     @Override
@@ -97,5 +140,21 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        /*
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+        */
     }
 }
