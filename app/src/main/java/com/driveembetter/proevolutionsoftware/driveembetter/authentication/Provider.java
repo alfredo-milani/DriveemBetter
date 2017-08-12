@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -43,13 +44,13 @@ class Provider extends Authentication {
                         }
 
                         getCurrentFirebaseUser();
-                        getUserInformation();
+                        User user = getUserInformation();
                         if (firebaseUser != null) {
-                            String str = "UTENTE: " + firebaseUser.getDisplayName() +
-                                    "\nEM: " + firebaseUser.getEmail() + "\nID: " + firebaseUser.getUid() + "\nPROVID: " + firebaseUser.getProviderId() + "\nPROVDATA: " + firebaseUser.getProviderData();
-                            Toast.makeText(mContext, str, Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext, "Login with: " + user.getEmail() + " account", Toast.LENGTH_LONG).show();
+                            signIn = true;
                         } else {
-                            Toast.makeText(mContext, "DIOMMERDA", Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext, "Login error", Toast.LENGTH_LONG).show();
+                            signIn = false;
                         }
                     }
                 });
@@ -57,7 +58,7 @@ class Provider extends Authentication {
 
     @Override
     public void signUp(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
+        this.mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener((Activity) mContext, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -83,17 +84,20 @@ class Provider extends Authentication {
     @Override
     public void signOut() {
         this.mAuth.signOut();
-
-        // Log.d(TAG, "CANE" + user.getEmail());
-        if (firebaseUser != null) {
-            String str = "UTENTE: " + firebaseUser.getDisplayName() +
-                    "\nEM: " + firebaseUser.getEmail() + "\nID: " + firebaseUser.getUid();
-            Toast.makeText(mContext, str,
+        this.getCurrentFirebaseUser();
+        if (this.firebaseUser == null) {
+            this.signIn = false;
+            Toast.makeText(mContext, "Successfully Logging out",
                     Toast.LENGTH_LONG).show();
         } else {
-            String str = "";
-            Toast.makeText(mContext, str,
+            this.signIn = true;
+            Log.d(TAG, "Provider:signOut:failed");
+            Toast.makeText(mContext, "Unsuccessfully Logging out",
                     Toast.LENGTH_LONG).show();
         }
+    }
+
+    public boolean isSignIn() {
+        return signIn;
     }
 }

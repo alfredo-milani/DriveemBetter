@@ -1,48 +1,37 @@
 package com.driveembetter.proevolutionsoftware.driveembetter;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Authentication;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.AuthenticationProviderCreator;
 
 
 public class MainActivity extends AppCompatActivity
-
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final static String TAG = "Authentication";
+    private final static String TAG = "Main Activity";
 
-    // variabili di debug
-    TextView test;
-    TextView test2;
-    Button signin;
-    Button signout;
-    ProgressBar progressBar;
+    private Button signin;
+    private Button signout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        // setContentView(R.layout.activity_main);
+        setContentView(R.layout.login_layout);
+        // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        // setSupportActionBar(toolbar);
 
 
-
+        /*
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -51,27 +40,25 @@ public class MainActivity extends AppCompatActivity
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        */
 
 
 
+        signin = (Button) findViewById(R.id.signin_button);
+        signout = (Button) findViewById(R.id.google_button);
 
-        // var per debug. DA CANCELLARE
-        test = (TextView) findViewById(R.id.test);
-        test2 = (TextView) findViewById(R.id.test2);
-        signin = (Button) findViewById(R.id.signin);
-        signout = (Button) findViewById(R.id.signout);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar2);
-
-        final Authentication Provider = AuthenticationProviderCreator.getSingletonAuthenticationProvider(1, MainActivity.this);
+        final Authentication Provider = AuthenticationProviderCreator
+                .getSingletonAuthenticationProvider(1, MainActivity.this);
 
         signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                progressBar.setVisibility(View.VISIBLE);
+                // progressBar.setVisibility(View.VISIBLE);
                 Provider.signIn("diocanino@dio.cane", "diocanino");
-                progressBar.setVisibility(View.INVISIBLE);
+                // progressBar.setVisibility(View.INVISIBLE);
             }
         });
+
         signout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

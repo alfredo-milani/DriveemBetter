@@ -9,13 +9,13 @@ import java.util.List;
  */
 
 public class User {
-    public String username;
-    public String email;
-    public Uri photoUrl;
-    public String uid;
-    public boolean emailVerified;
-    public String providerId;
-    public List providerData;
+    private String username;
+    private String email;
+    private Uri photoUrl;
+    private String uid;
+    private boolean emailVerified;
+    private String providerId;
+    private List providerData;
 
     public User (String username, String email) {
         this.username = username;
