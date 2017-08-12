@@ -3,10 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.driveembetter.proevolutionsoftware.driveembetter.MainActivity"
-    tools:showIn="@layout/app_bar_main">
+    android:layout_height="match_parent">
 
 
     <RelativeLayout
@@ -37,10 +34,11 @@
             android:id="@+id/editText6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/imageView7"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/imageView7"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
+            android:layout_marginTop="77dp"
             android:backgroundTint="#ffffff"
             android:ems="10"
             android:hint="Username or email"
@@ -54,12 +52,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/editText6"
+            android:layout_centerHorizontal="true"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:layout_marginTop="19dp"
+            android:layout_marginTop="18dp"
+            android:backgroundTint="#ffffff"
             android:ems="10"
             android:hint="Password"
-            android:backgroundTint="#ffffff"
             android:inputType="textPassword"
             android:textColor="@android:color/background_light"
             android:textColorHint="@android:color/background_light"
@@ -73,9 +72,9 @@
             android:layout_height="45dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
+            android:alpha="0.7"
             android:background="@drawable/buttonshape"
             android:text="Login"
-            android:alpha="0.7"
             android:textColor="#FFFFFF"
             android:textColorLink="@android:color/background_light"
             android:textSize="20sp" />
@@ -88,18 +87,48 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="84dp"
             android:text="You have not an account yet? Create now!"
-            android:textColor="@android:color/background_light" />
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/button8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/textView4"
+            android:layout_alignParentBottom="true"
             android:layout_marginBottom="16dp"
             android:background="@android:color/transparent"
             android:text="Sign up"
+            android:textColor="@android:color/background_light" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/angry_btn"
+            android:layout_below="@+id/angry_btn"
+            android:layout_marginTop="34dp"
+            android:text="Sign in with"
             android:textColor="@android:color/background_light"
-            android:layout_alignParentBottom="true"
-            android:layout_alignEnd="@+id/textView4" />
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignStart="@+id/button8"
+            android:layout_alignTop="@+id/textView7"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/g2" />
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="dp"
+            android:layout_height="25dp"
+            android:layout_below="@+id/button3"
+            android:layout_marginTop="9dp"
+
+            android:background="@drawable/f2" />
 
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>
