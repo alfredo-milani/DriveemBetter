@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1019598447876",
+    "firebase_url": "https://driveembetter-3909d.firebaseio.com",
+    "project_id": "driveembetter-3909d",
+    "storage_bucket": "driveembetter-3909d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1019598447876:android:1206c0a76604685f",
+        "android_client_info": {
+          "package_name": "com.driveembetter.proevolutionsoftware.driveembetter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1019598447876-cdugqd4o459q0292n6atpnb8jb3i1f0b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.driveembetter.proevolutionsoftware.driveembetter",
+            "certificate_hash": "7c0695fa0e89d83a12f49b26018ada89e0301b46"
+          }
+        },
+        {
+          "client_id": "1019598447876-1ao35oa7tgk03e65rkbau3107ap8rvhs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRjaWF8-tK2mOZoGljvZz2zYP7LwqmPq0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1019598447876-1ao35oa7tgk03e65rkbau3107ap8rvhs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
