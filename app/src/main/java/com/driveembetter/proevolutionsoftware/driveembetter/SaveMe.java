@@ -14,18 +14,27 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,13 +45,24 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.nearby.messages.Message;
+import com.google.android.gms.nearby.messages.MessageListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+
+import static android.content.ContentValues.TAG;
 
 public class SaveMe extends Fragment {
 
@@ -50,13 +70,13 @@ public class SaveMe extends Fragment {
     private GoogleMap googleMap;
     private Context context;
     private LocationManager locationManager;
-    private double latitude,longitude;
+    double latitude, longitude;
     private TextView locationTxt, rangeText;
     private SeekBar seekBar;
     private int radius;
     private Circle circle;
-
-
+    private FirebaseDatabase database;
+    private DatabaseReference myRef;
 
     private int progressToMeters(int progress) {
         int meters;
@@ -77,8 +97,21 @@ public class SaveMe extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
         context = getActivity().getApplicationContext();
+        // For showing a move to my location button
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
+        }
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    1);
+        }
+        View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
+
+
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         locationTxt = (TextView) rootView.findViewById(R.id.positionTxt);
@@ -88,92 +121,76 @@ public class SaveMe extends Fragment {
         rangeText.setText("Selected Range: " + radius + "m");
         mMapView.onResume(); // needed to get the map to display immediately
 
-        try {
-            MapsInitializer.initialize(getActivity().getApplicationContext());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        //IT'S A TRY
+        //STORE INFORMATION TO DATABASE
+        // Write a message to the database
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("Users/Matteo");
 
-        mMapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap mMap) {
-                googleMap = mMap;
+        // Get LocationManager object from System Service LOCATION_SERVICE
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    Geocoder geocoder;
+                    List<Address> addresses;
+                    geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
 
-                googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
 
-                // For showing a move to my location button
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(),
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            1);
+                    Log.e("latitude", "latitude--" + latitude);
+
+                    try {
+                        Log.e("latitude", "inside latitude--" + latitude);
+                        addresses = geocoder.getFromLocation(latitude, longitude, 1);
+
+
+                        if (addresses != null && addresses.size() > 0) {
+                            String address = addresses.get(0).getAddressLine(0);
+                            locationTxt.setText("Your Position:" + " " + address);
+
+                            //TODO publish my position
+
+                            Map<String, Object> coordinates = new ArrayMap<>();
+                            coordinates.put("lat", latitude);
+                            coordinates.put("lon", longitude);
+                            myRef.updateChildren(coordinates);
+
+                        }
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
+                    // Create a LatLng object for the current location
+                    LatLng latLng = new LatLng(latitude, longitude);
+
+                    // Show the current location in Google Map
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
+                    circle.setVisible(false);
+                    int zoom = getZoomLevel(circle);
+                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+                    Log.e("animate", "camera animated at: " + String.valueOf(zoom));
+
                 }
-                googleMap.setMyLocationEnabled(true);
-                // Get LocationManager object from System Service LOCATION_SERVICE
-                final LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-                // Create a criteria object to retrieve provider
-                Criteria criteria = new Criteria();
-                // Get the name of the best provider
-                final String provider = locationManager.getBestProvider(criteria, true);
 
-                // Get Current Location
-                final Location myLocation = locationManager.getLastKnownLocation(provider);
+                @Override
+                public void onStatusChanged(String s, int i, Bundle bundle) {
 
-                LocationListener locationListener = new LocationListener() {
-                    @Override
-                    public void onLocationChanged(Location location) {
+                }
 
-                            Geocoder geocoder;
-                            List<Address> addresses;
-                            geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+                @Override
+                public void onProviderEnabled(String s) {
 
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
+                }
 
-                            Log.e("latitude", "latitude--" + latitude);
+                @Override
+                public void onProviderDisabled(String s) {
 
-                            try {
-                                Log.e("latitude", "inside latitude--" + latitude);
-                                addresses = geocoder.getFromLocation(latitude, longitude, 1);
-
-
-                                if (addresses != null && addresses.size() > 0) {
-                                    String address = addresses.get(0).getAddressLine(0);
-                                    locationTxt.setText("Your Position:" + " " + address);
-                                }
-                            } catch (IOException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-
-                            // Create a LatLng object for the current location
-                            LatLng latLng = new LatLng(latitude, longitude);
-
-                            // Show the current location in Google Map
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                            circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
-                            circle.setVisible(false);
-                            int zoom = getZoomLevel(circle);
-                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
-                            Log.e("animate", "camera animated at: " + String.valueOf(zoom));
-                    }
-
-                    @Override
-                    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-                    }
-
-                    @Override
-                    public void onProviderEnabled(String s) {
-
-                    }
-
-                    @Override
-                    public void onProviderDisabled(String s) {
-
-                    }
-                };
-
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+                }
+            });
 
                 /*
                 //create circle with a certain radius
@@ -194,33 +211,67 @@ public class SaveMe extends Fragment {
                 googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
 
                 */
-                //SEEK BAR LISTENER
-                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        //SEEK BAR LISTENER
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                        // TODO Auto-generated method stub
-                    }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
 
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                        // TODO Auto-generated method stub
-                    }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
 
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-                        // TODO Auto-generated method stub
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // TODO Auto-generated method stub
 
-                        radius = progressToMeters(progress);
-                        rangeText.setText("Selected Range: " + radius+ " m");
+                radius = progressToMeters(progress);
+                rangeText.setText("Selected Range: " + radius + " m");
 
-                        //create circle with a certain radius
-                        circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
-                        circle.setVisible(false);
-                        int zoom = getZoomLevel(circle);
-                        googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
-                    }
-                });
+                //create circle with a certain radius
+                circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
+                circle.setVisible(false);
+                int zoom = getZoomLevel(circle);
+                googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+            }
+        });
+
+        try {
+            MapsInitializer.initialize(getActivity().getApplicationContext());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap mMap) {
+                googleMap = mMap;
+                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                // For showing a move to my location button
+               /* if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getActivity(),
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            1);
+                }
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getActivity(),
+                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                            1);
+                }*/
+                if (ContextCompat.checkSelfPermission(getContext(),
+                        android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(getContext(),
+                                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getActivity(),
+                            new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                } else {
+                    Log.e("DB", "PERMISSION GRANTED");
+                }
+                googleMap.setMyLocationEnabled(true);
             }
         });
 
@@ -261,4 +312,6 @@ public class SaveMe extends Fragment {
         super.onLowMemory();
         mMapView.onLowMemory();
     }
+
+
 }
