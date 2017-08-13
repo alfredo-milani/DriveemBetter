@@ -12,6 +12,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -69,6 +70,7 @@ public class SaveMe extends Fragment {
     MapView mMapView;
     private GoogleMap googleMap;
     private Context context;
+    private LocationUpdater locationUpdater;
     private LocationManager locationManager;
     double latitude, longitude;
     private TextView locationTxt, rangeText;
@@ -77,6 +79,7 @@ public class SaveMe extends Fragment {
     private Circle circle;
     private FirebaseDatabase database;
     private DatabaseReference myRef;
+    private LocationListener locationListener;
 
     private int progressToMeters(int progress) {
         int meters;
@@ -111,6 +114,8 @@ public class SaveMe extends Fragment {
         }
         View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
+        locationUpdater = ((MainActivity)getActivity()).getLocationUpdater();
+        locationManager = locationUpdater.getLocationManager();
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -121,14 +126,8 @@ public class SaveMe extends Fragment {
         rangeText.setText("Selected Range: " + radius + "m");
         mMapView.onResume(); // needed to get the map to display immediately
 
-        //IT'S A TRY
-        //STORE INFORMATION TO DATABASE
-        // Write a message to the database
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("Users/Matteo");
 
         // Get LocationManager object from System Service LOCATION_SERVICE
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
@@ -149,13 +148,6 @@ public class SaveMe extends Fragment {
                         if (addresses != null && addresses.size() > 0) {
                             String address = addresses.get(0).getAddressLine(0);
                             locationTxt.setText("Your Position:" + " " + address);
-
-                            //TODO publish my position
-
-                            Map<String, Object> coordinates = new ArrayMap<>();
-                            coordinates.put("lat", latitude);
-                            coordinates.put("lon", longitude);
-                            myRef.updateChildren(coordinates);
 
                         }
                     } catch (IOException e) {
@@ -211,6 +203,7 @@ public class SaveMe extends Fragment {
                 googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
 
                 */
+
         //SEEK BAR LISTENER
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -312,6 +305,5 @@ public class SaveMe extends Fragment {
         super.onLowMemory();
         mMapView.onLowMemory();
     }
-
 
 }

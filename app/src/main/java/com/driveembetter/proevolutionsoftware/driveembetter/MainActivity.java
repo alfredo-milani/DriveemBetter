@@ -1,20 +1,11 @@
 package com.driveembetter.proevolutionsoftware.driveembetter;
 
-import android.Manifest;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,24 +16,35 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.messages.Message;
-import com.google.android.gms.nearby.messages.MessageListener;
-
-import static android.content.ContentValues.TAG;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private LocationUpdater locationUpdater;
+
+    public LocationUpdater getLocationUpdater() {
+        return this.locationUpdater;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //WE NEED TO KEEP TRACK OF THE USER SINCE HIS/HER LOGIN
+
+        locationUpdater = new LocationUpdater(this);
+        locationUpdater.updateLocation();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -117,18 +119,34 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_send) {
 
         } else if (id == R.id.save_me) {
-            
-            if (getSupportFragmentManager().findFragmentById(R.id.save_me_placeholder) != null) {
 
+            if (getSupportFragmentManager().findFragmentById(R.id.save_me_placeholder) != null) {
                 FrameLayout frameLayout = (FrameLayout) findViewById(R.id.save_me_placeholder);
                 frameLayout.removeAllViews();
 
             }
 
+            Fragment saveMe = new SaveMe();
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutput out = null;
+            try {
+                out = new ObjectOutputStream(bos);
+                out.writeObject(locationUpdater);
+                out.flush();
+                byte[] byteArray = bos.toByteArray();
+                Bundle bundle = new Bundle();
+                bundle.putByteArray("locationUpdater", byteArray);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.save_me_placeholder, new SaveMe())
+                    .add(R.id.save_me_placeholder, saveMe)
                     .commit();
+
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
