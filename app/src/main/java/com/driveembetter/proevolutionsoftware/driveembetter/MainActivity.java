@@ -128,19 +128,6 @@ public class MainActivity extends AppCompatActivity
 
             Fragment saveMe = new SaveMe();
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutput out = null;
-            try {
-                out = new ObjectOutputStream(bos);
-                out.writeObject(locationUpdater);
-                out.flush();
-                byte[] byteArray = bos.toByteArray();
-                Bundle bundle = new Bundle();
-                bundle.putByteArray("locationUpdater", byteArray);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.save_me_placeholder, saveMe)
