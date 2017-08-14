@@ -2,12 +2,15 @@ package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 /**
  * Created by alfredo on 11/08/17.
@@ -17,8 +20,8 @@ class Provider extends Authentication {
 
     private static final String TAG = "Provider";
 
-    Provider(Context context) {
-        super(context);
+    Provider(Context context, Handler handler) {
+        super(context, handler);
         Log.d(TAG, "Instantiated Provider class");
     }
 
@@ -49,6 +52,10 @@ class Provider extends Authentication {
 
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "createUserWithEmailAndPassword:failed", task.getException());
+                            if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                                Message msg = mHandler.obtainMessage(USER_ALREADY_EXIST);
+                                mHandler.sendMessage(msg);
+                            }
                         }
                     }
                 });

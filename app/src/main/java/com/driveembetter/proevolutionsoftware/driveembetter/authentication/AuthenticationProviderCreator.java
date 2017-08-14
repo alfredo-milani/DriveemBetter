@@ -1,6 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 /**
@@ -51,22 +52,22 @@ public class AuthenticationProviderCreator {
     }
     */
 
-    public static Authentication getSingletonAuthenticationProvider(int provider, Context mContext) {
+    public static Authentication getSingletonAuthenticationProvider(int provider, Context mContext, Handler handler) {
         if (singletonAuthenticationProvider == null) {
             switch (provider) {
                 // Firebase provider
                 case 1:
-                    singletonAuthenticationProvider = new Provider(mContext);
+                    singletonAuthenticationProvider = new Provider(mContext, handler);
                 break;
 
                 // Google provider
                 case 2:
-                    singletonAuthenticationProvider = new Google(mContext);
+                    singletonAuthenticationProvider = new Google(mContext, handler);
                     break;
 
                 // Facebook provider
                 case 3:
-                    Log.d(TAG, "Not yet implemented");
+                    singletonAuthenticationProvider = new Facebook(mContext, handler);
                     break;
             }
         }

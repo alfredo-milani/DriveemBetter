@@ -1,6 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
 import android.content.Context;
+import android.os.Handler;
 
 /**
  * Created by alfredo on 14/08/17.
@@ -8,8 +9,8 @@ import android.content.Context;
 
 class Facebook extends Authentication {
 
-    public Facebook(Context context) {
-        super(context);
+    public Facebook(Context context, Handler handler) {
+        super(context, handler);
     }
 
     @Override

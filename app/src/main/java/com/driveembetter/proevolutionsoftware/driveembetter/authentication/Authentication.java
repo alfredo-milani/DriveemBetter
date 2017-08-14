@@ -1,6 +1,8 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,11 +17,12 @@ import com.google.firebase.auth.FirebaseUser;
  * Created by alfredo on 11/08/17.
  */
 
-public abstract class Authentication {
+public abstract class Authentication implements TypeMessages {
 
     private static String TAG = "Authentication";
 
     protected Context mContext;
+    protected final Handler mHandler;
 
     // variables for authentication with Firebase platoform
     protected FirebaseAuth mAuth;
@@ -28,7 +31,8 @@ public abstract class Authentication {
 
     protected boolean signIn = false;
 
-    public Authentication(Context context) {
+    public Authentication(Context context, Handler handler) {
+        this.mHandler = handler;
         this.mContext = context;
         this.mAuth = FirebaseAuth.getInstance();
         this.mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -42,13 +46,15 @@ public abstract class Authentication {
 
                     sendVerificationEmail();
 
-                    // TODO: notifica alla UI il cambiamento di stato con un Handler
+                    Message msg = mHandler.obtainMessage(USER_LOGIN);
+                    mHandler.sendMessage(msg);
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                     Toast.makeText(mContext, "Signed out", Toast.LENGTH_SHORT).show();
 
-                    // TODO: notifica alla UI il cambiamento di stato con un Handler
+                    Message msg = mHandler.obtainMessage(USER_LOGOUT);
+                    mHandler.sendMessage(msg);
                 }
             }
         };

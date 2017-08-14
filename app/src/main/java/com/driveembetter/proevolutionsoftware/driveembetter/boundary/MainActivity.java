@@ -1,28 +1,75 @@
-package com.driveembetter.proevolutionsoftware.driveembetter;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Authentication;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.AuthenticationProviderCreator;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, TypeMessages {
 
     private final static String TAG = "MainActivity";
 
     private Authentication Provider;
+    private User user;
 
     private Button signin;
     private Button signout;
+    private ProgressBar progressBar;
+
+    // Defines a Handler object that's attached to the UI thread
+    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
+        /*
+         * handleMessage() defines the operations to perform when
+         * the Handler receives a new Message to process.
+         */
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case USER_LOGIN:
+                    user = Provider.getUserInformation();
+                    Log.d(TAG, "handleMessage:login");
+                    if (user == null) {
+                        Log.e(TAG, "handleMessage:error");
+                        break;
+                    }
+                    Toast.makeText(MainActivity.this, "Signed in as: " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                    break;
+
+                case USER_LOGOUT:
+                    Log.d(TAG, "handleMessage:logout");
+                    Toast.makeText(MainActivity.this, "Signing out", Toast.LENGTH_SHORT).show();
+                    break;
+
+                case USER_ALREADY_EXIST:
+                    Log.d(TAG, "handleMessage:user_already_exist");
+                    Toast.makeText(MainActivity.this, "User already exist. Try with another email address", Toast.LENGTH_SHORT).show();
+                    break;
+
+                default:
+                    Log.e(TAG, "handleMessage:error");
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,19 +92,20 @@ public class MainActivity extends AppCompatActivity
 
 
         this.Provider = AuthenticationProviderCreator
-                .getSingletonAuthenticationProvider(1, MainActivity.this);
+                .getSingletonAuthenticationProvider(1, MainActivity.this, this.mHandler);
 
 
         signin = (Button) findViewById(R.id.signin_button);
         signout = (Button) findViewById(R.id.google_button);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 
         signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // progressBar.setVisibility(View.VISIBLE);
-                Provider.signUp("multidio88@gmail.com", "diocanino");
-                // progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                Provider.signUp("multidio@gmail.com", "diocanino");
+                progressBar.setVisibility(View.GONE);
             }
         });
 

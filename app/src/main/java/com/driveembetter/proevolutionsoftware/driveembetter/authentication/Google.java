@@ -1,6 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 /**
@@ -11,8 +12,8 @@ class Google extends Authentication {
 
     private static final String TAG = "Google";
 
-    Google(Context context) {
-        super(context);
+    Google(Context context, Handler handler) {
+        super(context, handler);
         Log.d(TAG, "Instantiated Google class");
     }
 

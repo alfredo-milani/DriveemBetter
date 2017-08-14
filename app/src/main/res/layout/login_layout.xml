@@ -9,7 +9,7 @@
     <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/road3"
+        android:background="@drawable/sign_in"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -25,10 +25,12 @@
             android:id="@+id/imageView7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="21dp"
+            app:srcCompat="@drawable/drivem_bett_white"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:layout_alignParentTop="true"
-            android:layout_margin="20dp"
-            android:layout_marginTop="48dp"
-            app:srcCompat="@drawable/drivem_bett_white" />
+            android:layout_centerHorizontal="true" />
 
         <EditText
             android:id="@+id/editText6"
@@ -126,10 +128,19 @@
             android:id="@+id/facebook_button"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:background="@mipmap/facebook_icon"
             android:layout_alignBaseline="@+id/textView7"
             android:layout_alignBottom="@+id/textView7"
-            android:layout_alignStart="@+id/signup" />
+            android:layout_alignStart="@+id/signup"
+            android:background="@mipmap/facebook_icon" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>
