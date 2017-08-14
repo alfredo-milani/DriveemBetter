@@ -1,69 +1,51 @@
 package com.driveembetter.proevolutionsoftware.driveembetter;
 
 import android.Manifest;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.util.ArrayMap;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.messages.Message;
-import com.google.android.gms.nearby.messages.MessageListener;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
-
-import static android.content.ContentValues.TAG;
 
 public class SaveMe extends Fragment {
 
@@ -80,6 +62,12 @@ public class SaveMe extends Fragment {
     private FirebaseDatabase database;
     private DatabaseReference myRef;
     private LocationListener locationListener;
+    private Map<String, Marker> markerPool;
+    private GoogleMap.OnMarkerClickListener onMarkerClickListener;
+    private PopupWindow driverInfo;
+    private LayoutInflater layoutInflater;
+    private RelativeLayout relativeLayout;
+    private TextView driverUsername, driverLocation, driverFeedback;
 
     private int progressToMeters(int progress) {
         int meters;
@@ -112,7 +100,7 @@ public class SaveMe extends Fragment {
                     new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                     1);
         }
-        View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
         locationUpdater = ((MainActivity)getActivity()).getLocationUpdater();
         locationManager = locationUpdater.getLocationManager();
@@ -126,6 +114,37 @@ public class SaveMe extends Fragment {
         rangeText.setText("Selected Range: " + radius + "m");
         mMapView.onResume(); // needed to get the map to display immediately
 
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("Users");
+
+        markerPool = new HashMap<>();
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
+                for (String user : data.keySet()) {
+                    if (!user.equals("Mattia")) {
+                        Map<String, Object> coordinates = data.get(user);
+                        LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
+                        if ( markerPool.containsKey(user)) {
+                            markerPool.get(user).setPosition(userPos);
+                        } else {
+
+                            Marker userMarker = googleMap.addMarker(new MarkerOptions()
+                                    .position(userPos)
+                                    .title(user.toString()));
+                            markerPool.put(user, userMarker);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         // Get LocationManager object from System Service LOCATION_SERVICE
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, new LocationListener() {
@@ -265,9 +284,54 @@ public class SaveMe extends Fragment {
                     Log.e("DB", "PERMISSION GRANTED");
                 }
                 googleMap.setMyLocationEnabled(true);
+
+                onMarkerClickListener = new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(final Marker marker) {
+
+                        String userLocation = "NA";
+
+                        String userFeedback = "NA";
+
+                        List<Address> addresses;
+                        Geocoder geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+                        LatLng latLng = marker.getPosition();
+                        try {
+                            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                            if (addresses != null && addresses.size() > 0) {
+                                userLocation = addresses.get(0).getAddressLine(0);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        relativeLayout = (RelativeLayout) rootView.findViewById(R.id.relative);
+                        layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.driver_info, null);
+                        driverInfo = new PopupWindow(container, 500, 500, true);
+                        driverInfo.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
+                        driverUsername = (TextView) container.findViewById(R.id.driverUsernameContent);
+                        driverLocation = (TextView) container.findViewById(R.id.driverPositionContent);
+                        driverFeedback = (TextView) container.findViewById(R.id.driverFeedbackContent);
+                        driverLocation.setMovementMethod(new ScrollingMovementMethod());
+                        driverUsername.setText(marker.getTitle().toString());
+                        driverLocation.setText(userLocation);
+                        driverFeedback.setText(userFeedback);
+                        container.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View view, MotionEvent motionEvent) {
+                                driverInfo.dismiss();
+                                return true;
+                            }
+                        });
+                        return false;
+                    }
+                };
+
+                googleMap.setOnMarkerClickListener(onMarkerClickListener);
             }
         });
-
         return rootView;
     }
 
