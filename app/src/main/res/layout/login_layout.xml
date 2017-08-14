@@ -91,7 +91,7 @@
             android:textSize="18sp" />
 
         <Button
-            android:id="@+id/button8"
+            android:id="@+id/signup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/textView4"
@@ -129,7 +129,7 @@
             android:background="@mipmap/facebook_icon"
             android:layout_alignBaseline="@+id/textView7"
             android:layout_alignBottom="@+id/textView7"
-            android:layout_alignStart="@+id/button8" />
+            android:layout_alignStart="@+id/signup" />
 
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

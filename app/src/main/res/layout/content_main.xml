@@ -91,7 +91,7 @@
             android:textColor="@android:color/background_light" />
 
         <Button
-            android:id="@+id/button8"
+            android:id="@+id/signup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"

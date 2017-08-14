@@ -17,7 +17,9 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Authe
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final static String TAG = "Main Activity";
+    private final static String TAG = "MainActivity";
+
+    private Authentication Provider;
 
     private Button signin;
     private Button signout;
@@ -29,7 +31,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.login_layout);
         // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         // setSupportActionBar(toolbar);
-
 
         /*
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -43,18 +44,19 @@ public class MainActivity extends AppCompatActivity
         */
 
 
+        this.Provider = AuthenticationProviderCreator
+                .getSingletonAuthenticationProvider(1, MainActivity.this);
+
 
         signin = (Button) findViewById(R.id.signin_button);
         signout = (Button) findViewById(R.id.google_button);
 
-        final Authentication Provider = AuthenticationProviderCreator
-                .getSingletonAuthenticationProvider(1, MainActivity.this);
 
         signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // progressBar.setVisibility(View.VISIBLE);
-                Provider.signIn("diocanino@dio.cane", "diocanino");
+                Provider.signUp("multidio88@gmail.com", "diocanino");
                 // progressBar.setVisibility(View.INVISIBLE);
             }
         });
@@ -127,16 +129,30 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        // mAuth.addAuthStateListener(mAuthListener);
+        this.Provider.setStateListener();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        /*
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-        */
+        this.Provider.removeStateListener();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        this.Provider.setStateListener();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.Provider.setStateListener();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.Provider.removeStateListener();
     }
 }
