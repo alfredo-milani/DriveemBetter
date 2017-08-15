@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
@@ -17,6 +18,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Map;
+
+import static java.security.AccessController.getContext;
 
 /**
  * Created by matti on 13/08/2017.
@@ -30,6 +33,7 @@ public class LocationUpdater {
     private LocationListener locationListener;
     private double latitude, longitude;
     Activity activity;
+    private String android_id;
 
     LocationUpdater(Activity activity) {
         this.activity = activity;
@@ -57,8 +61,11 @@ public class LocationUpdater {
             Log.e("DB", "PERMISSION GRANTED");
         }
 
+        android_id = Settings.Secure.getString(activity.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
         database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("Users/Mattia");
+        myRef = database.getReference("Users/"+android_id);
         // Get LocationManager object from System Service LOCATION_SERVICE
         locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {

@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -68,6 +69,7 @@ public class SaveMe extends Fragment {
     private LayoutInflater layoutInflater;
     private RelativeLayout relativeLayout;
     private TextView driverUsername, driverLocation, driverFeedback;
+    private String android_id;
 
     private int progressToMeters(int progress) {
         int meters;
@@ -117,6 +119,9 @@ public class SaveMe extends Fragment {
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("Users");
 
+        android_id = Settings.Secure.getString(getActivity().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
         markerPool = new HashMap<>();
 
         myRef.addValueEventListener(new ValueEventListener() {
@@ -124,7 +129,7 @@ public class SaveMe extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
                 for (String user : data.keySet()) {
-                    if (!user.equals("Mattia")) {
+                    if (!user.equals(android_id)) {
                         Map<String, Object> coordinates = data.get(user);
                         LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
                         if ( markerPool.containsKey(user)) {
