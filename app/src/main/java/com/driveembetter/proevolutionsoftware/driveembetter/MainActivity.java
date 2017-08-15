@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Authentication;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.AuthenticationProviderCreator;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;

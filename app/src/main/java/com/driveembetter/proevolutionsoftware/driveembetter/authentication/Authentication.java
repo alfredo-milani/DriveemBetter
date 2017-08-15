@@ -31,7 +31,7 @@ public abstract class Authentication implements TypeMessages {
 
     protected boolean signIn = false;
 
-    public Authentication(Context context, Handler handler) {
+    Authentication(Context context, Handler handler) {
         this.mHandler = handler;
         this.mContext = context;
         this.mAuth = FirebaseAuth.getInstance();
