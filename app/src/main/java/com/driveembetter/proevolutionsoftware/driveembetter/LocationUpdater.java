@@ -4,6 +4,8 @@ import android.*;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,9 +16,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static java.security.AccessController.getContext;
@@ -31,9 +37,12 @@ public class LocationUpdater {
     private DatabaseReference myRef;
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private double latitude, longitude;
+    private double latitude, longitude, oldLatitude, oldLongitude;
+    private String oldCountry, oldRegion;
+    Location oldLocation;
     Activity activity;
     private String android_id;
+    private Geocoder geocoder;
 
     LocationUpdater(Activity activity) {
         this.activity = activity;
@@ -61,22 +70,55 @@ public class LocationUpdater {
             Log.e("DB", "PERMISSION GRANTED");
         }
 
+        final Geocoder geocoder;
+        geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
+
+
         android_id = Settings.Secure.getString(activity.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
 
         database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("Users/"+android_id);
         // Get LocationManager object from System Service LOCATION_SERVICE
         locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        oldLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        oldLatitude = oldLocation.getLatitude();
+        oldLongitude = oldLocation.getLongitude();
+        List<Address> oldAddresses;
+        try {
+            oldAddresses = geocoder.getFromLocation(oldLatitude, oldLongitude, 1);
+            oldCountry = oldAddresses.get(0).getCountryName();
+            oldRegion = oldAddresses.get(0).getAdminArea();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+
+                List<Address> addresses;
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
-
                 Map<String, Object> coordinates = new ArrayMap<>();
-                coordinates.put("lat", latitude);
-                coordinates.put("lon", longitude);
+                coordinates.put("currentUserPosition", latitude+";"+longitude);
+                String country = "";
+                String region = "";
+                try {
+                    addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                    country = addresses.get(0).getCountryName();
+                    region = addresses.get(0).getAdminArea();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //coordinates.put("lat", latitude);
+                //coordinates.put("lon", longitude);
+                if (!oldCountry.equals(country) || !oldRegion.equals(region)) {
+                    //delete the current user instance and create a newer
+                    myRef = database.getReference(oldCountry + "/" + oldRegion + "/" + "ID_USER(from firebase)");
+                    myRef.removeValue();
+                }
+                oldCountry = country;
+                oldRegion = region;
+                myRef = database.getReference(country + "/" + region + "/" + "ID_USER(from firebase)");
                 myRef.updateChildren(coordinates);
 
             }

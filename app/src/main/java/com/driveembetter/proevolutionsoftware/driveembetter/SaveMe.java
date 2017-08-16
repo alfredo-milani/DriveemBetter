@@ -26,6 +26,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.driveembetter.proevolutionsoftware.driveembetter.Utils.StringParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -117,7 +119,7 @@ public class SaveMe extends Fragment {
         mMapView.onResume(); // needed to get the map to display immediately
 
         database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("Users");
+        myRef = database.getReference("Italy/Lazio");
 
         android_id = Settings.Secure.getString(getActivity().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
@@ -129,9 +131,13 @@ public class SaveMe extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
                 for (String user : data.keySet()) {
-                    if (!user.equals(android_id)) {
-                        Map<String, Object> coordinates = data.get(user);
-                        LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
+                    if (!user.equals("ID_USER(from firebase)")) {
+                        //Map<String, Object> coordinates = data.get(user);
+                        String coordinates = (String) data.get(user).get("currentUserPosition");
+                        StringParser stringParser = new StringParser(coordinates);
+                        String[] latLon = stringParser.getCoordinates();
+                        //LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
+                        LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
                         if ( markerPool.containsKey(user)) {
                             markerPool.get(user).setPosition(userPos);
                         } else {
