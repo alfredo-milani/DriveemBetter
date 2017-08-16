@@ -44,6 +44,14 @@ public class LocationUpdater {
     private String android_id;
     private Geocoder geocoder;
 
+    //TODO
+    //---- I have to get these information from an other db------
+    /**/    private List veichlesArray;                      /**/
+    /**/    private String currentVeichle;                   /**/
+    /**/    private String veichleType;                      /**/
+    /**/    private String userImage;                        /**/
+    //-----------------------------------------------------------
+
     LocationUpdater(Activity activity) {
         this.activity = activity;
     }
@@ -111,10 +119,14 @@ public class LocationUpdater {
                 }
                 //coordinates.put("lat", latitude);
                 //coordinates.put("lon", longitude);
+                Boolean radicalChange = false;
                 if (!oldCountry.equals(country) || !oldRegion.equals(region)) {
                     //delete the current user instance and create a newer
                     myRef = database.getReference(oldCountry + "/" + oldRegion + "/" + "ID_USER(from firebase)");
                     myRef.removeValue();
+                    radicalChange = true;
+                    //TODO
+                    //If I delete, I have to regenerate lost information
                 }
                 oldCountry = country;
                 oldRegion = region;
