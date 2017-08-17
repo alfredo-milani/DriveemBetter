@@ -1,13 +1,13 @@
 package com.driveembetter.proevolutionsoftware.driveembetter;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -20,10 +20,9 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.exeption.ProviderNotFoundExeption;
 
 
-
 public class SignInActivity
         extends AppCompatActivity
-        implements TypeMessages {
+        implements View.OnClickListener, TypeMessages {
 
     private final static String TAG = "SignInActivity";
 
@@ -84,6 +83,10 @@ public class SignInActivity
                         break;
                     }
                     Toast.makeText(SignInActivity.this, "Signed in as: " + user.getEmail(), Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(SignInActivity.this, MainFragmentActivity.class);
+                    startActivity(intent);
+                    finish();
                     break;
 
                 case USER_LOGOUT:
@@ -96,8 +99,18 @@ public class SignInActivity
                     Toast.makeText(SignInActivity.this, "User already exist. Try with another email address", Toast.LENGTH_SHORT).show();
                     break;
 
+                case EMAIL_REQUIRED:
+                    Log.d(TAG, "handleMessage:email_required");
+                    emailField.setError(getString(R.string.field_required));
+                    break;
+
+                case PASSWORD_REQUIRED:
+                    Log.d(TAG, "handleMessage:password_required");
+                    passwordField.setError(getString(R.string.field_required));
+                    break;
+
                 default:
-                    Log.e(TAG, "handleMessage:error");
+                    Log.w(TAG, "handleMessage:error");
             }
         }
     };
@@ -120,16 +133,40 @@ public class SignInActivity
         this.emailField = (EditText) findViewById(R.id.email_field);
         this.passwordField = (EditText) findViewById(R.id.password_field);
         this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
+        this.signInButton.setOnClickListener(this);
+        this.signInGoogleButton.setOnClickListener(this);
+        this.signUpButton.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.sign_in_button:
+                this.Provider.signIn(
+                        this.emailField.getText().toString(),
+                        this.passwordField.getText().toString()
+                );
+                break;
+
+            case R.id.sign_in_google_button:
+                this.Provider.signIn(null, null);
+                break;
+
+            case R.id.sign_up_button:
+                Intent intent = new Intent(this, SignUpActivity.class);
+                startActivity(intent);
+                finish();
+                break;
+
+            default:
+                Log.w(TAG, "Unknown error in onClick");
+        }
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+
     }
 
     @Override

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_settings">Impostazioni</string>
+    <string name="field_required">Campo richiesto.</string>
+    <string name="invalid_provider_type">Tipo %d non valido.</string>
+    <string name="navigation_drawer_close">Chiudi barra di navigazione</string>
+    <string name="navigation_drawer_open">Apri barra di navigazione</string>
+    <string name="username_email">Nome utente o email</string>
+    <string name="password">Password</string>
+    <string name="or">O</string>
+    <string name="sign_in">Accedi</string>
+    <string name="sign_up">Registrati</string>
+    <string name="hint_create_account">Non hai ancora un account? Crealo ora!</string>
+    <string name="welcome">Benvenuto</string>
+    <string name="email">Email</string>
+    <string name="username">Nome utente</string>
+</resources>

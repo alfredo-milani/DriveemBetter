@@ -8,4 +8,6 @@ public interface TypeMessages {
     int USER_LOGIN = 1;
     int USER_LOGOUT = 2;
     int USER_ALREADY_EXIST = 3;
+    int EMAIL_REQUIRED = 4;
+    int PASSWORD_REQUIRED = 5;
 }

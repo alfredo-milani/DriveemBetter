@@ -1,9 +1,19 @@
 <resources>
-    <string name="app_name" translatable="false">DriveemBetter</string>
+    <string name="app_name" translatable="false">Drive\'em Better</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
     <string name="invalid_provider_type">Invalid type: %d.</string>
+    <string name="field_required">Required.</string>
+    <string name="username_email">Username or email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="or">OR</string>
+    <string name="hint_create_account">You have not an account yet? Create now!</string>
+    <string name="welcome">Welcome</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
 </resources>

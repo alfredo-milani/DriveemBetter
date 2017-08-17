@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,6 +28,16 @@ public class EmailAndPasswordProvider extends Provider {
 
     @Override
     public void signIn(String email, String password) {
+        if (TextUtils.isEmpty(email)) {
+            Message msg = this.mHandler.obtainMessage(EMAIL_REQUIRED);
+            this.mHandler.sendMessage(msg);
+            return;
+        } else if (TextUtils.isEmpty(password)) {
+            Message msg = this.mHandler.obtainMessage(PASSWORD_REQUIRED);
+            this.mHandler.sendMessage(msg);
+            return;
+        }
+
         this.mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener((Activity) this.mContext, new OnCompleteListener<AuthResult>() {
                     @Override
