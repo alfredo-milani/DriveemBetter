@@ -14,4 +14,7 @@
     <string name="welcome">Benvenuto</string>
     <string name="email">Email</string>
     <string name="username">Nome utente</string>
+    <string name="back">Indietro</string>
+    <string name="invalid_user">Non è presente alcun identificatore corrispondente. L\'utente potrebbe essere stato rimosso.</string>
+    <string name="invalid_credentials">La password è sbagliata o l\'utente non ha una password.</string>
 </resources>

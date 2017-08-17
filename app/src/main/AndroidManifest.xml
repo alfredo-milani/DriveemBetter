@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".SignInActivity"
+            android:name=".boundary.SignInActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -23,7 +23,7 @@
         </activity>
 
         <activity
-            android:name=".SignUpActivity"
+            android:name=".boundary.SignUpActivity"
             android:label="@string/sign_up"
             android:theme="@style/AppTheme.NoActionBar">
             <!--Default Intent Filter-->
@@ -33,7 +33,7 @@
         </activity>
 
         <activity
-            android:name=".MainFragmentActivity"
+            android:name=".boundary.MainFragmentActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <!--Default Intent Filter-->
             <intent-filter>

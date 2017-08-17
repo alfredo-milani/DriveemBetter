@@ -11,6 +11,8 @@ import android.util.Log;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 /**
@@ -21,7 +23,7 @@ public class EmailAndPasswordProvider extends Provider {
 
     private static final String TAG = "EmailAndPswProvider";
 
-    EmailAndPasswordProvider(Context context, Handler handler) {
+    public EmailAndPasswordProvider(Context context, Handler handler) {
         super(context, handler);
         Log.d(TAG, "Instantiated Provider class");
     }
@@ -45,7 +47,24 @@ public class EmailAndPasswordProvider extends Provider {
                         Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
 
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithEmail:failed", task.getException());
+
+                            Message message = null;
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthInvalidCredentialsException e) {
+                                Log.d(TAG, "signInWithEmail:failed", task.getException());
+                                message = mHandler.obtainMessage(INVALID_CREDENTIALS);
+                            } catch (FirebaseAuthInvalidUserException e3) {
+                                Log.d(TAG, "signInWithEmail:failed", task.getException());
+                                message = mHandler.obtainMessage(INVALID_USER);
+                            } catch (Exception e1) {
+                                Log.w(TAG, "signInWithEmail:failed", task.getException());
+                                message = mHandler.obtainMessage(UNKNOWN_EVENT);
+                            } finally {
+                                if (message != null)
+                                    mHandler.sendMessage(message);
+                            }
+
                         } else {
                             checkIfEmailVerified();
                         }
@@ -62,11 +81,21 @@ public class EmailAndPasswordProvider extends Provider {
                         Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
 
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "createUserWithEmailAndPassword:failed", task.getException());
-                            if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-                                Message msg = mHandler.obtainMessage(USER_ALREADY_EXIST);
-                                mHandler.sendMessage(msg);
+
+                            Message message = null;
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthUserCollisionException e) {
+                                Log.d(TAG, "createUserWithEmailAndPassword:failed", task.getException());
+                                message = mHandler.obtainMessage(USER_ALREADY_EXIST);
+                            } catch (Exception e1) {
+                                Log.w(TAG, "createUserWithEmailAndPassword:failed", task.getException());
+                                message = mHandler.obtainMessage(UNKNOWN_EVENT);
+                            } finally {
+                                if (message != null)
+                                    mHandler.sendMessage(message);
                             }
+
                         }
                     }
                 });

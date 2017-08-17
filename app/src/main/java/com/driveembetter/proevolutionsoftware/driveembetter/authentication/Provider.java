@@ -17,7 +17,8 @@ import com.google.firebase.auth.FirebaseUser;
  * Created by alfredo on 17/08/17.
  */
 
-public abstract class Provider implements TypeMessages {
+public abstract class Provider
+        implements TypeMessages {
     private static String TAG = "Provider";
 
     protected Context mContext;
@@ -45,7 +46,7 @@ public abstract class Provider implements TypeMessages {
 
                     sendVerificationEmail();
 
-                    Message msg = mHandler.obtainMessage(USER_LOGIN);
+                    Message msg = mHandler.obtainMessage(USER_LOGIN_EMAIL_PSW);
                     mHandler.sendMessage(msg);
                 } else {
                     // User is signed out
@@ -58,8 +59,6 @@ public abstract class Provider implements TypeMessages {
             }
         };
     }
-
-
 
     public abstract void signIn(String email, String password);
 

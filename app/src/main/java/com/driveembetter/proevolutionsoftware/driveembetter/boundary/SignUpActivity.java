@@ -1,5 +1,6 @@
-package com.driveembetter.proevolutionsoftware.driveembetter;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,10 +14,11 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.EmailAndPasswordProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFactoryProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
-import com.driveembetter.proevolutionsoftware.driveembetter.exeption.ProviderNotFoundExeption;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -29,7 +31,7 @@ public class SignUpActivity
     private final static String TAG = "SignUpActivity";
 
     // Activity resources
-    private com.driveembetter.proevolutionsoftware.driveembetter.authentication.Provider Provider;
+    private EmailAndPasswordProvider emailAndPasswordProvider;
     private User user;
 
     // Activity widgets
@@ -38,6 +40,7 @@ public class SignUpActivity
     private EditText emailField;
     private EditText passwordField;
     private ProgressBar progressBar;
+    private Button backButton;
 
 
     @Override
@@ -59,14 +62,18 @@ public class SignUpActivity
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case USER_LOGIN:
-                    user = Provider.getUserInformation();
+                case USER_LOGIN_EMAIL_PSW:
+                    user = emailAndPasswordProvider.getUserInformation();
                     Log.d(TAG, "handleMessage:login");
                     if (user == null) {
                         Log.e(TAG, "handleMessage:error");
                         break;
                     }
                     Toast.makeText(SignUpActivity.this, "Signed in as: " + user.getEmail(), Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(SignUpActivity.this, MainFragmentActivity.class);
+                    startActivity(intent);
+                    finish();
                     break;
 
                 case USER_LOGOUT:
@@ -86,14 +93,9 @@ public class SignUpActivity
     };
 
     private void initResources() {
-        FactoryProvider factoryProvider = new FactoryProvider(this, this.handler);
+        SingletonFactoryProvider singletonFactoryProvider = new SingletonFactoryProvider(this, this.handler);
 
-        try {
-            this.Provider = factoryProvider.createProvider(1);
-        } catch (ProviderNotFoundExeption e) {
-            Log.e(TAG, "Invalid object type");
-            e.printStackTrace();
-        }
+        this.emailAndPasswordProvider = singletonFactoryProvider.getSingletonSingletonEmailAndPasswordProvider();
     }
 
     private void initWidget() {
@@ -102,52 +104,80 @@ public class SignUpActivity
         this.emailField = (EditText) findViewById(R.id.email_field);
         this.passwordField = (EditText) findViewById(R.id.password_field);
         this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        this.backButton = (Button) findViewById(R.id.back_button);
+
+        this.signUpButton.setOnClickListener(this);
+        this.backButton.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.sign_up_button:
 
+                break;
+
+            case R.id.back_button:
+                this.onBackPressed();
+                break;
+
+            default:
+                Log.w(TAG, "Unknown error in onClick");
         }
     }
 
     @Override
     public void onBackPressed() {
-
+        super.onBackPressed();
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        /*
         if (this.Provider != null)
             this.Provider.setStateListener();
+            */
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        /*
         if (this.Provider != null)
             this.Provider.removeStateListener();
+            */
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+        /*
         if (this.Provider != null)
             this.Provider.setStateListener();
+            */
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        /*
         if (this.Provider != null)
             this.Provider.setStateListener();
+            */
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        /*
         if (this.Provider != null)
             this.Provider.removeStateListener();
+            */
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

@@ -36,6 +36,17 @@ dependencies {
     // Google authentication
     compile 'com.google.android.gms:play-services-auth:10.0.1'
 
+    ////Twitter
+    // Include all the Twitter APIs
+    compile 'com.twitter.sdk.android:twitter:3.1.1'
+    // (Optional) Monetize using mopub
+    compile 'com.twitter.sdk.android:twitter-mopub:3.1.1'
+    compile 'com.twitter.sdk.android:twitter-core:3.1.1'
+    compile 'com.twitter.sdk.android:tweet-ui:3.1.1'
+    compile 'com.twitter.sdk.android:tweet-composer:3.1.1'
+    compile 'com.twitter.sdk.android:twitter-mopub:3.1.1'
+    ////
+
     testCompile 'junit:junit:4.12'
 }
 
