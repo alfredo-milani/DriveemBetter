@@ -43,14 +43,10 @@ public class LocationUpdater {
     Activity activity;
     private String android_id;
     private Geocoder geocoder;
-
-    //TODO
-    //---- I have to get these information from an other db------
-    /**/    private List veichlesArray;                      /**/
-    /**/    private String currentVeichle;                   /**/
-    /**/    private String veichleType;                      /**/
-    /**/    private String userImage;                        /**/
-    //-----------------------------------------------------------
+    private List veichlesArray;
+    private String currentVeichle;
+    private String veichleType;
+    private String userImage;
 
     LocationUpdater(Activity activity) {
         this.activity = activity;
@@ -125,8 +121,10 @@ public class LocationUpdater {
                     myRef = database.getReference(oldCountry + "/" + oldRegion + "/" + "ID_USER(from firebase)");
                     myRef.removeValue();
                     radicalChange = true;
-                    //TODO
-                    //If I delete, I have to regenerate lost information
+                }
+                if (radicalChange) {
+                    //I have to add old user information
+
                 }
                 oldCountry = country;
                 oldRegion = region;
