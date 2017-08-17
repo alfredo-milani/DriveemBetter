@@ -2,6 +2,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.entity;
 
 import android.net.Uri;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,6 +10,7 @@ import java.util.List;
  */
 
 public class User {
+    // Data from Firebase Authentication
     private String username;
     private String email;
     private Uri photoUrl;
@@ -17,11 +19,21 @@ public class User {
     private String providerId;
     private List providerData;
 
+    // User data to store in Firebase DB
+    private float currentUserLatitude;
+    private float currentUserLongitude;
+    private ArrayList<Veichle> veichleArrayList;
+
+    // Miscellaneous user data
+    private Veichle currentVeichle;
+
+    // Short constructor
     public User (String username, String email) {
         this.username = username;
         this.email = email;
     }
 
+    // Extended constructor
     public User (String username, String email, Uri photoUrl, String uid, boolean emailVerified, String providerId, List providerData) {
         this(username, email);
         this.photoUrl = photoUrl;
@@ -77,5 +89,45 @@ public class User {
 
     public void setProviderId(String providerId) {
         this.providerId = providerId;
+    }
+
+    public List getProviderData() {
+        return providerData;
+    }
+
+    public void setProviderData(List providerData) {
+        this.providerData = providerData;
+    }
+
+    public float getCurrentUserLatitude() {
+        return currentUserLatitude;
+    }
+
+    public void setCurrentUserLatitude(float currentUserLatitude) {
+        this.currentUserLatitude = currentUserLatitude;
+    }
+
+    public float getCurrentUserLongitude() {
+        return currentUserLongitude;
+    }
+
+    public void setCurrentUserLongitude(float currentUserLongitude) {
+        this.currentUserLongitude = currentUserLongitude;
+    }
+
+    public ArrayList<Veichle> getVeichleArrayList() {
+        return veichleArrayList;
+    }
+
+    public void setVeichleArrayList(ArrayList<Veichle> veichleArrayList) {
+        this.veichleArrayList = veichleArrayList;
+    }
+
+    public Veichle getCurrentVeichle() {
+        return currentVeichle;
+    }
+
+    public void setCurrentVeichle(Veichle currentVeichle) {
+        this.currentVeichle = currentVeichle;
     }
 }

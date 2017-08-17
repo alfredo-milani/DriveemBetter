@@ -7,7 +7,9 @@ import android.os.Handler;
  * Created by alfredo on 15/08/17.
  */
 
-public class TwitterProvider extends Authentication {
+public class TwitterProvider extends Provider {
+
+    private final static String TAG = "TwitterProvider";
 
     public TwitterProvider(Context context, Handler handler) {
         super(context, handler);

@@ -22,7 +22,7 @@
         app:layout_constraintVertical_bias="0.0">
 
         <EditText
-            android:id="@+id/editText4"
+            android:id="@+id/username_field"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="33dp"
@@ -34,11 +34,11 @@
             android:layout_centerHorizontal="true" />
 
         <EditText
-            android:id="@+id/editText5"
+            android:id="@+id/email_field"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/editText4"
-            android:layout_below="@+id/editText4"
+            android:layout_alignEnd="@+id/username_field"
+            android:layout_below="@+id/username_field"
             android:layout_marginTop="38dp"
             android:ems="10"
             android:hint="E-mail"
@@ -46,7 +46,7 @@
             android:inputType="textPersonName" />
 
         <EditText
-            android:id="@+id/editText8"
+            android:id="@+id/password_field"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="34dp"
@@ -54,8 +54,8 @@
             android:hint="Password"
             android:textColorHint="#ffffff"
             android:inputType="textPassword"
-            android:layout_below="@+id/editText5"
-            android:layout_alignStart="@+id/editText5" />
+            android:layout_below="@+id/email_field"
+            android:layout_alignStart="@+id/email_field" />
 
         <TextView
             android:id="@+id/textView3"
@@ -71,18 +71,28 @@
             android:textStyle="italic" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/sign_up_button"
             android:layout_width="250dp"
             android:layout_height="45dp"
-            android:layout_below="@+id/editText8"
+            android:layout_below="@+id/password_field"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="53dp"
+            android:alpha="0.7"
             android:background="@drawable/buttonshape_2"
             android:text="Sign Up"
-            android:alpha="0.7"
             android:textColor="@android:color/background_light"
             android:textColorHighlight="@android:color/background_light"
             android:textColorLink="@android:color/background_light" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/sign_up_button"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
+            android:visibility="gone" />
 
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

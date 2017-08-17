@@ -4,12 +4,14 @@ import android.content.Context;
 import android.os.Handler;
 
 /**
- * Created by alfredo on 14/08/17.
+ * Created by alfredo on 17/08/17.
  */
 
-class Facebook extends Authentication {
+public class FacebookProvider extends Provider {
 
-    public Facebook(Context context, Handler handler) {
+    private final static String TAG = "FacebookProvider";
+
+    public FacebookProvider(Context context, Handler handler) {
         super(context, handler);
     }
 
