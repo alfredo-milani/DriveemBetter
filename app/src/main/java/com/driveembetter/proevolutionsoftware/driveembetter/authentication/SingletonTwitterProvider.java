@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
@@ -30,6 +29,8 @@ public class SingletonTwitterProvider extends FirebaseProvider {
     private final static String TAG = "STwitterProvider";
     public static final int RC_SIGN_IN = 9000;
 
+    private static SingletonTwitterProvider singletonInstance;
+
     private SingletonTwitterProvider(Context context, Handler handler) {
         super(context, handler);
 
@@ -57,50 +58,22 @@ public class SingletonTwitterProvider extends FirebaseProvider {
 
 
 
-    // Fast and thread-safe Singleton
-    private static class SingletonTwitterProviderContainer {
-        @SuppressLint("StaticFieldLeak")
-        private static Context contextContainer;
-        private static Handler handlerContainer;
-
-        private SingletonTwitterProviderContainer(Context context, Handler handler) {
-            SingletonTwitterProvider.SingletonTwitterProviderContainer.contextContainer = context;
-            SingletonTwitterProvider.SingletonTwitterProviderContainer.handlerContainer = handler;
-        }
-
-        @SuppressLint("StaticFieldLeak")
-        private final static SingletonTwitterProvider singletonInstance =
-                new SingletonTwitterProvider(
-                        SingletonTwitterProvider.SingletonTwitterProviderContainer.contextContainer,
-                        SingletonTwitterProvider.SingletonTwitterProviderContainer.handlerContainer
-                );
-    }
-
-    public static SingletonTwitterProvider getSingletonInstance() {
-        if (SingletonTwitterProvider.SingletonTwitterProviderContainer.contextContainer == null ||
-                SingletonTwitterProvider.SingletonTwitterProviderContainer.handlerContainer == null) {
-            Log.w(
-                    TAG, "TwitterProvider:getSingleton: context: " +
-                            SingletonTwitterProvider.SingletonTwitterProviderContainer.contextContainer +
-                            " handler: " +
-                            SingletonTwitterProvider.SingletonTwitterProviderContainer.handlerContainer
-            );
-        }
-
-        return SingletonTwitterProvider.SingletonTwitterProviderContainer.singletonInstance;
-    }
-
-    public static SingletonTwitterProvider getSingletonInstance(Context context, Handler handler) {
-        if (context != null && handler != null) {
-            SingletonTwitterProvider.bindingProviderToUI(context, handler);
+    // Singleton
+    public static SingletonTwitterProvider getSingletonInstance(Context context, Handler handler){
+        if(SingletonTwitterProvider.singletonInstance == null){
+            synchronized (SingletonTwitterProvider.class) {
+                if(SingletonTwitterProvider.singletonInstance == null){
+                    SingletonTwitterProvider.singletonInstance =
+                            new SingletonTwitterProvider(context, handler);
+                }
+            }
         }
 
         return SingletonTwitterProvider.getSingletonInstance();
     }
 
-    private static void bindingProviderToUI(Context context, Handler handler) {
-        Log.d(TAG, "bindingProviderToUI: contex" + context + " handler: " + handler);
-        new SingletonTwitterProvider.SingletonTwitterProviderContainer(context, handler);
+    public static SingletonTwitterProvider getSingletonInstance() {
+        return SingletonTwitterProvider.singletonInstance;
     }
 
 

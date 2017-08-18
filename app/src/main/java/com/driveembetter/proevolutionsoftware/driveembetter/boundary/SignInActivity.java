@@ -31,6 +31,8 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import java.util.ArrayList;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.USER;
+
 
 public class SignInActivity
         extends AppCompatActivity
@@ -40,7 +42,6 @@ public class SignInActivity
 
     // Activity resources
     private ArrayList<FirebaseProvider> firebaseProviderArrayList;
-    private User user;
 
     // Activity widgets
     private Button signInButton;
@@ -73,9 +74,13 @@ public class SignInActivity
             super.handleMessage(msg);
             switch (msg.what) {
                 case USER_LOGIN:
+                    User user = firebaseProviderArrayList
+                            .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
+                            .getUserInformation();
                     Toast.makeText(SignInActivity.this, String.format(getString(R.string.sign_in_as), user.getEmail()), Toast.LENGTH_SHORT).show();
 
                     Intent mainFragmentIntent = new Intent(SignInActivity.this, MainFragmentActivity.class);
+                    mainFragmentIntent.putExtra(USER, user);
                     startActivity(mainFragmentIntent);
                     finish();
                     break;

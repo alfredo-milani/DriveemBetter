@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
@@ -24,6 +23,8 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
 
     private static final String TAG = "SEmailAndPswProvider";
 
+    private static SingletonEmailAndPasswordProvider singletonInstance;
+
     private SingletonEmailAndPasswordProvider(Context context, Handler handler) {
         super(context, handler);
 
@@ -32,51 +33,22 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
 
 
 
-    // Fast and thread-safe Singleton
-    private static class SingletonEmailAndPasswordProviderContainer {
-        @SuppressLint("StaticFieldLeak")
-        private static Context contextContainer;
-        private static Handler handlerContainer;
-
-        private SingletonEmailAndPasswordProviderContainer(Context context, Handler handler) {
-            Log.d(TAG, "CONTAINER: C: " + context + " H: " + handler);
-            SingletonEmailAndPasswordProviderContainer.contextContainer = context;
-            SingletonEmailAndPasswordProviderContainer.handlerContainer = handler;
-        }
-
-        @SuppressLint("StaticFieldLeak")
-        private final static SingletonEmailAndPasswordProvider singletonInstance =
-                new SingletonEmailAndPasswordProvider(
-                        SingletonEmailAndPasswordProviderContainer.contextContainer,
-                        SingletonEmailAndPasswordProviderContainer.handlerContainer
-                );
-    }
-
-    public static SingletonEmailAndPasswordProvider getSingletonInstance() {
-        if (SingletonEmailAndPasswordProviderContainer.contextContainer == null ||
-                SingletonEmailAndPasswordProviderContainer.handlerContainer == null) {
-            Log.w(
-                    TAG, "EmailAndPsw:getSingleton: context: " +
-                            SingletonEmailAndPasswordProviderContainer.contextContainer +
-                            " handler: " +
-                            SingletonEmailAndPasswordProviderContainer.handlerContainer
-            );
-        }
-
-        return SingletonEmailAndPasswordProviderContainer.singletonInstance;
-    }
-
-    public static SingletonEmailAndPasswordProvider getSingletonInstance(Context context, Handler handler) {
-        if (context != null && handler != null) {
-            SingletonEmailAndPasswordProvider.bindingProviderToUI(context, handler);
+    // Singleton
+    public static SingletonEmailAndPasswordProvider getSingletonInstance(Context context, Handler handler){
+        if(SingletonEmailAndPasswordProvider.singletonInstance == null){
+            synchronized (SingletonEmailAndPasswordProvider.class) {
+                if(SingletonEmailAndPasswordProvider.singletonInstance == null){
+                    SingletonEmailAndPasswordProvider.singletonInstance =
+                            new SingletonEmailAndPasswordProvider(context, handler);
+                }
+            }
         }
 
         return SingletonEmailAndPasswordProvider.getSingletonInstance();
     }
 
-    private static void bindingProviderToUI(Context context, Handler handler) {
-        Log.d(TAG, "bindingProviderToUI: contex: " + context + " handler: " + handler);
-        new SingletonEmailAndPasswordProviderContainer(context, handler);
+    public static SingletonEmailAndPasswordProvider getSingletonInstance() {
+        return SingletonEmailAndPasswordProvider.singletonInstance;
     }
 
 

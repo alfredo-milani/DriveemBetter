@@ -1,6 +1,8 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.entity;
 
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +11,9 @@ import java.util.List;
  * Created by alfredo on 10/08/17.
  */
 
-public class User {
+public class User implements Parcelable {
+    private static Parcelable.Creator<User> CREATOR;
+
     // Data from Firebase Authentication
     private String username;
     private String email;
@@ -129,5 +133,21 @@ public class User {
 
     public void setCurrentVeichle(Veichle currentVeichle) {
         this.currentVeichle = currentVeichle;
+    }
+
+
+
+    public User() {
+        super();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+
     }
 }

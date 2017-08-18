@@ -5,6 +5,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
  */
 
 public interface TypeMessages {
+    // Messages received by UI
     int UNKNOWN_EVENT = 0;
     int USER_LOGIN = 1;
     int USER_LOGOUT = 2;

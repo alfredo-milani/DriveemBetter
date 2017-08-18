@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +38,8 @@ public class SingletonGoogleProvider
     private static final String TAG = "SingletonGoogleProvider";
     public static final int RC_SIGN_IN = 9001;
 
+    private static SingletonGoogleProvider singletonInstance;
+
     private GoogleApiClient mGoogleApiClient;
     private boolean isAccntConnected = false;
 
@@ -63,50 +64,22 @@ public class SingletonGoogleProvider
 
 
 
-    // Fast and thread-safe Singleton
-    private static class SingletonGoogleProviderContainer {
-        @SuppressLint("StaticFieldLeak")
-        private static Context contextContainer;
-        private static Handler handlerContainer;
-
-        private SingletonGoogleProviderContainer(Context context, Handler handler) {
-            SingletonGoogleProvider.SingletonGoogleProviderContainer.contextContainer = context;
-            SingletonGoogleProvider.SingletonGoogleProviderContainer.handlerContainer = handler;
-        }
-
-        @SuppressLint("StaticFieldLeak")
-        private final static SingletonGoogleProvider singletonInstance =
-                new SingletonGoogleProvider(
-                        SingletonGoogleProvider.SingletonGoogleProviderContainer.contextContainer,
-                        SingletonGoogleProvider.SingletonGoogleProviderContainer.handlerContainer
-                );
-    }
-
-    public static SingletonGoogleProvider getSingletonInstance() {
-        if (SingletonGoogleProvider.SingletonGoogleProviderContainer.contextContainer == null ||
-                SingletonGoogleProvider.SingletonGoogleProviderContainer.handlerContainer == null) {
-            Log.w(
-                    TAG, "GoogleProvider:getSingleton: context: " +
-                            SingletonGoogleProvider.SingletonGoogleProviderContainer.contextContainer +
-                            " handler: " +
-                            SingletonGoogleProvider.SingletonGoogleProviderContainer.handlerContainer
-            );
-        }
-
-        return SingletonGoogleProvider.SingletonGoogleProviderContainer.singletonInstance;
-    }
-
+    // Singleton
     public static SingletonGoogleProvider getSingletonInstance(Context context, Handler handler) {
-        if (context != null && handler != null) {
-            SingletonGoogleProvider.bindingProviderToUI(context, handler);
+        if(SingletonGoogleProvider.singletonInstance == null){
+            synchronized (SingletonGoogleProvider.class) {
+                if(SingletonGoogleProvider.singletonInstance == null){
+                    SingletonGoogleProvider.singletonInstance =
+                            new SingletonGoogleProvider(context, handler);
+                }
+            }
         }
 
         return SingletonGoogleProvider.getSingletonInstance();
     }
 
-    private static void bindingProviderToUI(Context context, Handler handler) {
-        Log.d(TAG, "bindingProviderToUI: contex" + context + " handler: " + handler);
-        new SingletonGoogleProvider.SingletonGoogleProviderContainer(context, handler);
+    public static SingletonGoogleProvider getSingletonInstance() {
+        return SingletonGoogleProvider.singletonInstance;
     }
 
 
