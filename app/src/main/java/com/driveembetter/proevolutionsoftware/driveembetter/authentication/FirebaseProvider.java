@@ -20,8 +20,8 @@ public abstract class FirebaseProvider
     private static String TAG = "FirebaseProvider";
 
     // Link to UI
-    protected final Context mContext;
-    protected final Handler mHandler;
+    protected Context mContext;
+    protected Handler mHandler;
 
     // Variables for authentication with Firebase platoform
     protected FirebaseAuth mAuth;
@@ -101,6 +101,18 @@ public abstract class FirebaseProvider
     public void removeStateListener() {
         if (this.mAuth != null && this.mAuthListener != null) {
             this.mAuth.removeAuthStateListener(this.mAuthListener);
+        }
+    }
+
+    public void changeContext(Context context) {
+        if (context != null) {
+            this.mContext = context;
+        }
+    }
+
+    public void changeHandler(Handler handler) {
+        if (handler != null) {
+            this.mHandler = handler;
         }
     }
 }

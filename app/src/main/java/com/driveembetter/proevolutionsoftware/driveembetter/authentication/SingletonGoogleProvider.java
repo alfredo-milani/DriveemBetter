@@ -46,7 +46,7 @@ public class SingletonGoogleProvider
     private boolean isAccntConnected = false;
     private GoogleSignInAccount account;
 
-    private SingletonGoogleProvider(Context context, Handler handler) {
+    public SingletonGoogleProvider(Context context, Handler handler) {
         super(context, handler);
 
         Log.d(TAG, "Instantiated SingletonGoogleProvider.\nContext: " + this.mContext + " Handler: " + this.mContext);
@@ -89,16 +89,15 @@ public class SingletonGoogleProvider
 
     public void activityResult(int requestCode, int resultCode, Intent data) {
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...); IN SignInActivity
-        Log.d(TAG, "SingletonGoogleProvider:activityResult");
         if (requestCode == RC_SIGN_IN) {
+            Log.d(TAG, "SingletonGoogleProvider:activityResult RC: " + requestCode);
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if (result.isSuccess()) {
+            this.account = result.getSignInAccount();
+            if (result.isSuccess() && this.account != null) {
                 // Google Sign In was successful, authenticate with Firebase
-                this.account = result.getSignInAccount();
                 Log.d(TAG, "Google auth: user: " + account.getEmail());
                 Message message = mHandler.obtainMessage(USER_LOGIN_GOOGLE);
                 mHandler.sendMessage(message);
-
                 firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed, update UI appropriately

@@ -21,4 +21,6 @@
     <string name="verification_email_failure">Errore durante l\'invio dell\'email di verifica. Riprova più tardi.</string>
     <string name="email_not_verified">Email non ancora verificata. Controlla il tuo indirizzo email e segui il link per attivare il tuo account.</string>
     <string name="sign_in_as">Accesso effettuato come: %s.</string>
+    <string name="bad_formatted_email">L\'indirizzo email è mal formattato.</string>
+    <string name="password_invalid">La password immessa è invalida: la password deve avere almeno 6 caratteri.</string>
 </resources>

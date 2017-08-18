@@ -14,6 +14,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -115,6 +116,16 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
     }
 
     public void signUp(String email, String password) {
+        if (TextUtils.isEmpty(email)) {
+            Message msg = this.mHandler.obtainMessage(EMAIL_REQUIRED);
+            this.mHandler.sendMessage(msg);
+            return;
+        } else if (TextUtils.isEmpty(password)) {
+            Message msg = this.mHandler.obtainMessage(PASSWORD_REQUIRED);
+            this.mHandler.sendMessage(msg);
+            return;
+        }
+
         this.mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener((Activity) mContext, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -129,6 +140,12 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
                             } catch (FirebaseAuthUserCollisionException e) {
                                 Log.d(TAG, "createUserWithEmailAndPassword:failed", task.getException());
                                 message = mHandler.obtainMessage(USER_ALREADY_EXIST);
+                            } catch (FirebaseAuthWeakPasswordException e3) {
+                                Log.d(TAG, "createUserWithEmailAndPassword:failed", task.getException());
+                                message = mHandler.obtainMessage(PASSWORD_INVALID);
+                            } catch (FirebaseAuthInvalidCredentialsException e2) {
+                                Log.d(TAG, "createUserWithEmailAndPassword:failed", task.getException());
+                                message = mHandler.obtainMessage(BAD_FORMATTED_EMAIL);
                             } catch (Exception e1) {
                                 Log.w(TAG, "createUserWithEmailAndPassword:failed", task.getException());
                                 message = mHandler.obtainMessage(UNKNOWN_EVENT);

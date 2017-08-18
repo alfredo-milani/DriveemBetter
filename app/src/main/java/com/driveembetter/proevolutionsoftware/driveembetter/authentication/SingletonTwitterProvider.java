@@ -3,6 +3,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -33,7 +34,7 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 public class SingletonTwitterProvider extends FirebaseProvider {
 
     private final static String TAG = "STwitterProvider";
-    public static final int RC_SIGN_IN = 9000;
+    public static final int RC_SIGN_IN = 140;
 
     private TwitterSession session;
 
@@ -75,8 +76,6 @@ public class SingletonTwitterProvider extends FirebaseProvider {
         return SingletonTwitterProvider.singletonInstance;
     }
 
-
-
     private void handleTwitterSession(TwitterSession session) {
         Log.d(TAG, "handleTwitterSession:" + session);
 
@@ -104,24 +103,16 @@ public class SingletonTwitterProvider extends FirebaseProvider {
     }
 
     public void setCallback(TwitterLoginButton twitterLoginButton) {
-        /*
-        case R.id.twitter_login_button:
-        this.progressBar.setVisibility(View.VISIBLE);
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.TWITTER_PROVIDER)
-                .signIn(null, null);
-        this.progressBar.setVisibility(View.GONE);
-        break;
-        */
-
         if (twitterLoginButton != null) {
             twitterLoginButton.setCallback(new Callback<TwitterSession>() {
                 @Override
                 public void success(Result<TwitterSession> result) {
                     Log.d(TAG, "twitterLogin:success" + result);
 
-                    session = result.data;
+                    Message message = mHandler.obtainMessage(USER_LOGIN_TWITTER);
+                    mHandler.sendMessage(message);
 
+                    session = result.data;
                     handleTwitterSession(result.data);
 
                     TwitterSession session = TwitterCore.getInstance().getSessionManager().getActiveSession();
@@ -135,6 +126,16 @@ public class SingletonTwitterProvider extends FirebaseProvider {
                 @Override
                 public void failure(TwitterException exception) {
                     Log.w(TAG, "twitterLogin:failure", exception);
+
+                    TwitterConfig config = new TwitterConfig.Builder(mContext)
+                            .logger(new DefaultLogger(Log.DEBUG))
+                            .twitterAuthConfig(new TwitterAuthConfig(
+                                    mContext.getString(R.string.com_twitter_sdk_android_CONSUMER_KEY),
+                                    mContext.getString(R.string.com_twitter_sdk_android_CONSUMER_SECRET)
+                            ))
+                            .debug(true)
+                            .build();
+                    Twitter.initialize(config);
                 }
             });
         }

@@ -12,6 +12,7 @@ import java.util.List;
  */
 
 public class User implements Parcelable {
+    // TODO utilizza l'interfaccia Parcelable
     private static Parcelable.Creator<User> CREATOR;
 
     // Data from Firebase Authentication

@@ -19,6 +19,8 @@ public interface TypeMessages {
     int EMAIL_REQUIRED = 5;
     int PASSWORD_REQUIRED = 6;
     int INVALID_CREDENTIALS = 7;
+    int BAD_FORMATTED_EMAIL = 15;
+    int PASSWORD_INVALID = 16;
     int INVALID_USER = 8;
     int VERIFICATION_EMAIL_SENT = 9;
     int VERIFICATION_EMAIL_NOT_SENT = 10;

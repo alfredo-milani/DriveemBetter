@@ -23,4 +23,6 @@
     <string name="verification_email_failure">Verification email not sent due an error. Retry later.</string>
     <string name="email_not_verified">Email not yet verified. Check you email address and follow the link to activate your account.</string>
     <string name="sign_in_as">Signed in as: %s.</string>
+    <string name="bad_formatted_email">The email address is badly formatted.</string>
+    <string name="password_invalid">The given password is invalid: password should be at least 6 characters.</string>
 </resources>

@@ -37,6 +37,7 @@ public class SignInActivity
 
     // Activity resources
     private ArrayList<FirebaseProvider> firebaseProviderArrayList;
+    private SignUpActivity signUpActivity;
 
     // Activity widgets
     private Button signInButton;
@@ -69,6 +70,7 @@ public class SignInActivity
             super.handleMessage(msg);
             switch (msg.what) {
                 case USER_LOGIN:
+                    Log.d(TAG, "handleMessage: LOG IN");
                     break;
 
                 case USER_LOGIN_EMAIL_PSW:
@@ -142,8 +144,8 @@ public class SignInActivity
     private void startActivityWithDatas(String key, Parcelable value) {
         Intent mainFragmentIntent = new Intent(SignInActivity.this, MainFragmentActivity.class);
         mainFragmentIntent.putExtra(key, value);
-        startActivity(mainFragmentIntent);
-        finish();
+        this.startActivity(mainFragmentIntent);
+        this.finish();
     }
 
     private void initWidget() {
@@ -165,6 +167,8 @@ public class SignInActivity
     private void initResources() {
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.firebaseProviderArrayList = factoryProviders.createAllProviders();
+
+        this.signUpActivity = new SignUpActivity();
     }
 
     @Override
@@ -205,8 +209,6 @@ public class SignInActivity
             // Sign in with Google
             case R.id.sign_in_google_button:
                 FirebaseProvider firebaseGoogleProvider = this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER);
-                firebaseGoogleProvider.initStateListener();
-                firebaseGoogleProvider.setStateListener();
                 this.progressBar.setVisibility(View.VISIBLE);
                 firebaseGoogleProvider.signIn(null, null);
                 this.progressBar.setVisibility(View.GONE);
@@ -228,6 +230,8 @@ public class SignInActivity
         super.onBackPressed();
     }
 
+
+    // TODO imposta/togli listeners per autenticazione una volta ripresa dalla sospensione
     @Override
     public void onStart() {
         super.onStart();
@@ -246,6 +250,10 @@ public class SignInActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        this.firebaseProviderArrayList
+                .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
+                .changeHandler(this.handler);
     }
 
     @Override

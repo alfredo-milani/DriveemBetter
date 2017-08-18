@@ -18,7 +18,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonEmailAndPasswordProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -32,7 +31,6 @@ public class SignUpActivity
 
     // Activity resources
     private SingletonEmailAndPasswordProvider singletonEmailAndPasswordProvider;
-    private User user;
 
     // Activity widgets
     private Button signUpButton;
@@ -92,6 +90,16 @@ public class SignUpActivity
                     Toast.makeText(SignUpActivity.this, getString(R.string.verification_email_failure), Toast.LENGTH_LONG).show();
                     break;
 
+                case BAD_FORMATTED_EMAIL:
+                    Log.d(TAG, "handleMessage:bad_formatted_email");
+                    Toast.makeText(SignUpActivity.this, getString(R.string.bad_formatted_email), Toast.LENGTH_LONG).show();
+                    break;
+
+                case PASSWORD_INVALID:
+                    Log.d(TAG, "handleMessage:invalid_password");
+                    Toast.makeText(SignUpActivity.this, getString(R.string.password_invalid), Toast.LENGTH_LONG).show();
+                    break;
+
                 default:
                     Log.w(TAG, "handleMessage:error");
             }
@@ -103,6 +111,8 @@ public class SignUpActivity
 
         this.singletonEmailAndPasswordProvider =
                 factoryProviders.createEmailAndPasswordProvider();
+        this.singletonEmailAndPasswordProvider
+                .changeHandler(this.handler);
     }
 
     private void initWidget() {
