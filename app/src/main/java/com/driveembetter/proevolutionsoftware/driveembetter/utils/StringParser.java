@@ -1,7 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.Utils;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 /**
  * Created by matti on 16/08/2017.

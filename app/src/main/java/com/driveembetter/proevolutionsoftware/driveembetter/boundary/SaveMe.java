@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.Manifest;
 import android.content.Context;
@@ -25,14 +25,16 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.Utils.StringParser;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
+import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -106,7 +108,7 @@ public class SaveMe extends Fragment {
         }
         final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
-        locationUpdater = ((MainActivity)getActivity()).getLocationUpdater();
+        locationUpdater = ((MainFragmentActivity)getActivity()).getLocationUpdater();
         locationManager = locationUpdater.getLocationManager();
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
@@ -144,6 +146,7 @@ public class SaveMe extends Fragment {
 
                             Marker userMarker = googleMap.addMarker(new MarkerOptions()
                                     .position(userPos)
+                                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_car))
                                     .title(user.toString()));
                             markerPool.put(user, userMarker);
                         }
@@ -273,17 +276,9 @@ public class SaveMe extends Fragment {
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
                 googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                // For showing a move to my location button
-               /* if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(),
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            1);
-                }
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(),
-                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                            1);
-                }*/
+                googleMap.getUiSettings().setMapToolbarEnabled(false);
+                googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+
                 if (ContextCompat.checkSelfPermission(getContext(),
                         android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(getContext(),

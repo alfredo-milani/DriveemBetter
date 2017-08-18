@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter;
+package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 import android.*;
 import android.app.Activity;
@@ -9,8 +9,10 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
@@ -21,6 +23,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -47,8 +54,12 @@ public class LocationUpdater {
     private String currentVeichle;
     private String veichleType;
     private String userImage;
+    private TextToSpeech tts;
+    private float currentSpeed;
+    private int test;
+    private URL url;
 
-    LocationUpdater(Activity activity) {
+    public LocationUpdater(Activity activity) {
         this.activity = activity;
     }
 
@@ -77,6 +88,12 @@ public class LocationUpdater {
         final Geocoder geocoder;
         geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
 
+        tts = new TextToSpeech(activity, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+            }
+        });
+
 
         android_id = Settings.Secure.getString(activity.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
@@ -98,6 +115,17 @@ public class LocationUpdater {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+
+                test++;
+
+                //we have to check the driver speed
+                if (location.hasSpeed()) {
+                    if (test >=10) {
+                        currentSpeed = location.getSpeed();
+                        speak("La tua velocità è di: " + (int) currentSpeed + "chilometri orari");
+                        test = 0;
+                    }
+                }
 
                 List<Address> addresses;
                 latitude = location.getLatitude();
@@ -150,4 +178,13 @@ public class LocationUpdater {
         };
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
     }
+
+    private void speak(String text){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+        }else{
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+        }
+    }
+
 }
