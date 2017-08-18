@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
@@ -7,7 +8,6 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,14 +20,66 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
  * Created by alfredo on 17/08/17.
  */
 
-public class EmailAndPasswordProvider extends FirebaseProvider {
+public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
 
-    private static final String TAG = "EmailAndPswProvider";
+    private static final String TAG = "SEmailAndPswProvider";
 
-    public EmailAndPasswordProvider(Context context, Handler handler) {
+    private SingletonEmailAndPasswordProvider(Context context, Handler handler) {
         super(context, handler);
-        Log.d(TAG, "Instantiated FirebaseProvider class");
+
+        Log.d(TAG, "Instantiated SingleEmailAndPasswordProvider.\nContext: " + this.mContext + " Handler: " + this.mContext);
     }
+
+
+
+    // Fast and thread-safe Singleton
+    private static class SingletonEmailAndPasswordProviderContainer {
+        @SuppressLint("StaticFieldLeak")
+        private static Context contextContainer;
+        private static Handler handlerContainer;
+
+        private SingletonEmailAndPasswordProviderContainer(Context context, Handler handler) {
+            Log.d(TAG, "CONTAINER: C: " + context + " H: " + handler);
+            SingletonEmailAndPasswordProviderContainer.contextContainer = context;
+            SingletonEmailAndPasswordProviderContainer.handlerContainer = handler;
+        }
+
+        @SuppressLint("StaticFieldLeak")
+        private final static SingletonEmailAndPasswordProvider singletonInstance =
+                new SingletonEmailAndPasswordProvider(
+                        SingletonEmailAndPasswordProviderContainer.contextContainer,
+                        SingletonEmailAndPasswordProviderContainer.handlerContainer
+                );
+    }
+
+    public static SingletonEmailAndPasswordProvider getSingletonInstance() {
+        if (SingletonEmailAndPasswordProviderContainer.contextContainer == null ||
+                SingletonEmailAndPasswordProviderContainer.handlerContainer == null) {
+            Log.w(
+                    TAG, "EmailAndPsw:getSingleton: context: " +
+                            SingletonEmailAndPasswordProviderContainer.contextContainer +
+                            " handler: " +
+                            SingletonEmailAndPasswordProviderContainer.handlerContainer
+            );
+        }
+
+        return SingletonEmailAndPasswordProviderContainer.singletonInstance;
+    }
+
+    public static SingletonEmailAndPasswordProvider getSingletonInstance(Context context, Handler handler) {
+        if (context != null && handler != null) {
+            SingletonEmailAndPasswordProvider.bindingProviderToUI(context, handler);
+        }
+
+        return SingletonEmailAndPasswordProvider.getSingletonInstance();
+    }
+
+    private static void bindingProviderToUI(Context context, Handler handler) {
+        Log.d(TAG, "bindingProviderToUI: contex: " + context + " handler: " + handler);
+        new SingletonEmailAndPasswordProviderContainer(context, handler);
+    }
+
+
 
     @Override
     public void signIn(String email, String password) {
@@ -49,7 +101,7 @@ public class EmailAndPasswordProvider extends FirebaseProvider {
 
                         if (!task.isSuccessful()) {
 
-                            Message message = null;
+                            Message message;
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthInvalidCredentialsException e) {
@@ -61,16 +113,33 @@ public class EmailAndPasswordProvider extends FirebaseProvider {
                             } catch (Exception e1) {
                                 Log.w(TAG, "signInWithEmail:failed", task.getException());
                                 message = mHandler.obtainMessage(UNKNOWN_EVENT);
-                            } finally {
-                                if (message != null)
-                                    mHandler.sendMessage(message);
                             }
+                            if (message != null)
+                                mHandler.sendMessage(message);
 
                         } else {
                             checkIfEmailVerified();
                         }
                     }
                 });
+    }
+
+    private void checkIfEmailVerified() {
+        this.getCurrentFirebaseUser();
+        Message message;
+        if (this.firebaseUser.isEmailVerified()) {
+            // User verified
+            Log.d(TAG, "checkIfEmailVerified:success");
+            message = this.mHandler.obtainMessage(USER_LOGIN);
+        } else {
+            // Email is not verified
+            Log.d(TAG, "checkIfEmailVerified:failure");
+            message = this.mHandler.obtainMessage(EMAIL_NOT_VERIFIED);
+            // Log out user
+            this.signOut();
+        }
+        if (message != null)
+            this.mHandler.sendMessage(message);
     }
 
     public void signUp(String email, String password) {
@@ -82,7 +151,7 @@ public class EmailAndPasswordProvider extends FirebaseProvider {
 
                         if (!task.isSuccessful()) {
 
-                            Message message = null;
+                            Message message;
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthUserCollisionException e) {
@@ -91,33 +160,15 @@ public class EmailAndPasswordProvider extends FirebaseProvider {
                             } catch (Exception e1) {
                                 Log.w(TAG, "createUserWithEmailAndPassword:failed", task.getException());
                                 message = mHandler.obtainMessage(UNKNOWN_EVENT);
-                            } finally {
-                                if (message != null)
-                                    mHandler.sendMessage(message);
                             }
+                            if (message != null)
+                                mHandler.sendMessage(message);
 
+                        } else {
+                            sendVerificationEmail();
                         }
                     }
                 });
-    }
-
-    @Override
-    public void signOut() {
-        this.mAuth.signOut();
-    }
-
-    private void checkIfEmailVerified() {
-        this.getCurrentFirebaseUser();
-        if (this.firebaseUser.isEmailVerified()) {
-            // User verified
-            Log.d(TAG, "checkIfEmailVerified:success");
-        } else {
-            // Email is not verified, so just prompt the message to the user and restart this activity.
-            Log.d(TAG, "checkIfEmailVerified:failure");
-            Toast.makeText(this.mContext, "Email not verified: " + this.firebaseUser.getEmail(), Toast.LENGTH_SHORT).show();
-            // Log out user
-            this.signOut();
-        }
     }
 
     private void sendVerificationEmail() {
@@ -127,18 +178,24 @@ public class EmailAndPasswordProvider extends FirebaseProvider {
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        Message message;
                         if (task.isSuccessful()) {
                             // Email sent
                             Log.d(TAG, "sendVerificationEmail:success");
-                            Toast.makeText(mContext, "Verification email sent", Toast.LENGTH_SHORT).show();
-                            // After email is sent just logout the user
-                            signOut();
+                            message = mHandler.obtainMessage(VERIFICATION_EMAIL_SENT);
                         } else {
-                            // Email not sent, so display message
+                            // Email not sent
                             Log.d(TAG, "sendVerificationEmail:failure");
-                            Toast.makeText(mContext, "Verification email not sent", Toast.LENGTH_SHORT).show();
+                            message = mHandler.obtainMessage(VERIFICATION_EMAIL_NOT_SENT);
                         }
+                        mHandler.sendMessage(message);
+                        signOut();
                     }
                 });
+    }
+
+    @Override
+    public void signOut() {
+        this.mAuth.signOut();
     }
 }

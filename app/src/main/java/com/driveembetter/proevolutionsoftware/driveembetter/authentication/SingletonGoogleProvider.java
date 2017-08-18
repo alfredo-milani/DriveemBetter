@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -30,21 +31,23 @@ import com.google.firebase.auth.GoogleAuthProvider;
  * Created by alfredo on 17/08/17.
  */
 
-public class GoogleProvider
+public class SingletonGoogleProvider
         extends FirebaseProvider
         implements
         GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
-    private static final String TAG = "GoogleProvider";
-    private static final int RC_SIGN_IN = 9001;
+    private static final String TAG = "SingletonGoogleProvider";
+    public static final int RC_SIGN_IN = 9001;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean isAccntConnected = false;
 
-    public GoogleProvider(Context context, Handler handler) {
+    private SingletonGoogleProvider(Context context, Handler handler) {
         super(context, handler);
 
-        // Configure Google Sign In
+        Log.d(TAG, "Instantiated SingletonGoogleProvider.\nContext: " + this.mContext + " Handler: " + this.mContext);
+
+        // Configure Google sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(this.mContext.getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -58,9 +61,59 @@ public class GoogleProvider
                 .build();
     }
 
+
+
+    // Fast and thread-safe Singleton
+    private static class SingletonGoogleProviderContainer {
+        @SuppressLint("StaticFieldLeak")
+        private static Context contextContainer;
+        private static Handler handlerContainer;
+
+        private SingletonGoogleProviderContainer(Context context, Handler handler) {
+            SingletonGoogleProvider.SingletonGoogleProviderContainer.contextContainer = context;
+            SingletonGoogleProvider.SingletonGoogleProviderContainer.handlerContainer = handler;
+        }
+
+        @SuppressLint("StaticFieldLeak")
+        private final static SingletonGoogleProvider singletonInstance =
+                new SingletonGoogleProvider(
+                        SingletonGoogleProvider.SingletonGoogleProviderContainer.contextContainer,
+                        SingletonGoogleProvider.SingletonGoogleProviderContainer.handlerContainer
+                );
+    }
+
+    public static SingletonGoogleProvider getSingletonInstance() {
+        if (SingletonGoogleProvider.SingletonGoogleProviderContainer.contextContainer == null ||
+                SingletonGoogleProvider.SingletonGoogleProviderContainer.handlerContainer == null) {
+            Log.w(
+                    TAG, "GoogleProvider:getSingleton: context: " +
+                            SingletonGoogleProvider.SingletonGoogleProviderContainer.contextContainer +
+                            " handler: " +
+                            SingletonGoogleProvider.SingletonGoogleProviderContainer.handlerContainer
+            );
+        }
+
+        return SingletonGoogleProvider.SingletonGoogleProviderContainer.singletonInstance;
+    }
+
+    public static SingletonGoogleProvider getSingletonInstance(Context context, Handler handler) {
+        if (context != null && handler != null) {
+            SingletonGoogleProvider.bindingProviderToUI(context, handler);
+        }
+
+        return SingletonGoogleProvider.getSingletonInstance();
+    }
+
+    private static void bindingProviderToUI(Context context, Handler handler) {
+        Log.d(TAG, "bindingProviderToUI: contex" + context + " handler: " + handler);
+        new SingletonGoogleProvider.SingletonGoogleProviderContainer(context, handler);
+    }
+
+
+
     public void activityResult(int requestCode, int resultCode, Intent data) {
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...); IN SignInActivity
-        Log.d(TAG, "GoogleProvider:activityResult");
+        Log.d(TAG, "SingletonGoogleProvider:activityResult");
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
@@ -98,7 +151,10 @@ public class GoogleProvider
 
     @Override
     public void signIn(String email, String password) {
-        // TODO check email && password must be null
+        if (email != null || password != null) {
+            Log.w(TAG, "Google:signIn: received argument: email: " + email + " password: " + password);
+        }
+
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(this.mGoogleApiClient);
         ((Activity) this.mContext).startActivityForResult(signInIntent, RC_SIGN_IN);
     }

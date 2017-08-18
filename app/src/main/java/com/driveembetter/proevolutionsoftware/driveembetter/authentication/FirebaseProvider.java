@@ -40,7 +40,9 @@ public abstract class FirebaseProvider
 
     public boolean isFirebaseSignIn() {
         this.getCurrentFirebaseUser();
-        return this.firebaseSignIn = this.firebaseUser != null;
+        return this.firebaseSignIn =
+                this.firebaseUser != null &&
+                this.firebaseUser.isEmailVerified();
     }
 
     public abstract void signOut();
@@ -101,7 +103,4 @@ public abstract class FirebaseProvider
             this.mAuth.removeAuthStateListener(this.mAuthListener);
         }
     }
-
-    // TODO: -vedi se è possibile inviare 1 sola email di verifica;
-    // TODO: -segui il flusso delle chiamate dei metodi dai Log... troppi toast visualizzati...
 }

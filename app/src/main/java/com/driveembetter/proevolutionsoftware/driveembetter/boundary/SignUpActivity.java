@@ -15,8 +15,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.EmailAndPasswordProvider;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFactoryProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonEmailAndPasswordProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 
@@ -31,7 +31,7 @@ public class SignUpActivity
     private final static String TAG = "SignUpActivity";
 
     // Activity resources
-    private EmailAndPasswordProvider emailAndPasswordProvider;
+    private SingletonEmailAndPasswordProvider singletonEmailAndPasswordProvider;
     private User user;
 
     // Activity widgets
@@ -41,6 +41,7 @@ public class SignUpActivity
     private EditText passwordField;
     private ProgressBar progressBar;
     private Button backButton;
+
 
 
     @Override
@@ -62,40 +63,46 @@ public class SignUpActivity
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case USER_LOGIN_EMAIL_PSW:
-                    user = emailAndPasswordProvider.getUserInformation();
-                    Log.d(TAG, "handleMessage:login");
-                    if (user == null) {
-                        Log.e(TAG, "handleMessage:error");
-                        break;
-                    }
-                    Toast.makeText(SignUpActivity.this, "Signed in as: " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                case USER_ALREADY_EXIST:
+                    Log.d(TAG, "handleMessage:user_already_exist");
+                    Toast.makeText(SignUpActivity.this, "User already exist. Try with another email address", Toast.LENGTH_LONG).show();
+                    break;
 
-                    Intent intent = new Intent(SignUpActivity.this, MainFragmentActivity.class);
-                    startActivity(intent);
+                case EMAIL_REQUIRED:
+                    Log.d(TAG, "handleMessage:email_required");
+                    emailField.setError(getString(R.string.field_required));
+                    break;
+
+                case PASSWORD_REQUIRED:
+                    Log.d(TAG, "handleMessage:password_required");
+                    passwordField.setError(getString(R.string.field_required));
+                    break;
+
+                case VERIFICATION_EMAIL_SENT:
+                    Log.d(TAG, "handleMessage:verification_email_sent");
+                    Toast.makeText(SignUpActivity.this, String.format(getString(R.string.verification_email_success), getString(R.string.app_name)), Toast.LENGTH_LONG).show();
+
+                    Intent signInIntent = new Intent(SignUpActivity.this, SignInActivity.class);
+                    startActivity(signInIntent);
                     finish();
                     break;
 
-                case USER_LOGOUT:
-                    Log.d(TAG, "handleMessage:logout");
-                    Toast.makeText(SignUpActivity.this, "Signing out", Toast.LENGTH_SHORT).show();
-                    break;
-
-                case USER_ALREADY_EXIST:
-                    Log.d(TAG, "handleMessage:user_already_exist");
-                    Toast.makeText(SignUpActivity.this, "User already exist. Try with another email address", Toast.LENGTH_SHORT).show();
+                case VERIFICATION_EMAIL_NOT_SENT:
+                    Log.d(TAG, "handleMessage:verification_email_not_sent");
+                    Toast.makeText(SignUpActivity.this, getString(R.string.verification_email_failure), Toast.LENGTH_LONG).show();
                     break;
 
                 default:
-                    Log.e(TAG, "handleMessage:error");
+                    Log.w(TAG, "handleMessage:error");
             }
         }
     };
 
     private void initResources() {
-        SingletonFactoryProvider singletonFactoryProvider = new SingletonFactoryProvider(this, this.handler);
+        FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
 
-        this.emailAndPasswordProvider = singletonFactoryProvider.getSingletonSingletonEmailAndPasswordProvider();
+        this.singletonEmailAndPasswordProvider =
+                factoryProviders.createEmailAndPasswordProvider();
     }
 
     private void initWidget() {
@@ -114,7 +121,12 @@ public class SignUpActivity
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.sign_up_button:
-
+                this.progressBar.setVisibility(View.VISIBLE);
+                this.singletonEmailAndPasswordProvider.signUp(
+                        this.emailField.getText().toString(),
+                        this.passwordField.getText().toString()
+                );
+                this.progressBar.setVisibility(View.GONE);
                 break;
 
             case R.id.back_button:
@@ -134,46 +146,26 @@ public class SignUpActivity
     @Override
     public void onStart() {
         super.onStart();
-        /*
-        if (this.FirebaseProvider != null)
-            this.FirebaseProvider.setStateListener();
-            */
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        /*
-        if (this.FirebaseProvider != null)
-            this.FirebaseProvider.removeStateListener();
-            */
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        /*
-        if (this.FirebaseProvider != null)
-            this.FirebaseProvider.setStateListener();
-            */
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        /*
-        if (this.FirebaseProvider != null)
-            this.FirebaseProvider.setStateListener();
-            */
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        /*
-        if (this.FirebaseProvider != null)
-            this.FirebaseProvider.removeStateListener();
-            */
     }
 
     @Override

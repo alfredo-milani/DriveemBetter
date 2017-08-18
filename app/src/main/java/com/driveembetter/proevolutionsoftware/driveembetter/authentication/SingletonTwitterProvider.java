@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
@@ -24,14 +25,15 @@ import com.twitter.sdk.android.core.TwitterSession;
  * Created by alfredo on 15/08/17.
  */
 
-public class TwitterProvider extends FirebaseProvider {
+public class SingletonTwitterProvider extends FirebaseProvider {
 
-    private final static String TAG = "TwitterProvider";
+    private final static String TAG = "STwitterProvider";
+    public static final int RC_SIGN_IN = 9000;
 
-    // TODO apri app --> onBackPressed --> riapri con tasto home --> funziona il tasto Twitter
-
-    public TwitterProvider(Context context, Handler handler) {
+    private SingletonTwitterProvider(Context context, Handler handler) {
         super(context, handler);
+
+        Log.d(TAG, "Instantiated SingletonTwitterProvider.\nContext: " + this.mContext + " Handler: " + this.mContext);
 
         // Configure Twitter SDK
         /*
@@ -52,6 +54,56 @@ public class TwitterProvider extends FirebaseProvider {
                 .build();
         Twitter.initialize(config);
     }
+
+
+
+    // Fast and thread-safe Singleton
+    private static class SingletonTwitterProviderContainer {
+        @SuppressLint("StaticFieldLeak")
+        private static Context contextContainer;
+        private static Handler handlerContainer;
+
+        private SingletonTwitterProviderContainer(Context context, Handler handler) {
+            SingletonTwitterProvider.SingletonTwitterProviderContainer.contextContainer = context;
+            SingletonTwitterProvider.SingletonTwitterProviderContainer.handlerContainer = handler;
+        }
+
+        @SuppressLint("StaticFieldLeak")
+        private final static SingletonTwitterProvider singletonInstance =
+                new SingletonTwitterProvider(
+                        SingletonTwitterProvider.SingletonTwitterProviderContainer.contextContainer,
+                        SingletonTwitterProvider.SingletonTwitterProviderContainer.handlerContainer
+                );
+    }
+
+    public static SingletonTwitterProvider getSingletonInstance() {
+        if (SingletonTwitterProvider.SingletonTwitterProviderContainer.contextContainer == null ||
+                SingletonTwitterProvider.SingletonTwitterProviderContainer.handlerContainer == null) {
+            Log.w(
+                    TAG, "TwitterProvider:getSingleton: context: " +
+                            SingletonTwitterProvider.SingletonTwitterProviderContainer.contextContainer +
+                            " handler: " +
+                            SingletonTwitterProvider.SingletonTwitterProviderContainer.handlerContainer
+            );
+        }
+
+        return SingletonTwitterProvider.SingletonTwitterProviderContainer.singletonInstance;
+    }
+
+    public static SingletonTwitterProvider getSingletonInstance(Context context, Handler handler) {
+        if (context != null && handler != null) {
+            SingletonTwitterProvider.bindingProviderToUI(context, handler);
+        }
+
+        return SingletonTwitterProvider.getSingletonInstance();
+    }
+
+    private static void bindingProviderToUI(Context context, Handler handler) {
+        Log.d(TAG, "bindingProviderToUI: contex" + context + " handler: " + handler);
+        new SingletonTwitterProvider.SingletonTwitterProviderContainer(context, handler);
+    }
+
+
 
     public void handleTwitterSession(TwitterSession session) {
         Log.d(TAG, "handleTwitterSession:" + session);
