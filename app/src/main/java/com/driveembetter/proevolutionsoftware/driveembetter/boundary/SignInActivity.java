@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -21,12 +22,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.google.android.gms.common.SignInButton;
-import com.twitter.sdk.android.core.Callback;
-import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.TwitterAuthToken;
-import com.twitter.sdk.android.core.TwitterCore;
-import com.twitter.sdk.android.core.TwitterException;
-import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import java.util.ArrayList;
@@ -57,9 +52,9 @@ public class SignInActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.sign_in_layout);
         this.initResources();
+        setContentView(R.layout.sign_in_layout);
+
         this.initWidget();
     }
 
@@ -74,15 +69,38 @@ public class SignInActivity
             super.handleMessage(msg);
             switch (msg.what) {
                 case USER_LOGIN:
-                    User user = firebaseProviderArrayList
-                            .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
-                            .getUserInformation();
-                    Toast.makeText(SignInActivity.this, String.format(getString(R.string.sign_in_as), user.getEmail()), Toast.LENGTH_SHORT).show();
+                    break;
 
-                    Intent mainFragmentIntent = new Intent(SignInActivity.this, MainFragmentActivity.class);
-                    mainFragmentIntent.putExtra(USER, user);
-                    startActivity(mainFragmentIntent);
-                    finish();
+                case USER_LOGIN_EMAIL_PSW:
+                    User userEmailPsw = firebaseProviderArrayList
+                            .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
+                            .getUserInformations();
+                    Log.d(TAG, "handleMessage:log_in EmailAndPsw user: " + userEmailPsw.getEmail());
+                    Toast.makeText(SignInActivity.this, String.format(getString(R.string.sign_in_as), userEmailPsw.getEmail()), Toast.LENGTH_SHORT).show();
+
+                    startActivityWithDatas(USER, userEmailPsw);
+                    break;
+
+                case USER_LOGIN_GOOGLE:
+                    User userGoogle = ((SingletonGoogleProvider) firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                            .getGoogleUserInformations();
+                    Log.d(TAG, "handleMessage:log_in Google user: " + userGoogle.getUsername());
+                    Toast.makeText(SignInActivity.this, String.format(getString(R.string.sign_in_as), userGoogle.getUsername()), Toast.LENGTH_SHORT).show();
+
+                    startActivityWithDatas(USER, userGoogle);
+                    break;
+
+                case USER_LOGIN_FACEBOOK:
+                    Log.d(TAG, "handleMessage:log_in Facebook user: ");
+                    break;
+
+                case USER_LOGIN_TWITTER:
+                    User userTwitter = ((SingletonTwitterProvider) firebaseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER))
+                            .getTwitterUserInformations();
+                    Log.d(TAG, "handleMessage:log_in Twitter user: ");
+                    Toast.makeText(SignInActivity.this, String.format(getString(R.string.sign_in_as), userTwitter.getUsername()), Toast.LENGTH_SHORT).show();
+
+                    startActivityWithDatas(USER, userTwitter);
                     break;
 
                 case USER_LOGOUT:
@@ -121,6 +139,13 @@ public class SignInActivity
         }
     };
 
+    private void startActivityWithDatas(String key, Parcelable value) {
+        Intent mainFragmentIntent = new Intent(SignInActivity.this, MainFragmentActivity.class);
+        mainFragmentIntent.putExtra(key, value);
+        startActivity(mainFragmentIntent);
+        finish();
+    }
+
     private void initWidget() {
         this.signInButton = (Button) findViewById(R.id.sign_in_button);
         this.signInGoogleButton = (SignInButton) findViewById(R.id.sign_in_google_button);
@@ -133,26 +158,8 @@ public class SignInActivity
         this.signInButton.setOnClickListener(this);
         this.signInGoogleButton.setOnClickListener(this);
         this.signUpButton.setOnClickListener(this);
-        this.twitterLoginButton.setCallback(new Callback<TwitterSession>() {
-            @Override
-            public void success(Result<TwitterSession> result) {
-                Log.d(TAG, "twitterLogin:success" + result);
-                ((SingletonTwitterProvider) firebaseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER))
-                        .handleTwitterSession(result.data);
-
-                TwitterSession session = TwitterCore.getInstance().getSessionManager().getActiveSession();
-                TwitterAuthToken authToken = session.getAuthToken();
-                String token = authToken.token;
-                String secret = authToken.secret;
-
-                Log.d(TAG, "USERNAME: " + session.getUserName());
-            }
-
-            @Override
-            public void failure(TwitterException exception) {
-                Log.w(TAG, "twitterLogin:failure", exception);
-            }
-        });
+        ((SingletonTwitterProvider) this.firebaseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER))
+                .setCallback(this.twitterLoginButton);
     }
 
     private void initResources() {
@@ -202,15 +209,6 @@ public class SignInActivity
                 firebaseGoogleProvider.setStateListener();
                 this.progressBar.setVisibility(View.VISIBLE);
                 firebaseGoogleProvider.signIn(null, null);
-                this.progressBar.setVisibility(View.GONE);
-                break;
-
-            // Sign in with Twitter
-            case R.id.twitter_login_button:
-                this.progressBar.setVisibility(View.VISIBLE);
-                this.firebaseProviderArrayList
-                        .get(FactoryProviders.TWITTER_PROVIDER)
-                        .signIn(null, null);
                 this.progressBar.setVisibility(View.GONE);
                 break;
 

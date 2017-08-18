@@ -8,17 +8,23 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.TwitterAuthProvider;
+import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.DefaultLogger;
+import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterAuthToken;
 import com.twitter.sdk.android.core.TwitterConfig;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 /**
  * Created by alfredo on 15/08/17.
@@ -29,6 +35,8 @@ public class SingletonTwitterProvider extends FirebaseProvider {
     private final static String TAG = "STwitterProvider";
     public static final int RC_SIGN_IN = 9000;
 
+    private TwitterSession session;
+
     private static SingletonTwitterProvider singletonInstance;
 
     private SingletonTwitterProvider(Context context, Handler handler) {
@@ -36,15 +44,6 @@ public class SingletonTwitterProvider extends FirebaseProvider {
 
         Log.d(TAG, "Instantiated SingletonTwitterProvider.\nContext: " + this.mContext + " Handler: " + this.mContext);
 
-        // Configure Twitter SDK
-        /*
-        TwitterAuthConfig authConfig =  new TwitterAuthConfig(
-                this.mContext.getString(R.string.com_twitter_sdk_android_CONSUMER_KEY),
-                this.mContext.getString(R.string.com_twitter_sdk_android_CONSUMER_SECRET));
-        Fabric.with(this, new Twitter(authConfig));
-        */
-
-        // Twitter.initialize(this.mContext);
         TwitterConfig config = new TwitterConfig.Builder(this.mContext)
                 .logger(new DefaultLogger(Log.DEBUG))
                 .twitterAuthConfig(new TwitterAuthConfig(
@@ -59,10 +58,10 @@ public class SingletonTwitterProvider extends FirebaseProvider {
 
 
     // Singleton
-    public static SingletonTwitterProvider getSingletonInstance(Context context, Handler handler){
+    public static SingletonTwitterProvider getSingletonInstance(Context context, Handler handler) {
         if(SingletonTwitterProvider.singletonInstance == null){
             synchronized (SingletonTwitterProvider.class) {
-                if(SingletonTwitterProvider.singletonInstance == null){
+                if(SingletonTwitterProvider.singletonInstance == null) {
                     SingletonTwitterProvider.singletonInstance =
                             new SingletonTwitterProvider(context, handler);
                 }
@@ -78,31 +77,83 @@ public class SingletonTwitterProvider extends FirebaseProvider {
 
 
 
-    public void handleTwitterSession(TwitterSession session) {
+    private void handleTwitterSession(TwitterSession session) {
         Log.d(TAG, "handleTwitterSession:" + session);
 
         AuthCredential credential = TwitterAuthProvider.getCredential(
                 session.getAuthToken().token,
                 session.getAuthToken().secret);
 
+        // Firebase authentcation
         this.mAuth.signInWithCredential(credential)
                 .addOnCompleteListener((Activity) this.mContext, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
+                            // Sign in success
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            getCurrentFirebaseUser();
                         } else {
-                            // If sign in fails, display a message to the user.
+                            // Sign in fails
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(mContext, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
-
-                        // ...
                     }
                 });
+    }
+
+    public void setCallback(TwitterLoginButton twitterLoginButton) {
+        /*
+        case R.id.twitter_login_button:
+        this.progressBar.setVisibility(View.VISIBLE);
+        this.firebaseProviderArrayList
+                .get(FactoryProviders.TWITTER_PROVIDER)
+                .signIn(null, null);
+        this.progressBar.setVisibility(View.GONE);
+        break;
+        */
+
+        if (twitterLoginButton != null) {
+            twitterLoginButton.setCallback(new Callback<TwitterSession>() {
+                @Override
+                public void success(Result<TwitterSession> result) {
+                    Log.d(TAG, "twitterLogin:success" + result);
+
+                    session = result.data;
+
+                    handleTwitterSession(result.data);
+
+                    TwitterSession session = TwitterCore.getInstance().getSessionManager().getActiveSession();
+                    TwitterAuthToken authToken = session.getAuthToken();
+                    String token = authToken.token;
+                    String secret = authToken.secret;
+
+                    Log.d(TAG, "USERNAME: " + session.getUserName());
+                }
+
+                @Override
+                public void failure(TwitterException exception) {
+                    Log.w(TAG, "twitterLogin:failure", exception);
+                }
+            });
+        }
+    }
+
+    public User getTwitterUserInformations() {
+        if (this.session != null) {
+            return new User(
+                    this.session.getUserName(),
+                    null,
+                    null,
+                    Long.toString(this.session.getUserId()),
+                    true,
+                    null,
+                    null
+            );
+        }
+
+        return null;
     }
 
     @Override

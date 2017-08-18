@@ -23,9 +23,9 @@ public class SingletonFacebookProvider extends FirebaseProvider {
 
 
     public static SingletonFacebookProvider getSingletonInstance(Context context, Handler handler){
-        if(SingletonFacebookProvider.singletonInstance == null){
+        if(SingletonFacebookProvider.singletonInstance == null) {
             synchronized (SingletonFacebookProvider.class) {
-                if(SingletonFacebookProvider.singletonInstance == null){
+                if(SingletonFacebookProvider.singletonInstance == null) {
                     SingletonFacebookProvider.singletonInstance =
                             new SingletonFacebookProvider(context, handler);
                 }

@@ -34,10 +34,10 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
 
 
     // Singleton
-    public static SingletonEmailAndPasswordProvider getSingletonInstance(Context context, Handler handler){
+    public static SingletonEmailAndPasswordProvider getSingletonInstance(Context context, Handler handler) {
         if(SingletonEmailAndPasswordProvider.singletonInstance == null){
             synchronized (SingletonEmailAndPasswordProvider.class) {
-                if(SingletonEmailAndPasswordProvider.singletonInstance == null){
+                if(SingletonEmailAndPasswordProvider.singletonInstance == null) {
                     SingletonEmailAndPasswordProvider.singletonInstance =
                             new SingletonEmailAndPasswordProvider(context, handler);
                 }
@@ -102,7 +102,7 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
         if (this.firebaseUser.isEmailVerified()) {
             // User verified
             Log.d(TAG, "checkIfEmailVerified:success");
-            message = this.mHandler.obtainMessage(USER_LOGIN);
+            message = this.mHandler.obtainMessage(USER_LOGIN_EMAIL_PSW);
         } else {
             // Email is not verified
             Log.d(TAG, "checkIfEmailVerified:failure");

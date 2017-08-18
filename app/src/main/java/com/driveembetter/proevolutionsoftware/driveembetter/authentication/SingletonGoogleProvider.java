@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -42,6 +44,7 @@ public class SingletonGoogleProvider
 
     private GoogleApiClient mGoogleApiClient;
     private boolean isAccntConnected = false;
+    private GoogleSignInAccount account;
 
     private SingletonGoogleProvider(Context context, Handler handler) {
         super(context, handler);
@@ -91,9 +94,12 @@ public class SingletonGoogleProvider
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
-                Log.d(TAG, "Google account authenticated");
-                // GoogleSignInAccount account = result.getSignInAccount();
-                // firebaseAuthWithGoogle(account);
+                this.account = result.getSignInAccount();
+                Log.d(TAG, "Google auth: user: " + account.getEmail());
+                Message message = mHandler.obtainMessage(USER_LOGIN_GOOGLE);
+                mHandler.sendMessage(message);
+
+                firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed, update UI appropriately
                 Log.d(TAG, "Google authentication failed");
@@ -194,5 +200,21 @@ public class SingletonGoogleProvider
     @Override
     public void onConnectionSuspended(int i) {
 
+    }
+
+    public User getGoogleUserInformations() {
+        if (this.account != null) {
+            return new User(
+                    this.account.getDisplayName(),
+                    this.account.getEmail(),
+                    this.account.getPhotoUrl(),
+                    this.account.getId(),
+                    true,
+                    null,
+                    null
+            );
+        }
+
+        return null;
     }
 }

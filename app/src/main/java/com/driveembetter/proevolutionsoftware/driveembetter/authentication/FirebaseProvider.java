@@ -51,7 +51,7 @@ public abstract class FirebaseProvider
         this.firebaseUser = this.mAuth.getCurrentUser();
     }
 
-    public User getUserInformation() {
+    public User getUserInformations() {
         if (this.firebaseUser != null) {
             return new User(
                     this.firebaseUser.getDisplayName(),
