@@ -31,7 +31,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
  */
 
 public class GoogleProvider
-        extends Provider
+        extends FirebaseProvider
         implements
         GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
@@ -60,27 +60,23 @@ public class GoogleProvider
 
     public void activityResult(int requestCode, int resultCode, Intent data) {
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...); IN SignInActivity
-        Log.d(TAG, "RC: " + requestCode);
+        Log.d(TAG, "GoogleProvider:activityResult");
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            Log.d(TAG, "RESULT: " + result);
-            Log.d(TAG, "STATUS: " + result.getStatus());
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
-
-                GoogleSignInAccount account = result.getSignInAccount();
-                Toast.makeText(this.mContext, "GOOGLE authenticated SUCCESS",
-                        Toast.LENGTH_SHORT).show();
-                firebaseAuthWithGoogle(account);
+                Log.d(TAG, "Google account authenticated");
+                // GoogleSignInAccount account = result.getSignInAccount();
+                // firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign In failed, update UI appropriately
-                Log.d(TAG, "GOOGLE AUTH failed");
+                Log.d(TAG, "Google authentication failed");
             }
         }
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+        Log.d(TAG, "Authentication with Firebase account: " + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider
                 .getCredential(acct.getIdToken(), null);
@@ -89,14 +85,12 @@ public class GoogleProvider
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
+                            // Sign in success
                             Log.d(TAG, "signInWithCredential:success");
                             getCurrentFirebaseUser();
                         } else {
-                            // If sign in fails, display a message to the user.
+                            // Sign in fails
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(mContext, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -104,16 +98,9 @@ public class GoogleProvider
 
     @Override
     public void signIn(String email, String password) {
-        Log.d(TAG, "SIGN_IN GOOGLE");
-
         // TODO check email && password must be null
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(this.mGoogleApiClient);
         ((Activity) this.mContext).startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    @Override
-    public void signUp(String email, String password) {
-
     }
 
     @Override
@@ -155,6 +142,10 @@ public class GoogleProvider
                         Log.d(TAG, "STATUS_REVOKE: " + status.getStatus());
                     }
                 });
+    }
+
+    public void clearAccount() {
+        this.mGoogleApiClient.clearDefaultAccountAndReconnect();
     }
 
     @Override

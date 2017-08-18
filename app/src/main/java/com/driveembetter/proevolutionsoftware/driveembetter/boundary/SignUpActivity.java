@@ -135,8 +135,8 @@ public class SignUpActivity
     public void onStart() {
         super.onStart();
         /*
-        if (this.Provider != null)
-            this.Provider.setStateListener();
+        if (this.FirebaseProvider != null)
+            this.FirebaseProvider.setStateListener();
             */
     }
 
@@ -144,8 +144,8 @@ public class SignUpActivity
     public void onStop() {
         super.onStop();
         /*
-        if (this.Provider != null)
-            this.Provider.removeStateListener();
+        if (this.FirebaseProvider != null)
+            this.FirebaseProvider.removeStateListener();
             */
     }
 
@@ -153,8 +153,8 @@ public class SignUpActivity
     protected void onRestart() {
         super.onRestart();
         /*
-        if (this.Provider != null)
-            this.Provider.setStateListener();
+        if (this.FirebaseProvider != null)
+            this.FirebaseProvider.setStateListener();
             */
     }
 
@@ -162,8 +162,8 @@ public class SignUpActivity
     protected void onResume() {
         super.onResume();
         /*
-        if (this.Provider != null)
-            this.Provider.setStateListener();
+        if (this.FirebaseProvider != null)
+            this.FirebaseProvider.setStateListener();
             */
     }
 
@@ -171,8 +171,8 @@ public class SignUpActivity
     protected void onPause() {
         super.onPause();
         /*
-        if (this.Provider != null)
-            this.Provider.removeStateListener();
+        if (this.FirebaseProvider != null)
+            this.FirebaseProvider.removeStateListener();
             */
     }
 

@@ -22,7 +22,7 @@ public class SingletonFactoryProvider {
     private FacebookProvider singletonFacebookProvider;
     private TwitterProvider singletonTwitterProvider;
 
-    // Provider types
+    // FirebaseProvider types
     public final static int EMAIL_AND_PASSWORD_PROVIDER = 1;
     public final static int GOOGLE_PROVIDER = 2;
     public final static int FACEBOOK_PROVIDER = 3;

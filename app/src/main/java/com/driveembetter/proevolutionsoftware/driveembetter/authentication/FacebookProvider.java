@@ -7,7 +7,7 @@ import android.os.Handler;
  * Created by alfredo on 17/08/17.
  */
 
-public class FacebookProvider extends Provider {
+public class FacebookProvider extends FirebaseProvider {
 
     private final static String TAG = "FacebookProvider";
 
@@ -22,11 +22,6 @@ public class FacebookProvider extends Provider {
 
     @Override
     public void signOut() {
-
-    }
-
-    @Override
-    public void signUp(String email, String password) {
 
     }
 }

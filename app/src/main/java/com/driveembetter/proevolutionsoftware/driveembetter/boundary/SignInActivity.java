@@ -25,12 +25,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeM
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.google.android.gms.common.SignInButton;
 import com.twitter.sdk.android.core.Callback;
-import com.twitter.sdk.android.core.DefaultLogger;
 import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.Twitter;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterAuthToken;
-import com.twitter.sdk.android.core.TwitterConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
@@ -89,17 +85,6 @@ public class SignInActivity
 
         this.initWidget();
         this.initResources();
-
-
-        TwitterConfig config = new TwitterConfig.Builder(this)
-                .logger(new DefaultLogger(Log.DEBUG))
-                .twitterAuthConfig(new TwitterAuthConfig(
-                        getString(R.string.com_twitter_sdk_android_CONSUMER_KEY),
-                        getString(R.string.com_twitter_sdk_android_CONSUMER_SECRET)
-                ))
-                .debug(true)
-                .build();
-        Twitter.initialize(config);
     }
 
     // Defines a Handler object that's attached to the UI thread
@@ -112,8 +97,8 @@ public class SignInActivity
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case USER_LOGIN_EMAIL_PSW:
-                    user = emailAndPasswordProvider.getUserInformation();
+                case USER_LOGIN:
+                    user = googleProvider.getUserInformation();
                     Log.d(TAG, "handleMessage:login");
                     if (user == null) {
                         Log.e(TAG, "handleMessage:error");
@@ -121,9 +106,11 @@ public class SignInActivity
                     }
                     Toast.makeText(SignInActivity.this, "Signed in as: " + user.getEmail(), Toast.LENGTH_SHORT).show();
 
+                    /*
                     Intent intent = new Intent(SignInActivity.this, MainFragmentActivity.class);
                     startActivity(intent);
                     finish();
+                    */
                     break;
 
                 case USER_LOGOUT:
@@ -177,8 +164,8 @@ public class SignInActivity
         this.twitterLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
-                // Do something with result, which provides a TwitterSession for making API calls
-                Log.d(TAG, "twitterButton:success" + result.response.message());
+                Log.d(TAG, "twitterLogin:success" + result);
+                twitterProvider.handleTwitterSession(result.data);
 
                 TwitterSession session = TwitterCore.getInstance().getSessionManager().getActiveSession();
                 TwitterAuthToken authToken = session.getAuthToken();
@@ -190,8 +177,7 @@ public class SignInActivity
 
             @Override
             public void failure(TwitterException exception) {
-                // Do something on failure
-                Log.d(TAG, "twitterButton:failure" + exception.getCause().toString());
+                Log.w(TAG, "twitterLogin:failure", exception);
             }
         });
 
@@ -204,6 +190,8 @@ public class SignInActivity
 
     private void initResources() {
         this.singletonFactoryProvider = new SingletonFactoryProvider(this, this.handler);
+
+        this.twitterProvider = this.singletonFactoryProvider.getSingletonTwitterProvider();
     }
 
     @Override
@@ -227,8 +215,11 @@ public class SignInActivity
                 this.googleProvider.signOut();
                 break;
             case R.id.imageView7:
+                /*
                 this.googleProvider = this.singletonFactoryProvider.getSingletonGoogleProvider();
                 this.googleProvider.revokeAccess();
+                */
+                this.googleProvider.clearAccount();
                 break;
 
             // sign in with email and password
@@ -247,11 +238,14 @@ public class SignInActivity
             case R.id.sign_in_google_button:
                 this.googleProvider = this.singletonFactoryProvider.getSingletonGoogleProvider();
 
+                this.googleProvider.initStateListener();
+                this.googleProvider.setStateListener();
                 this.progressBar.setVisibility(View.VISIBLE);
                 this.googleProvider.signIn(null, null);
                 this.progressBar.setVisibility(View.GONE);
                 break;
 
+            // sign in with Twitter
             case R.id.twitter_login_button:
                 this.twitterProvider = this.singletonFactoryProvider.getSingletonTwitterProvider();
                 this.progressBar.setVisibility(View.VISIBLE);
@@ -278,46 +272,36 @@ public class SignInActivity
     @Override
     public void onStart() {
         super.onStart();
-        /*
-        if (this.Provider != null)
-            this.Provider.setStateListener();
-            */
+        if (this.googleProvider != null)
+            this.googleProvider.setStateListener();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        /*
-        if (this.Provider != null)
-            this.Provider.removeStateListener();
-            */
+        if (this.googleProvider != null)
+            this.googleProvider.removeStateListener();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        /*
-        if (this.Provider != null)
-            this.Provider.setStateListener();
-            */
+        if (this.googleProvider != null)
+            this.googleProvider.setStateListener();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        /*
-        if (this.Provider != null)
-            this.Provider.setStateListener();
-            */
+        if (this.googleProvider != null)
+            this.googleProvider.setStateListener();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        /*
-        if (this.Provider != null)
-            this.Provider.removeStateListener();
-            */
+        if (this.googleProvider != null)
+            this.googleProvider.removeStateListener();
     }
 
     @Override
