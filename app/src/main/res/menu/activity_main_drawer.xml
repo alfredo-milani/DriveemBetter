@@ -33,4 +33,13 @@
         </menu>
     </item>
 
+    <item android:title="Logout">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@mipmap/logout_icon"
+                android:title="@string/logout" />
+        </menu>
+    </item>
+
 </menu>

@@ -20,6 +20,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -91,18 +92,21 @@ public class SingletonGoogleProvider
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...); IN SignInActivity
         if (requestCode == RC_SIGN_IN) {
             Log.d(TAG, "SingletonGoogleProvider:activityResult RC: " + requestCode);
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            this.account = result.getSignInAccount();
-            if (result.isSuccess() && this.account != null) {
-                // Google Sign In was successful, authenticate with Firebase
-                Log.d(TAG, "Google auth: user: " + account.getEmail());
-                Message message = mHandler.obtainMessage(USER_LOGIN_GOOGLE);
-                mHandler.sendMessage(message);
-                firebaseAuthWithGoogle(account);
-            } else {
-                // Google Sign In failed, update UI appropriately
-                Log.d(TAG, "Google authentication failed");
-            }
+            this.handleSignInResult(Auth.GoogleSignInApi.getSignInResultFromIntent(data));
+        }
+    }
+
+    private void handleSignInResult(GoogleSignInResult result) {
+        this.account = result.getSignInAccount();
+        if (result.isSuccess() && this.account != null) {
+            // Google Sign In was successful, authenticate with Firebase
+            Log.d(TAG, "Google auth: user: " + account.getEmail());
+            Message message = mHandler.obtainMessage(USER_LOGIN_GOOGLE);
+            mHandler.sendMessage(message);
+            firebaseAuthWithGoogle(account);
+        } else {
+            // Google Sign In failed, update UI appropriately
+            Log.d(TAG, "Google authentication failed");
         }
     }
 
@@ -144,7 +148,7 @@ public class SingletonGoogleProvider
 
         // Google sign out
         if (this.mGoogleApiClient.isConnected()) {
-            this.mGoogleApiClient.clearDefaultAccountAndReconnect();
+            // this.mGoogleApiClient.clearDefaultAccountAndReconnect();
             Auth.GoogleSignInApi.signOut(this.mGoogleApiClient).setResultCallback(
                     new ResultCallback<Status>() {
                         @Override
@@ -156,6 +160,9 @@ public class SingletonGoogleProvider
                         }
                     });
         }
+
+        Message message = mHandler.obtainMessage(USER_LOGOUT_GOOGLE);
+        mHandler.sendMessage(message);
     }
 
     // To disconnect from current Google account
@@ -192,7 +199,7 @@ public class SingletonGoogleProvider
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.d(TAG, "onConnection:true");
+        Log.d(TAG, "onConnected:true");
         this.isAccntConnected = true;
     }
 
@@ -215,5 +222,45 @@ public class SingletonGoogleProvider
         }
 
         return null;
+    }
+
+    public void connectAfterResume() {
+        Log.d(TAG, "connectionAfterResume");
+        if (!this.mGoogleApiClient.isConnected()) {
+            Log.d(TAG, "connectionAfterResume:reconnection");
+            this.mGoogleApiClient.connect();
+            this.isAccntConnected = true;
+        }
+    }
+
+    public void managePendingOperations() {
+        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(this.mGoogleApiClient);
+        if (opr.isDone()) {
+            // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
+            // and the GoogleSignInResult will be available instantly.
+            Log.d(TAG, "Got cached sign-in");
+            this.handleSignInResult(opr.get());
+        }
+    }
+
+    public void asyncReSign() {
+        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(this.mGoogleApiClient);
+        if (!opr.isDone()) {
+            // If the user has not previously signed in on this device or the sign-in has expired,
+            // this asynchronous branch will attempt to sign in the user silently.  Cross-device
+            // single sign-on will occur in this branch.
+            opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+                @Override
+                public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
+                    Log.d(TAG, "Silent sign-in");
+                    handleSignInResult(googleSignInResult);
+                }
+            });
+        }
+    }
+
+    public void removeGoogleClient() {
+        this.mGoogleApiClient.stopAutoManage((FragmentActivity) this.mContext);
+        this.signOut();
     }
 }

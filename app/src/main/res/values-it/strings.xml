@@ -23,4 +23,8 @@
     <string name="sign_in_as">Accesso effettuato come: %s.</string>
     <string name="bad_formatted_email">L\'indirizzo email è mal formattato.</string>
     <string name="password_invalid">La password immessa è invalida: la password deve avere almeno 6 caratteri.</string>
+    <string name="resend_verification_email">Email di verifica non ancora ricevuta? Inviane un\'altra.</string>
+    <string name="postponed_verification_email">Email di verifica inviata</string>
+    <string name="logout">Esci</string>
+    <string name="unknown_error">Errore sconosciuto!</string>
 </resources>

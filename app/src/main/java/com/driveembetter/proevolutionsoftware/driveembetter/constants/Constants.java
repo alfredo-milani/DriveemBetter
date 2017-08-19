@@ -7,4 +7,5 @@ package com.driveembetter.proevolutionsoftware.driveembetter.constants;
 public interface Constants {
     // Informations exchanged between Activities
     String USER = "user_info";
+    String PROVIDER_TYPE = "provider_type";
 }
