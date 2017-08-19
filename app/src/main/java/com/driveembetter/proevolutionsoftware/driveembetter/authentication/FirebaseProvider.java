@@ -20,8 +20,8 @@ public abstract class FirebaseProvider
     private static String TAG = "FirebaseProvider";
 
     // Link to UI
-    protected final Context mContext;
-    protected final Handler mHandler;
+    protected Context mContext;
+    protected Handler mHandler;
 
     // Variables for authentication with Firebase platoform
     protected FirebaseAuth mAuth;
@@ -40,7 +40,9 @@ public abstract class FirebaseProvider
 
     public boolean isFirebaseSignIn() {
         this.getCurrentFirebaseUser();
-        return this.firebaseSignIn = this.firebaseUser != null;
+        return this.firebaseSignIn =
+                this.firebaseUser != null &&
+                this.firebaseUser.isEmailVerified();
     }
 
     public abstract void signOut();
@@ -49,7 +51,7 @@ public abstract class FirebaseProvider
         this.firebaseUser = this.mAuth.getCurrentUser();
     }
 
-    public User getUserInformation() {
+    public User getUserInformations() {
         if (this.firebaseUser != null) {
             return new User(
                     this.firebaseUser.getDisplayName(),
@@ -102,6 +104,15 @@ public abstract class FirebaseProvider
         }
     }
 
-    // TODO: -vedi se è possibile inviare 1 sola email di verifica;
-    // TODO: -segui il flusso delle chiamate dei metodi dai Log... troppi toast visualizzati...
+    public void changeContext(Context context) {
+        if (context != null) {
+            this.mContext = context;
+        }
+    }
+
+    public void changeHandler(Handler handler) {
+        if (handler != null) {
+            this.mHandler = handler;
+        }
+    }
 }

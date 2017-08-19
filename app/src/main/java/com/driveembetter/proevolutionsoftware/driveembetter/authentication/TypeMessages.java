@@ -5,13 +5,24 @@ package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
  */
 
 public interface TypeMessages {
+    // Messages received by UI
     int UNKNOWN_EVENT = 0;
-    int USER_LOGIN = 1;
+
     int USER_LOGOUT = 2;
+    int USER_LOGIN = 1;
     int USER_LOGIN_EMAIL_PSW = 3;
+    int USER_LOGIN_GOOGLE = 12;
+    int USER_LOGIN_FACEBOOK = 13;
+    int USER_LOGIN_TWITTER = 14;
+
     int USER_ALREADY_EXIST = 4;
     int EMAIL_REQUIRED = 5;
     int PASSWORD_REQUIRED = 6;
     int INVALID_CREDENTIALS = 7;
+    int BAD_FORMATTED_EMAIL = 15;
+    int PASSWORD_INVALID = 16;
     int INVALID_USER = 8;
+    int VERIFICATION_EMAIL_SENT = 9;
+    int VERIFICATION_EMAIL_NOT_SENT = 10;
+    int EMAIL_NOT_VERIFIED = 11;
 }

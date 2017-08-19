@@ -21,4 +21,10 @@
     <string name="back">Back</string>
     <string name="invalid_user">There is no user record corresponding to this identifier. The user may have been deleted.</string>
     <string name="invalid_credentials">The password is invalid or the user does not have a password.</string>
+    <string name="verification_email_success">Verification email successfully sent. Check your email and login in %s.</string>
+    <string name="verification_email_failure">Verification email not sent due an error. Retry later.</string>
+    <string name="email_not_verified">Email not yet verified. Check you email address and follow the link to activate your account.</string>
+    <string name="sign_in_as">Signed in as: %s.</string>
+    <string name="bad_formatted_email">The email address is badly formatted.</string>
+    <string name="password_invalid">The given password is invalid: password should be at least 6 characters.</string>
 </resources>
