@@ -139,6 +139,11 @@ public class SignUpActivity
                     finish();
                     break;
 
+                case NETWORK_ERROR:
+                    Log.d(TAG, "handleMessage:networ_error");
+                    Toast.makeText(SignUpActivity.this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
+                    break;
+
                 default:
                     Log.w(TAG, "handleMessage:error: " + msg.what);
             }

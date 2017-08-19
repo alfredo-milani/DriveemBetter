@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
@@ -87,6 +88,9 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
                             } catch (FirebaseAuthInvalidUserException e3) {
                                 Log.d(TAG, "signInWithEmail:failed", task.getException());
                                 message = mHandler.obtainMessage(INVALID_USER);
+                            } catch (FirebaseNetworkException e4) {
+                                Log.d(TAG, "signInWithEmail:failed", task.getException());
+                                message = mHandler.obtainMessage(NETWORK_ERROR);
                             } catch (Exception e1) {
                                 Log.w(TAG, "signInWithEmail:failed", task.getException());
                                 message = mHandler.obtainMessage(UNKNOWN_EVENT);
@@ -152,6 +156,9 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
                             } catch (FirebaseAuthUserCollisionException e) {
                                 Log.d(TAG, "createUserWithEmailAndPassword:failed", task.getException());
                                 message = mHandler.obtainMessage(USER_ALREADY_EXIST);
+                            } catch (FirebaseNetworkException e4) {
+                                Log.d(TAG, "signInWithEmail:failed", task.getException());
+                                message = mHandler.obtainMessage(NETWORK_ERROR);
                             } catch (FirebaseAuthWeakPasswordException e3) {
                                 Log.d(TAG, "createUserWithEmailAndPassword:failed", task.getException());
                                 message = mHandler.obtainMessage(PASSWORD_INVALID);

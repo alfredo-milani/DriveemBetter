@@ -159,6 +159,7 @@ public class MainFragmentActivity
     private User getUser() {
         Intent i = getIntent();
         this.authenticationProvider = i.getIntExtra(PROVIDER_TYPE, 0);
+        Log.d(TAG, "MainFragment:getUser:received: " + this.authenticationProvider);
 
         switch (this.authenticationProvider) {
             case FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER:
@@ -207,7 +208,7 @@ public class MainFragmentActivity
         this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         this.usernameTextView = this.headerView.findViewById(R.id.username_text_view);
         if (this.user != null) {
-            this.usernameTextView.setText(this.user.getUsername());
+            this.usernameTextView.setText(this.user.getEmail());
         } else {
             Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             this.returnToSignIn();
@@ -215,8 +216,10 @@ public class MainFragmentActivity
     }
 
     private void returnToSignIn() {
+        /*
         Intent mainFragmentIntent = new Intent(MainFragmentActivity.this, SignInActivity.class);
         this.startActivity(mainFragmentIntent);
+        */
         this.finish();
     }
 
@@ -239,6 +242,39 @@ public class MainFragmentActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+
+            this.logoutCurrentProvider();
+        }
+    }
+
+    private void logoutCurrentProvider() {
+        switch (this.authenticationProvider) {
+            case FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER:
+                this.firebaseProviderArrayList
+                        .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
+                        .signOut();
+                break;
+
+            case FactoryProviders.GOOGLE_PROVIDER:
+                this.firebaseProviderArrayList
+                        .get(FactoryProviders.GOOGLE_PROVIDER)
+                        .signOut();
+                break;
+
+            case FactoryProviders.FACEBOOK_PROVIDER:
+                this.firebaseProviderArrayList
+                        .get(FactoryProviders.FACEBOOK_PROVIDER)
+                        .signOut();
+                break;
+
+            case FactoryProviders.TWITTER_PROVIDER:
+                this.firebaseProviderArrayList
+                        .get(FactoryProviders.TWITTER_PROVIDER)
+                        .signOut();
+                break;
+
+            default:
+                Log.d(TAG, "logoutCurrentProvider:error: " + this.authenticationProvider);
         }
     }
 
@@ -294,7 +330,7 @@ public class MainFragmentActivity
             case R.id.nav_logout:
                 Log.d(TAG, "Logout pressed");
 
-                super.onBackPressed();
+                this.logoutCurrentProvider();
                 break;
 
             default:
@@ -313,11 +349,12 @@ public class MainFragmentActivity
                 .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
                 .changeHandler(this.handler);
 
-        SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.firebaseProviderArrayList
-                .get(FactoryProviders.GOOGLE_PROVIDER));
-        singletonGoogleProvider.connectAfterResume();
-        singletonGoogleProvider.managePendingOperations();
-
+        if (FactoryProviders.GOOGLE_PROVIDER == this.authenticationProvider) {
+            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.firebaseProviderArrayList
+                    .get(FactoryProviders.GOOGLE_PROVIDER));
+            singletonGoogleProvider.connectAfterResume();
+            singletonGoogleProvider.managePendingOperations();
+        }
     }
 
     @Override
@@ -344,7 +381,12 @@ public class MainFragmentActivity
     protected void onDestroy() {
         super.onDestroy();
 
-        ((SingletonGoogleProvider) this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                .removeGoogleClient();
+        Log.d(TAG, "MainFragment:onDestroy");
+
+        if (this.authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
+            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
+            singletonGoogleProvider.removeGoogleClient();
+        }
+
     }
 }
