@@ -24,12 +24,16 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
 
     private static final String TAG = "SEmailAndPswProvider";
 
+    private boolean resendVerificationEmail;
+
     private static SingletonEmailAndPasswordProvider singletonInstance;
 
     private SingletonEmailAndPasswordProvider(Context context, Handler handler) {
         super(context, handler);
 
         Log.d(TAG, "Instantiated SingleEmailAndPasswordProvider.\nContext: " + this.mContext + " Handler: " + this.mContext);
+
+        this.resendVerificationEmail = false;
     }
 
 
@@ -106,10 +110,18 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
             message = this.mHandler.obtainMessage(USER_LOGIN_EMAIL_PSW);
         } else {
             // Email is not verified
-            Log.d(TAG, "checkIfEmailVerified:failure");
-            message = this.mHandler.obtainMessage(EMAIL_NOT_VERIFIED);
-            // Log out user
-            this.signOut();
+            if (this.resendVerificationEmail) {
+                Log.d(TAG, "checkIfEmailVerified:resend_verification_email");
+                message = this.mHandler.obtainMessage(RESEND_VERIFICATION_EMAIL);
+                this.sendVerificationEmail();
+                // Log out user
+                this.signOut();
+            } else {
+                Log.d(TAG, "checkIfEmailVerified:failure");
+                message = this.mHandler.obtainMessage(EMAIL_NOT_VERIFIED);
+                // Log out user
+                this.signOut();
+            }
         }
         if (message != null)
             this.mHandler.sendMessage(message);
@@ -127,7 +139,7 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
         }
 
         this.mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener((Activity) mContext, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener((Activity) this.mContext, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
@@ -160,6 +172,11 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
                 });
     }
 
+    public void resendVerificationEmail(String email, String password) {
+        this.resendVerificationEmail = true;
+        this.signIn(email, password);
+    }
+
     private void sendVerificationEmail() {
         this.getCurrentFirebaseUser();
         // Send email and wait for confirmation
@@ -186,5 +203,8 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
     @Override
     public void signOut() {
         this.mAuth.signOut();
+
+        Message message = this.mHandler.obtainMessage(USER_LOGOUT_EMAIL_PSW);
+        mHandler.sendMessage(message);
     }
 }

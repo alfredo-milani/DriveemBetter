@@ -70,7 +70,7 @@ public abstract class FirebaseProvider
         return null;
     }
 
-    public void initStateListener() {
+    public void initStateListener(final int success, final int failure) {
         this.mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -79,13 +79,13 @@ public abstract class FirebaseProvider
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseUser.getUid());
 
-                    Message msg = mHandler.obtainMessage(USER_LOGIN);
+                    Message msg = mHandler.obtainMessage(success);
                     mHandler.sendMessage(msg);
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
 
-                    Message msg = mHandler.obtainMessage(USER_LOGOUT);
+                    Message msg = mHandler.obtainMessage(failure);
                     mHandler.sendMessage(msg);
                 }
             }

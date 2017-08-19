@@ -27,4 +27,8 @@
     <string name="sign_in_as">Signed in as: %s.</string>
     <string name="bad_formatted_email">The email address is badly formatted.</string>
     <string name="password_invalid">The given password is invalid: password should be at least 6 characters.</string>
+    <string name="resend_verification_email">Verification email not yet received? Resend now.</string>
+    <string name="postponed_verification_email">Verification email postponed</string>
+    <string name="logout">Logout</string>
+    <string name="unknown_error">Unknown error!</string>
 </resources>
