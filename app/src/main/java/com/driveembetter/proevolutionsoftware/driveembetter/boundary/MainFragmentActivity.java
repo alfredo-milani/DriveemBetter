@@ -1,23 +1,35 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthProvider;
+
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.USER;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -38,9 +50,11 @@ public class MainFragmentActivity extends AppCompatActivity implements Navigatio
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //WE NEED TO KEEP TRACK OF THE USER SINCE HIS/HER LOGIN
 
         locationUpdater = new LocationUpdater(this);
+
         locationUpdater.updateLocation();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

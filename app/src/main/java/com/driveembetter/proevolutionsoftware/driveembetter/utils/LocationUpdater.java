@@ -18,6 +18,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -48,6 +50,7 @@ public class LocationUpdater {
     private String oldCountry, oldRegion;
     Location oldLocation;
     Activity activity;
+    private String email;
     private String android_id;
     private Geocoder geocoder;
     private List veichlesArray;
@@ -58,6 +61,7 @@ public class LocationUpdater {
     private float currentSpeed;
     private int test;
     private URL url;
+    private String username;
 
     public LocationUpdater(Activity activity) {
         this.activity = activity;
@@ -84,6 +88,10 @@ public class LocationUpdater {
         } else {
             Log.e("DB", "PERMISSION GRANTED");
         }
+
+        username = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        Log.e("username", username);
 
         final Geocoder geocoder;
         geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
@@ -146,17 +154,19 @@ public class LocationUpdater {
                 Boolean radicalChange = false;
                 if (!oldCountry.equals(country) || !oldRegion.equals(region)) {
                     //delete the current user instance and create a newer
-                    myRef = database.getReference(oldCountry + "/" + oldRegion + "/" + "ID_USER(from firebase)");
-                    myRef.removeValue();
-                    radicalChange = true;
+                    myRef = database.getReference(oldCountry + "/" + oldRegion + "/" + username);
+                        myRef.removeValue();
+                        radicalChange = true;
                 }
                 if (radicalChange) {
                     //I have to add old user information
+                    radicalChange = false;
 
                 }
                 oldCountry = country;
                 oldRegion = region;
-                myRef = database.getReference(country + "/" + region + "/" + "ID_USER(from firebase)");
+                myRef = database.getReference(country + "/" + region + "/" + username);
+                System.out.println("STANDARD TASK");
                 myRef.updateChildren(coordinates);
 
             }

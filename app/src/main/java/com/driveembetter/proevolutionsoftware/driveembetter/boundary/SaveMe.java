@@ -21,10 +21,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
@@ -40,11 +42,15 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -133,7 +139,7 @@ public class SaveMe extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
                 for (String user : data.keySet()) {
-                    if (!user.equals("ID_USER(from firebase)")) {
+                    if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         //Map<String, Object> coordinates = data.get(user);
                         String coordinates = (String) data.get(user).get("currentUserPosition");
                         StringParser stringParser = new StringParser(coordinates);
@@ -315,7 +321,7 @@ public class SaveMe extends Fragment {
                         relativeLayout = (RelativeLayout) rootView.findViewById(R.id.relative);
                         layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                         ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.driver_info, null);
-                        driverInfo = new PopupWindow(container, 500, 500, true);
+                        driverInfo = new PopupWindow(container, 650, 650, true);
                         driverInfo.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
                         driverUsername = (TextView) container.findViewById(R.id.driverUsernameContent);
                         driverLocation = (TextView) container.findViewById(R.id.driverPositionContent);
@@ -324,6 +330,13 @@ public class SaveMe extends Fragment {
                         driverUsername.setText(marker.getTitle().toString());
                         driverLocation.setText(userLocation);
                         driverFeedback.setText(userFeedback);
+                        Button message = container.findViewById(R.id.messageBtn);
+                        message.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Toast.makeText(getActivity(), "How could I inform this user that I'm in trouble?", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                         container.setOnTouchListener(new View.OnTouchListener() {
                             @Override
                             public boolean onTouch(View view, MotionEvent motionEvent) {
