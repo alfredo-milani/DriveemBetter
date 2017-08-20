@@ -178,10 +178,19 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
+                Log.d(TAG, "LOGIN???: " + this.singletonFirebaseProvider.isFirebaseSignIn());
+                if (this.singletonFirebaseProvider.getFirebaseUser() == null) {
+                    Log.d(TAG, "USER NULL");
+                } else {
+                    Log.d(TAG, "USER: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail());
+                }
+
+                /*
                 this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.GOOGLE_PROVIDER)
                         .signIn(null, null);
+                        */
                 break;
 
             // Sign in with Twitter
@@ -223,7 +232,9 @@ public class SignInActivity
     public void onStart() {
         super.onStart();
 
-        this.singletonFirebaseProvider.setStateListener();
+        Log.d(DIG, TAG + ":start");
+        this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setHandler(this.handler);
 
         /*
@@ -239,14 +250,16 @@ public class SignInActivity
     public void onStop() {
         super.onStop();
 
-        this.singletonFirebaseProvider.removeStateListener();
+        Log.d(DIG, TAG + ":stop");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
 
-        this.singletonFirebaseProvider.setStateListener();
+        Log.d(DIG, TAG + ":restart");
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
     @Override
@@ -255,7 +268,8 @@ public class SignInActivity
 
         this.hideProgress();
 
-        this.singletonFirebaseProvider.setStateListener();
+        Log.d(DIG, TAG + ":resume");
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
         // TODO vedi se settare handler anche qui
     }
 
@@ -263,15 +277,19 @@ public class SignInActivity
     protected void onPause() {
         super.onPause();
 
-        this.singletonFirebaseProvider.removeStateListener();
+        Log.d(DIG, TAG + ":pause");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        this.singletonFirebaseProvider.removeStateListener();
+        Log.d(DIG, TAG + ":destroy");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                 //.removeGoogleClient();
     }
+
+    String DIG = "SFirebaseProvider";
 }

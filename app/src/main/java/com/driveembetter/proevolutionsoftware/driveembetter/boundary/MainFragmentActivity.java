@@ -85,6 +85,12 @@ public class MainFragmentActivity
         }
     };
 
+    private void startActivity(Context context, Class newClass) {
+        Intent mainFragmentIntent = new Intent(context, newClass);
+        this.startActivity(mainFragmentIntent);
+        this.finish();
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,18 +127,8 @@ public class MainFragmentActivity
             this.usernameTextView.setText(this.user.getEmail());
         } else {
             Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-            this.returnToSignIn();
+            this.startActivity(MainFragmentActivity.this, SignInActivity.class);
         }
-    }
-
-    private void returnToSignIn() {
-        this.finish();
-    }
-
-    private void startActivity(Context context, Class newClass) {
-        Intent mainFragmentIntent = new Intent(context, newClass);
-        this.startActivity(mainFragmentIntent);
-        this.finish();
     }
 
     @Override
@@ -203,6 +199,12 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_gallery:
+                Log.d(TAG, "LOGIN???: " + this.singletonFirebaseProvider.isFirebaseSignIn());
+                if (this.singletonFirebaseProvider.getFirebaseUser() == null) {
+                    Log.d(TAG, "USER NULL");
+                } else {
+                    Log.d(TAG, "USER: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail());
+                }
                 break;
 
             case R.id.nav_slideshow:
@@ -212,12 +214,9 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_share:
-                this.singletonFirebaseProvider.ddddd();
                 break;
 
             case R.id.nav_send:
-                // TODO controlla se sono settati i listeners
-                this.singletonFirebaseProvider.setStateListener();
                 break;
 
             case R.id.nav_logout:
@@ -238,7 +237,9 @@ public class MainFragmentActivity
     public void onStart() {
         super.onStart();
 
-        this.singletonFirebaseProvider.setStateListener();
+        Log.d(DIG, TAG + ":start");
+        this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setHandler(this.handler);
 
         /*
@@ -254,14 +255,16 @@ public class MainFragmentActivity
     public void onStop() {
         super.onStop();
 
-        this.singletonFirebaseProvider.removeStateListener();
+        Log.d(DIG, TAG + ":stop");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
 
-        this.singletonFirebaseProvider.setStateListener();
+        Log.d(DIG, TAG + ":restart");
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
     @Override
@@ -270,22 +273,28 @@ public class MainFragmentActivity
 
         this.hideProgress();
 
-        this.singletonFirebaseProvider.setStateListener();
+        Log.d(DIG, TAG + ":resume");
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
+        // TODO vedi se settare handler anche qui
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        this.singletonFirebaseProvider.removeStateListener();
+        Log.d(DIG, TAG + ":pause");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        this.singletonFirebaseProvider.removeStateListener();
+        Log.d(DIG, TAG + ":destroy");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
         //.removeGoogleClient();
     }
+
+    String DIG = "SFirebaseProvider";
 }

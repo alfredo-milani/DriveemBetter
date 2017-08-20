@@ -27,7 +27,9 @@ public class SingletonFirebaseProvider
     // Variables for authentication with Firebase platoform
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
+
     private volatile boolean listenerSetted;
+    private volatile int listenerOwner; // listener's owner (which activity can set/remove it)
 
 
 
@@ -113,8 +115,10 @@ public class SingletonFirebaseProvider
         };
     }
 
-    public synchronized void setStateListener() {
-        if (this.auth != null && this.authStateListener != null && !this.listenerSetted) {
+    public synchronized void setStateListener(int hashCurrentActivity) {
+        if (this.auth != null && this.authStateListener != null &&
+                !this.listenerSetted && this.listenerOwner == hashCurrentActivity) {
+            Log.d(TAG, "setStateListener: setted");
             this.auth.addAuthStateListener(this.authStateListener);
             this.listenerSetted = true;
         } else {
@@ -122,8 +126,10 @@ public class SingletonFirebaseProvider
         }
     }
 
-    public synchronized void removeStateListener() {
-        if (this.auth != null && this.authStateListener != null && this.listenerSetted) {
+    public synchronized void removeStateListener(int hashCurrentActivity) {
+        if (this.auth != null && this.authStateListener != null &&
+                this.listenerSetted && this.listenerOwner == hashCurrentActivity) {
+            Log.d(TAG, "removeStateListener: removed");
             this.auth.removeAuthStateListener(this.authStateListener);
             this.listenerSetted = false;
         } else {
@@ -131,8 +137,8 @@ public class SingletonFirebaseProvider
         }
     }
 
-    public void ddddd() {
-        Log.w(TAG, "StateListener: auth/listener/setted: " + this.auth + " / " + this.authStateListener + " / " + this.listenerSetted);
+    public synchronized void setListenerOwner(int hashOwner) {
+        this.listenerOwner = hashOwner;
     }
 
     public void setContext(Context context) {

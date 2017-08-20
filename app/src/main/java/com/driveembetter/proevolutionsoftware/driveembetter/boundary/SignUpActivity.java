@@ -222,7 +222,8 @@ public class SignUpActivity
     public void onStart() {
         super.onStart();
 
-        this.singletonFirebaseProvider.setStateListener();
+        this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setHandler(this.handler);
 
         /*
@@ -238,14 +239,14 @@ public class SignUpActivity
     public void onStop() {
         super.onStop();
 
-        this.singletonFirebaseProvider.removeStateListener();
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
 
-        this.singletonFirebaseProvider.setStateListener();
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
     @Override
@@ -254,21 +255,21 @@ public class SignUpActivity
 
         this.hideProgress();
 
-        this.singletonFirebaseProvider.setStateListener();
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        this.singletonFirebaseProvider.removeStateListener();
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        this.singletonFirebaseProvider.removeStateListener();
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
         //.removeGoogleClient();
     }
