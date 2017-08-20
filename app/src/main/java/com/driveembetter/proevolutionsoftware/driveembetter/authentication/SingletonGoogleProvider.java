@@ -151,12 +151,12 @@ public class SingletonGoogleProvider
                             //CALL TO DISCONNECT GoogleApiClient
                             isAccntConnected = false;
                             signIn = false;
-
-                            // Firebase sign out
-                            singletonFirebaseProvider.getAuth().signOut();
                         }
                     });
         }
+
+        // Firebase sign out
+        singletonFirebaseProvider.getAuth().signOut();
     }
 
     // To disconnect from current Google account
