@@ -31,4 +31,5 @@
     <string name="postponed_verification_email">Verification email postponed</string>
     <string name="logout">Logout</string>
     <string name="unknown_error">Unknown error!</string>
+    <string name="network_error">Network error</string>
 </resources>

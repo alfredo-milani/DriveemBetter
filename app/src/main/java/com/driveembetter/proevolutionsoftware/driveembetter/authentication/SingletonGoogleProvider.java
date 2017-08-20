@@ -178,8 +178,6 @@ public class SingletonGoogleProvider
                 new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
-                        Toast.makeText(mContext, "SIGNOUT: " + status, Toast.LENGTH_LONG).show();
-
                         Log.d(TAG, "STATUS_REVOKE: " + status.getStatus());
                     }
                 });
@@ -205,7 +203,8 @@ public class SingletonGoogleProvider
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        Log.d(TAG, "onConnectionSuspended");
+        this.isAccntConnected = false;
     }
 
     public User getGoogleUserInformations() {

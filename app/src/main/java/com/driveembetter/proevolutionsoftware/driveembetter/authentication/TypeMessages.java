@@ -8,6 +8,8 @@ public interface TypeMessages {
     // Messages received by UI
     int UNKNOWN_EVENT = 0;
 
+    int NETWORK_ERROR = 24;
+
     int USER_LOGIN = 22;
     int USER_LOGIN_EMAIL_PSW = 3;
     int USER_LOGIN_GOOGLE = 12;
