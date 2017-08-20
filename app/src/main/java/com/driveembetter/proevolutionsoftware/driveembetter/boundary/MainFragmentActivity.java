@@ -25,6 +25,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
@@ -133,14 +134,18 @@ public class MainFragmentActivity
 
     @Override
     public void hideProgress() {
-        this.progressBar.setIndeterminate(true);
-        this.progressBar.setVisibility(View.GONE);
+        if (this.progressBar.getVisibility() == View.VISIBLE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void showProgress() {
-        this.progressBar.setIndeterminate(true);
-        this.progressBar.setVisibility(View.VISIBLE);
+        if (this.progressBar.getVisibility() == View.GONE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -149,7 +154,6 @@ public class MainFragmentActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            // TODO elimina riga se torna alla activity di login
             super.onBackPressed();
         }
     }
@@ -159,6 +163,7 @@ public class MainFragmentActivity
                 this.baseProviderArrayList) {
             if (baseProvider.isSignIn()) {
                 Log.d(TAG, "Logging out: " + baseProvider.getClass().toString());
+                this.showProgress();
                 baseProvider.signOut();
             }
         }
@@ -199,11 +204,17 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_gallery:
-                Log.d(TAG, "LOGIN???: " + this.singletonFirebaseProvider.isFirebaseSignIn());
-                if (this.singletonFirebaseProvider.getFirebaseUser() == null) {
-                    Log.d(TAG, "USER NULL");
+                User user = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
+                if (user != null) {
+                    Log.d(TAG, "GOOGLE USER: " + user.getUsername() + " jjj " + user.getEmail());
                 } else {
-                    Log.d(TAG, "USER: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail());
+                    Log.d(TAG, "USER GOOGLE NULL");
+                }
+
+                if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
+                    Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail());
+                } else {
+                    Log.d(TAG, "USER FIRE NULL");
                 }
                 break;
 
@@ -275,7 +286,6 @@ public class MainFragmentActivity
 
         Log.d(DIG, TAG + ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
-        // TODO vedi se settare handler anche qui
     }
 
     @Override
@@ -289,6 +299,8 @@ public class MainFragmentActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        // TODO salva i providers che sono autenticati e nella onStart riautentica l'utente
 
         Log.d(DIG, TAG + ":destroy");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());

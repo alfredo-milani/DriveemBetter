@@ -8,6 +8,8 @@ public interface TypeMessages {
     // Messages received by UI
     int UNKNOWN_EVENT = 0;
 
+    int UNKNOWN_ERROR = 26;
+
     int NETWORK_ERROR = 24;
 
     int USER_LOGIN = 22;
@@ -33,4 +35,5 @@ public interface TypeMessages {
     int VERIFICATION_EMAIL_NOT_SENT = 10;
     int EMAIL_NOT_VERIFIED = 11;
     int RESEND_VERIFICATION_EMAIL = 17;
+    int GOOGLE_SIGNIN_ERROR = 25;
 }

@@ -203,14 +203,18 @@ public class SignUpActivity
 
     @Override
     public void hideProgress() {
-        this.progressBar.setIndeterminate(true);
-        this.progressBar.setVisibility(View.GONE);
+        if (this.progressBar.getVisibility() == View.VISIBLE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void showProgress() {
-        this.progressBar.setIndeterminate(true);
-        this.progressBar.setVisibility(View.VISIBLE);
+        if (this.progressBar.getVisibility() == View.GONE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

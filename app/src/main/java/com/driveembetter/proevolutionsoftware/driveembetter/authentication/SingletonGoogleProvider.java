@@ -99,8 +99,8 @@ public class SingletonGoogleProvider
             this.firebaseAuthWithGoogle(this.account);
         } else {
             // Google Sign In failed, update UI appropriately
-            Log.d(TAG, "Google authentication failed");
-            // TODO handler invio errore di autenticazione
+            Log.d(TAG, "Google authentication failed: " + result.getStatus().getStatusMessage());
+            this.singletonFirebaseProvider.sendMessageToUI(GOOGLE_SIGNIN_ERROR);
         }
     }
 
@@ -119,6 +119,8 @@ public class SingletonGoogleProvider
                         } else {
                             // Sign in fails
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            singletonFirebaseProvider.sendMessageToUI(UNKNOWN_ERROR);
+                            signOut();
                         }
                     }
                 });
@@ -136,11 +138,9 @@ public class SingletonGoogleProvider
 
     @Override
     public void signOut() {
-        // Firebase sign out
-        this.singletonFirebaseProvider.getAuth().signOut();
-
         // Google sign out
         if (this.mGoogleApiClient.isConnected()) {
+            Log.d(TAG, "Google signing off");
             // this.mGoogleApiClient.clearDefaultAccountAndReconnect();
             Auth.GoogleSignInApi.signOut(this.mGoogleApiClient).setResultCallback(
                     new ResultCallback<Status>() {
@@ -151,6 +151,9 @@ public class SingletonGoogleProvider
                             //CALL TO DISCONNECT GoogleApiClient
                             isAccntConnected = false;
                             signIn = false;
+
+                            // Firebase sign out
+                            singletonFirebaseProvider.getAuth().signOut();
                         }
                     });
         }

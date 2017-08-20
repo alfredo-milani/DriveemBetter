@@ -28,4 +28,5 @@
     <string name="logout">Esci</string>
     <string name="unknown_error">Errore sconosciuto!</string>
     <string name="network_error">Errore di connessione</string>
+    <string name="google_signin_error">Error durante l\'accesso.</string>
 </resources>

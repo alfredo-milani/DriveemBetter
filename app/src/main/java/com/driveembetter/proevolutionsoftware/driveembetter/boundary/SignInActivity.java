@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.google.android.gms.common.SignInButton;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
@@ -47,6 +49,9 @@ public class SignInActivity
     private EditText emailField;
     private EditText passwordField;
     private ProgressBar progressBar;
+
+    //DEBUG
+    private ImageView imageView;
 
 
 
@@ -107,6 +112,14 @@ public class SignInActivity
                     Toast.makeText(SignInActivity.this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
                     break;
 
+                case GOOGLE_SIGNIN_ERROR:
+                    Log.d(TAG, "handleMessage:google_signin_error");
+
+                case UNKNOWN_ERROR:
+                    Log.d(TAG, "handleMessage:google(firebase)_signin_error");
+                    Toast.makeText(SignInActivity.this, getString(R.string.google_signin_error), Toast.LENGTH_LONG).show();
+                    break;
+
                 default:
                     Log.w(TAG, "handleMessage:error: " + id);
             }
@@ -134,6 +147,10 @@ public class SignInActivity
         this.twitterLoginButton.setOnClickListener(this);
         ((SingletonTwitterProvider) this.baseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER))
                 .setCallback(this.twitterLoginButton);
+
+        //DEBUG
+        this.imageView = (ImageView) findViewById(R.id.imageView7);
+        this.imageView.setOnClickListener(this);
     }
 
     private void initResources() {
@@ -148,6 +165,7 @@ public class SignInActivity
 
         switch (requestCode) {
             case SingletonGoogleProvider.RC_SIGN_IN:
+                Log.d(TAG, "GOOGLE onActivityResult: " + requestCode);
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                         .activityResult(requestCode, resultCode, data);
                 break;
@@ -165,6 +183,23 @@ public class SignInActivity
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            // DEBUG
+            case R.id.imageView7:
+                User user = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
+                if (user != null) {
+                    Log.d(TAG, "GOOGLE USER: " + user.getUsername() + " jjj " + user.getEmail());
+                } else {
+                    Log.d(TAG, "USER GOOGLE NULL");
+                }
+
+                if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
+                    Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail());
+                } else {
+                    Log.d(TAG, "USER FIRE NULL");
+                }
+                break;
+
+
             // Sign in with email and password
             case R.id.sign_in_button:
                 this.showProgress();
@@ -178,19 +213,10 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
-                Log.d(TAG, "LOGIN???: " + this.singletonFirebaseProvider.isFirebaseSignIn());
-                if (this.singletonFirebaseProvider.getFirebaseUser() == null) {
-                    Log.d(TAG, "USER NULL");
-                } else {
-                    Log.d(TAG, "USER: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail());
-                }
-
-                /*
                 this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.GOOGLE_PROVIDER)
                         .signIn(null, null);
-                        */
                 break;
 
             // Sign in with Twitter
@@ -213,14 +239,18 @@ public class SignInActivity
 
     @Override
     public void hideProgress() {
-        this.progressBar.setIndeterminate(true);
-        this.progressBar.setVisibility(View.GONE);
+        if (this.progressBar.getVisibility() == View.VISIBLE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void showProgress() {
-        this.progressBar.setIndeterminate(true);
-        this.progressBar.setVisibility(View.VISIBLE);
+        if (this.progressBar.getVisibility() == View.GONE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -266,11 +296,10 @@ public class SignInActivity
     protected void onResume() {
         super.onResume();
 
-        this.hideProgress();
+        // this.hideProgress();
 
         Log.d(DIG, TAG + ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
-        // TODO vedi se settare handler anche qui
     }
 
     @Override
