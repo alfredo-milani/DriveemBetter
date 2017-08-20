@@ -1,11 +1,11 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -15,18 +15,16 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.google.android.gms.common.SignInButton;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import java.util.ArrayList;
-
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PROVIDER_TYPE;
 
 
 public class SignInActivity
@@ -38,8 +36,8 @@ public class SignInActivity
     private final static String TAG = "SignInActivity";
 
     // Activity resources
-    private ArrayList<FirebaseProvider> firebaseProviderArrayList;
-    private int authenticationProvider;
+    private ArrayList<BaseProvider> baseProviderArrayList;
+    private SingletonFirebaseProvider singletonFirebaseProvider;
 
     // Activity widgets
     private Button signInButton;
@@ -70,47 +68,13 @@ public class SignInActivity
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            int id = msg.what;
 
             hideProgress();
-            switch (msg.what) {
-                case USER_LOGIN_EMAIL_PSW:
-                    if (authenticationProvider == FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER) {
-                        User userEmailPsw = firebaseProviderArrayList
-                                .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
-                                .getUserInformations();
-                        Log.d(TAG, "handleMessage:log_in EmailAndPsw user: " + userEmailPsw.getEmail());
-                        Toast.makeText(SignInActivity.this, String.format(getString(R.string.sign_in_as), userEmailPsw.getEmail()), Toast.LENGTH_SHORT).show();
-
-                        startActivityWithDatas(PROVIDER_TYPE, FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER);
-                    }
-                    break;
-
-                case USER_LOGIN_GOOGLE:
-                    if (authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
-                        User userGoogle = ((SingletonGoogleProvider) firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                                .getGoogleUserInformations();
-                        Log.d(TAG, "handleMessage:log_in Google user: " + userGoogle.getUsername());
-                        Toast.makeText(SignInActivity.this, String.format(getString(R.string.sign_in_as), userGoogle.getUsername()), Toast.LENGTH_SHORT).show();
-
-                        startActivityWithDatas(PROVIDER_TYPE, FactoryProviders.GOOGLE_PROVIDER);
-                    }
-                    break;
-
-                case USER_LOGIN_FACEBOOK:
-                    if (authenticationProvider == FactoryProviders.FACEBOOK_PROVIDER) {
-                        Log.d(TAG, "handleMessage:log_in Facebook user: ");
-                    }
-                    break;
-
-                case USER_LOGIN_TWITTER:
-                    if (authenticationProvider == FactoryProviders.TWITTER_PROVIDER) {
-                        User userTwitter = ((SingletonTwitterProvider) firebaseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER))
-                                .getTwitterUserInformations();
-                        Log.d(TAG, "handleMessage:log_in Twitter user: ");
-                        Toast.makeText(SignInActivity.this, String.format(getString(R.string.sign_in_as), userTwitter.getUsername()), Toast.LENGTH_SHORT).show();
-
-                        startActivityWithDatas(PROVIDER_TYPE, FactoryProviders.TWITTER_PROVIDER);
-                    }
+            switch (id) {
+                case USER_LOGIN:
+                    Log.d(TAG, "LOGIN");
+                    startActivity(SignInActivity.this, MainFragmentActivity.class);
                     break;
 
                 case EMAIL_REQUIRED:
@@ -144,22 +108,15 @@ public class SignInActivity
                     break;
 
                 default:
-                    Log.w(TAG, "handleMessage:error");
+                    Log.w(TAG, "handleMessage:error: " + id);
             }
         }
     };
 
-    private void startActivityWithDatas(String key, Parcelable value) {
-        Intent mainFragmentIntent = new Intent(SignInActivity.this, MainFragmentActivity.class);
-        mainFragmentIntent.putExtra(key, value);
+    private void startActivity(Context context, Class newClass) {
+        Intent mainFragmentIntent = new Intent(context, newClass);
         this.startActivity(mainFragmentIntent);
-    }
-
-    private void startActivityWithDatas(String key, int value) {
-        Log.d(TAG, "SignIn:startActivityWithDatas");
-        Intent mainFragmentIntent = new Intent(SignInActivity.this, MainFragmentActivity.class);
-        mainFragmentIntent.putExtra(key, value);
-        this.startActivity(mainFragmentIntent);
+        this.finish();
     }
 
     private void initWidget() {
@@ -172,16 +129,17 @@ public class SignInActivity
         this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         this.signInButton.setOnClickListener(this);
-        // this.signInGoogleButton.setOnClickListener(this);
+        this.signInGoogleButton.setOnClickListener(this);
         this.signUpButton.setOnClickListener(this);
-        // this.twitterLoginButton.setOnClickListener(this);
-        ((SingletonTwitterProvider) this.firebaseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER))
+        this.twitterLoginButton.setOnClickListener(this);
+        ((SingletonTwitterProvider) this.baseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER))
                 .setCallback(this.twitterLoginButton);
     }
 
     private void initResources() {
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
-        this.firebaseProviderArrayList = factoryProviders.createAllProviders();
+        this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
+        this.baseProviderArrayList = factoryProviders.getAllProviders();
     }
 
     @Override
@@ -190,7 +148,7 @@ public class SignInActivity
 
         switch (requestCode) {
             case SingletonGoogleProvider.RC_SIGN_IN:
-                ((SingletonGoogleProvider) this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                         .activityResult(requestCode, resultCode, data);
                 break;
 
@@ -209,10 +167,8 @@ public class SignInActivity
         switch (view.getId()) {
             // Sign in with email and password
             case R.id.sign_in_button:
-                this.authenticationProvider = FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER;
-
                 this.showProgress();
-                this.firebaseProviderArrayList
+                this.baseProviderArrayList
                         .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
                         .signIn(
                                 this.emailField.getText().toString(),
@@ -222,26 +178,17 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
-                this.authenticationProvider = FactoryProviders.GOOGLE_PROVIDER;
-
                 this.showProgress();
-                SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
-                if (singletonGoogleProvider.getUserInformations() == null) {
-                    Log.d(TAG, "SignIn:onClick: google init");
-                    singletonGoogleProvider.signIn(null, null);
-                } else {
-                    Log.d(TAG, "SignIn:onClick: google resumed");
-                    // singleton
-                    // GoogleProvider.managePendingOperations();
-                    // singletonGoogleProvider.asyncReSign();
-                    Message message = this.handler.obtainMessage(USER_LOGIN_GOOGLE);
-                    this.handler.sendMessage(message);
-                }
+                this.baseProviderArrayList
+                        .get(FactoryProviders.GOOGLE_PROVIDER)
+                        .signIn(null, null);
                 break;
 
             // Sign in with Twitter
             case R.id.twitter_login_button:
-                this.authenticationProvider = FactoryProviders.TWITTER_PROVIDER;
+                this.baseProviderArrayList
+                        .get(FactoryProviders.TWITTER_PROVIDER)
+                        .signIn(null, null);
                 break;
 
             // Sign up
@@ -272,44 +219,34 @@ public class SignInActivity
         super.onBackPressed();
     }
 
-
-    // TODO imposta/togli listeners per autenticazione una volta ripresa dalla sospensione
     @Override
     public void onStart() {
         super.onStart();
 
-        this.changeAllProvidersHandlers();
+        this.singletonFirebaseProvider.setStateListener();
+        this.singletonFirebaseProvider.setHandler(this.handler);
 
+        /*
         if (this.authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
-            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
+            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
             singletonGoogleProvider.connectAfterResume();
             singletonGoogleProvider.managePendingOperations();
         }
-    }
-
-    private void changeAllProvidersHandlers() {
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
-                .changeHandler(this.handler);
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.GOOGLE_PROVIDER)
-                .changeHandler(this.handler);
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.FACEBOOK_PROVIDER)
-                .changeHandler(this.handler);
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.TWITTER_PROVIDER)
-                .changeHandler(this.handler);
+        */
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
+        this.singletonFirebaseProvider.removeStateListener();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+
+        this.singletonFirebaseProvider.setStateListener();
     }
 
     @Override
@@ -317,18 +254,24 @@ public class SignInActivity
         super.onResume();
 
         this.hideProgress();
+
+        this.singletonFirebaseProvider.setStateListener();
+        // TODO vedi se settare handler anche qui
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        this.singletonFirebaseProvider.removeStateListener();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        //((SingletonGoogleProvider) this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+        this.singletonFirebaseProvider.removeStateListener();
+        //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                 //.removeGoogleClient();
     }
 }

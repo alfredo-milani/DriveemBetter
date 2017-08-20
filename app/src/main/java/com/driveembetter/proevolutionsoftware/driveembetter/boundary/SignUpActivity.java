@@ -1,11 +1,11 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,10 +18,8 @@ import android.widget.Toast;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonEmailAndPasswordProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
-
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.USER;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -29,11 +27,14 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
 
 public class SignUpActivity
         extends AppCompatActivity
-        implements View.OnClickListener, TypeMessages, com.driveembetter.proevolutionsoftware.driveembetter.boundary.ProgressBar {
+        implements View.OnClickListener,
+        TypeMessages,
+        com.driveembetter.proevolutionsoftware.driveembetter.boundary.ProgressBar {
 
     private final static String TAG = "SignUpActivity";
 
     // Activity resources
+    private SingletonFirebaseProvider singletonFirebaseProvider;
     private SingletonEmailAndPasswordProvider singletonEmailAndPasswordProvider;
 
     // Activity widgets
@@ -69,11 +70,7 @@ public class SignUpActivity
             hideProgress();
             switch (msg.what) {
                 case USER_LOGIN_EMAIL_PSW:
-                    User userEmailPsw = singletonEmailAndPasswordProvider.getUserInformations();
-                    Log.d(TAG, "handleMessage:log_in EmailAndPsw user: " + userEmailPsw.getEmail());
-                    Toast.makeText(SignUpActivity.this, String.format(getString(R.string.sign_in_as), userEmailPsw.getEmail()), Toast.LENGTH_SHORT).show();
-
-                    startActivityWithDatas(USER, userEmailPsw);
+                    startActivity(SignUpActivity.this, MainFragmentActivity.class);
                     break;
 
                 case EMAIL_NOT_VERIFIED:
@@ -100,9 +97,7 @@ public class SignUpActivity
                     Log.d(TAG, "handleMessage:verification_email_sent");
                     Toast.makeText(SignUpActivity.this, String.format(getString(R.string.verification_email_success), getString(R.string.app_name)), Toast.LENGTH_LONG).show();
 
-                    Intent signInIntent = new Intent(SignUpActivity.this, SignInActivity.class);
-                    startActivity(signInIntent);
-                    finish();
+                    startActivity(SignUpActivity.this, SignInActivity.class);
                     break;
 
                 case VERIFICATION_EMAIL_NOT_SENT:
@@ -134,9 +129,7 @@ public class SignUpActivity
                     Log.d(TAG, "handleMessage:verification_email_resent");
                     Toast.makeText(SignUpActivity.this, getString(R.string.postponed_verification_email), Toast.LENGTH_LONG).show();
 
-                    Intent signInIntent2 = new Intent(SignUpActivity.this, SignInActivity.class);
-                    startActivity(signInIntent2);
-                    finish();
+                    startActivity(SignUpActivity.this, SignInActivity.class);
                     break;
 
                 case NETWORK_ERROR:
@@ -150,9 +143,8 @@ public class SignUpActivity
         }
     };
 
-    private void startActivityWithDatas(String key, Parcelable value) {
-        Intent mainFragmentIntent = new Intent(SignUpActivity.this, MainFragmentActivity.class);
-        mainFragmentIntent.putExtra(key, value);
+    private void startActivity(Context context, Class newClass) {
+        Intent mainFragmentIntent = new Intent(context, newClass);
         this.startActivity(mainFragmentIntent);
         this.finish();
     }
@@ -160,10 +152,9 @@ public class SignUpActivity
     private void initResources() {
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
 
+        this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.singletonEmailAndPasswordProvider =
-                factoryProviders.createEmailAndPasswordProvider();
-        this.singletonEmailAndPasswordProvider
-                .changeHandler(this.handler);
+                factoryProviders.getEmailAndPasswordProvider();
     }
 
     private void initWidget() {
@@ -230,30 +221,55 @@ public class SignUpActivity
     @Override
     public void onStart() {
         super.onStart();
+
+        this.singletonFirebaseProvider.setStateListener();
+        this.singletonFirebaseProvider.setHandler(this.handler);
+
+        /*
+        if (this.authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
+            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
+            singletonGoogleProvider.connectAfterResume();
+            singletonGoogleProvider.managePendingOperations();
+        }
+        */
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
+        this.singletonFirebaseProvider.removeStateListener();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+
+        this.singletonFirebaseProvider.setStateListener();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        this.hideProgress();
+
+        this.singletonFirebaseProvider.setStateListener();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        this.singletonFirebaseProvider.removeStateListener();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        this.singletonFirebaseProvider.removeStateListener();
+        //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+        //.removeGoogleClient();
     }
 }

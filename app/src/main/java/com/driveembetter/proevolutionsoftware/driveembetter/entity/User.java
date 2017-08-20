@@ -1,8 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.entity;
 
 import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +9,8 @@ import java.util.List;
  * Created by alfredo on 10/08/17.
  */
 
-public class User implements Parcelable {
-    // TODO utilizza l'interfaccia Parcelable
-    private static Parcelable.Creator<User> CREATOR;
-
+public class User {
+    // TODO utilizza l'interfaccia Parcelable se si deve passare User da un activity ad un'altra
     // Data from Firebase Authentication
     private String username;
     private String email;
@@ -134,21 +130,5 @@ public class User implements Parcelable {
 
     public void setCurrentVeichle(Veichle currentVeichle) {
         this.currentVeichle = currentVeichle;
-    }
-
-
-
-    public User() {
-        super();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-
     }
 }

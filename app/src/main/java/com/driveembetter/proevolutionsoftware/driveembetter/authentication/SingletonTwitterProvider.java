@@ -1,12 +1,8 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
 import android.app.Activity;
-import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
@@ -31,50 +27,50 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
  * Created by alfredo on 15/08/17.
  */
 
-public class SingletonTwitterProvider extends FirebaseProvider {
+public class SingletonTwitterProvider
+        implements BaseProvider, TypeMessages {
 
     private final static String TAG = "STwitterProvider";
+
     public static final int RC_SIGN_IN = 140;
-
     private TwitterSession session;
-
-    private static SingletonTwitterProvider singletonInstance;
-
-    private SingletonTwitterProvider(Context context, Handler handler) {
-        super(context, handler);
-
-        Log.d(TAG, "Instantiated SingletonTwitterProvider.\nContext: " + this.mContext + " Handler: " + this.mContext);
-
-        TwitterConfig config = new TwitterConfig.Builder(this.mContext)
-                .logger(new DefaultLogger(Log.DEBUG))
-                .twitterAuthConfig(new TwitterAuthConfig(
-                        this.mContext.getString(R.string.com_twitter_sdk_android_CONSUMER_KEY),
-                        this.mContext.getString(R.string.com_twitter_sdk_android_CONSUMER_SECRET)
-                ))
-                .debug(true)
-                .build();
-        Twitter.initialize(config);
-    }
+    private boolean signIn;
+    private SingletonFirebaseProvider singletonFirebaseProvider;
 
 
 
     // Singleton
-    public static SingletonTwitterProvider getSingletonInstance(Context context, Handler handler) {
-        if(SingletonTwitterProvider.singletonInstance == null){
-            synchronized (SingletonTwitterProvider.class) {
-                if(SingletonTwitterProvider.singletonInstance == null) {
-                    SingletonTwitterProvider.singletonInstance =
-                            new SingletonTwitterProvider(context, handler);
-                }
-            }
-        }
+    private SingletonTwitterProvider() {
+        Log.d(TAG, "Instantiated SingletonTwitterProvider.");
 
-        return SingletonTwitterProvider.getSingletonInstance();
+        this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
+
+        TwitterConfig config = new TwitterConfig.Builder(this.singletonFirebaseProvider.getContext())
+                .logger(new DefaultLogger(Log.DEBUG))
+                .twitterAuthConfig(new TwitterAuthConfig(
+                        this.singletonFirebaseProvider
+                                .getContext()
+                                .getString(R.string.com_twitter_sdk_android_CONSUMER_KEY),
+                        this.singletonFirebaseProvider
+                                .getContext()
+                                .getString(R.string.com_twitter_sdk_android_CONSUMER_SECRET)
+                ))
+                .debug(true)
+                .build();
+        Twitter.initialize(config);
+
+        this.signIn = false;
     }
 
-    public static SingletonTwitterProvider getSingletonInstance() {
-        return SingletonTwitterProvider.singletonInstance;
+    private static class TwitterProviderContainer {
+        private final static SingletonTwitterProvider INSTANCE = new SingletonTwitterProvider();
     }
+
+    public static SingletonTwitterProvider getInstance() {
+        return SingletonTwitterProvider.TwitterProviderContainer.INSTANCE;
+    }
+
+
 
     private void handleTwitterSession(TwitterSession session) {
         Log.d(TAG, "handleTwitterSession:" + session);
@@ -84,19 +80,18 @@ public class SingletonTwitterProvider extends FirebaseProvider {
                 session.getAuthToken().secret);
 
         // Firebase authentcation
-        this.mAuth.signInWithCredential(credential)
-                .addOnCompleteListener((Activity) this.mContext, new OnCompleteListener<AuthResult>() {
+        this.singletonFirebaseProvider
+                .getAuth()
+                .signInWithCredential(credential)
+                .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success
                             Log.d(TAG, "signInWithCredential:success");
-                            getCurrentFirebaseUser();
                         } else {
                             // Sign in fails
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(mContext, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -109,9 +104,7 @@ public class SingletonTwitterProvider extends FirebaseProvider {
                 public void success(Result<TwitterSession> result) {
                     Log.d(TAG, "twitterLogin:success" + result);
 
-                    Message message = mHandler.obtainMessage(USER_LOGIN_TWITTER);
-                    mHandler.sendMessage(message);
-
+                    signIn = true;
                     session = result.data;
                     handleTwitterSession(result.data);
 
@@ -127,11 +120,15 @@ public class SingletonTwitterProvider extends FirebaseProvider {
                 public void failure(TwitterException exception) {
                     Log.w(TAG, "twitterLogin:failure", exception);
 
-                    TwitterConfig config = new TwitterConfig.Builder(mContext)
+                    TwitterConfig config = new TwitterConfig.Builder(singletonFirebaseProvider.getContext())
                             .logger(new DefaultLogger(Log.DEBUG))
                             .twitterAuthConfig(new TwitterAuthConfig(
-                                    mContext.getString(R.string.com_twitter_sdk_android_CONSUMER_KEY),
-                                    mContext.getString(R.string.com_twitter_sdk_android_CONSUMER_SECRET)
+                                    singletonFirebaseProvider
+                                            .getContext()
+                                            .getString(R.string.com_twitter_sdk_android_CONSUMER_KEY),
+                                    singletonFirebaseProvider
+                                            .getContext()
+                                            .getString(R.string.com_twitter_sdk_android_CONSUMER_SECRET)
                             ))
                             .debug(true)
                             .build();
@@ -165,5 +162,10 @@ public class SingletonTwitterProvider extends FirebaseProvider {
     @Override
     public void signOut() {
 
+    }
+
+    @Override
+    public boolean isSignIn() {
+        return this.signIn;
     }
 }

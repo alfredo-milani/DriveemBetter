@@ -1,11 +1,8 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
@@ -34,56 +31,53 @@ import com.google.firebase.auth.GoogleAuthProvider;
  */
 
 public class SingletonGoogleProvider
-        extends FirebaseProvider
         implements
-        GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+        BaseProvider,
+        TypeMessages,
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks {
 
     private static final String TAG = "SingletonGoogleProvider";
+
     public static final int RC_SIGN_IN = 9001;
-
-    private static SingletonGoogleProvider singletonInstance;
-
     private GoogleApiClient mGoogleApiClient;
     private boolean isAccntConnected = false;
     private GoogleSignInAccount account;
-
-    public SingletonGoogleProvider(Context context, Handler handler) {
-        super(context, handler);
-
-        Log.d(TAG, "Instantiated SingletonGoogleProvider.\nContext: " + this.mContext + " Handler: " + this.mContext);
-
-        // Configure Google sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(this.mContext.getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        this.mGoogleApiClient = new GoogleApiClient.Builder(this.mContext)
-                .enableAutoManage((FragmentActivity) this.mContext /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-    }
+    private boolean signIn;
+    private SingletonFirebaseProvider singletonFirebaseProvider;
 
 
 
     // Singleton
-    public static SingletonGoogleProvider getSingletonInstance(Context context, Handler handler) {
-        if(SingletonGoogleProvider.singletonInstance == null){
-            synchronized (SingletonGoogleProvider.class) {
-                if(SingletonGoogleProvider.singletonInstance == null){
-                    SingletonGoogleProvider.singletonInstance =
-                            new SingletonGoogleProvider(context, handler);
-                }
-            }
-        }
+    private SingletonGoogleProvider() {
+        this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
 
-        return SingletonGoogleProvider.getSingletonInstance();
+        Log.d(TAG, "Instantiated SingletonGoogleProvider.");
+
+        // Configure Google sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(this.singletonFirebaseProvider
+                        .getContext()
+                        .getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        this.mGoogleApiClient = new GoogleApiClient.Builder(this.singletonFirebaseProvider.getContext())
+                .enableAutoManage((FragmentActivity) this.singletonFirebaseProvider.getContext() /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        this.signIn = false;
     }
 
-    public static SingletonGoogleProvider getSingletonInstance() {
-        return SingletonGoogleProvider.singletonInstance;
+    private static class GoogleProviderContainer {
+        private final static SingletonGoogleProvider INSTANCE = new SingletonGoogleProvider();
+    }
+
+    public static SingletonGoogleProvider getInstance() {
+        return GoogleProviderContainer.INSTANCE;
     }
 
 
@@ -100,13 +94,13 @@ public class SingletonGoogleProvider
         this.account = result.getSignInAccount();
         if (result.isSuccess() && this.account != null) {
             // Google Sign In was successful, authenticate with Firebase
-            Log.d(TAG, "Google auth: user: " + account.getEmail());
-            Message message = mHandler.obtainMessage(USER_LOGIN_GOOGLE);
-            mHandler.sendMessage(message);
-            firebaseAuthWithGoogle(account);
+            Log.d(TAG, "Google auth: user: " + this.account.getEmail());
+            this.signIn = true;
+            this.firebaseAuthWithGoogle(this.account);
         } else {
             // Google Sign In failed, update UI appropriately
             Log.d(TAG, "Google authentication failed");
+            // TODO handler invio errore di autenticazione
         }
     }
 
@@ -115,14 +109,13 @@ public class SingletonGoogleProvider
 
         AuthCredential credential = GoogleAuthProvider
                 .getCredential(acct.getIdToken(), null);
-        super.mAuth.signInWithCredential(credential)
-                .addOnCompleteListener((Activity) this.mContext, new OnCompleteListener<AuthResult>() {
+        this.singletonFirebaseProvider.getAuth().signInWithCredential(credential)
+                .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success
                             Log.d(TAG, "signInWithCredential:success");
-                            getCurrentFirebaseUser();
                         } else {
                             // Sign in fails
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -138,13 +131,13 @@ public class SingletonGoogleProvider
         }
 
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(this.mGoogleApiClient);
-        ((Activity) this.mContext).startActivityForResult(signInIntent, RC_SIGN_IN);
+        ((Activity) this.singletonFirebaseProvider.getContext()).startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     @Override
     public void signOut() {
         // Firebase sign out
-        super.mAuth.signOut();
+        this.singletonFirebaseProvider.getAuth().signOut();
 
         // Google sign out
         if (this.mGoogleApiClient.isConnected()) {
@@ -153,22 +146,20 @@ public class SingletonGoogleProvider
                     new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
-                            Log.d(TAG, "Sign Out using Google Api.");
+                            Log.d(TAG, "Sign Out using Google Api: status: " + status.getStatus());
                             mGoogleApiClient.disconnect();
                             //CALL TO DISCONNECT GoogleApiClient
                             isAccntConnected = false;
+                            signIn = false;
                         }
                     });
         }
-
-        Message message = mHandler.obtainMessage(USER_LOGOUT_GOOGLE);
-        mHandler.sendMessage(message);
     }
 
     // To disconnect from current Google account
     public void revokeAccess() {
         // Firebase sign out
-        super.mAuth.signOut();
+        this.singletonFirebaseProvider.getAuth().signOut();
 
         if (!this.isAccntConnected) {
             return;
@@ -192,7 +183,7 @@ public class SingletonGoogleProvider
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
-        Toast.makeText(this.mContext, "Google Play Services error.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this.singletonFirebaseProvider.getContext(), "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -229,6 +220,7 @@ public class SingletonGoogleProvider
             Log.d(TAG, "connectionAfterResume:reconnection");
             this.mGoogleApiClient.connect();
             this.isAccntConnected = true;
+            this.signIn = true;
         }
     }
 
@@ -259,7 +251,12 @@ public class SingletonGoogleProvider
     }
 
     public void removeGoogleClient() {
-        this.mGoogleApiClient.stopAutoManage((FragmentActivity) this.mContext);
+        this.mGoogleApiClient.stopAutoManage((FragmentActivity) this.singletonFirebaseProvider.getContext());
         this.signOut();
+    }
+
+    @Override
+    public boolean isSignIn() {
+        return this.signIn;
     }
 }
