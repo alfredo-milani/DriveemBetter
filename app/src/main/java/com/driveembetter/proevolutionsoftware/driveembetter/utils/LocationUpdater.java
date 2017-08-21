@@ -12,7 +12,6 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
@@ -21,8 +20,11 @@ import android.util.Log;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -44,6 +46,7 @@ public class LocationUpdater {
 
     private FirebaseDatabase database;
     private DatabaseReference myRef;
+    private DatabaseReference checkRef;
     private LocationManager locationManager;
     private LocationListener locationListener;
     private double latitude, longitude, oldLatitude, oldLongitude;
@@ -51,20 +54,22 @@ public class LocationUpdater {
     Location oldLocation;
     Activity activity;
     private String email;
-    private String android_id;
     private Geocoder geocoder;
     private List veichlesArray;
     private String currentVeichle;
     private String veichleType;
     private String userImage;
-    private TextToSpeech tts;
-    private float currentSpeed;
     private int test;
     private URL url;
     private String username;
+    private User user;
+    private String userKey;
+    private String userId;
+    Map<String, Object> emailMap;
 
-    public LocationUpdater(Activity activity) {
+    public LocationUpdater(Activity activity, User user) {
         this.activity = activity;
+        this.user = user;
     }
 
     public LocationListener getLocationListener() {
@@ -89,57 +94,46 @@ public class LocationUpdater {
             Log.e("DB", "PERMISSION GRANTED");
         }
 
-        username = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userId = user.getUid();
 
-        Log.e("username", username);
+        email = user.getEmail();
 
         final Geocoder geocoder;
         geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
-
-        tts = new TextToSpeech(activity, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-            }
-        });
-
-
-        android_id = Settings.Secure.getString(activity.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
 
         database = FirebaseDatabase.getInstance();
         // Get LocationManager object from System Service LOCATION_SERVICE
         locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         oldLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        oldLatitude = oldLocation.getLatitude();
-        oldLongitude = oldLocation.getLongitude();
-        List<Address> oldAddresses;
-        try {
-            oldAddresses = geocoder.getFromLocation(oldLatitude, oldLongitude, 1);
-            oldCountry = oldAddresses.get(0).getCountryName();
-            oldRegion = oldAddresses.get(0).getAdminArea();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (oldLocation != null) {
+            oldLatitude = oldLocation.getLatitude();
+            oldLongitude = oldLocation.getLongitude();
+
+            List<Address> oldAddresses;
+            try {
+                oldAddresses = geocoder.getFromLocation(oldLatitude, oldLongitude, 1);
+                if (oldAddresses.size()!=0) {
+                    oldCountry = oldAddresses.get(0).getCountryName();
+                    oldRegion = oldAddresses.get(0).getAdminArea();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            oldCountry = "oldCountry";
+            oldRegion = "oldRegion";
         }
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
 
-                test++;
-
-                //we have to check the driver speed
-                if (location.hasSpeed()) {
-                    if (test >=10) {
-                        currentSpeed = location.getSpeed();
-                        speak("La tua velocità è di: " + (int) currentSpeed + "chilometri orari");
-                        test = 0;
-                    }
-                }
-
                 List<Address> addresses;
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
                 Map<String, Object> coordinates = new ArrayMap<>();
+                emailMap = new ArrayMap<>();
                 coordinates.put("currentUserPosition", latitude+";"+longitude);
+                emailMap.put("email", email);
                 String country = "";
                 String region = "";
                 try {
@@ -154,7 +148,7 @@ public class LocationUpdater {
                 Boolean radicalChange = false;
                 if (!oldCountry.equals(country) || !oldRegion.equals(region)) {
                     //delete the current user instance and create a newer
-                    myRef = database.getReference(oldCountry + "/" + oldRegion + "/" + username);
+                    myRef = database.getReference(oldCountry + "/" + oldRegion + "/" + userId);
                         myRef.removeValue();
                         radicalChange = true;
                 }
@@ -165,10 +159,23 @@ public class LocationUpdater {
                 }
                 oldCountry = country;
                 oldRegion = region;
-                myRef = database.getReference(country + "/" + region + "/" + username);
-                System.out.println("STANDARD TASK");
-                myRef.updateChildren(coordinates);
+                myRef = database.getReference(country + "/" + region + "/" + userId);
+                checkRef = database.getReference(country + "/" + region + "/" + userId);
 
+                myRef.updateChildren(coordinates);
+                checkRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.hasChild("email")) {
+                            myRef.updateChildren(emailMap);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
@@ -189,12 +196,5 @@ public class LocationUpdater {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
     }
 
-    private void speak(String text){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
-        }else{
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        }
-    }
 
 }

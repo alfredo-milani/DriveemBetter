@@ -2,6 +2,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -21,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -30,6 +32,7 @@ import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -80,6 +83,7 @@ public class SaveMe extends Fragment {
     private RelativeLayout relativeLayout;
     private TextView driverUsername, driverLocation, driverFeedback;
     private String android_id;
+    private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken;
 
     private int progressToMeters(int progress) {
         int meters;
@@ -112,6 +116,10 @@ public class SaveMe extends Fragment {
                     new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                     1);
         }
+
+        //CHECK INTERNET CONNECTION
+        if (!NetworkConnectionUtil.isConnectedToInternet(context))
+            Toast.makeText(context, "Please, check you Internet connection!", Toast.LENGTH_SHORT).show();
         final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
         locationUpdater = ((MainFragmentActivity)getActivity()).getLocationUpdater();
@@ -127,6 +135,7 @@ public class SaveMe extends Fragment {
         mMapView.onResume(); // needed to get the map to display immediately
 
         database = FirebaseDatabase.getInstance();
+        //TODO: TO CHANGE
         myRef = database.getReference("Italy/Lazio");
 
         android_id = Settings.Secure.getString(getActivity().getContentResolver(),
@@ -149,11 +158,15 @@ public class SaveMe extends Fragment {
                         if ( markerPool.containsKey(user)) {
                             markerPool.get(user).setPosition(userPos);
                         } else {
+                            String markerTitle = "user@drivembetter.com";
+                            if (data.get(user).get("email")!=null)
+                                markerTitle =(String) data.get(user).get("email");
 
                             Marker userMarker = googleMap.addMarker(new MarkerOptions()
                                     .position(userPos)
+                                    .snippet(user)
                                     .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_car))
-                                    .title(user.toString()));
+                                    .title(markerTitle));
                             markerPool.put(user, userMarker);
                         }
                     }
@@ -301,9 +314,13 @@ public class SaveMe extends Fragment {
                     @Override
                     public boolean onMarkerClick(final Marker marker) {
 
-                        String userLocation = "NA";
+                        userSelectedLocation = "NA";
+                        userSelectedFeedback = "NA";
+                        userSelectedEmail = marker.getTitle();
+                        userSelectedToken = "";
+                        userSelectedUid = marker.getSnippet();
 
-                        String userFeedback = "NA";
+
 
                         List<Address> addresses;
                         Geocoder geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
@@ -311,7 +328,7 @@ public class SaveMe extends Fragment {
                         try {
                             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                             if (addresses != null && addresses.size() > 0) {
-                                userLocation = addresses.get(0).getAddressLine(0);
+                                userSelectedLocation = addresses.get(0).getAddressLine(0);
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -321,20 +338,42 @@ public class SaveMe extends Fragment {
                         relativeLayout = (RelativeLayout) rootView.findViewById(R.id.relative);
                         layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                         ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.driver_info, null);
-                        driverInfo = new PopupWindow(container, 650, 650, true);
+                        driverInfo = new PopupWindow(container, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
                         driverInfo.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
                         driverUsername = (TextView) container.findViewById(R.id.driverUsernameContent);
                         driverLocation = (TextView) container.findViewById(R.id.driverPositionContent);
                         driverFeedback = (TextView) container.findViewById(R.id.driverFeedbackContent);
                         driverLocation.setMovementMethod(new ScrollingMovementMethod());
-                        driverUsername.setText(marker.getTitle().toString());
-                        driverLocation.setText(userLocation);
-                        driverFeedback.setText(userFeedback);
+                        driverUsername.setText(marker.getTitle());
+                        driverLocation.setText(userSelectedLocation);
+                        driverFeedback.setText(userSelectedFeedback);
                         Button message = container.findViewById(R.id.messageBtn);
                         message.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 Toast.makeText(getActivity(), "How could I inform this user that I'm in trouble?", Toast.LENGTH_SHORT).show();
+                                //TODO start chat activity
+
+                                //catch user token
+                                DatabaseReference userRef = database.getReference("users/" + userSelectedUid);
+
+                                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        userSelectedToken = (String) dataSnapshot.child("firebaseToken").getValue();
+                                        //TODO: TO CHANGE
+                                        ChatActivity.startActivity(getActivity(),
+                                        userSelectedEmail,
+                                        userSelectedUid,
+                                        userSelectedToken);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
                             }
                         });
                         container.setOnTouchListener(new View.OnTouchListener() {
