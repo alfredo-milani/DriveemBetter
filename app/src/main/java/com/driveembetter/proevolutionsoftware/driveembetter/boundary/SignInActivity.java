@@ -79,10 +79,13 @@ public class SignInActivity
             int id = msg.what;
 
             hideProgress();
+            emailField.setError(null);
+            passwordField.setError(null);
             switch (id) {
                 case USER_LOGIN:
-                    Log.d(TAG, "LOGIN");
+                    Log.d(TAG, "handleMessage:Login");
                     if (checkEmailBeforeLogIn && !singletonFirebaseProvider.isFirebaseSignIn()) {
+                        checkEmailBeforeLogIn = false;
                         break;
                     }
                     startNewActivity(SignInActivity.this, MainFragmentActivity.class);
