@@ -173,4 +173,11 @@ public class SingletonFirebaseProvider
             Log.w(TAG, "Handler is null!");
         }
     }
+
+    public void forceSignOut() {
+        if (this.getFirebaseUser() != null) {
+            Log.d(TAG, "force Firebase sign out");
+            this.auth.signOut();
+        }
+    }
 }

@@ -77,7 +77,7 @@ public class MainFragmentActivity
 
                 case USER_LOGOUT:
                     Toast.makeText(MainFragmentActivity.this, getString(R.string.logout), Toast.LENGTH_SHORT).show();
-                    startActivity(MainFragmentActivity.this, SignInActivity.class);
+                    startNewActivity(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
                 default:
@@ -86,7 +86,7 @@ public class MainFragmentActivity
         }
     };
 
-    private void startActivity(Context context, Class newClass) {
+    private void startNewActivity(Context context, Class newClass) {
         Intent mainFragmentIntent = new Intent(context, newClass);
         this.startActivity(mainFragmentIntent);
         this.finish();
@@ -128,7 +128,7 @@ public class MainFragmentActivity
             this.usernameTextView.setText(this.user.getEmail());
         } else {
             Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-            this.startActivity(MainFragmentActivity.this, SignInActivity.class);
+            this.startNewActivity(MainFragmentActivity.this, SignInActivity.class);
         }
     }
 
@@ -166,6 +166,10 @@ public class MainFragmentActivity
                 this.showProgress();
                 baseProvider.signOut();
             }
+        }
+
+        if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
+            this.singletonFirebaseProvider.forceSignOut();
         }
     }
 

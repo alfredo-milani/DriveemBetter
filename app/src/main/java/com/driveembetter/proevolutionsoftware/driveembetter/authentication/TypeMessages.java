@@ -36,4 +36,5 @@ public interface TypeMessages {
     int EMAIL_NOT_VERIFIED = 11;
     int RESEND_VERIFICATION_EMAIL = 17;
     int GOOGLE_SIGNIN_ERROR = 25;
+    int BAD_EMAIL_OR_PSW = 27;
 }

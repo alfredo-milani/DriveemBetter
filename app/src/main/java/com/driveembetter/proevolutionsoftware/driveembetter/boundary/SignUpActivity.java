@@ -70,7 +70,7 @@ public class SignUpActivity
             hideProgress();
             switch (msg.what) {
                 case USER_LOGIN_EMAIL_PSW:
-                    startActivity(SignUpActivity.this, MainFragmentActivity.class);
+                    startNewActivity(SignUpActivity.this, MainFragmentActivity.class);
                     break;
 
                 case EMAIL_NOT_VERIFIED:
@@ -97,7 +97,7 @@ public class SignUpActivity
                     Log.d(TAG, "handleMessage:verification_email_sent");
                     Toast.makeText(SignUpActivity.this, String.format(getString(R.string.verification_email_success), getString(R.string.app_name)), Toast.LENGTH_LONG).show();
 
-                    startActivity(SignUpActivity.this, SignInActivity.class);
+                    startNewActivity(SignUpActivity.this, SignInActivity.class);
                     break;
 
                 case VERIFICATION_EMAIL_NOT_SENT:
@@ -129,7 +129,7 @@ public class SignUpActivity
                     Log.d(TAG, "handleMessage:verification_email_resent");
                     Toast.makeText(SignUpActivity.this, getString(R.string.postponed_verification_email), Toast.LENGTH_LONG).show();
 
-                    startActivity(SignUpActivity.this, SignInActivity.class);
+                    startNewActivity(SignUpActivity.this, SignInActivity.class);
                     break;
 
                 case NETWORK_ERROR:
@@ -143,7 +143,7 @@ public class SignUpActivity
         }
     };
 
-    private void startActivity(Context context, Class newClass) {
+    private void startNewActivity(Context context, Class newClass) {
         Intent mainFragmentIntent = new Intent(context, newClass);
         this.startActivity(mainFragmentIntent);
         this.finish();

@@ -132,6 +132,11 @@ public class SingletonGoogleProvider
             Log.w(TAG, "Google:signIn: received argument: email: " + email + " password: " + password);
         }
 
+        if (this.account != null) {
+            this.firebaseAuthWithGoogle(this.account);
+            return;
+        }
+
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(this.mGoogleApiClient);
         ((Activity) this.singletonFirebaseProvider.getContext()).startActivityForResult(signInIntent, RC_SIGN_IN);
     }

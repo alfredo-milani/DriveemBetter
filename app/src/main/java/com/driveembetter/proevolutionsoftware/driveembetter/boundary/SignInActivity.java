@@ -50,6 +50,9 @@ public class SignInActivity
     private EditText passwordField;
     private ProgressBar progressBar;
 
+    // If we are authenticated with Firebase we check if email is verified before login
+    private boolean checkEmailBeforeLogIn;
+
     //DEBUG
     private ImageView imageView;
 
@@ -79,7 +82,10 @@ public class SignInActivity
             switch (id) {
                 case USER_LOGIN:
                     Log.d(TAG, "LOGIN");
-                    startActivity(SignInActivity.this, MainFragmentActivity.class);
+                    if (checkEmailBeforeLogIn && !singletonFirebaseProvider.isFirebaseSignIn()) {
+                        break;
+                    }
+                    startNewActivity(SignInActivity.this, MainFragmentActivity.class);
                     break;
 
                 case EMAIL_REQUIRED:
@@ -97,14 +103,20 @@ public class SignInActivity
                     Toast.makeText(SignInActivity.this, getString(R.string.email_not_verified), Toast.LENGTH_LONG).show();
                     break;
 
-                case INVALID_CREDENTIALS:
-                    Log.d(TAG, "handleMessage:invalid_credentials");
-                    passwordField.setError(getString(R.string.invalid_credentials));
+                case BAD_EMAIL_OR_PSW:
+                    Log.d(TAG, "handleMessage:invalid email or password");
+                    emailField.setError(getString(R.string.wrong_email_or_psw));
+                    passwordField.setError(getString(R.string.wrong_email_or_psw));
                     break;
 
                 case INVALID_USER:
                     Log.d(TAG, "handleMessage:invalid user");
                     emailField.setError(getString(R.string.invalid_user));
+                    break;
+
+                case BAD_FORMATTED_EMAIL:
+                    Log.d(TAG, "handleMessage:bad_formatted_email");
+                    emailField.setError(getString(R.string.bad_formatted_email));
                     break;
 
                 case NETWORK_ERROR:
@@ -126,7 +138,7 @@ public class SignInActivity
         }
     };
 
-    private void startActivity(Context context, Class newClass) {
+    private void startNewActivity(Context context, Class newClass) {
         Intent mainFragmentIntent = new Intent(context, newClass);
         this.startActivity(mainFragmentIntent);
         this.finish();
@@ -154,6 +166,7 @@ public class SignInActivity
     }
 
     private void initResources() {
+        this.checkEmailBeforeLogIn = false;
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
         this.baseProviderArrayList = factoryProviders.getAllProviders();
@@ -202,6 +215,7 @@ public class SignInActivity
 
             // Sign in with email and password
             case R.id.sign_in_button:
+                this.checkEmailBeforeLogIn = true;
                 this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
@@ -306,6 +320,7 @@ public class SignInActivity
     protected void onPause() {
         super.onPause();
 
+        this.checkEmailBeforeLogIn = false;
         Log.d(DIG, TAG + ":pause");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }

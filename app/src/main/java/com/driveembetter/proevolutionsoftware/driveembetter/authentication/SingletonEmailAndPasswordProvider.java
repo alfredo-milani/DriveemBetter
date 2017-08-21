@@ -71,7 +71,7 @@ public class SingletonEmailAndPasswordProvider
                                 throw task.getException();
                             } catch (FirebaseAuthInvalidCredentialsException e) {
                                 Log.d(TAG, "signInWithEmail:failed", task.getException());
-                                singletonFirebaseProvider.sendMessageToUI(INVALID_CREDENTIALS);
+                                singletonFirebaseProvider.sendMessageToUI(BAD_EMAIL_OR_PSW);
                             } catch (FirebaseAuthInvalidUserException e3) {
                                 Log.d(TAG, "signInWithEmail:failed", task.getException());
                                 singletonFirebaseProvider.sendMessageToUI(INVALID_USER);
@@ -85,7 +85,6 @@ public class SingletonEmailAndPasswordProvider
 
                         } else {
                             checkIfEmailVerified();
-                            signIn = true;
                         }
                     }
                 });
@@ -97,6 +96,7 @@ public class SingletonEmailAndPasswordProvider
                 .isEmailVerified()) {
             // User verified
             Log.d(TAG, "checkIfEmailVerified:success");
+            this.signIn = true;
             this.singletonFirebaseProvider.sendMessageToUI(USER_LOGIN_EMAIL_PSW);
         } else {
             // Email is not verified
@@ -105,14 +105,12 @@ public class SingletonEmailAndPasswordProvider
                 this.sendVerificationEmail();
                 this.resendVerificationEmail = false;
                 this.singletonFirebaseProvider.sendMessageToUI(RESEND_VERIFICATION_EMAIL);
-                // Log out user
-                this.signOut();
             } else {
                 Log.d(TAG, "checkIfEmailVerified:failure");
                 this.singletonFirebaseProvider.sendMessageToUI(EMAIL_NOT_VERIFIED);
-                // Log out user
-                this.signOut();
             }
+            // Log out user
+            this.signOut();
         }
     }
 
