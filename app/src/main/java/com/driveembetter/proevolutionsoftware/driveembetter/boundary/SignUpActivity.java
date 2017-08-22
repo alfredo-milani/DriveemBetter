@@ -240,13 +240,6 @@ public class SignUpActivity
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-
-        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
-    }
-
-    @Override
     protected void onRestart() {
         super.onRestart();
 
@@ -265,6 +258,13 @@ public class SignUpActivity
     @Override
     protected void onPause() {
         super.onPause();
+
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
 
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }

@@ -11,7 +11,6 @@ public class SingletonFacebookProvider
 
     private final static String TAG = "SFacebookProvider";
 
-    private boolean signIn;
     private SingletonFirebaseProvider singletonFirebaseProvider;
 
 
@@ -21,8 +20,6 @@ public class SingletonFacebookProvider
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
 
         Log.d(TAG, "Instantiated SingleEmailAndPasswordProvider.");
-
-        this.signIn = false;
     }
 
     private static class FacebookProviderContainer {
@@ -47,6 +44,6 @@ public class SingletonFacebookProvider
 
     @Override
     public boolean isSignIn() {
-        return this.signIn;
+        return false;
     }
 }

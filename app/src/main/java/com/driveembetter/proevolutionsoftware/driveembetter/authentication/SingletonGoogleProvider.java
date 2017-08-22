@@ -43,7 +43,6 @@ public class SingletonGoogleProvider
     private GoogleApiClient mGoogleApiClient;
     private boolean isAccntConnected = false;
     private GoogleSignInAccount account;
-    private boolean signIn;
     private SingletonFirebaseProvider singletonFirebaseProvider;
 
 
@@ -68,8 +67,6 @@ public class SingletonGoogleProvider
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-
-        this.signIn = false;
     }
 
     private static class GoogleProviderContainer {
@@ -95,7 +92,6 @@ public class SingletonGoogleProvider
         if (result.isSuccess() && this.account != null) {
             // Google Sign In was successful, authenticate with Firebase
             Log.d(TAG, "Google auth: user: " + this.account.getEmail());
-            this.signIn = true;
             this.firebaseAuthWithGoogle(this.account);
         } else {
             // Google Sign In failed, update UI appropriately
@@ -155,7 +151,6 @@ public class SingletonGoogleProvider
                             mGoogleApiClient.disconnect();
                             //CALL TO DISCONNECT GoogleApiClient
                             isAccntConnected = false;
-                            signIn = false;
                         }
                     });
         }
@@ -228,7 +223,6 @@ public class SingletonGoogleProvider
             Log.d(TAG, "connectionAfterResume:reconnection");
             this.mGoogleApiClient.connect();
             this.isAccntConnected = true;
-            this.signIn = true;
         }
     }
 
@@ -258,6 +252,27 @@ public class SingletonGoogleProvider
         }
     }
 
+    public void silentSignIn() {
+        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(this.mGoogleApiClient);
+        if (opr.isDone()) {
+            // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
+            // and the GoogleSignInResult will be available instantly.
+            Log.d(TAG, "Got cached sign-in");
+            this.handleSignInResult(opr.get());
+        } else {
+            // If the user has not previously signed in on this device or the sign-in has expired,
+            // this asynchronous branch will attempt to sign in the user silently.  Cross-device
+            // single sign-on will occur in this branch.
+            opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+                @Override
+                public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
+                    Log.d(TAG, "Silent sign-in");
+                    handleSignInResult(googleSignInResult);
+                }
+            });
+        }
+    }
+
     public void removeGoogleClient() {
         this.mGoogleApiClient.stopAutoManage((FragmentActivity) this.singletonFirebaseProvider.getContext());
         this.signOut();
@@ -265,6 +280,6 @@ public class SingletonGoogleProvider
 
     @Override
     public boolean isSignIn() {
-        return this.signIn;
+        return this.account != null;
     }
 }

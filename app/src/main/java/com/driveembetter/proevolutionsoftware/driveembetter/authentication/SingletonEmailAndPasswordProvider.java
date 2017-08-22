@@ -24,7 +24,6 @@ public class SingletonEmailAndPasswordProvider
     private static final String TAG = "SEmailAndPswProvider";
 
     private boolean resendVerificationEmail;
-    private boolean signIn;
     private SingletonFirebaseProvider singletonFirebaseProvider;
 
 
@@ -35,7 +34,7 @@ public class SingletonEmailAndPasswordProvider
 
         Log.d(TAG, "Instantiated SingleEmailAndPasswordProvider.");
 
-        this.signIn = this.resendVerificationEmail = false;
+        this.resendVerificationEmail = false;
     }
 
     private static class EmailAndPasswordProviderContainer {
@@ -96,7 +95,6 @@ public class SingletonEmailAndPasswordProvider
                 .isEmailVerified()) {
             // User verified
             Log.d(TAG, "checkIfEmailVerified:success");
-            this.signIn = true;
             this.singletonFirebaseProvider.sendMessageToUI(USER_LOGIN_EMAIL_PSW);
         } else {
             // Email is not verified
@@ -187,14 +185,18 @@ public class SingletonEmailAndPasswordProvider
     }
 
     public void signOut() {
-        this.signIn = false;
         this.singletonFirebaseProvider
                 .getAuth()
                 .signOut();
     }
 
+    /**
+     * Check if a user is signed in and his email is verified with Firease provider
+     * @return true: if user is signed in and his email is verified; false: the user is not signed in or his email is not verified
+     */
     @Override
     public boolean isSignIn() {
-        return this.signIn;
+        return this.singletonFirebaseProvider.isFirebaseSignIn() &&
+                this.singletonFirebaseProvider.getFirebaseUser().isEmailVerified();
     }
 }

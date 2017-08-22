@@ -34,7 +34,6 @@ public class SingletonTwitterProvider
 
     public static final int RC_SIGN_IN = 140;
     private TwitterSession session;
-    private boolean signIn;
     private SingletonFirebaseProvider singletonFirebaseProvider;
 
 
@@ -58,8 +57,6 @@ public class SingletonTwitterProvider
                 .debug(true)
                 .build();
         Twitter.initialize(config);
-
-        this.signIn = false;
     }
 
     private static class TwitterProviderContainer {
@@ -104,7 +101,6 @@ public class SingletonTwitterProvider
                 public void success(Result<TwitterSession> result) {
                     Log.d(TAG, "twitterLogin:success" + result);
 
-                    signIn = true;
                     session = result.data;
                     handleTwitterSession(result.data);
 
@@ -166,6 +162,6 @@ public class SingletonTwitterProvider
 
     @Override
     public boolean isSignIn() {
-        return this.signIn;
+        return this.session != null;
     }
 }

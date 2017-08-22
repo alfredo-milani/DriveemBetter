@@ -24,6 +24,8 @@ import android.widget.Toast;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonEmailAndPasswordProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFacebookProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
@@ -252,7 +254,7 @@ public class MainFragmentActivity
     public void onStart() {
         super.onStart();
 
-        Log.d(DIG, TAG + ":start");
+        Log.d(TAG, ":start");
         this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setHandler(this.handler);
@@ -266,19 +268,20 @@ public class MainFragmentActivity
         */
     }
 
+    // Called between onStart() and onPostCreate()
     @Override
-    public void onStop() {
-        super.onStop();
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
 
-        Log.d(DIG, TAG + ":stop");
-        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
+        Log.d(TAG, ":onRestoreInstanceState");
+        this.restoreProviders(savedInstanceState);
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
 
-        Log.d(DIG, TAG + ":restart");
+        Log.d(TAG, ":restart");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
@@ -288,7 +291,7 @@ public class MainFragmentActivity
 
         this.hideProgress();
 
-        Log.d(DIG, TAG + ":resume");
+        Log.d(TAG, ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
@@ -296,7 +299,24 @@ public class MainFragmentActivity
     protected void onPause() {
         super.onPause();
 
-        Log.d(DIG, TAG + ":pause");
+        Log.d(TAG, ":pause");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
+    }
+
+    // Called before onStop()
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Log.d(TAG, ":onSaveInstanceState");
+        this.saveProviders(outState);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        Log.d(TAG, ":stop");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
@@ -304,13 +324,63 @@ public class MainFragmentActivity
     protected void onDestroy() {
         super.onDestroy();
 
-        // TODO salva i providers che sono autenticati e nella onStart riautentica l'utente
-
-        Log.d(DIG, TAG + ":destroy");
+        Log.d(TAG, ":destroy");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
         //.removeGoogleClient();
     }
 
-    String DIG = "SFirebaseProvider";
+    private void saveProviders(Bundle bundle) {
+        if (this.baseProviderArrayList != null) {
+            if (baseProviderArrayList
+                    .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
+                    .isSignIn()) {
+                bundle.putBoolean(FIREBASE_PROVIDER, true);
+            } else if (baseProviderArrayList
+                    .get(FactoryProviders.GOOGLE_PROVIDER)
+                    .isSignIn()) {
+                bundle.putBoolean(GOOGLE_PROVIDER, true);
+            } else if (baseProviderArrayList
+                    .get(FactoryProviders.FACEBOOK_PROVIDER)
+                    .isSignIn()) {
+                bundle.putBoolean(FACEBOOK_PROVIDER, true);
+            } else if (baseProviderArrayList
+                    .get(FactoryProviders.TWITTER_PROVIDER)
+                    .isSignIn()) {
+                bundle.putBoolean(TWITTER_PROVIDER, true);
+            }
+        }
+    }
+
+    private void restoreProviders(Bundle bundle) {
+        if (this.baseProviderArrayList != null) {
+            if (bundle.getBoolean(FIREBASE_PROVIDER, false) &&
+                    !this.baseProviderArrayList
+                            .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
+                            .isSignIn()) {
+                Log.d(TAG, "restoring Firebase provider");
+                this.singletonFirebaseProvider.forceSignOut();
+                // this.startNewActivity(MainFragmentActivity.this, SignInActivity.class);
+            } else if (bundle.getBoolean(GOOGLE_PROVIDER, false) &&
+                    !this.baseProviderArrayList
+                            .get(FactoryProviders.GOOGLE_PROVIDER)
+                            .isSignIn()) {
+                Log.d(TAG, "restoring Google provider");
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                        .silentSignIn();
+            } else if (bundle.getBoolean(FACEBOOK_PROVIDER, false) &&
+                    !this.baseProviderArrayList
+                            .get(FactoryProviders.FACEBOOK_PROVIDER)
+                            .isSignIn()) {
+                Log.d(TAG, "restoring Facebook provider");
+                this.baseProviderArrayList.get(FactoryProviders.FACEBOOK_PROVIDER).signIn(null, null);
+            } else if (bundle.getBoolean(TWITTER_PROVIDER, false) &&
+                    !this.baseProviderArrayList
+                            .get(FactoryProviders.TWITTER_PROVIDER)
+                            .isSignIn()) {
+                Log.d(TAG, "restoring Twitter provider");
+                this.baseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER).signIn(null, null);
+            }
+        }
+    }
 }

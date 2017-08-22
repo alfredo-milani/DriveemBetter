@@ -279,7 +279,7 @@ public class SignInActivity
     public void onStart() {
         super.onStart();
 
-        Log.d(DIG, TAG + ":start");
+        Log.d(TAG, ":start");
         this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setHandler(this.handler);
@@ -294,18 +294,10 @@ public class SignInActivity
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-
-        Log.d(DIG, TAG + ":stop");
-        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
-    }
-
-    @Override
     protected void onRestart() {
         super.onRestart();
 
-        Log.d(DIG, TAG + ":restart");
+        Log.d(TAG, ":restart");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
@@ -315,7 +307,7 @@ public class SignInActivity
 
         // this.hideProgress();
 
-        Log.d(DIG, TAG + ":resume");
+        Log.d(TAG, ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
@@ -324,7 +316,15 @@ public class SignInActivity
         super.onPause();
 
         this.checkEmailBeforeLogIn = false;
-        Log.d(DIG, TAG + ":pause");
+        Log.d(TAG, ":pause");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        Log.d(TAG, ":stop");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
@@ -332,11 +332,9 @@ public class SignInActivity
     protected void onDestroy() {
         super.onDestroy();
 
-        Log.d(DIG, TAG + ":destroy");
+        Log.d(TAG, ":destroy");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                 //.removeGoogleClient();
     }
-
-    String DIG = "SFirebaseProvider";
 }

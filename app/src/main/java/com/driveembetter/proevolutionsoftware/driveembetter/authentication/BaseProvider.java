@@ -5,7 +5,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
  */
 
 public interface BaseProvider {
-    // TODO: lasciare gli account Google, Twitter e Facebook sempre loggati a meno che l0utente non prema i bottoni appositi
+    // TODO: lasciare gli account Google, Twitter e Facebook sempre loggati a meno che l'utente non prema i bottoni appositi
     // alla pressione di logout (nella MainFragmentActivity) solo l'account Firebase faraà logout
     void signIn(String email, String password);
     void signOut();

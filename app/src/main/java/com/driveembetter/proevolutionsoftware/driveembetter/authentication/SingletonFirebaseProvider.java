@@ -67,9 +67,12 @@ public class SingletonFirebaseProvider
 
 
 
+    /**
+     * Check if a user is signed in with Firease provider
+     * @return true: if user is signed in; false: the user is not signed in.
+     */
     public synchronized boolean isFirebaseSignIn() {
-        return this.getFirebaseUser() != null &&
-                this.getFirebaseUser().isEmailVerified();
+        return this.getFirebaseUser() != null;
     }
 
     public FirebaseUser getFirebaseUser() {
