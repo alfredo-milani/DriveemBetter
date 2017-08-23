@@ -5,6 +5,6 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
  */
 
 public interface ProgressBar {
-    public void hideProgress();
-    public void showProgress();
+    void hideProgress();
+    void showProgress();
 }

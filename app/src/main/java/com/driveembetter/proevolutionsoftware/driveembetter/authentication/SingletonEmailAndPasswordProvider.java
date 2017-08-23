@@ -1,9 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
 import android.app.Activity;
-import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,82 +18,69 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
  * Created by alfredo on 17/08/17.
  */
 
-public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
+public class SingletonEmailAndPasswordProvider
+        implements BaseProvider, TypeMessages {
 
     private static final String TAG = "SEmailAndPswProvider";
 
     private boolean resendVerificationEmail;
-
-    private static SingletonEmailAndPasswordProvider singletonInstance;
-
-    private SingletonEmailAndPasswordProvider(Context context, Handler handler) {
-        super(context, handler);
-
-        Log.d(TAG, "Instantiated SingleEmailAndPasswordProvider.\nContext: " + this.mContext + " Handler: " + this.mContext);
-
-        this.resendVerificationEmail = false;
-    }
+    private SingletonFirebaseProvider singletonFirebaseProvider;
 
 
 
     // Singleton
-    public static SingletonEmailAndPasswordProvider getSingletonInstance(Context context, Handler handler) {
-        if(SingletonEmailAndPasswordProvider.singletonInstance == null){
-            synchronized (SingletonEmailAndPasswordProvider.class) {
-                if(SingletonEmailAndPasswordProvider.singletonInstance == null) {
-                    SingletonEmailAndPasswordProvider.singletonInstance =
-                            new SingletonEmailAndPasswordProvider(context, handler);
-                }
-            }
-        }
+    private SingletonEmailAndPasswordProvider() {
+        this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
 
-        return SingletonEmailAndPasswordProvider.getSingletonInstance();
+        Log.d(TAG, "Instantiated SingleEmailAndPasswordProvider.");
+
+        this.resendVerificationEmail = false;
     }
 
-    public static SingletonEmailAndPasswordProvider getSingletonInstance() {
-        return SingletonEmailAndPasswordProvider.singletonInstance;
+    private static class EmailAndPasswordProviderContainer {
+        private final static SingletonEmailAndPasswordProvider INSTANCE = new SingletonEmailAndPasswordProvider();
+    }
+
+    public static SingletonEmailAndPasswordProvider getInstance() {
+        return EmailAndPasswordProviderContainer.INSTANCE;
     }
 
 
 
-    @Override
     public void signIn(String email, String password) {
         if (TextUtils.isEmpty(email)) {
-            Message msg = this.mHandler.obtainMessage(EMAIL_REQUIRED);
-            this.mHandler.sendMessage(msg);
+            this.singletonFirebaseProvider.sendMessageToUI(EMAIL_REQUIRED);
             return;
         } else if (TextUtils.isEmpty(password)) {
-            Message msg = this.mHandler.obtainMessage(PASSWORD_REQUIRED);
-            this.mHandler.sendMessage(msg);
+            this.singletonFirebaseProvider.sendMessageToUI(PASSWORD_REQUIRED);
             return;
         }
 
-        this.mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener((Activity) this.mContext, new OnCompleteListener<AuthResult>() {
+        this.singletonFirebaseProvider
+                .getAuth()
+                .signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
 
                         if (!task.isSuccessful()) {
 
-                            Message message;
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthInvalidCredentialsException e) {
                                 Log.d(TAG, "signInWithEmail:failed", task.getException());
-                                message = mHandler.obtainMessage(INVALID_CREDENTIALS);
+                                singletonFirebaseProvider.sendMessageToUI(BAD_EMAIL_OR_PSW);
                             } catch (FirebaseAuthInvalidUserException e3) {
                                 Log.d(TAG, "signInWithEmail:failed", task.getException());
-                                message = mHandler.obtainMessage(INVALID_USER);
+                                singletonFirebaseProvider.sendMessageToUI(INVALID_USER);
                             } catch (FirebaseNetworkException e4) {
                                 Log.d(TAG, "signInWithEmail:failed", task.getException());
-                                message = mHandler.obtainMessage(NETWORK_ERROR);
+                                singletonFirebaseProvider.sendMessageToUI(NETWORK_ERROR);
                             } catch (Exception e1) {
                                 Log.w(TAG, "signInWithEmail:failed", task.getException());
-                                message = mHandler.obtainMessage(UNKNOWN_EVENT);
+                                singletonFirebaseProvider.sendMessageToUI(UNKNOWN_EVENT);
                             }
-                            if (message != null)
-                                mHandler.sendMessage(message);
 
                         } else {
                             checkIfEmailVerified();
@@ -106,71 +90,65 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
     }
 
     private void checkIfEmailVerified() {
-        this.getCurrentFirebaseUser();
-        Message message;
-        if (this.firebaseUser.isEmailVerified()) {
+        if (this.singletonFirebaseProvider
+                .getFirebaseUser()
+                .isEmailVerified()) {
             // User verified
             Log.d(TAG, "checkIfEmailVerified:success");
-            message = this.mHandler.obtainMessage(USER_LOGIN_EMAIL_PSW);
+            this.singletonFirebaseProvider.sendMessageToUI(USER_LOGIN_EMAIL_PSW);
         } else {
             // Email is not verified
             if (this.resendVerificationEmail) {
                 Log.d(TAG, "checkIfEmailVerified:resend_verification_email");
-                message = this.mHandler.obtainMessage(RESEND_VERIFICATION_EMAIL);
                 this.sendVerificationEmail();
-                // Log out user
-                this.signOut();
+                this.resendVerificationEmail = false;
+                this.singletonFirebaseProvider.sendMessageToUI(RESEND_VERIFICATION_EMAIL);
             } else {
                 Log.d(TAG, "checkIfEmailVerified:failure");
-                message = this.mHandler.obtainMessage(EMAIL_NOT_VERIFIED);
-                // Log out user
-                this.signOut();
+                this.singletonFirebaseProvider.sendMessageToUI(EMAIL_NOT_VERIFIED);
             }
+            // Log out user
+            this.signOut();
         }
-        if (message != null)
-            this.mHandler.sendMessage(message);
     }
 
     public void signUp(String email, String password) {
         if (TextUtils.isEmpty(email)) {
-            Message msg = this.mHandler.obtainMessage(EMAIL_REQUIRED);
-            this.mHandler.sendMessage(msg);
+            this.singletonFirebaseProvider.sendMessageToUI(EMAIL_REQUIRED);
             return;
         } else if (TextUtils.isEmpty(password)) {
-            Message msg = this.mHandler.obtainMessage(PASSWORD_REQUIRED);
-            this.mHandler.sendMessage(msg);
+            this.singletonFirebaseProvider.sendMessageToUI(PASSWORD_REQUIRED);
             return;
         }
 
-        this.mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener((Activity) this.mContext, new OnCompleteListener<AuthResult>() {
+        this.singletonFirebaseProvider
+                .getAuth()
+                .createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
 
                         if (!task.isSuccessful()) {
 
-                            Message message;
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthUserCollisionException e) {
                                 Log.d(TAG, "createUserWithEmailAndPassword:failed", task.getException());
-                                message = mHandler.obtainMessage(USER_ALREADY_EXIST);
+                                singletonFirebaseProvider.sendMessageToUI(USER_ALREADY_EXIST);
                             } catch (FirebaseNetworkException e4) {
                                 Log.d(TAG, "signInWithEmail:failed", task.getException());
-                                message = mHandler.obtainMessage(NETWORK_ERROR);
+                                singletonFirebaseProvider.sendMessageToUI(NETWORK_ERROR);
                             } catch (FirebaseAuthWeakPasswordException e3) {
                                 Log.d(TAG, "createUserWithEmailAndPassword:failed", task.getException());
-                                message = mHandler.obtainMessage(PASSWORD_INVALID);
+                                singletonFirebaseProvider.sendMessageToUI(PASSWORD_INVALID);
                             } catch (FirebaseAuthInvalidCredentialsException e2) {
                                 Log.d(TAG, "createUserWithEmailAndPassword:failed", task.getException());
-                                message = mHandler.obtainMessage(BAD_FORMATTED_EMAIL);
+                                singletonFirebaseProvider.sendMessageToUI(BAD_FORMATTED_EMAIL);
                             } catch (Exception e1) {
                                 Log.w(TAG, "createUserWithEmailAndPassword:failed", task.getException());
-                                message = mHandler.obtainMessage(UNKNOWN_EVENT);
+                                singletonFirebaseProvider.sendMessageToUI(UNKNOWN_EVENT);
                             }
-                            if (message != null)
-                                mHandler.sendMessage(message);
 
                         } else {
                             sendVerificationEmail();
@@ -185,33 +163,40 @@ public class SingletonEmailAndPasswordProvider extends FirebaseProvider {
     }
 
     private void sendVerificationEmail() {
-        this.getCurrentFirebaseUser();
         // Send email and wait for confirmation
-        this.firebaseUser.sendEmailVerification()
+        this.singletonFirebaseProvider
+                .getFirebaseUser()
+                .sendEmailVerification()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        Message message;
                         if (task.isSuccessful()) {
                             // Email sent
                             Log.d(TAG, "sendVerificationEmail:success");
-                            message = mHandler.obtainMessage(VERIFICATION_EMAIL_SENT);
+                            singletonFirebaseProvider.sendMessageToUI(VERIFICATION_EMAIL_SENT);
                         } else {
                             // Email not sent
                             Log.d(TAG, "sendVerificationEmail:failure");
-                            message = mHandler.obtainMessage(VERIFICATION_EMAIL_NOT_SENT);
+                            singletonFirebaseProvider.sendMessageToUI(VERIFICATION_EMAIL_NOT_SENT);
                         }
-                        mHandler.sendMessage(message);
                         signOut();
                     }
                 });
     }
 
-    @Override
     public void signOut() {
-        this.mAuth.signOut();
+        this.singletonFirebaseProvider
+                .getAuth()
+                .signOut();
+    }
 
-        Message message = this.mHandler.obtainMessage(USER_LOGOUT_EMAIL_PSW);
-        mHandler.sendMessage(message);
+    /**
+     * Check if a user is signed in and his email is verified with Firease provider
+     * @return true: if user is signed in and his email is verified; false: the user is not signed in or his email is not verified
+     */
+    @Override
+    public boolean isSignIn() {
+        return this.singletonFirebaseProvider.isFirebaseSignIn() &&
+                this.singletonFirebaseProvider.getFirebaseUser().isEmailVerified();
     }
 }

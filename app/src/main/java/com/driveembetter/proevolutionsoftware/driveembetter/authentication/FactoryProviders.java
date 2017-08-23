@@ -19,7 +19,7 @@ public class FactoryProviders {
     private final Context context;
     private final Handler handler;
 
-    // FirebaseProvider types
+    // SingletonFirebaseProvider types
     public final static int EMAIL_AND_PASSWORD_PROVIDER = 0;
     public final static int GOOGLE_PROVIDER = 1;
     public final static int FACEBOOK_PROVIDER = 2;
@@ -33,23 +33,23 @@ public class FactoryProviders {
 
 
 
-    public FirebaseProvider createProvider(int type) {
+    public BaseProvider getProvider(int type) {
         switch (type) {
             case FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER:
                 return SingletonEmailAndPasswordProvider
-                        .getSingletonInstance(this.context, this.handler);
+                        .getInstance();
 
             case FactoryProviders.GOOGLE_PROVIDER:
                 return SingletonGoogleProvider
-                        .getSingletonInstance(this.context, this.handler);
+                        .getInstance();
 
             case FactoryProviders.TWITTER_PROVIDER:
                 return SingletonTwitterProvider
-                        .getSingletonInstance(this.context, this.handler);
+                        .getInstance();
 
             case FactoryProviders.FACEBOOK_PROVIDER:
                 return SingletonFacebookProvider
-                        .getSingletonInstance(this.context, this.handler);
+                        .getInstance();
 
             default:
                 Log.e(TAG, "Provider not found; type: " + type);
@@ -57,50 +57,42 @@ public class FactoryProviders {
         }
     }
 
-    public ArrayList<FirebaseProvider> createAllProviders() {
-        ArrayList<FirebaseProvider> firebaseProviderArrayList = new ArrayList<>(4);
+    public ArrayList<BaseProvider> getAllProviders() {
+        ArrayList<BaseProvider> baseProviderArrayList = new ArrayList<>(4);
 
-        firebaseProviderArrayList.add(
-                SingletonEmailAndPasswordProvider.getSingletonInstance(this.context, this.handler)
+        baseProviderArrayList.add(
+                SingletonEmailAndPasswordProvider.getInstance()
         );
-        firebaseProviderArrayList.add(
-                SingletonGoogleProvider.getSingletonInstance(this.context, this.handler)
+        baseProviderArrayList.add(
+                SingletonGoogleProvider.getInstance()
         );
-        firebaseProviderArrayList.add(
-                SingletonFacebookProvider.getSingletonInstance(this.context, this.handler)
+        baseProviderArrayList.add(
+                SingletonFacebookProvider.getInstance()
         );
-        firebaseProviderArrayList.add(
-                SingletonTwitterProvider.getSingletonInstance(this.context, this.handler)
+        baseProviderArrayList.add(
+                SingletonTwitterProvider.getInstance()
         );
 
-        return firebaseProviderArrayList;
+        return baseProviderArrayList;
     }
 
-    public SingletonEmailAndPasswordProvider createEmailAndPasswordProvider() {
+    public SingletonEmailAndPasswordProvider getEmailAndPasswordProvider() {
         Log.d(TAG, "Get object " + SingletonEmailAndPasswordProvider.class.toString());
-        return SingletonEmailAndPasswordProvider.getSingletonInstance(
-                this.context, this.handler
-        );
+        return SingletonEmailAndPasswordProvider.getInstance();
     }
 
-    public SingletonGoogleProvider createGoogleProvider() {
+    public SingletonGoogleProvider getGoogleProvider() {
         Log.d(TAG, "Get object " + SingletonGoogleProvider.class.toString());
-        return SingletonGoogleProvider.getSingletonInstance(
-                this.context, this.handler
-        );
+        return SingletonGoogleProvider.getInstance();
     }
 
-    public SingletonFacebookProvider createFacebookProvider() {
+    public SingletonFacebookProvider getFacebookProvider() {
         Log.d(TAG, "Get object " + SingletonFacebookProvider.class.toString());
-        return SingletonFacebookProvider.getSingletonInstance(
-                this.context, this.handler
-        );
+        return SingletonFacebookProvider.getInstance();
     }
 
-    public SingletonTwitterProvider createTwitterProvider() {
+    public SingletonTwitterProvider getTwitterProvider() {
         Log.d(TAG, "Get object " + SingletonTwitterProvider.class.toString());
-        return SingletonTwitterProvider.getSingletonInstance(
-                this.context, this.handler
-        );
+        return SingletonTwitterProvider.getInstance();
     }
 }

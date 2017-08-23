@@ -36,4 +36,6 @@
     <string name="logout">Logout</string>
     <string name="unknown_error">Unknown error!</string>
     <string name="network_error">Network error</string>
+    <string name="google_signin_error">Error while logging in.</string>
+    <string name="wrong_email_or_psw">The password or the email address are invalid.</string>
 </resources>
