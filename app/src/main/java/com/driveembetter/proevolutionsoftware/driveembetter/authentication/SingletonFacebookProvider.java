@@ -26,7 +26,7 @@ public class SingletonFacebookProvider
         private final static SingletonFacebookProvider INSTANCE = new SingletonFacebookProvider();
     }
 
-    public static SingletonFacebookProvider getInstance() {
+    static SingletonFacebookProvider getInstance() {
         return SingletonFacebookProvider.FacebookProviderContainer.INSTANCE;
     }
 

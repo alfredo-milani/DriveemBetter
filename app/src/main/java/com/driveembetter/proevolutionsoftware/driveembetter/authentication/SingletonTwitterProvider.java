@@ -63,7 +63,7 @@ public class SingletonTwitterProvider
         private final static SingletonTwitterProvider INSTANCE = new SingletonTwitterProvider();
     }
 
-    public static SingletonTwitterProvider getInstance() {
+    static SingletonTwitterProvider getInstance() {
         return SingletonTwitterProvider.TwitterProviderContainer.INSTANCE;
     }
 

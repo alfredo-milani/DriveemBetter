@@ -41,7 +41,7 @@ public class SingletonEmailAndPasswordProvider
         private final static SingletonEmailAndPasswordProvider INSTANCE = new SingletonEmailAndPasswordProvider();
     }
 
-    public static SingletonEmailAndPasswordProvider getInstance() {
+    static SingletonEmailAndPasswordProvider getInstance() {
         return EmailAndPasswordProviderContainer.INSTANCE;
     }
 

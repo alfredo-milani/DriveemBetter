@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -41,7 +42,6 @@ public class SingletonGoogleProvider
 
     public static final int RC_SIGN_IN = 9001;
     private GoogleApiClient mGoogleApiClient;
-    private boolean isAccntConnected = false;
     private GoogleSignInAccount account;
     private SingletonFirebaseProvider singletonFirebaseProvider;
 
@@ -73,7 +73,7 @@ public class SingletonGoogleProvider
         private final static SingletonGoogleProvider INSTANCE = new SingletonGoogleProvider();
     }
 
-    public static SingletonGoogleProvider getInstance() {
+    static SingletonGoogleProvider getInstance() {
         return GoogleProviderContainer.INSTANCE;
     }
 
@@ -90,6 +90,7 @@ public class SingletonGoogleProvider
     private void handleSignInResult(GoogleSignInResult result) {
         this.account = result.getSignInAccount();
         if (result.isSuccess() && this.account != null) {
+            // this.mGoogleApiClient.connect();
             // Google Sign In was successful, authenticate with Firebase
             Log.d(TAG, "Google auth: user: " + this.account.getEmail());
             this.firebaseAuthWithGoogle(this.account);
@@ -129,6 +130,11 @@ public class SingletonGoogleProvider
         }
 
         if (this.account != null) {
+            if (!this.mGoogleApiClient.isConnected()) {
+                // per i nostri scopi forse non è necessario connettersi a Google Play Services
+                // this.mGoogleApiClient.connect();
+            }
+
             this.firebaseAuthWithGoogle(this.account);
             return;
         }
@@ -139,24 +145,41 @@ public class SingletonGoogleProvider
 
     @Override
     public void signOut() {
+        Log.d(TAG, "Google sign out:isConnected/ing: " + this.mGoogleApiClient.isConnected() + " / " + this.mGoogleApiClient.isConnecting());
+
         // Google sign out
         if (this.mGoogleApiClient.isConnected()) {
-            Log.d(TAG, "Google signing off");
+            Log.d(TAG, "Google signing out");
             // this.mGoogleApiClient.clearDefaultAccountAndReconnect();
             Auth.GoogleSignInApi.signOut(this.mGoogleApiClient).setResultCallback(
                     new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
                             Log.d(TAG, "Sign Out using Google Api: status: " + status.getStatus());
-                            mGoogleApiClient.disconnect();
                             //CALL TO DISCONNECT GoogleApiClient
-                            isAccntConnected = false;
+                            mGoogleApiClient.disconnect();
                         }
                     });
         }
 
         // Firebase sign out
-        singletonFirebaseProvider.getAuth().signOut();
+        this.singletonFirebaseProvider.getAuth().signOut();
+    }
+
+    /**
+     * METODO DI DEBUG
+     */
+    public boolean diodio() {
+        return this.mGoogleApiClient.isConnected();
+    }
+    public void cancan() {
+        if (this.account != null) {
+            // Google Sign In was successful, authenticate with Firebase
+            Log.d(TAG, "Google auth: user: " + this.account.getEmail());
+        } else {
+            // Google Sign In failed, update UI appropriately
+            Log.d(TAG, "Google authentication failed: " + this.account);
+        }
     }
 
     // To disconnect from current Google account
@@ -164,7 +187,7 @@ public class SingletonGoogleProvider
         // Firebase sign out
         this.singletonFirebaseProvider.getAuth().signOut();
 
-        if (!this.isAccntConnected) {
+        if (!this.mGoogleApiClient.isConnected()) {
             return;
         }
         // Google revoke access
@@ -191,14 +214,12 @@ public class SingletonGoogleProvider
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.d(TAG, "onConnected:true");
-        this.isAccntConnected = true;
+        Log.d(TAG, "onConnected: " + this.mGoogleApiClient.isConnected());
     }
 
     @Override
     public void onConnectionSuspended(int i) {
         Log.d(TAG, "onConnectionSuspended");
-        this.isAccntConnected = false;
     }
 
     public User getGoogleUserInformations() {
@@ -222,7 +243,6 @@ public class SingletonGoogleProvider
         if (!this.mGoogleApiClient.isConnected()) {
             Log.d(TAG, "connectionAfterResume:reconnection");
             this.mGoogleApiClient.connect();
-            this.isAccntConnected = true;
         }
     }
 

@@ -213,6 +213,8 @@ public class SignInActivity
                 } else {
                     Log.d(TAG, "USER FIRE NULL");
                 }
+
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
                 break;
 
 

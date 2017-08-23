@@ -28,6 +28,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFacebookProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
@@ -97,6 +98,9 @@ public class MainFragmentActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            this.onRestoreInstanceState(savedInstanceState);
+        }
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -207,6 +211,7 @@ public class MainFragmentActivity
             case R.id.nav_camera:
                 // Handle the camera action
                 Log.d(TAG, "Camera pressed");
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
                 break;
 
             case R.id.nav_gallery:
@@ -225,12 +230,15 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_slideshow:
+                Log.d(TAG, "DIO CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
                 break;
 
             case R.id.nav_manage:
                 break;
 
             case R.id.nav_share:
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                        .silentSignIn();
                 break;
 
             case R.id.nav_send:
@@ -248,6 +256,21 @@ public class MainFragmentActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case SingletonGoogleProvider.RC_SIGN_IN:
+                Log.d(TAG, "GOOGLE onActivityResult: " + requestCode);
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                        .activityResult(requestCode, resultCode, data);
+                break;
+            default:
+                Log.w(TAG, "Unknown requestCode: " + requestCode);
+        }
     }
 
     @Override
@@ -330,6 +353,9 @@ public class MainFragmentActivity
         //.removeGoogleClient();
     }
 
+    // TODO:
+    // onSave / onRestore non sempre chiamate --> inserire i seguenti metodi in onStart o onResume o simili.
+    // se non funziona vedi se è questione di cambio di contesto
     private void saveProviders(Bundle bundle) {
         if (this.baseProviderArrayList != null) {
             if (baseProviderArrayList
