@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -28,14 +29,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstanceIDService;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthProvider;
@@ -57,9 +60,10 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
     private final static String TAG = "MainFragmentActivity";
 
     // Resources
-    private ArrayList<FirebaseProvider> firebaseProviderArrayList;
+    private ArrayList<BaseProvider> baseProviderArrayList;
+    private SingletonFirebaseProvider singletonFirebaseProvider;
     private User user;
-    private int authenticationProvider;
+    private Fragment saveMe;
 
     // Widgets
     private android.widget.ProgressBar progressBar;
@@ -83,56 +87,17 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
 
             hideProgress();
             switch (msg.what) {
-                case USER_LOGIN_EMAIL_PSW:
-                    Log.d(TAG, "handleMessage:log_in EmailAndPsw login");
-                    if (user != null) {
-                        Toast.makeText(
-                                MainFragmentActivity.this,
-                                String.format(getString(R.string.sign_in_as), user.getEmail()),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    }
+                case USER_LOGIN:
+                    Toast.makeText(
+                            MainFragmentActivity.this,
+                            String.format(getString(R.string.sign_in_as),
+                                    user.getEmail()), Toast.LENGTH_SHORT
+                    ).show();
                     break;
 
-                case USER_LOGIN_GOOGLE:
-                    Log.d(TAG, "handleMessage:log_in Google login");
-                    if (user != null) {
-                        Toast.makeText(
-                                MainFragmentActivity.this,
-                                String.format(getString(R.string.sign_in_as), user.getEmail()),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    }
-                    break;
-
-                case USER_LOGIN_FACEBOOK:
-                    Log.d(TAG, "handleMessage:log_in Facebook login");
-                    if (user != null) {
-                        Toast.makeText(
-                                MainFragmentActivity.this,
-                                String.format(getString(R.string.sign_in_as), user.getEmail()),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    }
-                    break;
-
-                case USER_LOGIN_TWITTER:
-                    Log.d(TAG, "handleMessage:log_in Twitter login");
-                    if (user != null) {
-                        Toast.makeText(
-                                MainFragmentActivity.this,
-                                String.format(getString(R.string.sign_in_as), user.getEmail()),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    }
-                    break;
-
-                case USER_LOGOUT_EMAIL_PSW:
-                case USER_LOGOUT_GOOGLE:
-                case USER_LOGOUT_FACEBOOK:
-                case USER_LOGOUT_TWITTER:
+                case USER_LOGOUT:
                     Toast.makeText(MainFragmentActivity.this, getString(R.string.logout), Toast.LENGTH_SHORT).show();
-                    returnToSignIn();
+                    startNewActivity(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
                 default:
@@ -140,6 +105,12 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
             }
         }
     };
+
+    private void startNewActivity(Context context, Class newClass) {
+        Intent mainFragmentIntent = new Intent(context, newClass);
+        this.startActivity(mainFragmentIntent);
+        this.finish();
+    }
 
 
     @Override
@@ -178,68 +149,11 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
 
     private void initResources() {
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
-        this.firebaseProviderArrayList = factoryProviders.createAllProviders();
-
-        this.changeAllProvidersHandlers();
-        this.user = this.getUser();
-
+        this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
+        this.baseProviderArrayList = factoryProviders.getAllProviders();
+        this.user = this.singletonFirebaseProvider.getUserInformations();
         locationUpdater = new LocationUpdater(this, user);
-
         locationUpdater.updateLocation();
-
-        /*
-        //TODO the token has to be generated automatically!
-        MyFirebaseInstanceIDService myFirebaseInstanceIDService = new MyFirebaseInstanceIDService();
-        myFirebaseInstanceIDService.onTokenRefresh();
-        */
-    }
-
-    private User getUser() {
-        Intent i = getIntent();
-        this.authenticationProvider = i.getIntExtra(PROVIDER_TYPE, 0);
-        Log.d(TAG, "MainFragment:getUser:received: " + this.authenticationProvider);
-
-        switch (this.authenticationProvider) {
-            case FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER:
-                Log.d(TAG, "MainFragmentActivity:EmailPswProv: " + this.authenticationProvider);
-                return this.firebaseProviderArrayList.get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
-                        .getUserInformations();
-
-            case FactoryProviders.GOOGLE_PROVIDER:
-                //if (this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER) == null)
-                Log.d(TAG, "MainFragmentActivity:GoogleProv: " + this.authenticationProvider);
-                return this.user = ((SingletonGoogleProvider) this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                        .getGoogleUserInformations();
-
-            case FactoryProviders.TWITTER_PROVIDER:
-                Log.d(TAG, "MainFragmentActivity:TwitterProv: " + this.authenticationProvider);
-                return  ((SingletonTwitterProvider) this.firebaseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER))
-                        .getTwitterUserInformations();
-
-            case FactoryProviders.FACEBOOK_PROVIDER:
-                Log.d(TAG, "MainFragmentActivity:FacebookProv: " + this.authenticationProvider);
-                return this.firebaseProviderArrayList.get(FactoryProviders.FACEBOOK_PROVIDER)
-                        .getUserInformations();
-
-            default:
-                Log.d(TAG, "MainFragmentActivity:Error while getting user: " + this.authenticationProvider);
-                return null;
-        }
-    }
-
-    private void changeAllProvidersHandlers() {
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
-                .changeHandler(this.handler);
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.GOOGLE_PROVIDER)
-                .changeHandler(this.handler);
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.FACEBOOK_PROVIDER)
-                .changeHandler(this.handler);
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.TWITTER_PROVIDER)
-                .changeHandler(this.handler);
     }
 
     private void initWidgets() {
@@ -249,7 +163,7 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
             this.usernameTextView.setText(this.user.getEmail());
         } else {
             Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-            this.returnToSignIn();
+            this.startNewActivity(MainFragmentActivity.this, SignInActivity.class);
         }
     }
 
@@ -263,26 +177,42 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
 
     @Override
     public void hideProgress() {
-        this.progressBar.setIndeterminate(true);
-        this.progressBar.setVisibility(View.GONE);
+        if (this.progressBar.getVisibility() == View.VISIBLE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void showProgress() {
-        this.progressBar.setIndeterminate(true);
-        this.progressBar.setVisibility(View.VISIBLE);
+        if (this.progressBar.getVisibility() == View.GONE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.VISIBLE);
+        }
     }
-
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+        }
+    }
+
+    private void logoutCurrentProviders() {
+        for (BaseProvider baseProvider:
+                this.baseProviderArrayList) {
+            if (baseProvider.isSignIn()) {
+                Log.d(TAG, "Logging out: " + baseProvider.getClass().toString());
+                this.showProgress();
+                baseProvider.signOut();
+            }
+        }
+
+        if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
+            this.singletonFirebaseProvider.forceSignOut();
         }
     }
 
@@ -317,7 +247,18 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
         if (id == R.id.nav_camera) {
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
+            User user = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
+            if (user != null) {
+                Log.d(TAG, "GOOGLE USER: " + user.getUsername() + " jjj " + user.getEmail());
+            } else {
+                Log.d(TAG, "USER GOOGLE NULL");
+            }
 
+            if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
+                Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail());
+            } else {
+                Log.d(TAG, "USER FIRE NULL");
+            }
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -327,25 +268,19 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
         } else if (id == R.id.nav_send) {
 
         } else if (id == R.id.save_me) {
-
-            if (getSupportFragmentManager().findFragmentById(R.id.save_me_placeholder) != null) {
-                FrameLayout frameLayout = (FrameLayout) findViewById(R.id.save_me_placeholder);
-                frameLayout.removeAllViews();
-
-            }
-
-            Fragment saveMe = new SaveMe();
-
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.save_me_placeholder, saveMe)
-                    .commit();
-
+            if (!FragmentState.isSaveMeIsOpen()) {
+                FragmentState.setSaveMeIsOpen(true);
+                saveMe = new SaveMe();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.save_me_placeholder, saveMe)
+                        .commit();
+                }
 
         } else if( id == R.id.nav_logout) {
             Log.d(TAG, "Logout pressed");
 
-            this.logoutCurrentProvider();
+            this.logoutCurrentProviders();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -353,51 +288,31 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
         return true;
     }
 
-    private void logoutCurrentProvider() {
-        switch (this.authenticationProvider) {
-            case FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER:
-                this.firebaseProviderArrayList
-                        .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
-                        .signOut();
-                break;
-
-            case FactoryProviders.GOOGLE_PROVIDER:
-                this.firebaseProviderArrayList
-                        .get(FactoryProviders.GOOGLE_PROVIDER)
-                        .signOut();
-                break;
-
-            case FactoryProviders.FACEBOOK_PROVIDER:
-                this.firebaseProviderArrayList
-                        .get(FactoryProviders.FACEBOOK_PROVIDER)
-                        .signOut();
-                break;
-
-            case FactoryProviders.TWITTER_PROVIDER:
-                this.firebaseProviderArrayList
-                        .get(FactoryProviders.TWITTER_PROVIDER)
-                        .signOut();
-                break;
-
-            default:
-                Log.d(TAG, "logoutCurrentProvider:error: " + this.authenticationProvider);
-        }
-    }
-
     @Override
     public void onStart() {
         super.onStart();
 
-        this.firebaseProviderArrayList
-                .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
-                .changeHandler(this.handler);
+        Log.d(TAG, ":start");
+        this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
+        this.singletonFirebaseProvider.setHandler(this.handler);
 
-        if (FactoryProviders.GOOGLE_PROVIDER == this.authenticationProvider) {
-            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.firebaseProviderArrayList
-                    .get(FactoryProviders.GOOGLE_PROVIDER));
+        /*
+        if (this.authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
+            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
             singletonGoogleProvider.connectAfterResume();
             singletonGoogleProvider.managePendingOperations();
         }
+        */
+    }
+
+    // Called between onStart() and onPostCreate()
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        Log.d(TAG, ":onRestoreInstanceState");
+        this.restoreProviders(savedInstanceState);
     }
 
     @Override
@@ -408,28 +323,90 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
     @Override
     protected void onRestart() {
         super.onRestart();
+
+        Log.d(TAG, ":restart");
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        this.hideProgress();
+
+        Log.d(TAG, ":resume");
+        this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        Log.d(TAG, ":pause");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        Log.d(TAG, "MainFragment:onDestroy");
+        Log.d(TAG, ":destroy");
+        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
+        //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+        //.removeGoogleClient();
+    }
 
-        if (this.authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
-            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.firebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
-            singletonGoogleProvider.removeGoogleClient();
+    private void saveProviders(Bundle bundle) {
+        if (this.baseProviderArrayList != null) {
+            if (baseProviderArrayList
+                    .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
+                    .isSignIn()) {
+                bundle.putBoolean(FIREBASE_PROVIDER, true);
+            } else if (baseProviderArrayList
+                    .get(FactoryProviders.GOOGLE_PROVIDER)
+                    .isSignIn()) {
+                bundle.putBoolean(GOOGLE_PROVIDER, true);
+            } else if (baseProviderArrayList
+                    .get(FactoryProviders.FACEBOOK_PROVIDER)
+                    .isSignIn()) {
+                bundle.putBoolean(FACEBOOK_PROVIDER, true);
+            } else if (baseProviderArrayList
+                    .get(FactoryProviders.TWITTER_PROVIDER)
+                    .isSignIn()) {
+                bundle.putBoolean(TWITTER_PROVIDER, true);
+            }
         }
+    }
 
+    private void restoreProviders(Bundle bundle) {
+        if (this.baseProviderArrayList != null) {
+            if (bundle.getBoolean(FIREBASE_PROVIDER, false) &&
+                    !this.baseProviderArrayList
+                            .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
+                            .isSignIn()) {
+                Log.d(TAG, "restoring Firebase provider");
+                this.singletonFirebaseProvider.forceSignOut();
+                // this.startNewActivity(MainFragmentActivity.this, SignInActivity.class);
+            } else if (bundle.getBoolean(GOOGLE_PROVIDER, false) &&
+                    !this.baseProviderArrayList
+                            .get(FactoryProviders.GOOGLE_PROVIDER)
+                            .isSignIn()) {
+                Log.d(TAG, "restoring Google provider");
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                        .silentSignIn();
+            } else if (bundle.getBoolean(FACEBOOK_PROVIDER, false) &&
+                    !this.baseProviderArrayList
+                            .get(FactoryProviders.FACEBOOK_PROVIDER)
+                            .isSignIn()) {
+                Log.d(TAG, "restoring Facebook provider");
+                this.baseProviderArrayList.get(FactoryProviders.FACEBOOK_PROVIDER).signIn(null, null);
+            } else if (bundle.getBoolean(TWITTER_PROVIDER, false) &&
+                    !this.baseProviderArrayList
+                            .get(FactoryProviders.TWITTER_PROVIDER)
+                            .isSignIn()) {
+                Log.d(TAG, "restoring Twitter provider");
+                this.baseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER).signIn(null, null);
+            }
+        }
     }
 }

@@ -9,6 +9,12 @@ public interface Constants {
     String USER = "user_info";
     String PROVIDER_TYPE = "provider_type";
 
+    //
+    String FIREBASE_PROVIDER = "firebase_provider";
+    String GOOGLE_PROVIDER = "google_provider";
+    String FACEBOOK_PROVIDER = "facebook_provider";
+    String TWITTER_PROVIDER = "twitter_provider";
+
 
     //chat constants
     public static final String ARG_USERS = "users";
