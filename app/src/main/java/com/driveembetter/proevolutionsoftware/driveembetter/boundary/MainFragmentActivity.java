@@ -39,6 +39,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstan
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthProvider;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 
@@ -186,9 +187,11 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
 
         locationUpdater.updateLocation();
 
+        /*
         //TODO the token has to be generated automatically!
         MyFirebaseInstanceIDService myFirebaseInstanceIDService = new MyFirebaseInstanceIDService();
         myFirebaseInstanceIDService.onTokenRefresh();
+        */
     }
 
     private User getUser() {

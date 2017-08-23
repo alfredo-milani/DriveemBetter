@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 
@@ -36,15 +38,32 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
+
+        /*
+
+        // Check if message contains notifications
+
+        if (remoteMessage.getNotification() != null) {
+            //TODO
+            sendNotification(remoteMessage.getNotification().getTitle(),
+                    remoteMessage.getNotification().getBody(),
+                    "receiver", "receiverUid", "token");
+        }
+
+        */
+
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+
+            Log.e("DEBUG", "NOT EMPTY MESSAGE RECEIVED");
 
             String title = remoteMessage.getData().get("title");
             String message = remoteMessage.getData().get("text");
             String username = remoteMessage.getData().get("username");
             String uid = remoteMessage.getData().get("uid");
             String fcmToken = remoteMessage.getData().get("fcm_token");
+
 
             // Don't show notification if chat activity is open.
             if (!FirebaseChatMainApp.isChatActivityOpen()) {
@@ -71,7 +90,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                   String receiver,
                                   String receiverUid,
                                   String firebaseToken) {
-        Log.e("debug", "SENDING NOTIFICATION");
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(Constants.ARG_RECEIVER, receiver);
         intent.putExtra(Constants.ARG_RECEIVER_UID, receiverUid);
@@ -94,4 +112,5 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         notificationManager.notify(0, notificationBuilder.build());
     }
+
 }

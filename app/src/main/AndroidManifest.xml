@@ -10,8 +10,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
-
 
     <application
 
@@ -68,15 +66,15 @@
             android:name=".fcm.MyFirebaseInstanceIDService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
 
         <service
-            android:name="fcm.MyFirebaseMessagingService"
+            android:name=".fcm.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
         <!--
@@ -87,15 +85,28 @@
              sign the APK for publishing.
              You can define the keys for the debug and release targets in src/debug/ and src/release/. 
         -->
+        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
+     See README(https://goo.gl/l4GJaQ) for more. -->
+
+        <fragment
+            android:name=".boundary.SaveMe"
+            android:label="@string/title_activity_save_me"/>
+        <fragment
+            android:name=".boundary.ChatFragment"
+            android:label="Chat 'em Better"/>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_drive_eta_black_24dp" />
+        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
-        <fragment
-            android:name=".boundary.SaveMe"
-            android:label="@string/title_activity_save_me"></fragment>
-        <fragment
-            android:name=".boundary.ChatFragment"
-            android:label="Chat 'em Better"></fragment>
 
 
     </application>
