@@ -62,7 +62,7 @@ public class SignInActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.initResources();
-        setContentView(R.layout.sign_in_layout);
+        setContentView(R.layout.activity_sign_in);
 
         this.initWidget();
     }
