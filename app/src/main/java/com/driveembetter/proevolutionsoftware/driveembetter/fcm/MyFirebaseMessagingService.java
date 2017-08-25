@@ -39,18 +39,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
 
-        /*
-
-        // Check if message contains notifications
-
-        if (remoteMessage.getNotification() != null) {
-            //TODO
-            sendNotification(remoteMessage.getNotification().getTitle(),
-                    remoteMessage.getNotification().getBody(),
-                    "receiver", "receiverUid", "token");
-        }
-
-        */
+        Log.e("DEBUG", "A MESSAGE RECEIVED");
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
@@ -64,8 +53,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String uid = remoteMessage.getData().get("uid");
             String fcmToken = remoteMessage.getData().get("fcm_token");
 
-
+            sendNotification(title, message, username, uid, fcmToken);
             // Don't show notification if chat activity is open.
+            /*
             if (!FirebaseChatMainApp.isChatActivityOpen()) {
                 sendNotification(title,
                         message,
@@ -79,6 +69,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         uid,
                         fcmToken));
             }
+            */
         }
     }
 

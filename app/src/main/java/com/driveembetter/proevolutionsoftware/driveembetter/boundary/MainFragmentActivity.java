@@ -42,6 +42,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthProvider;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
@@ -142,6 +144,13 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         this.headerView = navigationView.getHeaderView(0);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        //TODO it should refresh automatically
+        MyFirebaseInstanceIDService myFirebaseInstanceIDService = new MyFirebaseInstanceIDService();
+        myFirebaseInstanceIDService.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
+
+        Log.e("DEBUG", FirebaseInstanceId.getInstance().getToken());
 
         this.initResources();
         this.initWidgets();

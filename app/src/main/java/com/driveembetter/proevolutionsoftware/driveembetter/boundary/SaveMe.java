@@ -30,6 +30,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
@@ -408,6 +409,8 @@ public class SaveMe extends Fragment {
     public void onResume() {
         super.onResume();
         mMapView.onResume();
+        FragmentState.setSaveMeIsOpen(true);
+
     }
 
     @Override
@@ -426,6 +429,12 @@ public class SaveMe extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        FragmentState.setSaveMeIsOpen(false);
     }
 
 }

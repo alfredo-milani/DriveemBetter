@@ -39,10 +39,8 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
      *
      * @param token The new token.
      */
-    private void sendRegistrationToServer(final String token) {
+    public void sendRegistrationToServer(final String token) {
         //new SharedPrefUtil(getApplicationContext()).saveString(Constants.ARG_FIREBASE_TOKEN, token);
-
-        Log.e("debug", "here?");
 
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
