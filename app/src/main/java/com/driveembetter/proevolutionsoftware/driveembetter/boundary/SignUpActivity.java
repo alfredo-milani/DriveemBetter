@@ -29,7 +29,7 @@ public class SignUpActivity
         extends AppCompatActivity
         implements View.OnClickListener,
         TypeMessages,
-        com.driveembetter.proevolutionsoftware.driveembetter.boundary.ProgressBar {
+        TaskProgress {
 
     private final static String TAG = "SignUpActivity";
 
@@ -70,6 +70,7 @@ public class SignUpActivity
             hideProgress();
             switch (msg.what) {
                 case USER_LOGIN_EMAIL_PSW:
+                    Log.d(TAG, "handleMessage:login emailPsw");
                     startNewActivity(SignUpActivity.this, MainFragmentActivity.class);
                     break;
 
@@ -78,9 +79,15 @@ public class SignUpActivity
                     Toast.makeText(SignUpActivity.this, getString(R.string.email_not_verified), Toast.LENGTH_LONG).show();
                     break;
 
+                case BAD_EMAIL_OR_PSW:
+                    Log.d(TAG, "handleMessage:invalid email or password");
+                    emailField.setError(getString(R.string.wrong_email_or_psw));
+                    passwordField.setError(getString(R.string.wrong_email_or_psw));
+                    break;
+
                 case USER_ALREADY_EXIST:
                     Log.d(TAG, "handleMessage:user_already_exist");
-                    Toast.makeText(SignUpActivity.this, "User already exist. Try with another email address", Toast.LENGTH_LONG).show();
+                    emailField.setError(getString(R.string.user_exist));
                     break;
 
                 case EMAIL_REQUIRED:
@@ -180,7 +187,8 @@ public class SignUpActivity
                 this.showProgress();
                 this.singletonEmailAndPasswordProvider.signUp(
                         this.emailField.getText().toString(),
-                        this.passwordField.getText().toString()
+                        this.passwordField.getText().toString(),
+                        this.usernameField.getText().toString()
                 );
                 break;
 

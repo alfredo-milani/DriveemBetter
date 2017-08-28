@@ -33,7 +33,7 @@ public class SignInActivity
         extends AppCompatActivity
         implements View.OnClickListener,
         TypeMessages,
-        com.driveembetter.proevolutionsoftware.driveembetter.boundary.ProgressBar {
+        TaskProgress {
 
     private final static String TAG = "SignInActivity";
 
@@ -52,6 +52,7 @@ public class SignInActivity
 
     // If we are authenticated with Firebase we check if email is verified before login
     private boolean checkEmailBeforeLogIn;
+    private boolean signInPressed;
 
     //DEBUG
     private ImageView imageView;
@@ -84,11 +85,20 @@ public class SignInActivity
             switch (id) {
                 case USER_LOGIN:
                     Log.d(TAG, "handleMessage:Login");
-                    if (checkEmailBeforeLogIn && !singletonFirebaseProvider.isFirebaseSignIn()) {
+                    // Check if email has been verified
+                    if (checkEmailBeforeLogIn &&
+                            !singletonFirebaseProvider
+                                    .getFirebaseUser()
+                                    .isEmailVerified()) {
+                        Log.d(TAG, "EmailNotVerified");
                         checkEmailBeforeLogIn = false;
                         break;
                     }
-                    startNewActivity(SignInActivity.this, MainFragmentActivity.class);
+                    if (signInPressed) {
+                        signInPressed = false;
+                        startNewActivity(SignInActivity.this, MainFragmentActivity.class);
+                    }
+                    Log.d(TAG, "SignIn not pressed");
                     break;
 
                 case EMAIL_REQUIRED:
@@ -220,6 +230,7 @@ public class SignInActivity
 
             // Sign in with email and password
             case R.id.sign_in_button:
+                this.signInPressed = true;
                 this.checkEmailBeforeLogIn = true;
                 this.showProgress();
                 this.baseProviderArrayList
@@ -232,6 +243,7 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
+                this.signInPressed = true;
                 this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.GOOGLE_PROVIDER)
@@ -240,6 +252,7 @@ public class SignInActivity
 
             // Sign in with Twitter
             case R.id.twitter_login_button:
+                this.signInPressed = true;
                 this.baseProviderArrayList
                         .get(FactoryProviders.TWITTER_PROVIDER)
                         .signIn(null, null);

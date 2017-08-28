@@ -16,9 +16,7 @@ import com.twitter.sdk.android.core.DefaultLogger;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
-import com.twitter.sdk.android.core.TwitterAuthToken;
 import com.twitter.sdk.android.core.TwitterConfig;
-import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
@@ -72,11 +70,10 @@ public class SingletonTwitterProvider
     private void handleTwitterSession(TwitterSession session) {
         Log.d(TAG, "handleTwitterSession:" + session);
 
+        // Firebase authentcation
         AuthCredential credential = TwitterAuthProvider.getCredential(
                 session.getAuthToken().token,
                 session.getAuthToken().secret);
-
-        // Firebase authentcation
         this.singletonFirebaseProvider
                 .getAuth()
                 .signInWithCredential(credential)
@@ -89,6 +86,8 @@ public class SingletonTwitterProvider
                         } else {
                             // Sign in fails
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            singletonFirebaseProvider.sendMessageToUI(UNKNOWN_ERROR);
+                            signOut();
                         }
                     }
                 });
@@ -104,12 +103,12 @@ public class SingletonTwitterProvider
                     session = result.data;
                     handleTwitterSession(result.data);
 
+                    /*
                     TwitterSession session = TwitterCore.getInstance().getSessionManager().getActiveSession();
                     TwitterAuthToken authToken = session.getAuthToken();
                     String token = authToken.token;
                     String secret = authToken.secret;
-
-                    Log.d(TAG, "USERNAME: " + session.getUserName());
+                    */
                 }
 
                 @Override
@@ -157,7 +156,10 @@ public class SingletonTwitterProvider
 
     @Override
     public void signOut() {
-
+        if (this.singletonFirebaseProvider != null) {
+            // Firebase sign out
+            this.singletonFirebaseProvider.getAuth().signOut();
+        }
     }
 
     @Override

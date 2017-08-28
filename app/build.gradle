@@ -28,15 +28,17 @@ dependencies {
     compile 'com.android.support:design:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    // Firebase service
+    //// Firebase service
     compile 'com.google.firebase:firebase-auth:10.0.1'
     compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.firebase:firebase-database:10.0.1'
     compile 'com.google.firebase:firebase-storage:10.0.1'
-    // Google authentication
+    ////
+    //// Google authentication
     compile 'com.google.android.gms:play-services-auth:10.0.1'
+    ////
 
-    ////Twitter
+    //// Twitter
     // Include all the Twitter APIs
     compile 'com.twitter.sdk.android:twitter:3.1.1'
     // (Optional) Monetize using mopub
@@ -47,8 +49,13 @@ dependencies {
     compile 'com.twitter.sdk.android:twitter-mopub:3.1.1'
     ////
 
+    //// Rounded ImageView
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    ////
+
     testCompile 'junit:junit:4.12'
 }
 
-// Firebase service
+//// Firebase service
 apply plugin: 'com.google.gms.google-services'
+////

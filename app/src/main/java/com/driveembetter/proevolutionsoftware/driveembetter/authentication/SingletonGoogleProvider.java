@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
-import android.accounts.Account;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -106,7 +105,9 @@ public class SingletonGoogleProvider
 
         AuthCredential credential = GoogleAuthProvider
                 .getCredential(acct.getIdToken(), null);
-        this.singletonFirebaseProvider.getAuth().signInWithCredential(credential)
+        this.singletonFirebaseProvider
+                .getAuth()
+                .signInWithCredential(credential)
                 .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {

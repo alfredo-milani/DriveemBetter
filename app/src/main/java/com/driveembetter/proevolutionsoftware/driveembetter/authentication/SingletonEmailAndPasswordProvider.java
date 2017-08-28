@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -46,7 +47,7 @@ public class SingletonEmailAndPasswordProvider
     }
 
 
-
+    @Override
     public void signIn(String email, String password) {
         if (TextUtils.isEmpty(email)) {
             this.singletonFirebaseProvider.sendMessageToUI(EMAIL_REQUIRED);
@@ -112,7 +113,7 @@ public class SingletonEmailAndPasswordProvider
         }
     }
 
-    public void signUp(String email, String password) {
+    public void signUp(String email, String password, final String username) {
         if (TextUtils.isEmpty(email)) {
             this.singletonFirebaseProvider.sendMessageToUI(EMAIL_REQUIRED);
             return;
@@ -157,6 +158,60 @@ public class SingletonEmailAndPasswordProvider
                 });
     }
 
+    public void setUsername(String username, String email, String password) {
+        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
+
+        if (username != null) {
+            builder.setDisplayName(username);
+        }
+        if (email != null) {
+            this.singletonFirebaseProvider
+                    .getFirebaseUser()
+                    .updateEmail(email)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "User email address updated.");
+                            } else {
+                                Log.d(TAG, "User email address NOT updated.");
+                            }
+                        }
+                    });
+        }
+        if (password != null) {
+            this.singletonFirebaseProvider
+                    .getFirebaseUser()
+                    .updatePassword(password)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "User password updated.");
+                            } else {
+                                Log.d(TAG, "User password NOT updated.");
+                            }
+                        }
+                    });
+        }
+
+        if (username != null) {
+            this.singletonFirebaseProvider
+                    .getFirebaseUser()
+                    .updateProfile(builder.build())
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "User profile updated.");
+                            } else {
+                                Log.d(TAG, "User profile NOT updated.");
+                            }
+                        }
+                    });
+        }
+    }
+
     public void resendVerificationEmail(String email, String password) {
         this.resendVerificationEmail = true;
         this.signIn(email, password);
@@ -184,6 +239,7 @@ public class SingletonEmailAndPasswordProvider
                 });
     }
 
+    @Override
     public void signOut() {
         this.singletonFirebaseProvider
                 .getAuth()

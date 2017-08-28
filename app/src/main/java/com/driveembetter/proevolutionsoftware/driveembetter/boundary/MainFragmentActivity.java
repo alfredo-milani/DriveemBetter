@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,14 +25,12 @@ import android.widget.Toast;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonEmailAndPasswordProvider;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFacebookProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.ImageLoadTask;
 
 import java.util.ArrayList;
 
@@ -43,7 +42,7 @@ public class MainFragmentActivity
         extends AppCompatActivity
         implements Constants, TypeMessages,
         NavigationView.OnNavigationItemSelectedListener,
-        com.driveembetter.proevolutionsoftware.driveembetter.boundary.ProgressBar {
+        TaskProgress {
 
     private final static String TAG = "MainFragmentActivity";
 
@@ -53,8 +52,10 @@ public class MainFragmentActivity
     private User user;
 
     // Widgets
-    private android.widget.ProgressBar progressBar;
+    private ProgressBar progressBar;
     private TextView usernameTextView;
+    private TextView emailTextView;
+    private ImageView userPicture;
     private View headerView;
 
 
@@ -71,10 +72,17 @@ public class MainFragmentActivity
             hideProgress();
             switch (msg.what) {
                 case USER_LOGIN:
+                    String currentUser;
+                    if (user.getUsername() != null && !user.getUsername().isEmpty()) {
+                        currentUser = user.getUsername();
+                    } else if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                        currentUser = user.getEmail();
+                    } else {
+                        currentUser = getString(R.string.user_not_retrieved);
+                    }
                     Toast.makeText(
                             MainFragmentActivity.this,
-                            String.format(getString(R.string.sign_in_as),
-                                    user.getEmail()), Toast.LENGTH_SHORT
+                            String.format(getString(R.string.sign_in_as), currentUser), Toast.LENGTH_SHORT
                     ).show();
                     break;
 
@@ -113,8 +121,8 @@ public class MainFragmentActivity
         toggle.syncState();
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        this.headerView =  navigationView.getHeaderView(0);
         navigationView.setNavigationItemSelectedListener(this);
+        this.headerView =  navigationView.getHeaderView(0);
 
         this.initResources();
         this.initWidgets();
@@ -130,8 +138,20 @@ public class MainFragmentActivity
     private void initWidgets() {
         this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         this.usernameTextView = this.headerView.findViewById(R.id.username_text_view);
+        this.emailTextView = this.headerView.findViewById(R.id.email_text_view);
+        this.userPicture = this.headerView.findViewById(R.id.user_picture);
         if (this.user != null) {
-            this.usernameTextView.setText(this.user.getEmail());
+            Log.d(TAG, "USER: " + this.user.getEmail() + " / " + this.user.getUsername() + " / " + this.user.getPhotoUrl());
+
+            if (this.user.getEmail() != null) {
+                this.emailTextView.setText(this.user.getEmail());
+            }
+            if (this.user.getUsername() != null) {
+                this.usernameTextView.setText(this.user.getUsername());
+            }
+            if (this.user.getPhotoUrl() != null) {
+                new ImageLoadTask(this.user.getPhotoUrl().toString(), this.userPicture).execute();
+            }
         } else {
             Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             this.startNewActivity(MainFragmentActivity.this, SignInActivity.class);
@@ -186,18 +206,36 @@ public class MainFragmentActivity
         return true;
     }
 
+    /*
+     * Listen for option item selections so that we receive a notification
+     * when the user requests a refresh by selecting the refresh action bar item.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        switch (id) {
+            // Check if user triggered a refresh:
+            case R.id.menu_refresh:
+                // TODO vedi come gestire icona refresh menu...
+                Log.i(TAG, "Refresh menu item selected");
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                // Signal SwipeRefreshLayout to start the progress indicator
+                // mySwipeRefreshLayout.setRefreshing(true);
+
+                // Start the refresh background task.
+                // This method calls setRefreshing(false) when it's finished.
+                // stuff actions
+                return true;
+
+            //noinspection SimplifiableIfStatement
+            case R.id.action_settings:
+                return true;
         }
 
+        // User didn't trigger a refresh, let the superclass handle this action
         return super.onOptionsItemSelected(item);
     }
 
@@ -234,6 +272,7 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_manage:
+                this.startNewActivity(this, Ranking.class);
                 break;
 
             case R.id.nav_share:
@@ -264,12 +303,12 @@ public class MainFragmentActivity
 
         switch (requestCode) {
             case SingletonGoogleProvider.RC_SIGN_IN:
-                Log.d(TAG, "GOOGLE onActivityResult: " + requestCode);
+                Log.d(TAG, "onActivityResult: GOOGLE" + requestCode);
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                         .activityResult(requestCode, resultCode, data);
                 break;
             default:
-                Log.w(TAG, "Unknown requestCode: " + requestCode);
+                Log.w(TAG, "onActivityResult: Unknown requestCode: " + requestCode);
         }
     }
 
