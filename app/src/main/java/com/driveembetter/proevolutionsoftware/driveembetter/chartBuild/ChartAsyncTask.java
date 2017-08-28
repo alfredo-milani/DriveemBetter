@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.fathzer.soft.javaluator.StaticVariableSet;
+
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -13,35 +13,28 @@ import com.github.mikephil.charting.data.ScatterData;
 import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 
-import java.util.ArrayList;
 
-/**
- * Created by alfredo on 28/08/17.
- */
+
+import java.util.ArrayList;
 
 /* Chart Async Task Class */
 public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     RetainedFragment fragment;
-    private final ExtendedDoubleEvaluator evaluator;
+
 
     public ChartAsyncTask(RetainedFragment fragment) {
         this.fragment = fragment;
         setGraphProperties();
 
-        /* Create a new extended evaluator */
-        evaluator = new ExtendedDoubleEvaluator();
+
     }
 
     @Override
     /* This method perform a computation on a background thread */
     protected ScatterData doInBackground(String... params) {
-        /* Retrieve parameters (function, startIndex and endIndex) from arguments */
-        String function = params[0];
-        String startIndex = params[1];
-        String endIndex = params[2];
 
         /* Make computation */
-        return this.calculate(function, Double.valueOf(startIndex), Double.valueOf(endIndex));
+        return this.calculate();
     }
 
     @Override
@@ -90,65 +83,52 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     }
 
     /* Make computation */
-    public ScatterData calculate(String function, double startIndex, double endIndex) {
+    public ScatterData calculate() {
 
-        /* Create a new empty variable set */
-        final StaticVariableSet<Double> variables = new StaticVariableSet<>();
-        boolean check;
-        int k=0;
-        double step = (endIndex - startIndex) / 10000;
-        while(step>0.01){
-            k++;
-            step=(endIndex - startIndex) / (10000*Math.pow(10,k));
-        }
-
+        SingletonScatterData sessionData = SingletonScatterData.getInstance();
+        ScatterDataSet scatterDataSet;
         /* list of values */
         ArrayList<Entry> vals = new ArrayList<>();
         /* x axis */
-        ArrayList<String> xVals = new ArrayList<>();
+        ArrayList<String> xVals;
 
-        for (double i = startIndex; i <= endIndex; i = i + step) {
-            try {
-                publishProgress((Math.abs(startIndex) + i) * 100 / (endIndex - startIndex));
+        if (!sessionData.isValid()) {
+            xVals = new ArrayList<>();
+            for (int i = 1; i <= 24; i++) {
 
-                if (isCancelled()) {
-                    return null;
-                }
-                check=true;
-                /* Set the value of x */
-                variables.set("x", (i));
+                xVals.add(String.valueOf(i));
 
-                /* Add value to x axis */
-                xVals.add(String.valueOf(Math.floor(i * 100) / 100));
-
-                /* Evaluate the expression */
-                Double result = evaluator.evaluate(function, variables);
-                variables.set("x",(i+step));
-                Double result2=evaluator.evaluate(function,variables);
-
-                if(Math.abs(result-result2)>=0.1){
-                    check=false;
-                }
-                if (!result.equals(Double.NEGATIVE_INFINITY) && !result.equals(Double.POSITIVE_INFINITY) && check) {
                     /* If expression is infinity, skip */
-                    Entry entry = new Entry(result.floatValue(), (int) ((i-startIndex) / step));
-                    vals.add(entry);
-                }
-            } catch(IllegalArgumentException w) {
-                if (w.getMessage() == null || !w.getMessage().contains("Invalid argument passed to")) {
-                    /* Syntax error */
-                    return null;
-                }
-                /* ... else value is out of domain of the function */
+                Entry entry = new Entry((float) i + 10, i);
+
+                vals.add(entry);
+
+            }
+        }
+        else {
+            xVals = sessionData.getxVals();
+            for (int i = 25; i <= 40; i++) {
+
+                xVals.add(String.valueOf(i));
+                Entry entry = new Entry((float) i + 10, i);
+                sessionData.getData().addEntry(entry);
+
             }
         }
 
         /* Create a new scatter data set and set properties */
-        ScatterDataSet scatterDataSet = new ScatterDataSet(vals, "func");
-        scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-        scatterDataSet.setColor(Color.RED);
-        scatterDataSet.setScatterShapeSize(2f);
-
+        if(!sessionData.isValid()) {
+            scatterDataSet = new ScatterDataSet(vals, "func");
+            scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+            scatterDataSet.setColor(Color.BLUE);
+            scatterDataSet.setScatterShapeSize(4f);
+            sessionData.setValid(true); //validate data
+            sessionData.setData(scatterDataSet);
+            sessionData.setxVals(xVals);
+        }   else {
+            scatterDataSet = sessionData.getData();
+            sessionData.setValid(false); //invalidate data
+        }
         /* List of scatter data set*/
         ArrayList<IScatterDataSet> dataSets= new ArrayList<>();
         dataSets.add(scatterDataSet);
@@ -244,3 +224,4 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     }
 
 }
+

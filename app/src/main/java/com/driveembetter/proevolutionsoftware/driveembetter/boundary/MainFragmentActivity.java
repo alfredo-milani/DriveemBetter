@@ -288,6 +288,7 @@ public class MainFragmentActivity
 
                 this.logoutCurrentProviders();
                 break;
+            case R.id.nav_statistics:
 
             default:
         }
