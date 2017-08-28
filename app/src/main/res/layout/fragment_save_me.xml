@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_weight="0.3"
+        android:background="@color/grey_400">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:background="@mipmap/ic_location"
+            android:contentDescription="@string/action_settings"/>
+
+        <TextView
+            android:id="@+id/positionTxt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceInverse"
+            android:textStyle="bold"
+            android:textColor="@color/tw__solid_white"
+            android:text="@string/location_loading" />
+
+    </LinearLayout>
+    <SeekBar
+        android:id="@+id/zoomBar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/grey_400"
+        android:max="5"
+        android:layout_weight="0.32"
+        android:progress="4"
+        android:progressBackgroundTint="@android:color/darker_gray"
+        android:progressTint="@android:color/darker_gray"
+        android:thumbTint="@android:color/black"
+        android:tickMarkTint="@android:color/darker_gray" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.30"
+        android:background="@color/grey_400"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:background="@mipmap/ic_distance"
+            android:contentDescription="@string/action_settings"/>
+
+        <TextView
+            android:id="@+id/mapRangeDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold"
+            android:textColor="@color/tw__solid_white"
+            android:text="@string/range" />
+
+        <TextView
+            android:id="@+id/mapRange"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold"
+            android:textColor="@color/tw__solid_white" />
+    </LinearLayout>
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.08"
+        map:uiRotateGestures="false"
+        map:uiScrollGestures="false"
+        map:uiTiltGestures="false"
+        map:uiZoomGestures="false" />
+
+
+    <!-- <android.support.v7.widget.CardView
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:layout_weight="0.25"
+         android:layout_gravity="center"
+         android:padding="20dp"
+         android:scaleType="fitCenter"
+         map:cardBackgroundColor="@android:color/transparent"
+         map:cardCornerRadius="20dp"
+         map:cardPreventCornerOverlap="true"
+         map:cardUseCompatPadding="false">-->
+
+    <!-- </android.support.v7.widget.CardView>-->
+
+    <RelativeLayout
+        android:id="@+id/relative"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    </RelativeLayout>
+
+
+
+</LinearLayout>
