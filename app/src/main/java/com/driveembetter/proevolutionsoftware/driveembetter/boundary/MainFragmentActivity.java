@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,7 +31,11 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstanceIDService;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ImageLoadTask;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 
@@ -50,6 +55,8 @@ public class MainFragmentActivity
     private ArrayList<BaseProvider> baseProviderArrayList;
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private SingletonUser singletonUser;
+    private Fragment saveMe;
+    private PositionManager positionManager;
 
     // Widgets
     private ProgressBar progressBar;
@@ -59,6 +66,10 @@ public class MainFragmentActivity
     private View headerView;
 
 
+
+    public PositionManager getPositionManager() {
+        return this.positionManager;
+    }
 
     private final Handler handler = new Handler(Looper.getMainLooper()) {
         /*
@@ -124,6 +135,12 @@ public class MainFragmentActivity
         navigationView.setNavigationItemSelectedListener(this);
         this.headerView =  navigationView.getHeaderView(0);
 
+        //TODO it should refresh automatically
+        MyFirebaseInstanceIDService myFirebaseInstanceIDService = new MyFirebaseInstanceIDService();
+        myFirebaseInstanceIDService.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
+
+        Log.e("DEBUG", FirebaseInstanceId.getInstance().getToken());
+
         this.initResources();
         this.initWidgets();
     }
@@ -133,6 +150,10 @@ public class MainFragmentActivity
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.baseProviderArrayList = factoryProviders.getAllProviders();
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
+        this.positionManager = PositionManager.getInstance(this);
+
+        //locationUpdater = new LocationUpdater(this, user);
+        //locationUpdater.updateLocation();
     }
 
     private void initWidgets() {
@@ -281,7 +302,14 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_send:
-                this.singletonUser.getVehicleArrayList();
+                if (!FragmentState.isSaveMeIsOpen()) {
+                    FragmentState.setSaveMeIsOpen(true);
+                    saveMe = new SaveMe();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .add(R.id.save_me_placeholder, saveMe)
+                            .commit();
+                }
                 break;
 
             case R.id.nav_logout:

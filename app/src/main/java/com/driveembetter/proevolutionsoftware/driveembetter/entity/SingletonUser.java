@@ -227,6 +227,7 @@ public class SingletonUser {
         this.currentVehicle = currentVehicle;
     }
 
+    // TODO chiama metodo nel LOGOUT
     public void resetSession() {
         SingletonUser.singletonInstance = null;
     }
