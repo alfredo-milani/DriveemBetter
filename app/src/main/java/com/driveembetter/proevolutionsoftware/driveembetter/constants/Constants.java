@@ -9,9 +9,12 @@ public interface Constants {
     String USER = "user_info";
     String PROVIDER_TYPE = "provider_type";
 
-    //
+    // Authentication providers
     String FIREBASE_PROVIDER = "firebase_provider";
     String GOOGLE_PROVIDER = "google_provider";
     String FACEBOOK_PROVIDER = "facebook_provider";
     String TWITTER_PROVIDER = "twitter_provider";
+
+    // Database manager
+    // String
 }

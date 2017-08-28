@@ -7,7 +7,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -79,9 +79,9 @@ public class SingletonFirebaseProvider
         return this.auth.getCurrentUser();
     }
 
-    public synchronized User getUserInformations() {
+    public synchronized SingletonUser getUserInformations() {
         if (this.getFirebaseUser() != null) {
-            return new User(
+            return SingletonUser.getInstance(
                     this.getFirebaseUser().getDisplayName(),
                     this.getFirebaseUser().getEmail(),
                     this.getFirebaseUser().getPhotoUrl(),
@@ -104,12 +104,12 @@ public class SingletonFirebaseProvider
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (getFirebaseUser() != null) {
-                    // User is signed in
+                    // SingletonUser is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + getFirebaseUser().getUid());
 
                     sendMessageToUI(success);
                 } else {
-                    // User is signed out
+                    // SingletonUser is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
 
                     sendMessageToUI(failure);
@@ -183,4 +183,6 @@ public class SingletonFirebaseProvider
             this.auth.signOut();
         }
     }
+
+    // TODO to add metodo reset session
 }

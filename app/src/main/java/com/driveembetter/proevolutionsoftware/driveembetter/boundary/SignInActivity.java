@@ -22,7 +22,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.google.android.gms.common.SignInButton;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
@@ -84,9 +84,12 @@ public class SignInActivity
             passwordField.setError(null);
             switch (id) {
                 case USER_LOGIN:
+                    // TODO sistema
                     Log.d(TAG, "handleMessage:Login");
                     // Check if email has been verified
                     if (checkEmailBeforeLogIn &&
+                            singletonFirebaseProvider
+                                    .getFirebaseUser() != null &&
                             !singletonFirebaseProvider
                                     .getFirebaseUser()
                                     .isEmailVerified()) {
@@ -211,9 +214,9 @@ public class SignInActivity
         switch (view.getId()) {
             // DEBUG
             case R.id.imageView7:
-                User user = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
-                if (user != null) {
-                    Log.d(TAG, "GOOGLE USER: " + user.getUsername() + " jjj " + user.getEmail());
+                SingletonUser singletonUser = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
+                if (singletonUser != null) {
+                    Log.d(TAG, "GOOGLE USER: " + singletonUser.getUsername() + " jjj " + singletonUser.getEmail());
                 } else {
                     Log.d(TAG, "USER GOOGLE NULL");
                 }

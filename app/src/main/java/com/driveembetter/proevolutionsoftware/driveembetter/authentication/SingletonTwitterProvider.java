@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -133,9 +133,9 @@ public class SingletonTwitterProvider
         }
     }
 
-    public User getTwitterUserInformations() {
+    public SingletonUser getTwitterUserInformations() {
         if (this.session != null) {
-            return new User(
+            return SingletonUser.getInstance(
                     this.session.getUserName(),
                     null,
                     null,

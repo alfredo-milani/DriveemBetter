@@ -17,8 +17,8 @@
     <string name="username">Username</string>
     <string name="email">Email</string>
     <string name="back">Back</string>
-    <string name="invalid_user">There is no user record corresponding to this identifier. The user may have been deleted.</string>
-    <string name="invalid_credentials">The password is invalid or the user does not have a password.</string>
+    <string name="invalid_user">There is no singletonUser record corresponding to this identifier. The singletonUser may have been deleted.</string>
+    <string name="invalid_credentials">The password is invalid or the singletonUser does not have a password.</string>
     <string name="verification_email_success">Verification email successfully sent. Check your email and login in %s.</string>
     <string name="verification_email_failure">Verification email not sent due an error. Retry later.</string>
     <string name="email_not_verified">Email not yet verified. Check you email address and follow the link to activate your account.</string>
@@ -33,7 +33,7 @@
     <string name="google_signin_error">Error while logging in.</string>
     <string name="wrong_email_or_psw">The password or the email address are invalid.</string>
     <string name="menu_refresh">Refresh</string>
-    <string name="user_not_retrieved">Unable to retrieve user information.</string>
+    <string name="user_not_retrieved">Unable to retrieve singletonUser information.</string>
     <string name="user_exist">User already exist. Try with another email address.</string>
 
 
@@ -44,7 +44,7 @@
     <string name="strLeftEnd">Insert left end:</string>
     <string name="strRightEnd">insert right end:</string>
     <string name="strManual">The application allows you to draw graphs of y =f(x) in a finite interval expressed
-        by the user. Arithmetic expressions of real numbers are evaluated, in particular : + , - , * , / , % (modulus), abs (absolute value),
+        by the singletonUser. Arithmetic expressions of real numbers are evaluated, in particular : + , - , * , / , % (modulus), abs (absolute value),
         sin, cos, tan, sqrt (square root) etc.</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="strEmptyField">You must fill out this field.</string>

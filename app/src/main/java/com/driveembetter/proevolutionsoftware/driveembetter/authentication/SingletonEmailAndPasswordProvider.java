@@ -94,7 +94,7 @@ public class SingletonEmailAndPasswordProvider
         if (this.singletonFirebaseProvider
                 .getFirebaseUser()
                 .isEmailVerified()) {
-            // User verified
+            // SingletonUser verified
             Log.d(TAG, "checkIfEmailVerified:success");
             this.singletonFirebaseProvider.sendMessageToUI(USER_LOGIN_EMAIL_PSW);
         } else {
@@ -172,9 +172,9 @@ public class SingletonEmailAndPasswordProvider
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Log.d(TAG, "User email address updated.");
+                                Log.d(TAG, "SingletonUser email address updated.");
                             } else {
-                                Log.d(TAG, "User email address NOT updated.");
+                                Log.d(TAG, "SingletonUser email address NOT updated.");
                             }
                         }
                     });
@@ -187,9 +187,9 @@ public class SingletonEmailAndPasswordProvider
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Log.d(TAG, "User password updated.");
+                                Log.d(TAG, "SingletonUser password updated.");
                             } else {
-                                Log.d(TAG, "User password NOT updated.");
+                                Log.d(TAG, "SingletonUser password NOT updated.");
                             }
                         }
                     });
@@ -203,9 +203,9 @@ public class SingletonEmailAndPasswordProvider
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Log.d(TAG, "User profile updated.");
+                                Log.d(TAG, "SingletonUser profile updated.");
                             } else {
-                                Log.d(TAG, "User profile NOT updated.");
+                                Log.d(TAG, "SingletonUser profile NOT updated.");
                             }
                         }
                     });

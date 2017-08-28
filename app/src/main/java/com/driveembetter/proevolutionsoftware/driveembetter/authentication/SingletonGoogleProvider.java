@@ -10,7 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -223,9 +223,9 @@ public class SingletonGoogleProvider
         Log.d(TAG, "onConnectionSuspended");
     }
 
-    public User getGoogleUserInformations() {
+    public SingletonUser getGoogleUserInformations() {
         if (this.account != null) {
-            return new User(
+            return SingletonUser.getInstance(
                     this.account.getDisplayName(),
                     this.account.getEmail(),
                     this.account.getPhotoUrl(),

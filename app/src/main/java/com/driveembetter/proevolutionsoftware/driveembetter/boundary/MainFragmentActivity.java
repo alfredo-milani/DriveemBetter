@@ -29,7 +29,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ImageLoadTask;
 
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class MainFragmentActivity
     // Resources
     private ArrayList<BaseProvider> baseProviderArrayList;
     private SingletonFirebaseProvider singletonFirebaseProvider;
-    private User user;
+    private SingletonUser singletonUser;
 
     // Widgets
     private ProgressBar progressBar;
@@ -73,10 +73,10 @@ public class MainFragmentActivity
             switch (msg.what) {
                 case USER_LOGIN:
                     String currentUser;
-                    if (user.getUsername() != null && !user.getUsername().isEmpty()) {
-                        currentUser = user.getUsername();
-                    } else if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-                        currentUser = user.getEmail();
+                    if (singletonUser.getUsername() != null && !singletonUser.getUsername().isEmpty()) {
+                        currentUser = singletonUser.getUsername();
+                    } else if (singletonUser.getEmail() != null && !singletonUser.getEmail().isEmpty()) {
+                        currentUser = singletonUser.getEmail();
                     } else {
                         currentUser = getString(R.string.user_not_retrieved);
                     }
@@ -132,7 +132,7 @@ public class MainFragmentActivity
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.baseProviderArrayList = factoryProviders.getAllProviders();
-        this.user = this.singletonFirebaseProvider.getUserInformations();
+        this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
     }
 
     private void initWidgets() {
@@ -140,17 +140,17 @@ public class MainFragmentActivity
         this.usernameTextView = this.headerView.findViewById(R.id.username_text_view);
         this.emailTextView = this.headerView.findViewById(R.id.email_text_view);
         this.userPicture = this.headerView.findViewById(R.id.user_picture);
-        if (this.user != null) {
-            Log.d(TAG, "USER: " + this.user.getEmail() + " / " + this.user.getUsername() + " / " + this.user.getPhotoUrl());
+        if (this.singletonUser != null) {
+            Log.d(TAG, "USER: " + this.singletonUser.getEmail() + " / " + this.singletonUser.getUsername() + " / " + this.singletonUser.getPhotoUrl());
 
-            if (this.user.getEmail() != null) {
-                this.emailTextView.setText(this.user.getEmail());
+            if (this.singletonUser.getEmail() != null) {
+                this.emailTextView.setText(this.singletonUser.getEmail());
             }
-            if (this.user.getUsername() != null) {
-                this.usernameTextView.setText(this.user.getUsername());
+            if (this.singletonUser.getUsername() != null) {
+                this.usernameTextView.setText(this.singletonUser.getUsername());
             }
-            if (this.user.getPhotoUrl() != null) {
-                new ImageLoadTask(this.user.getPhotoUrl().toString(), this.userPicture).execute();
+            if (this.singletonUser.getPhotoUrl() != null) {
+                new ImageLoadTask(this.singletonUser.getPhotoUrl().toString(), this.userPicture).execute();
             }
         } else {
             Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
@@ -208,7 +208,7 @@ public class MainFragmentActivity
 
     /*
      * Listen for option item selections so that we receive a notification
-     * when the user requests a refresh by selecting the refresh action bar item.
+     * when the singletonUser requests a refresh by selecting the refresh action bar item.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -217,7 +217,7 @@ public class MainFragmentActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
-            // Check if user triggered a refresh:
+            // Check if singletonUser triggered a refresh:
             case R.id.menu_refresh:
                 // TODO vedi come gestire icona refresh menu...
                 Log.i(TAG, "Refresh menu item selected");
@@ -235,7 +235,7 @@ public class MainFragmentActivity
                 return true;
         }
 
-        // User didn't trigger a refresh, let the superclass handle this action
+        // SingletonUser didn't trigger a refresh, let the superclass handle this action
         return super.onOptionsItemSelected(item);
     }
 
@@ -253,15 +253,15 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_gallery:
-                User user = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
-                if (user != null) {
-                    Log.d(TAG, "GOOGLE USER: " + user.getUsername() + " jjj " + user.getEmail());
+                SingletonUser singletonUser = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
+                if (singletonUser != null) {
+                    Log.d(TAG, "GOOGLE USER: " + singletonUser.getUsername() + " jjj " + singletonUser.getEmail() + " / " + singletonUser.getUid());
                 } else {
                     Log.d(TAG, "USER GOOGLE NULL");
                 }
 
                 if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
-                    Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail());
+                    Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail() + " / " + this.singletonFirebaseProvider.getFirebaseUser().getUid());
                 } else {
                     Log.d(TAG, "USER FIRE NULL");
                 }
@@ -281,6 +281,7 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_send:
+                this.singletonUser.getVehicleArrayList();
                 break;
 
             case R.id.nav_logout:
