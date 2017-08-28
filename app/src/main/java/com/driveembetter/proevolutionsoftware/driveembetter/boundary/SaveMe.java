@@ -1,6 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,7 +11,10 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -31,9 +35,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -67,7 +71,7 @@ public class SaveMe extends Fragment {
     MapView mMapView;
     private GoogleMap googleMap;
     private Context context;
-    private LocationUpdater locationUpdater;
+    private PositionManager positionManager;
     private LocationManager locationManager;
     double latitude, longitude;
     private TextView locationTxt, rangeText;
@@ -123,8 +127,9 @@ public class SaveMe extends Fragment {
             Toast.makeText(context, "Please, check you Internet connection!", Toast.LENGTH_SHORT).show();
         final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
-        locationUpdater = ((MainFragmentActivity)getActivity()).getLocationUpdater();
-        locationManager = locationUpdater.getLocationManager();
+        //TODO I'll get latitude and longitude from singleton
+        positionManager = ((MainFragmentActivity)getActivity()).getPositionManager();
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -132,7 +137,7 @@ public class SaveMe extends Fragment {
         rangeText = (TextView) rootView.findViewById(R.id.mapRange);
         seekBar = (SeekBar) rootView.findViewById(R.id.zoomBar);
         radius = progressToMeters(seekBar.getProgress());
-        rangeText.setText("Selected Range: " + radius + "m");
+        rangeText.setText(radius + "m");
         mMapView.onResume(); // needed to get the map to display immediately
 
         database = FirebaseDatabase.getInstance();
@@ -180,6 +185,10 @@ public class SaveMe extends Fragment {
             }
         });
 
+
+        UpdatePosition updatePosition = new UpdatePosition();
+        updatePosition.execute();
+        /*
         // Get LocationManager object from System Service LOCATION_SERVICE
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, new LocationListener() {
                 @Override
@@ -200,7 +209,7 @@ public class SaveMe extends Fragment {
 
                         if (addresses != null && addresses.size() > 0) {
                             String address = addresses.get(0).getAddressLine(0);
-                            locationTxt.setText("Your Position:" + " " + address);
+                            locationTxt.setText(address);
 
                         }
                     } catch (IOException e) {
@@ -236,6 +245,7 @@ public class SaveMe extends Fragment {
 
                 }
             });
+            */
 
                 /*
                 //create circle with a certain radius
@@ -275,7 +285,7 @@ public class SaveMe extends Fragment {
                 // TODO Auto-generated method stub
 
                 radius = progressToMeters(progress);
-                rangeText.setText("Selected Range: " + radius + " m");
+                rangeText.setText(radius + " m");
 
                 //create circle with a certain radius
                 circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
@@ -435,6 +445,63 @@ public class SaveMe extends Fragment {
     public void onStop() {
         super.onStop();
         FragmentState.setSaveMeIsOpen(false);
+    }
+
+
+    private class UpdatePosition extends AsyncTask<String, String, String> {
+
+        @Override
+        protected void onProgressUpdate(String... params) {
+            super.onProgressUpdate(params);
+            locationTxt.setText(params[0]);
+            // Create a LatLng object for the current location
+            LatLng latLng = new LatLng(Double.parseDouble(params[1]), Double.parseDouble(params[2]));
+
+            // Show the current location in Google Map
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
+            circle.setVisible(false);
+            int zoom = getZoomLevel(circle);
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+            Log.e("animate", "camera animated at: " + String.valueOf(zoom));
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                Geocoder geocoder;
+                List<Address> addresses;
+                geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+                double latitude, longitude;
+                while (true) {
+                    latitude = positionManager.getLatitude();
+                    longitude = positionManager.getLongitude();
+                    if (latitude != 0 && longitude != 0) {
+                        try {
+                            Log.e("latitude", "inside latitude--" + latitude);
+                            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+
+
+                            if (addresses != null && addresses.size() > 0) {
+                                String address = addresses.get(0).getAddressLine(0);
+                                publishProgress(address, ""+latitude, ""+longitude);
+                            }
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 
 }

@@ -1,8 +1,11 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,7 +42,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstanceIDService;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.LocationUpdater;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthProvider;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -66,16 +69,15 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private User user;
     private Fragment saveMe;
+    private PositionManager positionManager;
 
     // Widgets
     private android.widget.ProgressBar progressBar;
     private TextView usernameTextView;
     private View headerView;
 
-    private LocationUpdater locationUpdater;
-
-    public LocationUpdater getLocationUpdater() {
-        return this.locationUpdater;
+    public PositionManager getPositionManager() {
+        return this.positionManager;
     }
 
     private final Handler handler = new Handler(Looper.getMainLooper()) {
@@ -145,7 +147,6 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
         this.headerView = navigationView.getHeaderView(0);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         //TODO it should refresh automatically
         MyFirebaseInstanceIDService myFirebaseInstanceIDService = new MyFirebaseInstanceIDService();
         myFirebaseInstanceIDService.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
@@ -159,10 +160,12 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
     private void initResources() {
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
+        this.positionManager = PositionManager.getInstance(this);
         this.baseProviderArrayList = factoryProviders.getAllProviders();
         this.user = this.singletonFirebaseProvider.getUserInformations();
-        locationUpdater = new LocationUpdater(this, user);
-        locationUpdater.updateLocation();
+
+        //locationUpdater = new LocationUpdater(this, user);
+        //locationUpdater.updateLocation();
     }
 
     private void initWidgets() {
@@ -211,7 +214,7 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
     }
 
     private void logoutCurrentProviders() {
-        for (BaseProvider baseProvider:
+        for (BaseProvider baseProvider :
                 this.baseProviderArrayList) {
             if (baseProvider.isSignIn()) {
                 Log.d(TAG, "Logging out: " + baseProvider.getClass().toString());
@@ -284,9 +287,9 @@ public class MainFragmentActivity extends AppCompatActivity implements Constants
                         .beginTransaction()
                         .add(R.id.save_me_placeholder, saveMe)
                         .commit();
-                }
+            }
 
-        } else if( id == R.id.nav_logout) {
+        } else if (id == R.id.nav_logout) {
             Log.d(TAG, "Logout pressed");
 
             this.logoutCurrentProviders();

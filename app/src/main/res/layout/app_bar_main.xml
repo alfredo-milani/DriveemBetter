@@ -20,7 +20,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/blue_grey_500"
+            android:background="@color/blue_800"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -35,8 +35,7 @@
         <FrameLayout
             android:id="@+id/save_me_placeholder"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.33"/>
+            android:layout_height="match_parent" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

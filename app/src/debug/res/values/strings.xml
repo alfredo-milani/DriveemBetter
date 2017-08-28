@@ -8,7 +8,9 @@
 
 
     <string name="type_a_message">Type a message...</string>
+    <string name="location_loading">Loading your position..</string>
     <string name="loading">Loading</string>
+    <string name="range">Range</string>
     <string name="please_wait">Please wait...</string>
     <string name="action_settings">Settings</string>
     <string name="invalid_provider_type">Invalid type: %d.</string>

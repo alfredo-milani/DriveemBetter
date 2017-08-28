@@ -8,6 +8,8 @@
     <string name="username_email">Nome utente o email</string>
     <string name="password">Password</string>
     <string name="or">O</string>
+    <string name="range">Distanza</string>
+    <string name="location_loading">Sto cercando la tua posizione..</string>
     <string name="sign_in">Accedi</string>
     <string name="sign_up">Registrati</string>
     <string name="hint_create_account">Non hai ancora un account? Crealo ora!</string>

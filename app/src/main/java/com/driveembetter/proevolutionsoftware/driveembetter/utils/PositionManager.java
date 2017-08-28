@@ -1,7 +1,9 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
-import android.*;
+
+import android.Manifest;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -9,80 +11,75 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.MainFragmentActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.twitter.sdk.android.core.models.TwitterCollection;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static java.security.AccessController.getContext;
-
 /**
- * Created by matti on 13/08/2017.
+ * Created by matti on 28/08/2017.
  */
 
-public class LocationUpdater {
+public class PositionManager extends Application {
 
-    private FirebaseDatabase database;
-    private DatabaseReference myRef;
-    private DatabaseReference checkRef;
-    private LocationManager locationManager;
-    private LocationListener locationListener;
-    private double latitude, longitude, oldLatitude, oldLongitude;
+    private double latitude = 0;
+    private double longitude = 0;
+    private double oldLatitude, oldLongitude;
     private String oldCountry, oldRegion;
-    Location oldLocation;
-    Activity activity;
-    private String email;
+    private static PositionManager positionManager;
+    private Activity activity;
+    private String userId, email;
     private Geocoder geocoder;
-    private List veichlesArray;
-    private String currentVeichle;
-    private String veichleType;
-    private String userImage;
-    private int test;
-    private URL url;
-    private String username;
-    private User user;
-    private String userKey;
-    private String userId;
-    Map<String, Object> emailMap;
+    private FirebaseDatabase database;
+    private Map<String, Object> emailMap;
+    Location oldLocation;
+    private DatabaseReference myRef, checkRef;
 
-    public LocationUpdater(Activity activity, User user) {
+
+    //Singleton
+    private PositionManager(Activity activity) {
         this.activity = activity;
-        this.user = user;
+        updatePosition();
     }
 
-    public LocationListener getLocationListener() {
-        return this.locationListener;
+    public void setActivity(Activity activity) {
+        this.activity = activity;
     }
 
-    public LocationManager getLocationManager() {
-        return this.locationManager;
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
     }
 
 
-    public void updateLocation() {
+    public static PositionManager getInstance(Activity activity) {
+        if (positionManager == null) {
+            positionManager = new PositionManager(activity);
+        }
+        return positionManager;
+    }
 
+    private void updatePosition() {
+        LocationManager locationManager = (LocationManager) activity.getSystemService(LOCATION_SERVICE);
         if (ContextCompat.checkSelfPermission(activity,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(activity,
@@ -94,16 +91,10 @@ public class LocationUpdater {
             Log.e("DB", "PERMISSION GRANTED");
         }
 
-        userId = user.getUid();
-
-        email = user.getEmail();
-
-        final Geocoder geocoder;
+        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
-
         database = FirebaseDatabase.getInstance();
-        // Get LocationManager object from System Service LOCATION_SERVICE
-        locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         oldLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (oldLocation != null) {
             oldLatitude = oldLocation.getLatitude();
@@ -123,13 +114,14 @@ public class LocationUpdater {
             oldCountry = "oldCountry";
             oldRegion = "oldRegion";
         }
-        locationListener = new LocationListener() {
+
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-
-                List<Address> addresses;
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
+                List<Address> addresses;
                 Map<String, Object> coordinates = new ArrayMap<>();
                 emailMap = new ArrayMap<>();
                 coordinates.put("currentUserPosition", latitude+";"+longitude);
@@ -149,8 +141,8 @@ public class LocationUpdater {
                 if (!oldCountry.equals(country) || !oldRegion.equals(region)) {
                     //delete the current user instance and create a newer
                     myRef = database.getReference(oldCountry + "/" + oldRegion + "/" + userId);
-                        myRef.removeValue();
-                        radicalChange = true;
+                    myRef.removeValue();
+                    radicalChange = true;
                 }
                 if (radicalChange) {
                     //I have to add old user information
@@ -192,9 +184,10 @@ public class LocationUpdater {
             public void onProviderDisabled(String s) {
 
             }
-        };
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
+        });
     }
+
+
 
 
 }
