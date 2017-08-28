@@ -272,7 +272,7 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_manage:
-                this.startNewActivity(this, Ranking.class);
+                this.startNewActivity(this, RankingFragment.class);
                 break;
 
             case R.id.nav_share:

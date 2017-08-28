@@ -35,4 +35,30 @@
     <string name="menu_refresh">Refresh</string>
     <string name="user_not_retrieved">Unable to retrieve user information.</string>
     <string name="user_exist">User already exist. Try with another email address.</string>
+
+
+
+    <!-- Chart -->
+    <string name="action_help">Help</string>
+    <string name="strFunction">Insert Function:</string>
+    <string name="strLeftEnd">Insert left end:</string>
+    <string name="strRightEnd">insert right end:</string>
+    <string name="strManual">The application allows you to draw graphs of y =f(x) in a finite interval expressed
+        by the user. Arithmetic expressions of real numbers are evaluated, in particular : + , - , * , / , % (modulus), abs (absolute value),
+        sin, cos, tan, sqrt (square root) etc.</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="strEmptyField">You must fill out this field.</string>
+    <string name="fragment_tag" translatable="false">fragment</string>
+    <string name="strProgressDialogTitle">Loading…</string>
+    <string name="strProgressDialogMessage">Please, wait.</string>
+    <string name="strAreYouSure">Are you sure?</string>
+    <string name="strFunctionNotValid">Function is not valid</string>
+    <string name="strAborted">Operation aborted</string>
+    <string name="strSure">Are you sure you want to exit the Application?</string>
+    <string name="strErrorStart">The extreme left has to be less than right end.</string>
+    <string name="strErrorEnd">The right end must be greater than the extreme left.</string>
+    <string name="strInstruction">Instructions</string>
+    <string name="strGraph">Graphic</string>
+    <string name="strNoGraph">Graph is not available.</string>
+    <string name="action_delete">Delete</string>
 </resources>

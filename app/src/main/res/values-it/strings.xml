@@ -33,4 +33,28 @@
     <string name="menu_refresh">Ricarica</string>
     <string name="user_not_retrieved">Impossibile recuperare le informazioni dell\'utente.</string>
     <string name="user_exist">L\'utente esiste già. Prova con un altro indirizzo email.</string>
+
+
+
+    <!-- Chart -->
+    <string name="action_help">Aiuto</string>
+    <string name="strFunction">Inserire Funzione:</string>
+    <string name="strLeftEnd">Inserire estremo sinistro:</string>
+    <string name="strRightEnd">Inserire estremo destro:</string>
+    <string name="strEmptyField">Devi completare questo campo.</string>
+    <string name="strProgressDialogTitle">Loading...</string>
+    <string name="strProgressDialogMessage">Attendere prego.</string>
+    <string name="strAreYouSure">Sei sicuro?</string>
+    <string name="strFunctionNotValid">Funzione non valida</string>
+    <string name="strAborted">Operazione interrotta</string>
+    <string name="strManual">L\'applicazione consente di disegnare grafici di funzioni y=f(x) in un intervallo finito espresso
+        dall\'utente. Vengono valutate espressioni aritmentiche su numeri reali, in particolare: +, -, *, /, % (modulo) , abs (valore assoluto),
+    sin, cos, tan, sqrt (radice quadrata) ecc.</string>
+    <string name="strSure">Sei sicuro di voler uscire dall\'Applicazione?</string>
+    <string name="strErrorStart">L\'estremo sinistro deve essere minore dell\'estremo destro.</string>
+    <string name="strErrorEnd">L\'estremo destro deve essere maggiore dell\'estremo sinistro.</string>
+    <string name="strInstruction">Istruzioni</string>
+    <string name="strGraph">Grafico</string>
+    <string name="strNoGraph">Grafico non disponibile.</string>
+    <string name="action_delete">Elimina</string>
 </resources>

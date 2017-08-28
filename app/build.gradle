@@ -53,7 +53,16 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     ////
 
+    //// Chart build
+    compile 'com.github.PhilJay:MPAndroidChart:v2.2.3'
+    compile 'com.fathzer:javaluator:3.0.1'
+    ////
+
     testCompile 'junit:junit:4.12'
+}
+
+repositories {
+    maven { url "https://jitpack.io" }
 }
 
 //// Firebase service

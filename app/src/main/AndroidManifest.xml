@@ -42,7 +42,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.Ranking"
+            android:name=".boundary.RankingFragment"
             android:theme="@style/AppTheme">
             <!--Default Intent Filter-->
             <intent-filter>

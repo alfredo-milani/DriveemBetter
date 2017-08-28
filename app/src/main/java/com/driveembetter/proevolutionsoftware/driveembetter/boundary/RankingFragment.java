@@ -15,7 +15,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
  * Created by alfredo on 26/08/17.
  */
 
-public class Ranking extends Fragment {
+public class RankingFragment extends Fragment {
 
     private final static String TAG = "FragmentRanking";
 
