@@ -128,9 +128,9 @@ public class ChartActivity extends AppCompatActivity {
     /* Initialize function, startIndex and endIndex variables from intent extras */
     private void initData() {
         Intent intent = getIntent();
-        function = intent.getStringExtra(getResources().getResourceName(R.integer.FUNCTION_EXPRESSION));
+       /* function = intent.getStringExtra(getResources().getResourceName(R.integer.FUNCTION_EXPRESSION));
         startIndex = intent.getDoubleExtra(getResources().getResourceName(R.integer.START_INDEX), 0);
-        endIndex = intent.getDoubleExtra(getResources().getResourceName(R.integer.END_INDEX), 0);
+        endIndex = intent.getDoubleExtra(getResources().getResourceName(R.integer.END_INDEX), 0);*/
     }
 
     @Override

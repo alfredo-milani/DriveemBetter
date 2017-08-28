@@ -6,15 +6,11 @@ package com.driveembetter.proevolutionsoftware.driveembetter.chartBuild;
 
 import com.fathzer.soft.javaluator.DoubleEvaluator;
 
-import java.security.Policy;
-import java.util.Iterator;
-import java.util.function.Function;
-
 /** A subclass of DoubleEvaluator that supports SQRT function.
  */
 public class ExtendedDoubleEvaluator extends DoubleEvaluator {
     /** Defines the new function (square root).*/
-    private static final Function SQRT = new Function("sqrt", 1);
+    /*private static final Function SQRT = new Function("sqrt", 1);
     private static final Policy.Parameters PARAMS;
 
     static {
@@ -37,6 +33,6 @@ public class ExtendedDoubleEvaluator extends DoubleEvaluator {
             // If it's another function, pass it to DoubleEvaluator
             return super.evaluate(function, arguments, evaluationContext);
         }
-    }
+    }*/
 
 }
