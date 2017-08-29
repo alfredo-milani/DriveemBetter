@@ -5,22 +5,24 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.exception.CallbackNotInitialized;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by alfredo on 10/08/17.
  */
 
-public class SingletonUser {
+public class SingletonUser
+        implements Constants{
 
     private final static String TAG = "SingletonUser";
 
@@ -170,40 +172,40 @@ public class SingletonUser {
         }
         // Get a reference to our posts
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference ref = database.getReference("users/" + SingletonFirebaseProvider
-                .getInstance()
-                .getFirebaseUser()
-                .getUid() + "/vehicles");
+        final DatabaseReference ref = database.getReference();
+        Query query = ref
+                .child(NODE_USERS)
+                .child(SingletonFirebaseProvider
+                        .getInstance()
+                        .getFirebaseUser()
+                        .getUid())
+                .child(NODE_VEHICLES);
 
         // Attach a listener to read the data at our posts reference
-        ref.addValueEventListener(new ValueEventListener() {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "DIO: " + dataSnapshot.getValue());
-                Map<String, Object> data = (Map<String, Object>) dataSnapshot.getValue();
-                if (data == null) {
-                    Log.d(TAG, "vehicle NULL");
-
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot vehicle:
+                            dataSnapshot.getChildren()) {
+                        if (vehicle.getValue() != null) {
+                            String[] parts = vehicle.getValue().toString().split(";");
+                            vehicleArrayList = new ArrayList<Vehicle>();
+                            vehicleArrayList.add(
+                                    new Vehicle(
+                                            parts[0],
+                                            parts[1],
+                                            parts[2],
+                                            parts[3]
+                                    )
+                            );
+                        } else {
+                            vehicleArrayList = null;
+                        }
+                    }
+                } else {
                     vehicleArrayList = null;
-                    return;
                 }
-                vehicleArrayList = new ArrayList<>();
-
-                for (String vehicle : data.keySet()) {
-                    Log.d(TAG, "data: " + data.get(vehicle));
-
-                    String[] parts = data.get(vehicle).toString().split(";");
-
-                    vehicleArrayList.add(
-                            new Vehicle(
-                                    parts[0],
-                                    parts[1],
-                                    parts[2],
-                                    parts[3]
-                            )
-                    );
-                }
-
                 userDataCallback.onVehiclesReceive();
             }
 

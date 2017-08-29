@@ -287,7 +287,6 @@ public class MainFragmentActivity
                 this.singletonUser.getVehicles(new UserDataCallback() {
                     @Override
                     public void onVehiclesReceive() {
-                        Log.d(TAG, "DIO");
                         for (Vehicle vehicle :
                                 singletonUser.getVehicleArrayList()) {
                             Log.d(TAG, "VEICH: " + vehicle.getNumberPlate() + " / " + vehicle.getType());
