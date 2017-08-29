@@ -53,9 +53,8 @@ public class SignInActivity
     private EditText passwordField;
     private ProgressBar progressBar;
 
-    // If we are authenticated with Firebase we check if email is verified before login
+    // If we are authenticated with Firebase we check if email is verified before log in
     private boolean checkEmailBeforeLogIn;
-    private boolean signInPressed;
 
     //DEBUG
     private ImageView imageView;
@@ -91,31 +90,25 @@ public class SignInActivity
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            int id = msg.what;
 
+            int id = msg.what;
             hideProgress();
-            emailField.setError(null);
-            passwordField.setError(null);
             switch (id) {
                 case USER_LOGIN:
-                    // TODO sistema
                     Log.d(TAG, "handleMessage:Login");
                     // Check if email has been verified
-                    if (checkEmailBeforeLogIn &&
-                            singletonFirebaseProvider
-                                    .getFirebaseUser() != null &&
+                    if (checkEmailBeforeLogIn && (singletonFirebaseProvider
+                            .getFirebaseUser() == null ||
                             !singletonFirebaseProvider
                                     .getFirebaseUser()
-                                    .isEmailVerified()) {
-                        Log.d(TAG, "EmailNotVerified");
+                                    .isEmailVerified())) {
+                        Log.d(TAG, "handleMessage:login:email_not_verified");
                         checkEmailBeforeLogIn = false;
                         break;
                     }
-                    if (signInPressed) {
-                        signInPressed = false;
-                        startNewActivity(SignInActivity.this, MainFragmentActivity.class);
-                    }
-                    Log.d(TAG, "SignIn not pressed");
+
+                    Log.d(TAG, "Login: email verified");
+                    startNewActivity(SignInActivity.this, MainFragmentActivity.class);
                     break;
 
                 case EMAIL_REQUIRED:
@@ -130,6 +123,7 @@ public class SignInActivity
 
                 case EMAIL_NOT_VERIFIED:
                     Log.d(TAG, "handleMessage:email_not_verified");
+                    checkEmailBeforeLogIn = false;
                     emailField.setError(getString(R.string.email_not_verified));
                     break;
 
@@ -170,8 +164,8 @@ public class SignInActivity
     };
 
     private void startNewActivity(Context context, Class newClass) {
-        Intent mainFragmentIntent = new Intent(context, newClass);
-        this.startActivity(mainFragmentIntent);
+        Intent newIntent = new Intent(context, newClass);
+        this.startActivity(newIntent);
         this.finish();
     }
 
@@ -197,6 +191,8 @@ public class SignInActivity
     }
 
     private void initResources() {
+        Log.d(TAG, "init resources");
+
         this.checkEmailBeforeLogIn = false;
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
@@ -248,7 +244,6 @@ public class SignInActivity
 
             // Sign in with email and password
             case R.id.sign_in_button:
-                this.signInPressed = true;
                 this.checkEmailBeforeLogIn = true;
                 this.showProgress();
                 this.baseProviderArrayList
@@ -261,7 +256,6 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
-                this.signInPressed = true;
                 this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.GOOGLE_PROVIDER)
@@ -270,7 +264,6 @@ public class SignInActivity
 
             // Sign in with Twitter
             case R.id.twitter_login_button:
-                this.signInPressed = true;
                 this.baseProviderArrayList
                         .get(FactoryProviders.TWITTER_PROVIDER)
                         .signIn(null, null);
@@ -348,7 +341,6 @@ public class SignInActivity
     protected void onPause() {
         super.onPause();
 
-        this.checkEmailBeforeLogIn = false;
         Log.d(TAG, ":pause");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }

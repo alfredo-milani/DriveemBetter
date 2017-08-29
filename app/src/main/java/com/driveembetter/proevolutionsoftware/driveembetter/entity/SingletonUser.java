@@ -158,6 +158,10 @@ public class SingletonUser {
         this.currentUserLongitude = currentUserLongitude;
     }
 
+    public ArrayList<Vehicle> getVehicleArrayList() {
+        return this.vehicleArrayList;
+    }
+
     public void getVehicles(final UserDataCallback userDataCallback)
             throws CallbackNotInitialized {
         if (userDataCallback == null) {
@@ -175,6 +179,7 @@ public class SingletonUser {
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "DIO: " + dataSnapshot.getValue());
                 Map<String, Object> data = (Map<String, Object>) dataSnapshot.getValue();
                 if (data == null) {
                     Log.d(TAG, "vehicle NULL");

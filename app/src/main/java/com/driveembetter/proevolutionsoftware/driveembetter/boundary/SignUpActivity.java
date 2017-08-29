@@ -69,6 +69,14 @@ public class SignUpActivity
 
             hideProgress();
             switch (msg.what) {
+                case USER_LOGIN:
+                    Log.d(TAG, "login received");
+                    break;
+                
+                case USER_LOGOUT:
+                    Log.d(TAG, "logout received");
+                    break;
+                
                 case USER_LOGIN_EMAIL_PSW:
                     Log.d(TAG, "handleMessage:login emailPsw");
                     startNewActivity(SignUpActivity.this, MainFragmentActivity.class);
@@ -104,7 +112,7 @@ public class SignUpActivity
                     Log.d(TAG, "handleMessage:verification_email_sent");
                     Toast.makeText(SignUpActivity.this, String.format(getString(R.string.verification_email_success), getString(R.string.app_name)), Toast.LENGTH_LONG).show();
 
-                    startNewActivity(SignUpActivity.this, SignInActivity.class);
+                    previousActivity();
                     break;
 
                 case VERIFICATION_EMAIL_NOT_SENT:
@@ -136,7 +144,7 @@ public class SignUpActivity
                     Log.d(TAG, "handleMessage:verification_email_resent");
                     Toast.makeText(SignUpActivity.this, getString(R.string.postponed_verification_email), Toast.LENGTH_LONG).show();
 
-                    startNewActivity(SignUpActivity.this, SignInActivity.class);
+                    previousActivity();
                     break;
 
                 case NETWORK_ERROR:
@@ -150,9 +158,14 @@ public class SignUpActivity
         }
     };
 
+    private void previousActivity() {
+        this.finish();
+    }
+
     private void startNewActivity(Context context, Class newClass) {
-        Intent mainFragmentIntent = new Intent(context, newClass);
-        this.startActivity(mainFragmentIntent);
+        Intent newIntent = new Intent(context, newClass);
+        newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        this.startActivity(newIntent);
         this.finish();
     }
 

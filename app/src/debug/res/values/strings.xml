@@ -25,7 +25,7 @@
     <string name="username">Username</string>
     <string name="email">Email</string>
     <string name="back">Back</string>
-    <string name="invalid_user">There is no singletonUser record corresponding to this identifier. The singletonUser may have been deleted.</string>
+    <string name="invalid_user">There is no user record corresponding to this identifier. The user may have been deleted.</string>
     <string name="invalid_credentials">The password is invalid or the singletonUser does not have a password.</string>
     <string name="verification_email_success">Verification email successfully sent. Check your email and login in %s.</string>
     <string name="verification_email_failure">Verification email not sent due an error. Retry later.</string>

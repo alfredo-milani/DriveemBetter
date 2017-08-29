@@ -32,6 +32,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeM
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.UserDataCallback;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstanceIDService;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ImageLoadTask;
@@ -116,9 +117,14 @@ public class MainFragmentActivity
     };
 
     private void startNewActivity(Context context, Class newClass) {
-        Intent mainFragmentIntent = new Intent(context, newClass);
-        this.startActivity(mainFragmentIntent);
+        Intent newIntent = new Intent(context, newClass);
+        this.startActivity(newIntent);
         this.finish();
+    }
+
+    private void openNewActivity(Context context, Class newClass) {
+        Intent newIntent = new Intent(context, newClass);
+        this.startActivity(newIntent);
     }
 
     @Override
@@ -282,6 +288,10 @@ public class MainFragmentActivity
                     @Override
                     public void onVehiclesReceive() {
                         Log.d(TAG, "DIO");
+                        for (Vehicle vehicle :
+                                singletonUser.getVehicleArrayList()) {
+                            Log.d(TAG, "VEICH: " + vehicle.getNumberPlate() + " / " + vehicle.getType());
+                        }
                     }
                 });
                 break;
@@ -303,7 +313,7 @@ public class MainFragmentActivity
 
             case R.id.ranking:
                 Log.d(TAG, "DIO CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
-                this.startNewActivity(this, RankingFragment.class);
+                this.openNewActivity(this, RankingFragment.class);
                 break;
 
             case R.id.save_me:
@@ -326,7 +336,7 @@ public class MainFragmentActivity
                 break;
 
             case R.id.about_us:
-                this.startNewActivity(MainFragmentActivity.this, AboutUs.class);
+                this.openNewActivity(MainFragmentActivity.this, AboutUs.class);
                 break;
 
             case R.id.nav_logout:
