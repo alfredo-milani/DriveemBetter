@@ -198,6 +198,8 @@ public class SingletonUser {
                             )
                     );
                 }
+
+                userDataCallback.onVehiclesReceive();
             }
 
             @Override

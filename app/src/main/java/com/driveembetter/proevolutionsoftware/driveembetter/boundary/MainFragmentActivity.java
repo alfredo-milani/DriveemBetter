@@ -280,7 +280,7 @@ public class MainFragmentActivity
 
                 this.singletonUser.getVehicles(new UserDataCallback() {
                     @Override
-                    public void setVehicles() {
+                    public void onVehiclesReceive() {
                         Log.d(TAG, "DIO");
                     }
                 });

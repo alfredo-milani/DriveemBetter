@@ -5,5 +5,5 @@ package com.driveembetter.proevolutionsoftware.driveembetter.entity;
  */
 
 public interface UserDataCallback {
-    public void setVehicles();
+    public void onVehiclesReceive();
 }
