@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -131,7 +130,7 @@ public class SignInActivity
 
                 case EMAIL_NOT_VERIFIED:
                     Log.d(TAG, "handleMessage:email_not_verified");
-                    Toast.makeText(SignInActivity.this, getString(R.string.email_not_verified), Toast.LENGTH_LONG).show();
+                    emailField.setError(getString(R.string.email_not_verified));
                     break;
 
                 case BAD_EMAIL_OR_PSW:
@@ -151,12 +150,13 @@ public class SignInActivity
                     break;
 
                 case NETWORK_ERROR:
-                    Log.d(TAG, "handleMessage:networ_error");
+                    Log.d(TAG, "handleMessage:network_error");
                     Toast.makeText(SignInActivity.this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
                     break;
 
                 case GOOGLE_SIGNIN_ERROR:
                     Log.d(TAG, "handleMessage:google_signin_error");
+                    break;
 
                 case UNKNOWN_ERROR:
                     Log.d(TAG, "handleMessage:google(firebase)_signin_error");

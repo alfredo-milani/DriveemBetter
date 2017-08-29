@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="logging_out">Signing out</string>
+    <string name="garage">Garage</string>
+    <string name="statistics">Statistics</string>
+    <string name="save_me">Save me!</string>
+    <string name="ranking">Ranking</string>
+    <string name="communicate">Communicate</string>
+    <string name="share">Share</string>
+    <string name="send">Send</string>
+    <string name="about_us">About us</string>
+</resources>

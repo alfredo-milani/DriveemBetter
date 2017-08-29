@@ -5,14 +5,13 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
  */
 
 public class StringParser {
-    String coordinates;
+    private String coordinates;
 
     public StringParser(String coordinates) {
         this.coordinates = coordinates;
     }
 
     public String[] getCoordinates() {
-        String[] tokens = coordinates.split(";");
-        return tokens;
+        return this.coordinates.split(";");
      }
 }

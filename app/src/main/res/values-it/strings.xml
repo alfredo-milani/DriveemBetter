@@ -59,4 +59,13 @@
     <string name="strGraph">Grafico</string>
     <string name="strNoGraph">Grafico non disponibile.</string>
     <string name="action_delete">Elimina</string>
+    <string name="logging_out">Uscita</string>
+    <string name="garage">Garage</string>
+    <string name="statistics">Statistiche</string>
+    <string name="save_me">Salvami!</string>
+    <string name="ranking">Classifica</string>
+    <string name="communicate">Comunicare</string>
+    <string name="share">Condividi</string>
+    <string name="send">Invia</string>
+    <string name="about_us">Chi siamo</string>
 </resources>

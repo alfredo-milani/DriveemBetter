@@ -1,7 +1,7 @@
-apply plugin: 'com.android.application'
 //// Firebase service
 apply plugin: 'com.google.gms.google-services'
 ////
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
@@ -30,21 +30,19 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support:design:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    //// Location manager
+    //// Google serivices
     compile 'com.google.android.gms:play-services-location:11.0.4'
     compile 'com.google.android.gms:play-services-places:11.0.4'
     compile 'com.google.android.gms:play-services-maps:11.0.4'
+    compile 'com.google.android.gms:play-services-auth:11.0.4'
     compile 'com.android.support:support-v4:26+'
     ////
-    //// Firebase service
+    //// Firebase services
     compile 'com.google.firebase:firebase-auth:11.0.4'
     compile 'com.google.firebase:firebase-core:11.0.4'
     compile 'com.google.firebase:firebase-database:11.0.4'
     compile 'com.google.firebase:firebase-storage:11.0.4'
     compile 'com.google.firebase:firebase-messaging:11.0.4'
-    ////
-    //// Google authentication
-    compile 'com.google.android.gms:play-services-auth:11.0.4'
     ////
     //// Twitter
     // Include all the Twitter APIs

@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -67,9 +66,7 @@
             android:textColorLink="@android:color/background_light" />
 
         <Button
-
             android:id="@+id/sign_in_button"
-
             android:layout_width="250dp"
             android:layout_height="45dp"
             android:alpha="0.7"
@@ -158,4 +155,5 @@
             tools:visibility="visible" />
 
     </RelativeLayout>
+
 </android.support.constraint.ConstraintLayout>

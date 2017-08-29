@@ -91,14 +91,20 @@ public class MainFragmentActivity
                     } else {
                         currentUser = getString(R.string.user_not_retrieved);
                     }
+                    Log.d(TAG, "Log in");
+                    /*
                     Toast.makeText(
                             MainFragmentActivity.this,
                             String.format(getString(R.string.sign_in_as), currentUser), Toast.LENGTH_SHORT
                     ).show();
+                    */
                     break;
 
                 case USER_LOGOUT:
-                    Toast.makeText(MainFragmentActivity.this, getString(R.string.logout), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Log out");
+                    /*
+                    Toast.makeText(MainFragmentActivity.this, getString(R.string.logging_out), Toast.LENGTH_SHORT).show();
+                    */
                     startNewActivity(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
@@ -267,13 +273,13 @@ public class MainFragmentActivity
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.nav_camera:
+            case R.id.garage:
                 // Handle the camera action
                 Log.d(TAG, "Camera pressed");
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
                 break;
 
-            case R.id.nav_gallery:
+            case R.id.statistics:
                 SingletonUser singletonUser = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
                 if (singletonUser != null) {
                     Log.d(TAG, "GOOGLE USER: " + singletonUser.getUsername() + " jjj " + singletonUser.getEmail() + " / " + singletonUser.getUid());
@@ -288,20 +294,12 @@ public class MainFragmentActivity
                 }
                 break;
 
-            case R.id.nav_slideshow:
+            case R.id.ranking:
                 Log.d(TAG, "DIO CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
-                break;
-
-            case R.id.nav_manage:
                 this.startNewActivity(this, RankingFragment.class);
                 break;
 
-            case R.id.nav_share:
-                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                        .silentSignIn();
-                break;
-
-            case R.id.nav_send:
+            case R.id.save_me:
                 if (!FragmentState.isSaveMeIsOpen()) {
                     FragmentState.setSaveMeIsOpen(true);
                     saveMe = new SaveMe();
@@ -312,13 +310,23 @@ public class MainFragmentActivity
                 }
                 break;
 
+            case R.id.nav_share:
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                        .silentSignIn();
+                break;
+
+            case R.id.nav_send:
+                break;
+
+            case R.id.about_us:
+                this.startNewActivity(MainFragmentActivity.this, AboutUs.class);
+                break;
+
             case R.id.nav_logout:
                 Log.d(TAG, "Logout pressed");
 
                 this.logoutCurrentProviders();
                 break;
-
-            default:
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
