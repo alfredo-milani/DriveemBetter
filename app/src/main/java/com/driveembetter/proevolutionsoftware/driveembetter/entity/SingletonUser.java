@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.exception.CallbackNotInitialized;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -157,19 +158,18 @@ public class SingletonUser {
         this.currentUserLongitude = currentUserLongitude;
     }
 
-    public void setUserDataCallback(UserDataCallback userDataCallback) {
-        this.userDataCallback = userDataCallback;
-    }
-
-    public ArrayList<Vehicle> getVehicleArrayList() {
+    public void getVehicles(final UserDataCallback userDataCallback)
+            throws CallbackNotInitialized {
+        if (userDataCallback == null) {
+            Log.w(TAG, "Callback not initialized");
+            throw new CallbackNotInitialized("Callback not initialized");
+        }
         // Get a reference to our posts
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference ref = database.getReference("users/" + SingletonFirebaseProvider
                 .getInstance()
                 .getFirebaseUser()
                 .getUid() + "/vehicles");
-
-        this.vehicleArrayList = new ArrayList<>();
 
         // Attach a listener to read the data at our posts reference
         ref.addValueEventListener(new ValueEventListener() {
@@ -182,6 +182,7 @@ public class SingletonUser {
                     vehicleArrayList = null;
                     return;
                 }
+                vehicleArrayList = new ArrayList<>();
 
                 for (String vehicle : data.keySet()) {
                     Log.d(TAG, "data: " + data.get(vehicle));
@@ -197,13 +198,6 @@ public class SingletonUser {
                             )
                     );
                 }
-
-                if (userDataCallback != null) {
-                    userDataCallback.setVehicles();
-                    return;
-                }
-
-                Log.w(TAG, "Callback not setted");
             }
 
             @Override
@@ -211,8 +205,6 @@ public class SingletonUser {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
         });
-
-        return vehicleArrayList;
     }
 
     public void setVehicleArrayList(ArrayList<Vehicle> vehicleArrayList) {

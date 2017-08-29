@@ -31,6 +31,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.UserDataCallback;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstanceIDService;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ImageLoadTask;
@@ -275,8 +276,14 @@ public class MainFragmentActivity
         switch (id) {
             case R.id.garage:
                 // Handle the camera action
-                Log.d(TAG, "Camera pressed");
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
+
+                this.singletonUser.getVehicles(new UserDataCallback() {
+                    @Override
+                    public void setVehicles() {
+                        Log.d(TAG, "DIO");
+                    }
+                });
                 break;
 
             case R.id.statistics:
