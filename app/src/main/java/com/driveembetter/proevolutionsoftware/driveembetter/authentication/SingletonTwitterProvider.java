@@ -74,7 +74,7 @@ public class SingletonTwitterProvider
         AuthCredential credential = TwitterAuthProvider.getCredential(
                 session.getAuthToken().token,
                 session.getAuthToken().secret);
-        this.singletonFirebaseProvider
+        SingletonFirebaseProvider
                 .getAuth()
                 .signInWithCredential(credential)
                 .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
@@ -158,7 +158,7 @@ public class SingletonTwitterProvider
     public void signOut() {
         if (this.singletonFirebaseProvider != null) {
             // Firebase sign out
-            this.singletonFirebaseProvider.getAuth().signOut();
+            SingletonFirebaseProvider.getAuth().signOut();
         }
     }
 

@@ -25,7 +25,7 @@ public class SingletonFirebaseProvider
     private Handler handler;
 
     // Variables for authentication with Firebase platoform
-    private FirebaseAuth auth;
+    private static FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
 
     private volatile boolean listenerSetted;
@@ -164,8 +164,8 @@ public class SingletonFirebaseProvider
         return this.handler;
     }
 
-    public FirebaseAuth getAuth() {
-        return auth;
+    public static FirebaseAuth getAuth() {
+        return SingletonFirebaseProvider.auth;
     }
 
     public void sendMessageToUI(int actionType) {
@@ -183,6 +183,4 @@ public class SingletonFirebaseProvider
             this.auth.signOut();
         }
     }
-
-    // TODO to add metodo reset session
 }

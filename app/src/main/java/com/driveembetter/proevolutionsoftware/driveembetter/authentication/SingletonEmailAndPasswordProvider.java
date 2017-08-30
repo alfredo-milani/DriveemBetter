@@ -57,7 +57,7 @@ public class SingletonEmailAndPasswordProvider
             return;
         }
 
-        this.singletonFirebaseProvider
+        SingletonFirebaseProvider
                 .getAuth()
                 .signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
@@ -122,7 +122,7 @@ public class SingletonEmailAndPasswordProvider
             return;
         }
 
-        this.singletonFirebaseProvider
+        SingletonFirebaseProvider
                 .getAuth()
                 .createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
@@ -241,7 +241,7 @@ public class SingletonEmailAndPasswordProvider
 
     @Override
     public void signOut() {
-        this.singletonFirebaseProvider
+        SingletonFirebaseProvider
                 .getAuth()
                 .signOut();
     }

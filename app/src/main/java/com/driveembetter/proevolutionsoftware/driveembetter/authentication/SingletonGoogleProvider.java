@@ -71,9 +71,30 @@ public class SingletonGoogleProvider
     private static class GoogleProviderContainer {
         private final static SingletonGoogleProvider INSTANCE = new SingletonGoogleProvider();
     }
-
+/*
     static SingletonGoogleProvider getInstance() {
         return GoogleProviderContainer.INSTANCE;
+    }
+    */
+
+
+
+    // Singleton PROVA  TODO prova a resettare singleton quando SignIn Google non va
+    private static SingletonGoogleProvider singletonInstance;
+
+    public static SingletonGoogleProvider getInstance() {
+        if(SingletonGoogleProvider.singletonInstance == null){
+            synchronized (SingletonGoogleProvider.class) {
+                if(SingletonGoogleProvider.singletonInstance == null) {
+                    SingletonGoogleProvider.singletonInstance =
+                            new SingletonGoogleProvider();
+                }
+            }
+        } else {
+            Log.w(TAG, "getInstance:FirebaseProvider already initialized");
+        }
+
+        return SingletonGoogleProvider.singletonInstance;
     }
 
 
@@ -105,7 +126,7 @@ public class SingletonGoogleProvider
 
         AuthCredential credential = GoogleAuthProvider
                 .getCredential(acct.getIdToken(), null);
-        this.singletonFirebaseProvider
+        SingletonFirebaseProvider
                 .getAuth()
                 .signInWithCredential(credential)
                 .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
@@ -164,7 +185,7 @@ public class SingletonGoogleProvider
         }
 
         // Firebase sign out
-        this.singletonFirebaseProvider.getAuth().signOut();
+        SingletonFirebaseProvider.getAuth().signOut();
     }
 
     /**
@@ -186,7 +207,7 @@ public class SingletonGoogleProvider
     // To disconnect from current Google account
     public void revokeAccess() {
         // Firebase sign out
-        this.singletonFirebaseProvider.getAuth().signOut();
+        SingletonFirebaseProvider.getAuth().signOut();
 
         if (!this.mGoogleApiClient.isConnected()) {
             return;

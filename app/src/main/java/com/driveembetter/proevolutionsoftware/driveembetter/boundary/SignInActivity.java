@@ -211,12 +211,13 @@ public class SignInActivity
                 break;
 
             case SingletonTwitterProvider.RC_SIGN_IN:
+                Log.d(TAG, "TWITTER onActivityResult: " + requestCode);
                 // Pass the activity result to the login button.
                 this.twitterLoginButton.onActivityResult(requestCode, resultCode, data);
                 break;
 
             default:
-                Log.w(TAG, "Unknown requestCode: " + requestCode);
+                Log.w(TAG, "UNKNOWN requestCode: " + requestCode);
         }
     }
 
@@ -239,6 +240,8 @@ public class SignInActivity
                 }
 
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
+
+                SingletonGoogleProvider.resetProvider();
                 break;
 
 
