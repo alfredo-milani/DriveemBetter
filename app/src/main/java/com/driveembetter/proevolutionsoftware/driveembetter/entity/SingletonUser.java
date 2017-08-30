@@ -183,31 +183,27 @@ public class SingletonUser
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Iterable<DataSnapshot> vehiclesList = dataSnapshot.getChildren();
-                    if (vehiclesList != null) {
-                        for (DataSnapshot vehicle : vehiclesList) {
-                            if (vehicle.getValue() != null) {
-                                String[] parts = vehicle.getValue().toString().split(";");
-                                vehicleArrayList = new ArrayList<Vehicle>();
-                                vehicleArrayList.add(
-                                        new Vehicle(
-                                                parts[0],
-                                                parts[1],
-                                                parts[2],
-                                                parts[3]
-                                        )
-                                );
-                            } else {
-                                Log.d(TAG, "Error while retrieve data from database");
-                                vehicleArrayList = null;
-                            }
-                        }
-                    } else {
-                        vehicleArrayList = null;
-                    }
-                } else {
+                Iterable<DataSnapshot> vehiclesList = dataSnapshot.getChildren();
+                if (!dataSnapshot.exists() || vehiclesList == null) {
                     vehicleArrayList = null;
+                } else {
+                    for (DataSnapshot vehicle : vehiclesList) {
+                        if (vehicle.getValue() != null) {
+                            String[] parts = vehicle.getValue().toString().split(";");
+                            vehicleArrayList = new ArrayList<Vehicle>();
+                            vehicleArrayList.add(
+                                    new Vehicle(
+                                            parts[0],
+                                            parts[1],
+                                            parts[2],
+                                            parts[3]
+                                    )
+                            );
+                        } else {
+                            Log.d(TAG, "Error while retrieve data from database");
+                            vehicleArrayList = null;
+                        }
+                    }
                 }
                 userDataCallback.onVehiclesReceive();
             }
