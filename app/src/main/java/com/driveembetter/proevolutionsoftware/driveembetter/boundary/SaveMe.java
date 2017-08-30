@@ -1,21 +1,15 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.StrictMode;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -26,7 +20,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -34,8 +27,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
@@ -56,9 +49,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -142,49 +132,6 @@ public class SaveMe extends Fragment {
 
         database = FirebaseDatabase.getInstance();
         //TODO: TO CHANGE
-        myRef = database.getReference("Italy/Lazio");
-
-        android_id = Settings.Secure.getString(getActivity().getContentResolver(),
-                Settings.Secure.ANDROID_ID);
-
-        markerPool = new HashMap<>();
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
-                for (String user : data.keySet()) {
-                    if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                        //Map<String, Object> coordinates = data.get(user);
-                        String coordinates = (String) data.get(user).get("currentUserPosition");
-                        StringParser stringParser = new StringParser(coordinates);
-                        String[] latLon = stringParser.getCoordinates();
-                        //LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
-                        LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
-                        if ( markerPool.containsKey(user)) {
-                            markerPool.get(user).setPosition(userPos);
-                        } else {
-                            String markerTitle = "user@drivembetter.com";
-                            if (data.get(user).get("email")!=null)
-                                markerTitle =(String) data.get(user).get("email");
-
-                            Marker userMarker = googleMap.addMarker(new MarkerOptions()
-                                    .position(userPos)
-                                    .snippet(user)
-                                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_car))
-                                    .title(markerTitle));
-                            markerPool.put(user, userMarker);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
 
         UpdatePosition updatePosition = new UpdatePosition();
         updatePosition.execute();
@@ -374,9 +321,9 @@ public class SaveMe extends Fragment {
                                         userSelectedToken = (String) dataSnapshot.child("firebaseToken").getValue();
                                         //TODO: TO CHANGE
                                         ChatActivity.startActivity(getActivity(),
-                                        userSelectedEmail,
-                                        userSelectedUid,
-                                        userSelectedToken);
+                                                userSelectedEmail,
+                                                userSelectedUid,
+                                                userSelectedToken);
                                     }
 
                                     @Override
@@ -471,7 +418,10 @@ public class SaveMe extends Fragment {
             try {
                 Geocoder geocoder;
                 List<Address> addresses;
-                geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+                String oldCountry = "NA";
+                String oldRegion = "NA";
+                String country, region;
+                geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.ENGLISH);
                 double latitude, longitude;
                 while (true) {
                     latitude = positionManager.getLatitude();
@@ -484,6 +434,13 @@ public class SaveMe extends Fragment {
 
                             if (addresses != null && addresses.size() > 0) {
                                 String address = addresses.get(0).getAddressLine(0);
+                                country = addresses.get(0).getCountryName();
+                                region = addresses.get(0).getAdminArea();
+                                if (!country.equals(oldCountry) || !country.equals(oldRegion)) {
+                                    lookForMyNeighbors(country, region);
+                                }
+                                oldCountry = country;
+                                oldRegion = region;
                                 publishProgress(address, ""+latitude, ""+longitude);
                             }
                         } catch (IOException e) {
@@ -502,6 +459,49 @@ public class SaveMe extends Fragment {
             }
             return null;
         }
+    }
+
+    private void lookForMyNeighbors(String country, String region) {
+
+        myRef = database.getReference(country + "/" + region);
+
+        markerPool = new HashMap<>();
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
+                for (String user : data.keySet()) {
+                    if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        //Map<String, Object> coordinates = data.get(user);
+                        String coordinates = (String) data.get(user).get("currentUserPosition");
+                        StringParser stringParser = new StringParser(coordinates);
+                        String[] latLon = stringParser.getCoordinates();
+                        //LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
+                        LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
+                        if ( markerPool.containsKey(user)) {
+                            markerPool.get(user).setPosition(userPos);
+                        } else {
+                            String markerTitle = "user@drivembetter.com";
+                            if (data.get(user).get("email")!=null)
+                                markerTitle =(String) data.get(user).get("email");
+
+                            Marker userMarker = googleMap.addMarker(new MarkerOptions()
+                                    .position(userPos)
+                                    .snippet(user)
+                                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_car))
+                                    .title(markerTitle));
+                            markerPool.put(user, userMarker);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 }

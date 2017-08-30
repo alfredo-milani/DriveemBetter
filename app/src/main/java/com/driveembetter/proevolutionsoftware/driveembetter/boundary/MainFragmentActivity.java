@@ -287,9 +287,13 @@ public class MainFragmentActivity
                 this.singletonUser.getVehicles(new UserDataCallback() {
                     @Override
                     public void onVehiclesReceive() {
-                        for (Vehicle vehicle :
-                                singletonUser.getVehicleArrayList()) {
-                            Log.d(TAG, "VEICH: " + vehicle.getNumberPlate() + " / " + vehicle.getType());
+                        if (singletonUser.getVehicleArrayList() == null) {
+                            Log.d(TAG, "VEICH NULL");
+                        } else {
+                            for (Vehicle vehicle :
+                                    singletonUser.getVehicleArrayList()) {
+                                Log.d(TAG, "VEICH: " + vehicle.getNumberPlate() + " / " + vehicle.getType());
+                            }
                         }
                     }
                 });
@@ -342,6 +346,7 @@ public class MainFragmentActivity
                 Log.d(TAG, "Logout pressed");
 
                 this.logoutCurrentProviders();
+                SingletonUser.resetSession();
                 break;
         }
 

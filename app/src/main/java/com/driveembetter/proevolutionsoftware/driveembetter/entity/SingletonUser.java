@@ -9,7 +9,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.exception.CallbackNotInitialized;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
@@ -171,9 +170,8 @@ public class SingletonUser
             throw new CallbackNotInitialized("Callback not initialized");
         }
         // Get a reference to our posts
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference ref = database.getReference();
-        Query query = ref
+        Query query = FirebaseDatabase.getInstance()
+                .getReference()
                 .child(NODE_USERS)
                 .child(SingletonFirebaseProvider
                         .getInstance()
@@ -186,22 +184,27 @@ public class SingletonUser
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    for (DataSnapshot vehicle:
-                            dataSnapshot.getChildren()) {
-                        if (vehicle.getValue() != null) {
-                            String[] parts = vehicle.getValue().toString().split(";");
-                            vehicleArrayList = new ArrayList<Vehicle>();
-                            vehicleArrayList.add(
-                                    new Vehicle(
-                                            parts[0],
-                                            parts[1],
-                                            parts[2],
-                                            parts[3]
-                                    )
-                            );
-                        } else {
-                            vehicleArrayList = null;
+                    Iterable<DataSnapshot> vehiclesList = dataSnapshot.getChildren();
+                    if (vehiclesList != null) {
+                        for (DataSnapshot vehicle : vehiclesList) {
+                            if (vehicle.getValue() != null) {
+                                String[] parts = vehicle.getValue().toString().split(";");
+                                vehicleArrayList = new ArrayList<Vehicle>();
+                                vehicleArrayList.add(
+                                        new Vehicle(
+                                                parts[0],
+                                                parts[1],
+                                                parts[2],
+                                                parts[3]
+                                        )
+                                );
+                            } else {
+                                Log.d(TAG, "Error while retrieve data from database");
+                                vehicleArrayList = null;
+                            }
                         }
+                    } else {
+                        vehicleArrayList = null;
                     }
                 } else {
                     vehicleArrayList = null;
@@ -228,8 +231,7 @@ public class SingletonUser
         this.currentVehicle = currentVehicle;
     }
 
-    // TODO chiama metodo nel LOGOUT
-    public void resetSession() {
+    public static void resetSession() {
         SingletonUser.singletonInstance = null;
     }
 }
