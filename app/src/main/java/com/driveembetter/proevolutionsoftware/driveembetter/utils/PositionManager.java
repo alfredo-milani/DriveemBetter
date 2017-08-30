@@ -1,10 +1,8 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -17,15 +15,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.MainFragmentActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.twitter.sdk.android.core.models.TwitterCollection;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,11 +32,20 @@ import java.util.Map;
  */
 
 public class PositionManager extends Application {
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        if (region != null && subRegion != null && country != null) {
+            myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
+            myRef.removeValue();
+        }
+    }
 
     private double latitude = 0;
     private double longitude = 0;
     private double oldLatitude, oldLongitude;
-    private String oldCountry, oldRegion;
+    private String oldCountry, oldRegion, oldSubRegion;
+    private String country, region, subRegion;
     private static PositionManager positionManager;
     private Activity activity;
     private String userId, email;
@@ -106,13 +110,21 @@ public class PositionManager extends Application {
                 if (oldAddresses.size()!=0) {
                     oldCountry = oldAddresses.get(0).getCountryName();
                     oldRegion = oldAddresses.get(0).getAdminArea();
+                    oldSubRegion = oldAddresses.get(0).getSubAdminArea();
                 }
+                if (oldCountry==null)
+                    oldCountry = "oldCountry";
+                if (oldSubRegion==null)
+                    oldSubRegion = "oldSubRegion";
+                if (oldRegion==null)
+                    oldRegion = "oldRegion";
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
             oldCountry = "oldCountry";
             oldRegion = "oldRegion";
+            oldSubRegion = "oldSubRegion";
         }
 
 
@@ -126,21 +138,21 @@ public class PositionManager extends Application {
                 emailMap = new ArrayMap<>();
                 coordinates.put("currentUserPosition", latitude+";"+longitude);
                 emailMap.put("email", email);
-                String country = "";
-                String region = "";
                 try {
                     addresses = geocoder.getFromLocation(latitude, longitude, 1);
                     country = addresses.get(0).getCountryName();
                     region = addresses.get(0).getAdminArea();
+                    subRegion = addresses.get(0).getSubAdminArea();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    //TODO TO HANDLE
                 }
                 //coordinates.put("lat", latitude);
                 //coordinates.put("lon", longitude);
                 Boolean radicalChange = false;
-                if (!oldCountry.equals(country) || !oldRegion.equals(region)) {
+                if (!oldCountry.equals(country) || !oldRegion.equals(region) || !oldSubRegion.equals(subRegion)) {
                     //delete the current user instance and create a newer
-                    myRef = database.getReference(oldCountry + "/" + oldRegion + "/" + userId);
+                    myRef = database.getReference("position" + "/" + oldCountry + "/" + oldRegion + "/" + oldSubRegion + "/" + userId);
                     myRef.removeValue();
                     radicalChange = true;
                 }
@@ -151,8 +163,9 @@ public class PositionManager extends Application {
                 }
                 oldCountry = country;
                 oldRegion = region;
-                myRef = database.getReference(country + "/" + region + "/" + userId);
-                checkRef = database.getReference(country + "/" + region + "/" + userId);
+                oldSubRegion = subRegion;
+                myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
+                checkRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
 
                 myRef.updateChildren(coordinates);
                 checkRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -182,12 +195,20 @@ public class PositionManager extends Application {
 
             @Override
             public void onProviderDisabled(String s) {
-
+                if (region != null && subRegion != null && country != null) {
+                    myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
+                    myRef.removeValue();
+                }
             }
         });
     }
 
-
+    public void deletePosition() {
+        if (region != null && subRegion != null && country != null) {
+            myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
+            myRef.removeValue();
+        }
+    }
 
 
 }

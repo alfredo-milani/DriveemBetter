@@ -131,88 +131,9 @@ public class SaveMe extends Fragment {
         mMapView.onResume(); // needed to get the map to display immediately
 
         database = FirebaseDatabase.getInstance();
-        //TODO: TO CHANGE
 
         UpdatePosition updatePosition = new UpdatePosition();
         updatePosition.execute();
-        /*
-        // Get LocationManager object from System Service LOCATION_SERVICE
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    Geocoder geocoder;
-                    List<Address> addresses;
-                    geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
-
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-
-                    Log.e("latitude", "latitude--" + latitude);
-
-                    try {
-                        Log.e("latitude", "inside latitude--" + latitude);
-                        addresses = geocoder.getFromLocation(latitude, longitude, 1);
-
-
-                        if (addresses != null && addresses.size() > 0) {
-                            String address = addresses.get(0).getAddressLine(0);
-                            locationTxt.setText(address);
-
-                        }
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-
-                    // Create a LatLng object for the current location
-                    LatLng latLng = new LatLng(latitude, longitude);
-
-                    // Show the current location in Google Map
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                    circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
-                    circle.setVisible(false);
-                    int zoom = getZoomLevel(circle);
-                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
-                    Log.e("animate", "camera animated at: " + String.valueOf(zoom));
-
-                }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-
-                }
-            });
-            */
-
-                /*
-                //create circle with a certain radius
-                circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
-                circle.setVisible(false);
-                int zoom = getZoomLevel(circle);
-                // Get latitude of the current location
-                latitude = myLocation.getLatitude();
-
-                // Get longitude of the current location
-                longitude = myLocation.getLongitude();
-
-                // Create a LatLng object for the current location
-                LatLng latLng = new LatLng(latitude, longitude);
-
-                // Show the current location in Google Map
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
-
-                */
 
         //SEEK BAR LISTENER
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -420,7 +341,8 @@ public class SaveMe extends Fragment {
                 List<Address> addresses;
                 String oldCountry = "NA";
                 String oldRegion = "NA";
-                String country, region;
+                String oldSubregion = "NA";
+                String country, region, subRegion;
                 geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.ENGLISH);
                 double latitude, longitude;
                 while (true) {
@@ -434,13 +356,15 @@ public class SaveMe extends Fragment {
 
                             if (addresses != null && addresses.size() > 0) {
                                 String address = addresses.get(0).getAddressLine(0);
+                                subRegion = addresses.get(0).getSubAdminArea();
                                 country = addresses.get(0).getCountryName();
                                 region = addresses.get(0).getAdminArea();
-                                if (!country.equals(oldCountry) || !country.equals(oldRegion)) {
-                                    lookForMyNeighbors(country, region);
+                                if (!country.equals(oldCountry) || !country.equals(oldRegion) || !subRegion.equals(oldSubregion)) {
+                                    lookForMyNeighbors(country, region, subRegion);
                                 }
                                 oldCountry = country;
                                 oldRegion = region;
+                                oldSubregion = subRegion;
                                 publishProgress(address, ""+latitude, ""+longitude);
                             }
                         } catch (IOException e) {
@@ -461,9 +385,9 @@ public class SaveMe extends Fragment {
         }
     }
 
-    private void lookForMyNeighbors(String country, String region) {
+    private void lookForMyNeighbors(String country, String region, String subRegion) {
 
-        myRef = database.getReference(country + "/" + region);
+        myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion);
 
         markerPool = new HashMap<>();
 
@@ -475,8 +399,8 @@ public class SaveMe extends Fragment {
                     if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         //Map<String, Object> coordinates = data.get(user);
                         String coordinates = (String) data.get(user).get("currentUserPosition");
-                        StringParser stringParser = new StringParser(coordinates);
-                        String[] latLon = stringParser.getCoordinates();
+                        StringParser stringParser = new StringParser();
+                        String[] latLon = stringParser.getCoordinates(coordinates);
                         //LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
                         LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
                         if ( markerPool.containsKey(user)) {
@@ -503,5 +427,4 @@ public class SaveMe extends Fragment {
             }
         });
     }
-
 }

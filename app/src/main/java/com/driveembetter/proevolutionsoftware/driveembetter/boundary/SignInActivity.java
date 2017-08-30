@@ -26,6 +26,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.common.SignInButton;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
@@ -43,6 +44,7 @@ public class SignInActivity
     // Activity resources
     private ArrayList<BaseProvider> baseProviderArrayList;
     private SingletonFirebaseProvider singletonFirebaseProvider;
+    private StringParser stringParser;
 
     // Activity widgets
     private Button signInButton;
@@ -152,6 +154,11 @@ public class SignInActivity
                     Log.d(TAG, "handleMessage:google_signin_error");
                     break;
 
+                case INTERNAL_FIREBASE_ERROR_LOGIN:
+                    Log.d(TAG, "handleMessage:internal firebase signin error");
+                    Toast.makeText(SignInActivity.this, getString(R.string.internal_firebase_login_error), Toast.LENGTH_LONG).show();
+                    break;
+
                 case UNKNOWN_ERROR:
                     Log.d(TAG, "handleMessage:google(firebase)_signin_error");
                     Toast.makeText(SignInActivity.this, getString(R.string.google_signin_error), Toast.LENGTH_LONG).show();
@@ -197,6 +204,7 @@ public class SignInActivity
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
         this.baseProviderArrayList = factoryProviders.getAllProviders();
+        this.stringParser = new StringParser();
     }
 
     @Override
@@ -250,7 +258,9 @@ public class SignInActivity
                 this.baseProviderArrayList
                         .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
                         .signIn(
-                                this.emailField.getText().toString(),
+                                this.stringParser.trimString(
+                                        this.emailField.getText().toString()
+                                ),
                                 this.passwordField.getText().toString()
                         );
                 break;

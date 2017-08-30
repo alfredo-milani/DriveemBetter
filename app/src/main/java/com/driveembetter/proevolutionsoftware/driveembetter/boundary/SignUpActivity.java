@@ -20,6 +20,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Facto
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonEmailAndPasswordProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -36,6 +37,7 @@ public class SignUpActivity
     // Activity resources
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private SingletonEmailAndPasswordProvider singletonEmailAndPasswordProvider;
+    private StringParser stringParser;
 
     // Activity widgets
     private Button signUpButton;
@@ -175,6 +177,7 @@ public class SignUpActivity
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.singletonEmailAndPasswordProvider =
                 factoryProviders.getEmailAndPasswordProvider();
+        this.stringParser = new StringParser();
     }
 
     private void initWidget() {
@@ -199,7 +202,9 @@ public class SignUpActivity
 
                 this.showProgress();
                 this.singletonEmailAndPasswordProvider.signUp(
-                        this.emailField.getText().toString(),
+                        this.stringParser.trimString(
+                                this.emailField.getText().toString()
+                        ),
                         this.passwordField.getText().toString(),
                         this.usernameField.getText().toString()
                 );
@@ -212,7 +217,9 @@ public class SignUpActivity
             case R.id.resend_email:
                 this.showProgress();
                 this.singletonEmailAndPasswordProvider.resendVerificationEmail(
-                        this.emailField.getText().toString(),
+                        this.stringParser.trimString(
+                                this.emailField.getText().toString()
+                        ),
                         this.passwordField.getText().toString()
                 );
                 break;

@@ -208,16 +208,6 @@ public class MainFragmentActivity
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
     private void logoutCurrentProviders() {
         for (BaseProvider baseProvider:
                 this.baseProviderArrayList) {
@@ -446,6 +436,7 @@ public class MainFragmentActivity
 
         Log.d(TAG, ":destroy");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
+        this.positionManager.deletePosition();
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
         //.removeGoogleClient();
     }
@@ -504,6 +495,16 @@ public class MainFragmentActivity
                 Log.d(TAG, "restoring Twitter provider");
                 this.baseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER).signIn(null, null);
             }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
     }
 }
