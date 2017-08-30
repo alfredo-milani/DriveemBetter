@@ -240,8 +240,6 @@ public class SignInActivity
                 }
 
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
-
-                SingletonGoogleProvider.resetProvider();
                 break;
 
 
