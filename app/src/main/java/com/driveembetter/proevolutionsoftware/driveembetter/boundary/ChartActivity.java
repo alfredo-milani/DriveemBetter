@@ -2,23 +2,42 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.ChartAsyncTask;
 import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.RetainedFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.github.mikephil.charting.charts.ScatterChart;
+import com.google.android.gms.common.SignInButton;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
-/**
- * Created by alfredo on 28/08/17.
- */
+import java.util.ArrayList;
+
 
 /* Chart Activity Class */
 public class ChartActivity extends AppCompatActivity {
@@ -34,9 +53,7 @@ public class ChartActivity extends AppCompatActivity {
         /* Call through to the super class's implementation of this method */
         super.onCreate(savedInstanceState);
         /* Set the activity content from layout resource */
-        setContentView(R.layout.activity_graph);
-
-        /* Display home as an "up" affordance:
+         /* Display home as an "up" affordance:
          user that selecting home will return one level up rather than to the top level of the app */
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -69,7 +86,7 @@ public class ChartActivity extends AppCompatActivity {
             progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             progress.setCancelable(true);
             progress.setCanceledOnTouchOutside(false);
-            progress.setOnKeyListener(new KeyListener());
+            //progress.setOnKeyListener(new KeyListener());
             chartFragment.setProgressDialog(progress);
             retainedFragment.setProgressDialog(progress);
 
@@ -99,7 +116,7 @@ public class ChartActivity extends AppCompatActivity {
                 progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 progress.setCancelable(true);
                 progress.setCanceledOnTouchOutside(false);
-                progress.setOnKeyListener(new KeyListener());
+                //progress.setOnKeyListener(new KeyListener());
                 progress.show();
                 chartFragment.setProgressDialog(progress);
                 retainedFragment.setProgressDialog(progress);
@@ -175,7 +192,7 @@ public class ChartActivity extends AppCompatActivity {
                 if (progress.isShowing()) {
                     /* If a progress dialog is showing, create a new dialog with "Yes" and "No" buttons */
                     DialogClickListener listener = new DialogClickListener();
-                    AlertDialog.Builder ab = new AlertDialog.Builder(ChartActivity.this);
+                    android.app.AlertDialog.Builder ab = new android.app.AlertDialog.Builder(ChartActivity.this);
                     ab.setMessage(getString(R.string.strAreYouSure)).setNegativeButton(android.R.string.no, listener).setPositiveButton(android.R.string.yes, listener).show();
                 }
                 return true;
