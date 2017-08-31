@@ -33,7 +33,7 @@
             android:visibility="gone" />
 
         <FrameLayout
-            android:id="@+id/save_me_placeholder"
+            android:id="@+id/fragment_placeholder"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

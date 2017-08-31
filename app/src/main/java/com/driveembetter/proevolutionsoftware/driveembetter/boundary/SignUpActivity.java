@@ -32,7 +32,7 @@ public class SignUpActivity
         TypeMessages,
         TaskProgress {
 
-    private final static String TAG = "SignUpActivity";
+    private final static String TAG = SignUpActivity.class.getSimpleName();
 
     // Activity resources
     private SingletonFirebaseProvider singletonFirebaseProvider;
@@ -166,9 +166,9 @@ public class SignUpActivity
 
     private void startNewActivity(Context context, Class newClass) {
         Intent newIntent = new Intent(context, newClass);
-        newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        this.startActivity(newIntent);
+        // newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         this.finish();
+        this.startActivity(newIntent);
     }
 
     private void initResources() {

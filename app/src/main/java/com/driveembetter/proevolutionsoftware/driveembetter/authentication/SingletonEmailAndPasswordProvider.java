@@ -22,7 +22,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 public class SingletonEmailAndPasswordProvider
         implements BaseProvider, TypeMessages {
 
-    private static final String TAG = "SEmailAndPswProvider";
+    private static final String TAG = SingletonEmailAndPasswordProvider.class.getSimpleName();
 
     private boolean resendVerificationEmail;
     private SingletonFirebaseProvider singletonFirebaseProvider;

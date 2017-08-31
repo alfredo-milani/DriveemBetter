@@ -23,6 +23,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
@@ -35,7 +37,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.UserDataCallb
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstanceIDService;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.ImageLoadTask;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -51,14 +52,16 @@ public class MainFragmentActivity
         NavigationView.OnNavigationItemSelectedListener,
         TaskProgress {
 
-    private final static String TAG = "MainFragmentActivity";
+    private final static String TAG = MainFragmentActivity.class.getSimpleName();
 
     // Resources
     private ArrayList<BaseProvider> baseProviderArrayList;
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private SingletonUser singletonUser;
-    private Fragment saveMe;
     private PositionManager positionManager;
+    // Fragments
+    private Fragment saveMe;
+    private Fragment ranking;
 
     // Widgets
     private ProgressBar progressBar;
@@ -107,7 +110,7 @@ public class MainFragmentActivity
                     /*
                     Toast.makeText(MainFragmentActivity.this, getString(R.string.logging_out), Toast.LENGTH_SHORT).show();
                     */
-                    startNewActivity(MainFragmentActivity.this, SignInActivity.class);
+                    startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
                 default:
@@ -116,10 +119,10 @@ public class MainFragmentActivity
         }
     };
 
-    private void startNewActivity(Context context, Class newClass) {
+    private void startNewActivityCloseCurrent(Context context, Class newClass) {
         Intent newIntent = new Intent(context, newClass);
-        this.startActivity(newIntent);
         this.finish();
+        this.startActivity(newIntent);
     }
 
     private void openNewActivity(Context context, Class newClass) {
@@ -184,11 +187,21 @@ public class MainFragmentActivity
                 this.usernameTextView.setText(this.singletonUser.getUsername());
             }
             if (this.singletonUser.getPhotoUrl() != null) {
-                new ImageLoadTask(this.singletonUser.getPhotoUrl().toString(), this.userPicture).execute();
+                Glide.with(this)
+                        .load(
+                                this.singletonUser
+                                        .getPhotoUrl()
+                                        .toString()
+                        )
+                        .dontTransform()
+                        .thumbnail(0.5f)
+                        .crossFade()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(this.userPicture);
             }
         } else {
             Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-            this.startNewActivity(MainFragmentActivity.this, SignInActivity.class);
+            this.startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
         }
     }
 
@@ -290,39 +303,57 @@ public class MainFragmentActivity
                 break;
 
             case R.id.statistics:
-                SingletonUser singletonUser = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
-                if (singletonUser != null) {
-                    Log.d(TAG, "GOOGLE USER: " + singletonUser.getUsername() + " jjj " + singletonUser.getEmail() + " / " + singletonUser.getUid());
+                // DEBUG
+                SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
+                if (singletonGoogleProvider != null) {
+                    Log.d(TAG, "SIGN IN: " + singletonGoogleProvider.isSignIn());
                 } else {
-                    Log.d(TAG, "USER GOOGLE NULL");
+                    Log.d(TAG, "SING GOOGLE NULL");
                 }
+
+                Log.d(TAG, "Singleton user: " + singletonUser.getEmail() + " / " + singletonUser.getUsername());
 
                 if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
                     Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail() + " / " + this.singletonFirebaseProvider.getFirebaseUser().getUid());
                 } else {
                     Log.d(TAG, "USER FIRE NULL");
                 }
+                ////
                 break;
 
             case R.id.ranking:
+                // DEBUG
                 Log.d(TAG, "DIO CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
-                this.openNewActivity(this, RankingFragment.class);
+                ////
+
+                /*
+                if (!FragmentState.isFragmentOpen(FragmentState.RANKING_FRAGMENT)) {
+                    FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, true);
+                    this.ranking = new RankingFragment();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .add(R.id.fragment_placeholder, this.ranking)
+                            .commit();
+                }
+                */
                 break;
 
             case R.id.save_me:
-                if (!FragmentState.isSaveMeIsOpen()) {
-                    FragmentState.setSaveMeIsOpen(true);
+                if (!FragmentState.isFragmentOpen(FragmentState.SAVE_ME_FRAGMENT)) {
+                    FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, true);
                     saveMe = new SaveMe();
                     getSupportFragmentManager()
                             .beginTransaction()
-                            .add(R.id.save_me_placeholder, saveMe)
+                            .add(R.id.fragment_placeholder, saveMe)
                             .commit();
                 }
                 break;
 
             case R.id.nav_share:
+                // DEBUG
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                        .silentSignIn();
+                        .connectToPlayStore();
+                ////
                 break;
 
             case R.id.nav_send:
@@ -337,12 +368,18 @@ public class MainFragmentActivity
 
                 this.logoutCurrentProviders();
                 SingletonUser.resetSession();
+                this.finish();
                 break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void closeOtherFragments() {
+        // TODO se uno degli altri 4 fragments sono attivi:
+        //      lanciare i loro metodi onPause() / onStop()
     }
 
     @Override
@@ -368,14 +405,14 @@ public class MainFragmentActivity
         this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setHandler(this.handler);
+        this.singletonFirebaseProvider.setContext(this);
 
-        /*
-        if (this.authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
-            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
-            singletonGoogleProvider.connectAfterResume();
-            singletonGoogleProvider.managePendingOperations();
+        if (this.baseProviderArrayList
+                .get(FactoryProviders.GOOGLE_PROVIDER)
+                .isSignIn()) {
+            ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                    .managePendingOperations();
         }
-        */
     }
 
     // Called between onStart() and onPostCreate()
@@ -384,7 +421,7 @@ public class MainFragmentActivity
         super.onRestoreInstanceState(savedInstanceState);
 
         Log.d(TAG, ":onRestoreInstanceState");
-        this.restoreProviders(savedInstanceState);
+        // this.restoreProviders(savedInstanceState);
     }
 
     @Override
@@ -419,7 +456,7 @@ public class MainFragmentActivity
         super.onSaveInstanceState(outState);
 
         Log.d(TAG, ":onSaveInstanceState");
-        this.saveProviders(outState);
+        // this.saveProviders(outState);
     }
 
     @Override
@@ -474,7 +511,7 @@ public class MainFragmentActivity
                             .isSignIn()) {
                 Log.d(TAG, "restoring Firebase provider");
                 this.singletonFirebaseProvider.forceSignOut();
-                // this.startNewActivity(MainFragmentActivity.this, SignInActivity.class);
+                // this.startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
             } else if (bundle.getBoolean(GOOGLE_PROVIDER, false) &&
                     !this.baseProviderArrayList
                             .get(FactoryProviders.GOOGLE_PROVIDER)

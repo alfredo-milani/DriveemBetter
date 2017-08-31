@@ -30,7 +30,7 @@
     <string name="logout">Esci</string>
     <string name="unknown_error">Errore sconosciuto!</string>
     <string name="network_error">Errore di connessione</string>
-    <string name="google_signin_error">Errore sconosciuto durante l\'accesso.</string>
+    <string name="google_signin_error">Errore durante l\'accesso.</string>
     <string name="wrong_email_or_psw">La password o l\'indirizzo email inseriti non sono corretti.</string>
     <string name="menu_refresh">Ricarica</string>
     <string name="user_not_retrieved">Impossibile recuperare le informazioni dell\'utente.</string>
@@ -69,4 +69,11 @@
     <string name="send">Invia</string>
     <string name="about_us">Chi siamo</string>
     <string name="internal_firebase_login_error">Errore interno. Riprova più tardi.</string>
+    <string name="user_item">Utente</string>
+    <string name="rank_item">Posizione</string>
+    <string name="point_item">Punteggio</string>
+    <string name="please_wait">Attendere prego...</string>
+    <string name="loading">Caricamento...</string>
+    <string name="title_activity_save_me">Salvami!</string>
+    <string name="type_a_message">Scrivi un messaggio...</string>
 </resources>

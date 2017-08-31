@@ -10,4 +10,7 @@
     <string name="send">Send</string>
     <string name="about_us">About us</string>
     <string name="internal_firebase_login_error">Internal error. Retry later.</string>
+    <string name="user_item">User</string>
+    <string name="point_item">Point</string>
+    <string name="rank_item">Rank</string>
 </resources>

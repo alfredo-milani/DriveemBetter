@@ -28,7 +28,7 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 public class SingletonTwitterProvider
         implements BaseProvider, TypeMessages {
 
-    private final static String TAG = "STwitterProvider";
+    private final static String TAG = SingletonTwitterProvider.class.getSimpleName();
 
     public static final int RC_SIGN_IN = 140;
     private TwitterSession session;

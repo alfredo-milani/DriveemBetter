@@ -27,6 +27,8 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by alfredo on 17/08/17.
  */
@@ -38,7 +40,7 @@ public class SingletonGoogleProvider
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks {
 
-    private static final String TAG = "SingletonGoogleProvider";
+    private static final String TAG = SingletonGoogleProvider.class.getSimpleName();
 
     public static final int RC_SIGN_IN = 9001;
     private GoogleApiClient mGoogleApiClient;
@@ -62,7 +64,7 @@ public class SingletonGoogleProvider
                 .build();
 
         this.mGoogleApiClient = new GoogleApiClient.Builder(this.singletonFirebaseProvider.getContext())
-                .enableAutoManage((FragmentActivity) this.singletonFirebaseProvider.getContext() /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .enableAutoManage((FragmentActivity) this.singletonFirebaseProvider.getContext(), this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -81,7 +83,7 @@ public class SingletonGoogleProvider
 
     public void activityResult(int requestCode, int resultCode, Intent data) {
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...); IN SignInActivity
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN && resultCode == RESULT_OK) {
             Log.d(TAG, "SingletonGoogleProvider:activityResult RC: " + requestCode);
             this.handleSignInResult(Auth.GoogleSignInApi.getSignInResultFromIntent(data));
         }
@@ -101,9 +103,6 @@ public class SingletonGoogleProvider
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-
-        // Connecting to PlayServices
-        this.connectToPlayStore();
         Log.d(TAG, "Authentication with Firebase account: " + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider
@@ -117,6 +116,9 @@ public class SingletonGoogleProvider
                         if (task.isSuccessful()) {
                             // Sign in success
                             Log.d(TAG, "signInWithCredential:success");
+
+                            // Connecting to PlayServices
+                            connectToPlayStore();
                         } else {
                             // Sign in fails
                             try {
@@ -141,19 +143,21 @@ public class SingletonGoogleProvider
             Log.w(TAG, "Google:signIn: received argument: email: " + email + " password: " + password);
         }
 
-        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(this.mGoogleApiClient);
-        if (opr.isDone()) {
+        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi
+                .silentSignIn(this.mGoogleApiClient);
+        if (this.account != null) {
+            Log.d(TAG, "Google account not null");
+            this.firebaseAuthWithGoogle(this.account);
+        } else if (opr.isDone()) {
             // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
             // and the GoogleSignInResult will be available instantly.
             Log.d(TAG, "Got cached sign-in");
             this.handleSignInResult(opr.get());
-        } else if (this.account != null) {
-            Log.d(TAG, "Google account not null");
-            this.firebaseAuthWithGoogle(this.account);
         } else {
             Log.d(TAG, "Launch intent");
             Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(this.mGoogleApiClient);
-            ((Activity) this.singletonFirebaseProvider.getContext()).startActivityForResult(signInIntent, RC_SIGN_IN);
+            ((Activity) this.singletonFirebaseProvider.getContext())
+                    .startActivityForResult(signInIntent, RC_SIGN_IN);
         }
     }
 
@@ -181,7 +185,7 @@ public class SingletonGoogleProvider
     }
 
     /**
-     * METODO DI DEBUG
+     * METODI DI DEBUG
      */
     public boolean diodio() {
         return this.mGoogleApiClient.isConnected();
@@ -198,24 +202,17 @@ public class SingletonGoogleProvider
 
     // To disconnect from current Google account
     public void revokeAccess() {
-        // Firebase sign out
-        SingletonFirebaseProvider.getAuth().signOut();
-
-        if (!this.mGoogleApiClient.isConnected()) {
-            return;
+        if (this.mGoogleApiClient.isConnected()) {
+            this.mGoogleApiClient.stopAutoManage((FragmentActivity) this.singletonFirebaseProvider.getContext());
+            // Google revoke access
+            Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
+                    new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(@NonNull Status status) {
+                            Log.d(TAG, "STATUS_REVOKE: " + status.getStatus());
+                        }
+                    });
         }
-        // Google revoke access
-        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-                        Log.d(TAG, "STATUS_REVOKE: " + status.getStatus());
-                    }
-                });
-    }
-
-    public void clearAccount() {
-        this.mGoogleApiClient.clearDefaultAccountAndReconnect();
     }
 
     @Override
@@ -231,7 +228,7 @@ public class SingletonGoogleProvider
         Log.d(TAG, "onConnected: " + this.mGoogleApiClient.isConnected());
     }
 
-    private void connectToPlayStore() {
+    public void connectToPlayStore() {
         if (this.mGoogleApiClient != null) {
             if (!this.mGoogleApiClient.isConnected()) {
                 // per i nostri scopi forse non è necessario connettersi a Google Play Services
@@ -317,11 +314,6 @@ public class SingletonGoogleProvider
                 }
             });
         }
-    }
-
-    public void removeGoogleClient() {
-        this.mGoogleApiClient.stopAutoManage((FragmentActivity) this.singletonFirebaseProvider.getContext());
-        this.signOut();
     }
 
     @Override

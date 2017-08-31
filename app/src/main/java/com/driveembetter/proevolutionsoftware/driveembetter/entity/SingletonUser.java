@@ -23,7 +23,7 @@ import java.util.List;
 public class SingletonUser
         implements Constants{
 
-    private final static String TAG = "SingletonUser";
+    private final static String TAG = SingletonUser.class.getSimpleName();
 
     // TODO utilizza l'interfaccia Parcelable se si deve passare SingletonUser da un activity ad un'altra
     // Data from Firebase Authentication
@@ -47,7 +47,7 @@ public class SingletonUser
     private static SingletonUser singletonInstance;
 
     // Short constructor
-    public SingletonUser(String username, String email) {
+    private SingletonUser(String username, String email) {
         this.username = username;
         this.email = email;
     }

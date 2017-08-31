@@ -12,6 +12,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
 
 public class AboutUs extends AppCompatActivity {
 
+    private final static String TAG = AboutUs.class.getSimpleName();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

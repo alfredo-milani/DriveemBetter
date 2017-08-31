@@ -287,8 +287,7 @@ public class SaveMe extends Fragment {
     public void onResume() {
         super.onResume();
         mMapView.onResume();
-        FragmentState.setSaveMeIsOpen(true);
-
+        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, true);
     }
 
     @Override
@@ -312,7 +311,8 @@ public class SaveMe extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        FragmentState.setSaveMeIsOpen(false);
+
+        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
     }
 
 

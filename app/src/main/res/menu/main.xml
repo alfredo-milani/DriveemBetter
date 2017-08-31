@@ -6,7 +6,8 @@
         android:id="@+id/menu_refresh"
         android:icon="@mipmap/refresh_icon"
         android:title="@string/menu_refresh"
-        app:showAsAction="always" />
+        android:visible="false"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_settings"

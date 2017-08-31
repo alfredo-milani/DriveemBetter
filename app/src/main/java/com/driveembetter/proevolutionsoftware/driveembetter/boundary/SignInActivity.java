@@ -39,7 +39,7 @@ public class SignInActivity
         TypeMessages,
         TaskProgress {
 
-    private final static String TAG = "SignInActivity";
+    private final static String TAG = SignInActivity.class.getSimpleName();
 
     // Activity resources
     private ArrayList<BaseProvider> baseProviderArrayList;
@@ -60,7 +60,7 @@ public class SignInActivity
 
     //DEBUG
     private ImageView imageView;
-
+    ////
 
 
     @Override
@@ -150,18 +150,19 @@ public class SignInActivity
                     Toast.makeText(SignInActivity.this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
                     break;
 
-                case GOOGLE_SIGNIN_ERROR:
-                    Log.d(TAG, "handleMessage:google_signin_error");
-                    break;
-
                 case INTERNAL_FIREBASE_ERROR_LOGIN:
                     Log.d(TAG, "handleMessage:internal firebase signin error");
                     Toast.makeText(SignInActivity.this, getString(R.string.internal_firebase_login_error), Toast.LENGTH_LONG).show();
                     break;
 
-                case UNKNOWN_ERROR:
-                    Log.d(TAG, "handleMessage:google(firebase)_signin_error");
+                case GOOGLE_SIGNIN_ERROR:
+                    Log.d(TAG, "handleMessage:google_signin_error");
                     Toast.makeText(SignInActivity.this, getString(R.string.google_signin_error), Toast.LENGTH_LONG).show();
+                    break;
+
+                case UNKNOWN_ERROR:
+                    Log.d(TAG, "handleMessage:unknwown error");
+                    Toast.makeText(SignInActivity.this, getString(R.string.unknown_error), Toast.LENGTH_LONG).show();
                     break;
 
                 default:
@@ -172,8 +173,8 @@ public class SignInActivity
 
     private void startNewActivity(Context context, Class newClass) {
         Intent newIntent = new Intent(context, newClass);
-        this.startActivity(newIntent);
         this.finish();
+        this.startActivity(newIntent);
     }
 
     private void initWidget() {
@@ -195,6 +196,15 @@ public class SignInActivity
         //DEBUG
         this.imageView = (ImageView) findViewById(R.id.imageView7);
         this.imageView.setOnClickListener(this);
+        this.imageView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)
+                        .signOut();
+
+                return false;
+            }
+        });
     }
 
     private void initResources() {
@@ -267,6 +277,11 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
+                /*
+                Intent intent = AccountPicker.newChooseAccountIntent(null, null, new String[]{"com.google"},
+                        false, null, null, null, null);
+                startActivityForResult(intent, SingletonGoogleProvider.RC_SIGN_IN);
+                */
                 this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.GOOGLE_PROVIDER)
@@ -320,6 +335,7 @@ public class SignInActivity
         this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setHandler(this.handler);
+        this.singletonFirebaseProvider.setContext(this);
 
         /*
         if (this.authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
@@ -371,6 +387,6 @@ public class SignInActivity
         Log.d(TAG, ":destroy");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                //.removeGoogleClient();
+        //.removeGoogleClient();
     }
 }

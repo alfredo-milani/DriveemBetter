@@ -18,7 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class SingletonFirebaseProvider
         implements TypeMessages {
 
-    private static String TAG = "SFirebaseProvider";
+    private static String TAG = SingletonFirebaseProvider.class.getSimpleName();
 
     // Link to UI
     private Context context;

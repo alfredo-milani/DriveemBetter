@@ -13,17 +13,17 @@ import java.util.ArrayList;
 // This class creates and keeps track of individual instances of providers
 public class FactoryProviders {
 
-    private final static String TAG = "FactoryProvider";
+    private final static String TAG = FactoryProviders.class.getSimpleName();
 
     // Resources from UI
     private final Context context;
     private final Handler handler;
 
     // SingletonFirebaseProvider types
-    public final static int EMAIL_AND_PASSWORD_PROVIDER = 0;
-    public final static int GOOGLE_PROVIDER = 1;
-    public final static int FACEBOOK_PROVIDER = 2;
-    public final static int TWITTER_PROVIDER = 3;
+    public final static short EMAIL_AND_PASSWORD_PROVIDER = 0;
+    public final static short GOOGLE_PROVIDER = 1;
+    public final static short FACEBOOK_PROVIDER = 2;
+    public final static short TWITTER_PROVIDER = 3;
 
     public FactoryProviders(Context context, Handler handler) {
         this.context = context;
