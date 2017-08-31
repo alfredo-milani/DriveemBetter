@@ -230,9 +230,6 @@ public class SaveMe extends Fragment {
                         message.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Toast.makeText(getActivity(), "How could I inform this user that I'm in trouble?", Toast.LENGTH_SHORT).show();
-                                //TODO start chat activity
-
                                 //catch user token
                                 DatabaseReference userRef = database.getReference("users/" + userSelectedUid);
 

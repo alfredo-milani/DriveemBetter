@@ -37,6 +37,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstan
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ImageLoadTask;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
@@ -160,6 +161,8 @@ public class MainFragmentActivity
 
     private void initResources() {
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
+        SensorHandler sensorHandler = new SensorHandler();
+        sensorHandler.startSensorHandler(this);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.baseProviderArrayList = factoryProviders.getAllProviders();
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();

@@ -4,6 +4,10 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 import android.app.Activity;
 import android.app.Application;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -14,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +31,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static android.hardware.SensorManager.getAltitude;
 
 /**
  * Created by matti on 28/08/2017.
@@ -44,6 +51,7 @@ public class PositionManager extends Application {
     private double latitude = 0;
     private double longitude = 0;
     private double oldLatitude, oldLongitude;
+    private int speed;
     private String oldCountry, oldRegion, oldSubRegion;
     private String country, region, subRegion;
     private static PositionManager positionManager;
@@ -131,6 +139,27 @@ public class PositionManager extends Application {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                //EACH TIME I UPDATE MY POSITION, I MAY REGISTER MY SPEED, MY ACCELERATION AND MY ALTITUDE
+
+                if (location.hasSpeed()) {
+                    speed=(int) ((location.getSpeed()*3600)/1000);
+
+                    Log.e("SPEED", "Speed: " + speed);
+                    Toast.makeText(activity, "Speed: " + speed, Toast.LENGTH_SHORT).show();
+                    //TODO
+                    //send speed to RabbitMQ
+                    //check speed limits
+                }
+
+
+                /*
+                if (location.hasAltitude()) {
+                    altitude = location.getAltitude();
+                    Log.e("ALTITUDE", "Altitude: " + altitude);
+                    //TODO
+                    //send altitude to RabbitMQ
+                }*/
+
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
                 List<Address> addresses;
@@ -209,6 +238,4 @@ public class PositionManager extends Application {
             myRef.removeValue();
         }
     }
-
-
 }
