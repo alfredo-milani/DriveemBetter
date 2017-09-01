@@ -81,6 +81,10 @@ public class SingletonUser
 
 
 
+    public interface UserDataCallback {
+        public void onVehiclesReceive();
+    }
+
     public boolean isEmailVerified() {
         return emailVerified;
     }

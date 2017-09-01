@@ -33,7 +33,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.facto
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.UserDataCallback;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
@@ -278,7 +277,7 @@ public class MainFragmentActivity
                 // Handle the camera action
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
 
-                this.singletonUser.getVehicles(new UserDataCallback() {
+                this.singletonUser.getVehicles(new SingletonUser.UserDataCallback() {
                     @Override
                     public void onVehiclesReceive() {
                         if (singletonUser.getVehicleArrayList() == null) {

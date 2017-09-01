@@ -51,6 +51,7 @@ public class SingletonGoogleProvider
     private GoogleSignInAccount account;
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private boolean signIn;
+    private boolean signingOut;
 
 
 
@@ -60,6 +61,7 @@ public class SingletonGoogleProvider
 
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.signIn = false;
+        this.signingOut = false;
 
         // Configure Google sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -110,6 +112,8 @@ public class SingletonGoogleProvider
     private void handleSignInResult(GoogleSignInResult result) {
         this.account = result.getSignInAccount();
         if (result.isSuccess() && this.account != null) {
+            // Connecting to PlayServices
+            connectToPlayStore();
             // Google Sign In was successful, authenticate with Firebase
             Log.d(TAG, "Google auth: user: " + this.account.getEmail());
             this.firebaseAuthWithGoogle(this.account);
@@ -134,9 +138,6 @@ public class SingletonGoogleProvider
                         if (task.isSuccessful()) {
                             // Sign in success
                             Log.d(TAG, "signInWithCredential:success");
-
-                            // Connecting to PlayServices
-                            connectToPlayStore();
                         } else {
                             // Sign in fails
                             try {
@@ -161,24 +162,6 @@ public class SingletonGoogleProvider
             Log.w(TAG, "Google:signIn: received argument: email: " + email + " password: " + password);
         }
 
-        /*
-        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi
-                .silentSignIn(this.mGoogleApiClient);
-        if (this.account != null) {
-            Log.d(TAG, "Google account not null");
-            this.firebaseAuthWithGoogle(this.account);
-        } else if (opr.isDone()) {
-            // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
-            // and the GoogleSignInResult will be available instantly.
-            Log.d(TAG, "Got cached sign-in");
-            this.handleSignInResult(opr.get());
-        } else {
-            Log.d(TAG, "Launch intent");
-            Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(this.mGoogleApiClient);
-            ((Activity) this.singletonFirebaseProvider.getContext())
-                    .startActivityForResult(signInIntent, RC_SIGN_IN);
-        }
-        */
         Log.d(TAG, "Launch intent");
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(this.mGoogleApiClient);
         ((Activity) this.singletonFirebaseProvider.getContext())
@@ -187,23 +170,25 @@ public class SingletonGoogleProvider
 
     @Override
     public void signOut() {
-        Log.d(TAG, "Google sign out:isConnected/ing: " + this.mGoogleApiClient.isConnected() + " / " + this.mGoogleApiClient.isConnecting());
+        if (!this.mGoogleApiClient.isConnected()) {
+            this.signingOut = true;
+            this.connectToPlayStore();
+            return;
+        }
 
         // Google sign out
-        if (this.mGoogleApiClient.isConnected()) {
-            Log.d(TAG, "Google signing out");
-            // this.mGoogleApiClient.clearDefaultAccountAndReconnect();
-            Auth.GoogleSignInApi.signOut(this.mGoogleApiClient).setResultCallback(
-                    new ResultCallback<Status>() {
-                        @Override
-                        public void onResult(@NonNull Status status) {
-                            Log.d(TAG, "Sign Out using Google Api: status: " + status.getStatus());
-                            //CALL TO DISCONNECT GoogleApiClient
-                            mGoogleApiClient.disconnect();
-                            signIn = false;
-                        }
-                    });
-        }
+        Log.d(TAG, "Google signing out");
+        // this.mGoogleApiClient.clearDefaultAccountAndReconnect();
+        Auth.GoogleSignInApi.signOut(this.mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        Log.d(TAG, "Sign Out using Google Api: status: " + status.getStatus());
+                        //CALL TO DISCONNECT GoogleApiClient
+                        mGoogleApiClient.disconnect();
+                        signIn = false;
+                    }
+                });
 
         // Firebase sign out
         SingletonFirebaseProvider.getAuth().signOut();
@@ -254,6 +239,10 @@ public class SingletonGoogleProvider
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(TAG, "onConnected: " + this.mGoogleApiClient.isConnected());
         this.signIn = true;
+        if (this.signingOut) {
+            this.signingOut = false;
+            this.signOut();
+        }
     }
 
     public void connectToPlayStore() {

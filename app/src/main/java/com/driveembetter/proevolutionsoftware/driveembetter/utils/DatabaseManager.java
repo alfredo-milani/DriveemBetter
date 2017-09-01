@@ -32,43 +32,44 @@ public class DatabaseManager
     }
 
     public static void manageDataUserDB() {
-        final DatabaseReference reference = FirebaseDatabase
+        final DatabaseReference referenceUser = FirebaseDatabase
                 .getInstance()
-                .getReference();
-        final Query query = reference
+                .getReference()
                 .child(NODE_USERS)
                 .child(SingletonUser
                         .getInstance()
                         .getUid());
 
         // Attach a listener to read the data at our posts reference
-        query.addValueEventListener(new ValueEventListener() {
+        referenceUser.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> users = dataSnapshot.getChildren();
-                if (users == null || !dataSnapshot.exists()) {
+                // dataSnapshot.exist() --> .child(.getUid) esiste?
+                // user == null --> user non ha almeno un figlio?
+                if (!dataSnapshot.exists() || users == null || dataSnapshot.getChildrenCount() < 3) {
                     Log.d(TAG, "Create user data");
-                    reference
+                    referenceUser
                             .child(CHILD_POINTS)
                             .setValue(SingletonUser.getInstance().getPoints());
 
-                    reference
+                    referenceUser
                             .child(CHILD_IMAGE)
                             .setValue(SingletonUser.getInstance().getPhotoUrl().toString());
 
                     if (SingletonUser.getInstance().getUsername() != null &&
                             !SingletonUser.getInstance().getUsername().isEmpty()) {
-                        reference
+                        referenceUser
                                 .child(CHILD_USERNAME)
                                 .setValue(SingletonUser.getInstance().getUsername());
                     } else if (SingletonUser.getInstance().getEmail() != null &&
                             !SingletonUser.getInstance().getEmail().isEmpty()) {
-                        reference
+                        referenceUser
                                 .child(CHILD_USERNAME)
                                 .setValue(SingletonUser.getInstance().getEmail());
                     }
                 } else {
-                    retrieveUserData(query);
+                    retrieveUserData(referenceUser);
                 }
             }
 
@@ -81,7 +82,7 @@ public class DatabaseManager
 
     private static void retrieveUserData(Query query) {
         query
-                .addValueEventListener(new ValueEventListener() {
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Iterable<DataSnapshot> data = dataSnapshot.getChildren();
@@ -89,7 +90,6 @@ public class DatabaseManager
                             Log.d(TAG, "Update user data");
                             for (DataSnapshot value : data) {
                                 if (value.getKey().equals(CHILD_POINTS)) {
-                                    Log.d(TAG, "Current point: " + value.getValue());
                                     SingletonUser
                                             .getInstance()
                                             .setPoints((long) value.getValue());
@@ -122,7 +122,7 @@ public class DatabaseManager
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ArrayList<User> userList;
                 Iterable<DataSnapshot> users = dataSnapshot.getChildren();
-                if (users != null || dataSnapshot.exists()) {
+                if (dataSnapshot.exists() || users != null) {
                     userList = new ArrayList<User>();
                     for (DataSnapshot user : users) {
                         String username; Uri image; long points;

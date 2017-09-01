@@ -174,10 +174,6 @@ public class RankingFragment
     public void dataReceived(ArrayList<User> users) {
         this.arrayList = users;
 
-        for (User usersw : users) {
-            Log.d(TAG, "points: " + usersw.getPoints());
-        }
-
         RankingRecyclerAdapter rankingRecyclerAdapter =
                 new RankingRecyclerAdapter(this.context, this.arrayList);
         // To avoid memory leaks set adapter in onACtivityCreated
