@@ -7,20 +7,13 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-
-import com.driveembetter.proevolutionsoftware.driveembetter.FirebaseChatMainApp;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChatActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
-import com.driveembetter.proevolutionsoftware.driveembetter.events.PushNotificationEvent;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-
-import org.greenrobot.eventbus.EventBus;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 

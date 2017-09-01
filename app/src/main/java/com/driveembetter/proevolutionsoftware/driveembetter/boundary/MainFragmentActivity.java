@@ -27,15 +27,16 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.FactoryProviders;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.UserDataCallback;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
-import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstanceIDService;
+import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -59,6 +60,7 @@ public class MainFragmentActivity
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private SingletonUser singletonUser;
     private PositionManager positionManager;
+    private FragmentState fragmentState;
     // Fragments
     private Fragment saveMe;
     private Fragment ranking;
@@ -151,13 +153,12 @@ public class MainFragmentActivity
         navigationView.setNavigationItemSelectedListener(this);
         this.headerView =  navigationView.getHeaderView(0);
 
-        //TODO it should refresh automatically
-        MyFirebaseInstanceIDService myFirebaseInstanceIDService = new MyFirebaseInstanceIDService();
-        myFirebaseInstanceIDService.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
-
-        Log.e("DEBUG", FirebaseInstanceId.getInstance().getToken());
-
         this.initResources();
+        //TODO it should refresh automatically
+        FirebaseUtility firebaseUtility = new FirebaseUtility();
+        firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
+        DatabaseManager.manageDataUserDB();
+
         this.initWidgets();
     }
 
@@ -167,6 +168,7 @@ public class MainFragmentActivity
         this.baseProviderArrayList = factoryProviders.getAllProviders();
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
         this.positionManager = PositionManager.getInstance(this);
+        this.fragmentState = new FragmentState(getSupportFragmentManager());
 
         //locationUpdater = new LocationUpdater(this, user);
         //locationUpdater.updateLocation();
@@ -254,25 +256,14 @@ public class MainFragmentActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
-            // Check if singletonUser triggered a refresh:
-            case R.id.menu_refresh:
-                // TODO vedi come gestire icona refresh menu...
-                Log.i(TAG, "Refresh menu item selected");
-
-                // Signal SwipeRefreshLayout to start the progress indicator
-                // mySwipeRefreshLayout.setRefreshing(true);
-
-                // Start the refresh background task.
-                // This method calls setRefreshing(false) when it's finished.
-                // stuff actions
+            case R.id.menu_selection_level:
+                Log.d(TAG, "MENU level");
                 return true;
 
-            //noinspection SimplifiableIfStatement
             case R.id.action_settings:
                 return true;
         }
 
-        // SingletonUser didn't trigger a refresh, let the superclass handle this action
         return super.onOptionsItemSelected(item);
     }
 
@@ -318,34 +309,29 @@ public class MainFragmentActivity
                 } else {
                     Log.d(TAG, "USER FIRE NULL");
                 }
+
+                Log.d(TAG, "DIO CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
                 ////
                 break;
 
             case R.id.ranking:
-                // DEBUG
-                Log.d(TAG, "DIO CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
-                ////
-
-                /*
                 if (!FragmentState.isFragmentOpen(FragmentState.RANKING_FRAGMENT)) {
+                    FragmentState.replaceFragment(
+                            R.id.fragment_placeholder,
+                            new RankingFragment()
+                    );
                     FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, true);
-                    this.ranking = new RankingFragment();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .add(R.id.fragment_placeholder, this.ranking)
-                            .commit();
                 }
-                */
                 break;
 
             case R.id.save_me:
                 if (!FragmentState.isFragmentOpen(FragmentState.SAVE_ME_FRAGMENT)) {
+                    // TODO ferma esecuzione SaveMe in onPauss()
+                    FragmentState.replaceFragment(
+                            R.id.fragment_placeholder,
+                            new SaveMe()
+                    );
                     FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, true);
-                    saveMe = new SaveMe();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .add(R.id.fragment_placeholder, saveMe)
-                            .commit();
                 }
                 break;
 
@@ -377,11 +363,6 @@ public class MainFragmentActivity
         return true;
     }
 
-    private void closeOtherFragments() {
-        // TODO se uno degli altri 4 fragments sono attivi:
-        //      lanciare i loro metodi onPause() / onStop()
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -411,7 +392,7 @@ public class MainFragmentActivity
                 .get(FactoryProviders.GOOGLE_PROVIDER)
                 .isSignIn()) {
             ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                    .managePendingOperations();
+                    .silentSignIn();
         }
     }
 

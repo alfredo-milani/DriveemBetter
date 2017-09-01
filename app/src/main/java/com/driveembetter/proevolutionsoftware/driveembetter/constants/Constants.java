@@ -30,4 +30,9 @@ public interface Constants {
     // Database's nodes
     String NODE_USERS = "users";
     String NODE_VEHICLES = "vehicles";
+
+    // Database's child
+    String CHILD_USERNAME = "username";
+    String CHILD_IMAGE = "image";
+    String CHILD_POINTS = "points";
 }

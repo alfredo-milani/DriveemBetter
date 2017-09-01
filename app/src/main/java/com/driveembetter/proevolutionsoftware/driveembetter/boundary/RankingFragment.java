@@ -1,42 +1,85 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingRecyclerAdapter;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 
 import java.util.ArrayList;
+
+import static com.github.mikephil.charting.charts.Chart.LOG_TAG;
 
 /**
  * Created by alfredo on 26/08/17.
  */
 public class RankingFragment
-        extends ListFragment
-        implements SwipeRefreshLayout.OnRefreshListener {
+        extends Fragment
+        implements SwipeRefreshLayout.OnRefreshListener,
+        DatabaseManager.SendData {
 
     private final static String TAG = RankingFragment.class.getSimpleName();
 
+    // Resource
     private Context context;
+    private RecyclerView.LayoutManager layoutManager;
+    private ArrayList<User> arrayList;
+    private CallbackToUI callback;
 
     // Widgets
     private View rootView;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private RecyclerView recycleView;
+
+
+
+    // Container Activity must implement this interface
+    public interface CallbackToUI {
+
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        /*
+        try {
+            this.callback = (CallbackToUI) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement CallbackToUI");
+        }
+        */
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // To modify Menu items
+        this.setHasOptionsMenu(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView Ranking");
         // Inflate the layout for this fragment
         this.rootView = inflater.inflate(R.layout.fragment_ranking_list, container, false);
 
@@ -46,14 +89,51 @@ public class RankingFragment
         return this.rootView;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        this.swipeRefreshLayout.setRefreshing(true);
+        DatabaseManager.getUserRank(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            // Check if user triggered a refresh:
+            case R.id.refresh_action:
+                Log.i(LOG_TAG, "Refresh menu item selected");
+                // Signal SwipeRefreshLayout to start the progress indicator
+                this.swipeRefreshLayout.setRefreshing(true);
+                DatabaseManager.getUserRank(this);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        Log.d(TAG, "Called oncreate...");
+
+        menu.findItem(R.id.menu_selection_level).setVisible(true);
+        menu.findItem(R.id.refresh_action).setVisible(true);
+        super.onPrepareOptionsMenu(menu);
+    }
+
     private void initResources() {
         this.context = getActivity().getApplicationContext();
+
+        this.layoutManager = new LinearLayoutManager(this.context);
     }
 
     private void initWidgets() {
+        this.recycleView = (RecyclerView) this.rootView.findViewById(R.id.recycler_view_user);
+        this.recycleView.setHasFixedSize(true);
+        this.recycleView.setLayoutManager(this.layoutManager);
         this.swipeRefreshLayout = (SwipeRefreshLayout) this.rootView.findViewById(R.id.swiperefresh_ranking);
         this.swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.blue_900));
-
         /*
          * Sets up a SwipeRefreshLayout.OnRefreshListener that is invoked when the user
          * performs a swipe-to-refresh gesture.
@@ -65,10 +145,7 @@ public class RankingFragment
     public void onRefresh() {
         Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
 
-        // This method performs the actual data-refresh operation.
-        // The method calls setRefreshing(false) when it's finished.
-
-        // stuff
+        DatabaseManager.getUserRank(this);
     }
 
     @Override
@@ -79,115 +156,38 @@ public class RankingFragment
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+
+        Log.d(TAG, "onPause");
+        FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, false);
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
 
         FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, false);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    boolean mDualPane;
-    int mCurCheckPosition = 0;
-
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void dataReceived(ArrayList<User> users) {
+        this.arrayList = users;
 
-        ArrayList<String> arrayList = new ArrayList<>(5);
-        arrayList.add("dio cane");
-        arrayList.add("madonna cagna");
-
-        ArrayAdapter arrayAdapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.item_ranking_user, arrayList);
-
-        // Populate list with our static array of titles.
-        this.setListAdapter(arrayAdapter);
-
-
-
-        // Check to see if we have a frame in which to embed the details
-        // fragment directly in the containing UI.
-        /*
-        View detailsFrame = getActivity().findViewById(R.id.details);
-        mDualPane = detailsFrame != null && detailsFrame.getVisibility() == View.VISIBLE;
-        */
-
-        if (savedInstanceState != null) {
-            // Restore last state for checked position.
-            mCurCheckPosition = savedInstanceState.getInt("curChoice", 0);
+        for (User usersw : users) {
+            Log.d(TAG, "points: " + usersw.getPoints());
         }
 
-        if (mDualPane) {
-            // In dual-pane mode, the list view highlights the selected item.
-            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            // Make sure our UI is in the correct state.
-            showDetails(mCurCheckPosition);
-        }
-    }
+        RankingRecyclerAdapter rankingRecyclerAdapter =
+                new RankingRecyclerAdapter(this.context, this.arrayList);
+        // To avoid memory leaks set adapter in onACtivityCreated
+        this.recycleView.setAdapter(rankingRecyclerAdapter);
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("curChoice", mCurCheckPosition);
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        showDetails(position);
-    }
-
-    /**
-     * Helper function to show the details of a selected item, either by
-     * displaying a fragment in-place in the current UI, or starting a
-     * whole new activity in which it is displayed.
-     */
-    void showDetails(int index) {
-        mCurCheckPosition = index;
-
-        if (mDualPane) {
-            // We can display everything in-place with fragments, so update
-            // the list to highlight the selected item and show the data.
-            getListView().setItemChecked(index, true);
-
-            // Check what fragment is currently shown, replace if needed.
-            // DetailsFragment details = (DetailsFragment)
-            //        getFragmentManager().findFragmentById(R.id.details);
-            if (/* details == null || details.getShownIndex() != index */ false) {
-                // Make new fragment to show this selection.
-                // details = DetailsFragment.newInstance(index);
-
-                // Execute a transaction, replacing any existing fragment
-                // with this one inside the frame.
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                if (index == 0) {
-                    // ft.replace(R.id.details, details);
-                } else {
-                    // ft.replace(R.id.a_item, details);
-                }
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
-            }
-
+        this.swipeRefreshLayout.setRefreshing(false);
+        if (this.arrayList == null) {
+            Toast.makeText(this.context, getString(R.string.empty_user), Toast.LENGTH_SHORT).show();
         } else {
-            // Otherwise we need to launch a new activity to display
-            // the dialog fragment with selected text.
-            Intent intent = new Intent();
-            // intent.setClass(getActivity(), DetailsActivity.class);
-            intent.putExtra("index", index);
-            startActivity(intent);
+            Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -3,15 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_refresh"
+        android:id="@+id/menu_selection_level"
+        android:icon="@mipmap/world_icon"
+        android:title="@string/level_selection"
+        app:showAsAction="ifRoom"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/refresh_action"
         android:icon="@mipmap/refresh_icon"
-        android:title="@string/menu_refresh"
-        android:visible="false"
-        app:showAsAction="ifRoom" />
+        android:title="@string/refresh_list"
+        app:showAsAction="ifRoom"
+        android:visible="false" />
 
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+
 </menu>

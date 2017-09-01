@@ -13,4 +13,10 @@
     <string name="user_item">User</string>
     <string name="point_item">Point</string>
     <string name="rank_item">Rank</string>
+    <string name="canceled_action">Canceled action.</string>
+    <string name="twitter_auth_fail">Error while signing in with Twitter.</string>
+    <string name="level_selection">Level selection</string>
+    <string name="refresh_list">Refresh list</string>
+    <string name="empty_user">There are no user.</string>
+    <string name="refresh_complete">Updated list.</string>
 </resources>

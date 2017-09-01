@@ -79,7 +79,7 @@ public class SingletonFirebaseProvider
         return this.auth.getCurrentUser();
     }
 
-    public synchronized SingletonUser getUserInformations() {
+    public SingletonUser getUserInformations() {
         if (this.getFirebaseUser() != null) {
             return SingletonUser.getInstance(
                     this.getFirebaseUser().getDisplayName(),

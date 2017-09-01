@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.FirebaseChatMainApp;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;

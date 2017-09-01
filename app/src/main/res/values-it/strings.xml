@@ -76,4 +76,11 @@
     <string name="loading">Caricamento...</string>
     <string name="title_activity_save_me">Salvami!</string>
     <string name="type_a_message">Scrivi un messaggio...</string>
+    <string name="canceled_action">Azione cancellata</string>
+    <string name="twitter_auth_fail">Errore durante l\'accesso con Twitter.</string>
+    <string name="level_selection">Seleziona livello</string>
+    <string name="refresh_list">Ricarica lista</string>
+    <string name="empty_user">Non ci sono utenti.</string>
+    <string name="hello_blank_fragment">Lista aggiornata.</string>
+    <string name="refresh_complete">Lista aggiornata.</string>
 </resources>

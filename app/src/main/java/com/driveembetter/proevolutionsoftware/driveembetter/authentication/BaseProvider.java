@@ -1,5 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+
 /**
  * Created by alfredo on 20/08/17.
  */
@@ -9,5 +11,6 @@ public interface BaseProvider {
     // alla pressione di logout (nella MainFragmentActivity) solo l'account Firebase faraà logout
     void signIn(String email, String password);
     void signOut();
+    SingletonUser getUserInformations();
     boolean isSignIn();
 }

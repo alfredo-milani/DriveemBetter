@@ -21,16 +21,13 @@ import java.util.List;
  */
 
 public class SingletonUser
-        implements Constants{
+        extends User
+        implements Constants {
 
     private final static String TAG = SingletonUser.class.getSimpleName();
 
     // TODO utilizza l'interfaccia Parcelable se si deve passare SingletonUser da un activity ad un'altra
     // Data from Firebase Authentication
-    private String username;
-    private String email;
-    private Uri photoUrl;
-    private String uid;
     private boolean emailVerified;
     private String providerId;
     private List providerData;
@@ -48,15 +45,12 @@ public class SingletonUser
 
     // Short constructor
     private SingletonUser(String username, String email) {
-        this.username = username;
-        this.email = email;
+        super(username, email);
     }
 
     // Extended constructor
     private SingletonUser(String username, String email, Uri photoUrl, String uid, boolean emailVerified, String providerId, List providerData) {
-        this(username, email);
-        this.photoUrl = photoUrl;
-        this.uid = uid;
+        super(username, email, photoUrl, uid);
         this.emailVerified = emailVerified;
         this.providerId = providerId;
         this.providerData = providerData;
@@ -86,38 +80,6 @@ public class SingletonUser
     }
 
 
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Uri getPhotoUrl() {
-        return photoUrl;
-    }
-
-    public void setPhotoUrl(Uri photoUrl) {
-        this.photoUrl = photoUrl;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
 
     public boolean isEmailVerified() {
         return emailVerified;
@@ -169,6 +131,7 @@ public class SingletonUser
             Log.w(TAG, "Callback not initialized");
             throw new CallbackNotInitialized("Callback not initialized");
         }
+
         // Get a reference to our posts
         Query query = FirebaseDatabase.getInstance()
                 .getReference()

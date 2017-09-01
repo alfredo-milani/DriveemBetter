@@ -38,4 +38,6 @@ public interface TypeMessages {
     int GOOGLE_SIGNIN_ERROR = 25;
     int BAD_EMAIL_OR_PSW = 27;
     int INTERNAL_FIREBASE_ERROR_LOGIN = 28;
+    int CANCELED_ACTION = 29;
+    int TWITTER_AUTH_FAIL = 30;
 }

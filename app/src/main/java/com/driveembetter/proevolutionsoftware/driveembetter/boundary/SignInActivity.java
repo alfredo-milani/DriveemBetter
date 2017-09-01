@@ -20,11 +20,11 @@ import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.FactoryProviders;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.FactoryProviders;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonGoogleProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.common.SignInButton;
@@ -94,9 +94,9 @@ public class SignInActivity
             super.handleMessage(msg);
 
             int id = msg.what;
-            hideProgress();
             switch (id) {
                 case USER_LOGIN:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:Login");
                     // Check if email has been verified
                     if (checkEmailBeforeLogIn && (singletonFirebaseProvider
@@ -114,53 +114,75 @@ public class SignInActivity
                     break;
 
                 case EMAIL_REQUIRED:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:email_required");
                     emailField.setError(getString(R.string.field_required));
                     break;
 
                 case PASSWORD_REQUIRED:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:password_required");
                     passwordField.setError(getString(R.string.field_required));
                     break;
 
                 case EMAIL_NOT_VERIFIED:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:email_not_verified");
                     checkEmailBeforeLogIn = false;
                     emailField.setError(getString(R.string.email_not_verified));
                     break;
 
                 case BAD_EMAIL_OR_PSW:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:invalid email or password");
                     emailField.setError(getString(R.string.wrong_email_or_psw));
                     passwordField.setError(getString(R.string.wrong_email_or_psw));
                     break;
 
                 case INVALID_USER:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:invalid user");
                     emailField.setError(getString(R.string.invalid_user));
                     break;
 
                 case BAD_FORMATTED_EMAIL:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:bad_formatted_email");
                     emailField.setError(getString(R.string.bad_formatted_email));
                     break;
 
                 case NETWORK_ERROR:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:network_error");
                     Toast.makeText(SignInActivity.this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
                     break;
 
                 case INTERNAL_FIREBASE_ERROR_LOGIN:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:internal firebase signin error");
                     Toast.makeText(SignInActivity.this, getString(R.string.internal_firebase_login_error), Toast.LENGTH_LONG).show();
                     break;
 
                 case GOOGLE_SIGNIN_ERROR:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:google_signin_error");
-                    Toast.makeText(SignInActivity.this, getString(R.string.google_signin_error), Toast.LENGTH_LONG).show();
+                    // Toast.makeText(SignInActivity.this, getString(R.string.google_signin_error), Toast.LENGTH_LONG).show();
+                    break;
+
+                case CANCELED_ACTION:
+                    hideProgress();
+                    Log.d(TAG, "handleMessage:google_signin_error");
+                    Toast.makeText(SignInActivity.this, getString(R.string.canceled_action), Toast.LENGTH_SHORT).show();
+                    break;
+
+                case TWITTER_AUTH_FAIL:
+                    hideProgress();
+                    Log.d(TAG, "handleMessage:twitter_signin_error");
+                    Toast.makeText(SignInActivity.this, getString(R.string.twitter_auth_fail), Toast.LENGTH_LONG).show();
                     break;
 
                 case UNKNOWN_ERROR:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:unknwown error");
                     Toast.makeText(SignInActivity.this, getString(R.string.unknown_error), Toast.LENGTH_LONG).show();
                     break;
@@ -190,7 +212,8 @@ public class SignInActivity
         this.signInGoogleButton.setOnClickListener(this);
         this.signUpButton.setOnClickListener(this);
         this.twitterLoginButton.setOnClickListener(this);
-        ((SingletonTwitterProvider) this.baseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER))
+        ((SingletonTwitterProvider) this.baseProviderArrayList
+                .get(FactoryProviders.TWITTER_PROVIDER))
                 .setCallback(this.twitterLoginButton);
 
         //DEBUG
@@ -244,7 +267,9 @@ public class SignInActivity
         switch (view.getId()) {
             // DEBUG
             case R.id.imageView7:
-                SingletonUser singletonUser = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).getGoogleUserInformations();
+                SingletonUser singletonUser = this.baseProviderArrayList
+                        .get(FactoryProviders.GOOGLE_PROVIDER)
+                        .getUserInformations();
                 if (singletonUser != null) {
                     Log.d(TAG, "GOOGLE USER: " + singletonUser.getUsername() + " jjj " + singletonUser.getEmail());
                 } else {
@@ -337,13 +362,8 @@ public class SignInActivity
         this.singletonFirebaseProvider.setHandler(this.handler);
         this.singletonFirebaseProvider.setContext(this);
 
-        /*
-        if (this.authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
-            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
-            singletonGoogleProvider.connectAfterResume();
-            singletonGoogleProvider.managePendingOperations();
-        }
-        */
+        ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                .silentSignIn();
     }
 
     @Override

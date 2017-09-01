@@ -68,7 +68,7 @@
         </activity>
 
         <service
-            android:name=".fcm.MyFirebaseInstanceIDService"
+            android:name=".fcm.FirebaseUtility"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>

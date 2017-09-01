@@ -58,6 +58,8 @@ import java.util.Map;
 
 public class SaveMe extends Fragment {
 
+    private final static String TAG = SaveMe.class.getSimpleName();
+
     MapView mMapView;
     private GoogleMap googleMap;
     private Context context;
@@ -293,6 +295,9 @@ public class SaveMe extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+
+        Log.d(TAG, "onPause");
+        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
         mMapView.onPause();
     }
 
