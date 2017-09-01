@@ -103,7 +103,8 @@ public class FragmentState extends Application {
         );
         fragmentTransaction
                 .replace(placeholder, fragment)
-                .addToBackStack(null)
+                // to override backButton behavior
+                // .addToBackStack(null)
                 .commit();
     }
 
