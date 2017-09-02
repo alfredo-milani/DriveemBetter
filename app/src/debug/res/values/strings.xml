@@ -7,6 +7,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
 
+    <string name="save_me_connection">Check your internet connection and try again!</string>
     <string name="type_a_message">Type a message...</string>
     <string name="location_loading">Loading your position..</string>
     <string name="loading">Loading</string>

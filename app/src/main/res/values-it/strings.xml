@@ -69,4 +69,5 @@
     <string name="send">Invia</string>
     <string name="about_us">Chi siamo</string>
     <string name="internal_firebase_login_error">Errore interno. Riprova più tardi.</string>
+    <string name="save_me_connection">Devi avere l\'accesso ad Internet per usufruire di questo servizio!</string>
 </resources>

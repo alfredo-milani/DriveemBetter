@@ -36,6 +36,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.MyFirebaseInstanceIDService;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ImageLoadTask;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -313,13 +314,17 @@ public class MainFragmentActivity
                 break;
 
             case R.id.save_me:
-                if (!FragmentState.isSaveMeIsOpen()) {
-                    FragmentState.setSaveMeIsOpen(true);
-                    saveMe = new SaveMe();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .add(R.id.save_me_placeholder, saveMe)
-                            .commit();
+                if (NetworkConnectionUtil.isConnectedToInternet(getApplicationContext())) {
+                    if (!FragmentState.isSaveMeIsOpen()) {
+                        FragmentState.setSaveMeIsOpen(true);
+                        saveMe = new SaveMe();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .add(R.id.save_me_placeholder, saveMe)
+                                .commit();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.save_me_connection, Toast.LENGTH_SHORT).show();
                 }
                 break;
 
@@ -413,7 +418,7 @@ public class MainFragmentActivity
         super.onPause();
 
         Log.d(TAG, ":pause");
-        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
+        //this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
     // Called before onStop()
@@ -430,7 +435,7 @@ public class MainFragmentActivity
         super.onStop();
 
         Log.d(TAG, ":stop");
-        this.singletonFirebaseProvider.removeStateListener(this.hashCode());
+        //this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
     @Override

@@ -52,6 +52,9 @@ public class PositionManager extends Application {
     private double longitude = 0;
     private double oldLatitude, oldLongitude;
     private int speed;
+    private double initialTime;
+    private double time;
+    private int initialSpeed = -1; //Symbolic value just to check when "onLocationChanged" is called for the first time
     private String oldCountry, oldRegion, oldSubRegion;
     private String country, region, subRegion;
     private static PositionManager positionManager;
@@ -60,6 +63,8 @@ public class PositionManager extends Application {
     private Geocoder geocoder;
     private FirebaseDatabase database;
     private Map<String, Object> emailMap;
+    private double deltaT;
+    private int deltaV;
     Location oldLocation;
     private DatabaseReference myRef, checkRef;
 
@@ -115,12 +120,12 @@ public class PositionManager extends Application {
             List<Address> oldAddresses;
             try {
                 oldAddresses = geocoder.getFromLocation(oldLatitude, oldLongitude, 1);
-                if (oldAddresses.size()!=0) {
+                if (oldAddresses.size() != 0) {
                     oldCountry = oldAddresses.get(0).getCountryName();
                     oldRegion = oldAddresses.get(0).getAdminArea();
                     oldSubRegion = oldAddresses.get(0).getSubAdminArea();
                 }
-                if (oldCountry==null)
+                if (oldCountry == null)
                     oldCountry = "oldCountry";
                 if (oldSubRegion==null)
                     oldSubRegion = "oldSubRegion";
@@ -139,26 +144,35 @@ public class PositionManager extends Application {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                //EACH TIME I UPDATE MY POSITION, I MAY REGISTER MY SPEED, MY ACCELERATION AND MY ALTITUDE
+                //EACH TIME I UPDATE MY POSITION, I UPDATE MY CURRENT SPEED
 
                 if (location.hasSpeed()) {
-                    speed=(int) ((location.getSpeed()*3600)/1000);
-
-                    Log.e("SPEED", "Speed: " + speed);
-                    Toast.makeText(activity, "Speed: " + speed, Toast.LENGTH_SHORT).show();
-                    //TODO
-                    //send speed to RabbitMQ
-                    //check speed limits
+                    if (initialSpeed == -1) {
+                        //first time that velocity has been detected, I don't check acceleration
+                        initialSpeed = (int) ((location.getSpeed()*3600)/1000);
+                        initialTime = System.currentTimeMillis();
+                        Log.e("SPEED", "Speed: " + initialSpeed);
+                        Toast.makeText(activity, "Speed: " + initialSpeed, Toast.LENGTH_SHORT).show();
+                        //send speed to RabbitMQ
+                        //TODO
+                        //check speed limits
+                    } else {
+                        speed = (int) ((location.getSpeed()*3600)/1000);
+                        time = System.currentTimeMillis();
+                        deltaT = (time - initialTime)/1000;
+                        double acceleration = ((double) (speed - initialSpeed)) / deltaT;
+                        Toast.makeText(activity, "Acceleration: " + acceleration, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, "Speed: " + speed, Toast.LENGTH_SHORT).show();
+                        Log.e("SPEED", "Speed: " + speed);
+                        Log.e("ACCELERATION", "Acceleration: " + acceleration);
+                        //TODO
+                        //send speed to RabbitMQ
+                        //check speed limits or abrupt braking or acceleration
+                        initialTime = time;
+                        initialSpeed = speed;
+                    }
                 }
 
-
-                /*
-                if (location.hasAltitude()) {
-                    altitude = location.getAltitude();
-                    Log.e("ALTITUDE", "Altitude: " + altitude);
-                    //TODO
-                    //send altitude to RabbitMQ
-                }*/
 
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
@@ -179,11 +193,13 @@ public class PositionManager extends Application {
                 //coordinates.put("lat", latitude);
                 //coordinates.put("lon", longitude);
                 Boolean radicalChange = false;
-                if (!oldCountry.equals(country) || !oldRegion.equals(region) || !oldSubRegion.equals(subRegion)) {
-                    //delete the current user instance and create a newer
-                    myRef = database.getReference("position" + "/" + oldCountry + "/" + oldRegion + "/" + oldSubRegion + "/" + userId);
-                    myRef.removeValue();
-                    radicalChange = true;
+                if (oldSubRegion != null && oldRegion != null && oldCountry != null) {
+                    if (!oldCountry.equals(country) || !oldRegion.equals(region) || !oldSubRegion.equals(subRegion)) {
+                        //delete the current user instance and create a newer
+                        myRef = database.getReference("position" + "/" + oldCountry + "/" + oldRegion + "/" + oldSubRegion + "/" + userId);
+                        myRef.removeValue();
+                        radicalChange = true;
+                    }
                 }
                 if (radicalChange) {
                     //I have to add old user information
