@@ -28,6 +28,7 @@ public interface Constants {
 
 
     // Database's nodes
+    String NODE_POSITION = "position";
     String NODE_USERS = "users";
     String NODE_VEHICLES = "vehicles";
 
@@ -35,4 +36,11 @@ public interface Constants {
     String CHILD_USERNAME = "username";
     String CHILD_IMAGE = "image";
     String CHILD_POINTS = "points";
+
+
+
+    // Users divided by location
+    int LEVEL_NATION = 1;
+    int LEVEL_REGION = 2;
+    int LEVEL_DISTRICT = 3;
 }

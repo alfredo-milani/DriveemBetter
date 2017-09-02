@@ -19,4 +19,10 @@
     <string name="refresh_list">Refresh list</string>
     <string name="empty_user">There are no user.</string>
     <string name="refresh_complete">Updated list.</string>
+    <string name="dialogue_level_menu">Select the search area.</string>
+    <string name="ok" translatable="false">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="level_nation">Nation</string>
+    <string name="level_region">Region</string>
+    <string name="level_district">District</string>
 </resources>

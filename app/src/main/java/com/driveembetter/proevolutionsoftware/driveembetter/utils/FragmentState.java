@@ -25,8 +25,10 @@ public class FragmentState extends Application {
     public final static short STATISTICS_FRAGMENT = 2;
     public final static short RANKING_FRAGMENT = 3;
     public final static short GARAGE_FRAGMENT = 4;
+    public final static short ABOUT_US = 5;
+    public final static short LEVEL_MENU = 6;
 
-    private static boolean fragmentState[] = new boolean[4];
+    private static boolean fragmentState[] = new boolean[6];
 
 
 
@@ -53,6 +55,12 @@ public class FragmentState extends Application {
             case GARAGE_FRAGMENT:
                 return FragmentState.fragmentState[GARAGE_FRAGMENT];
 
+            case ABOUT_US:
+                return FragmentState.fragmentState[ABOUT_US];
+
+            case LEVEL_MENU:
+                return FragmentState.fragmentState[LEVEL_MENU];
+
             default:
                 Log.w(TAG, "Error in isFragmentOpen:wrong fragment type: " + fragmentType);
                 throw new WrongResourceType("Error in isFragmentOpen:wrong fragment type: " + fragmentType);
@@ -76,6 +84,14 @@ public class FragmentState extends Application {
 
             case GARAGE_FRAGMENT:
                 FragmentState.fragmentState[GARAGE_FRAGMENT] = status;
+                break;
+
+            case ABOUT_US:
+                FragmentState.fragmentState[ABOUT_US] = status;
+                break;
+
+            case LEVEL_MENU:
+                FragmentState.fragmentState[LEVEL_MENU] = status;
                 break;
 
             default:

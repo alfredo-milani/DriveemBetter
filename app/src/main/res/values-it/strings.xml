@@ -83,4 +83,9 @@
     <string name="empty_user">Non ci sono utenti.</string>
     <string name="hello_blank_fragment">Lista aggiornata.</string>
     <string name="refresh_complete">Lista aggiornata.</string>
+    <string name="dialogue_level_menu">Seleziona l\'area della ricerca.</string>
+    <string name="cancel">Annulla</string>
+    <string name="level_nation">Nazione</string>
+    <string name="level_region">Regione</string>
+    <string name="level_district">Provincia</string>
 </resources>

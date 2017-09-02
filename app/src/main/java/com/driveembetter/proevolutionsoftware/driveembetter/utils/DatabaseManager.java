@@ -53,9 +53,11 @@ public class DatabaseManager
                             .child(CHILD_POINTS)
                             .setValue(SingletonUser.getInstance().getPoints());
 
-                    referenceUser
-                            .child(CHILD_IMAGE)
-                            .setValue(SingletonUser.getInstance().getPhotoUrl().toString());
+                    if (SingletonUser.getInstance().getPhotoUrl() != null) {
+                        referenceUser
+                                .child(CHILD_IMAGE)
+                                .setValue(SingletonUser.getInstance().getPhotoUrl().toString());
+                    }
 
                     if (SingletonUser.getInstance().getUsername() != null &&
                             !SingletonUser.getInstance().getUsername().isEmpty()) {
@@ -100,7 +102,7 @@ public class DatabaseManager
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        Log.d(TAG, "The read failed: " + databaseError.getCode());
                     }
                 });
     }

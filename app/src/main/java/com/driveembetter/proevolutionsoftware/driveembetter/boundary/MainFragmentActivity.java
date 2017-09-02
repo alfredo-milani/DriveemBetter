@@ -63,6 +63,7 @@ public class MainFragmentActivity
     // Fragments
     private Fragment saveMe;
     private Fragment ranking;
+    private Fragment aboutUs;
 
     // Widgets
     private ProgressBar progressBar;
@@ -169,6 +170,11 @@ public class MainFragmentActivity
         this.positionManager = PositionManager.getInstance(this);
         this.fragmentState = new FragmentState(getSupportFragmentManager());
 
+        // Init fragments
+        this.saveMe = new SaveMe();
+        this.ranking = new RankingFragment();
+        this.aboutUs = new AboutUs();
+
         //locationUpdater = new LocationUpdater(this, user);
         //locationUpdater.updateLocation();
     }
@@ -255,10 +261,6 @@ public class MainFragmentActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
-            case R.id.menu_selection_level:
-                Log.d(TAG, "MENU level");
-                return true;
-
             case R.id.action_settings:
                 return true;
         }
@@ -317,7 +319,7 @@ public class MainFragmentActivity
                 if (!FragmentState.isFragmentOpen(FragmentState.RANKING_FRAGMENT)) {
                     FragmentState.replaceFragment(
                             R.id.fragment_placeholder,
-                            new RankingFragment()
+                            this.ranking
                     );
                     FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, true);
                 }
@@ -325,10 +327,10 @@ public class MainFragmentActivity
 
             case R.id.save_me:
                 if (!FragmentState.isFragmentOpen(FragmentState.SAVE_ME_FRAGMENT)) {
-                    // TODO ferma esecuzione SaveMe in onPauss()
+                    // TODO ferma esecuzione SaveMe in onPause()
                     FragmentState.replaceFragment(
                             R.id.fragment_placeholder,
-                            new SaveMe()
+                            this.saveMe
                     );
                     FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, true);
                 }
@@ -345,7 +347,13 @@ public class MainFragmentActivity
                 break;
 
             case R.id.about_us:
-                this.openNewActivity(MainFragmentActivity.this, AboutUs.class);
+                if (!FragmentState.isFragmentOpen(FragmentState.ABOUT_US)) {
+                    FragmentState.replaceFragment(
+                            R.id.fragment_placeholder,
+                            this.aboutUs
+                    );
+                    FragmentState.setFragmentState(FragmentState.ABOUT_US, true);
+                }
                 break;
 
             case R.id.nav_logout:

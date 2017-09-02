@@ -150,11 +150,13 @@ public class PositionManager extends Application {
                 //coordinates.put("lat", latitude);
                 //coordinates.put("lon", longitude);
                 Boolean radicalChange = false;
-                if (!oldCountry.equals(country) || !oldRegion.equals(region) || !oldSubRegion.equals(subRegion)) {
-                    //delete the current user instance and create a newer
-                    myRef = database.getReference("position" + "/" + oldCountry + "/" + oldRegion + "/" + oldSubRegion + "/" + userId);
-                    myRef.removeValue();
-                    radicalChange = true;
+                if (oldCountry != null && oldRegion != null && oldSubRegion != null) {
+                    if (!oldCountry.equals(country) || !oldRegion.equals(region) || !oldSubRegion.equals(subRegion)) {
+                        //delete the current user instance and create a newer
+                        myRef = database.getReference("position" + "/" + oldCountry + "/" + oldRegion + "/" + oldSubRegion + "/" + userId);
+                        myRef.removeValue();
+                        radicalChange = true;
+                    }
                 }
                 if (radicalChange) {
                     //I have to add old user information

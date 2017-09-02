@@ -17,14 +17,13 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingRecyclerAdapter;
+import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingRecyclerViewAdapter;
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 
 import java.util.ArrayList;
-
-import static com.github.mikephil.charting.charts.Chart.LOG_TAG;
 
 /**
  * Created by alfredo on 26/08/17.
@@ -32,27 +31,24 @@ import static com.github.mikephil.charting.charts.Chart.LOG_TAG;
 public class RankingFragment
         extends Fragment
         implements SwipeRefreshLayout.OnRefreshListener,
-        DatabaseManager.SendData {
+        DatabaseManager.SendData,
+        LevelMenuFragment.LevelStateChanged,
+        Constants {
 
     private final static String TAG = RankingFragment.class.getSimpleName();
 
     // Resource
-    private Context context;
-    private RecyclerView.LayoutManager layoutManager;
     private ArrayList<User> arrayList;
-    private CallbackToUI callback;
+    private static int level;
 
     // Widgets
+    private Context context;
     private View rootView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recycleView;
+    private RecyclerView.LayoutManager layoutManager;
 
 
-
-    // Container Activity must implement this interface
-    public interface CallbackToUI {
-
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -68,12 +64,16 @@ public class RankingFragment
                     + " must implement CallbackToUI");
         }
         */
+
+        this.context = context;
+        this.layoutManager = new LinearLayoutManager(context);
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        RankingFragment.level = LEVEL_DISTRICT;
         // To modify Menu items
         this.setHasOptionsMenu(true);
     }
@@ -83,7 +83,6 @@ public class RankingFragment
         // Inflate the layout for this fragment
         this.rootView = inflater.inflate(R.layout.fragment_ranking_list, container, false);
 
-        this.initResources();
         this.initWidgets();
 
         return this.rootView;
@@ -103,10 +102,18 @@ public class RankingFragment
         switch (id) {
             // Check if user triggered a refresh:
             case R.id.refresh_action:
-                Log.i(LOG_TAG, "Refresh menu item selected");
+                Log.i(TAG, "Refresh menu item selected");
                 // Signal SwipeRefreshLayout to start the progress indicator
                 this.swipeRefreshLayout.setRefreshing(true);
                 DatabaseManager.getUserRank(this);
+                return true;
+
+            case R.id.menu_selection_level:
+                Log.i(TAG, "Level menu item selected");
+                LevelMenuFragment levelMenuFragment = new LevelMenuFragment();
+                levelMenuFragment.initLevelStateChangedCallback(this);
+                // Show DialogFragment
+                levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));
                 return true;
         }
 
@@ -120,12 +127,6 @@ public class RankingFragment
         menu.findItem(R.id.menu_selection_level).setVisible(true);
         menu.findItem(R.id.refresh_action).setVisible(true);
         super.onPrepareOptionsMenu(menu);
-    }
-
-    private void initResources() {
-        this.context = getActivity().getApplicationContext();
-
-        this.layoutManager = new LinearLayoutManager(this.context);
     }
 
     private void initWidgets() {
@@ -174,10 +175,10 @@ public class RankingFragment
     public void dataReceived(ArrayList<User> users) {
         this.arrayList = users;
 
-        RankingRecyclerAdapter rankingRecyclerAdapter =
-                new RankingRecyclerAdapter(this.context, this.arrayList);
+        RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
+                new RankingRecyclerViewAdapter(this.context, this.arrayList);
         // To avoid memory leaks set adapter in onACtivityCreated
-        this.recycleView.setAdapter(rankingRecyclerAdapter);
+        this.recycleView.setAdapter(rankingRecyclerViewAdapter);
 
         this.swipeRefreshLayout.setRefreshing(false);
         if (this.arrayList == null) {
@@ -185,5 +186,14 @@ public class RankingFragment
         } else {
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void stateChanged(int level) {
+        RankingFragment.level = level;
+    }
+
+    public static int getLevel() {
+        return RankingFragment.level;
     }
 }

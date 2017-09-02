@@ -18,15 +18,15 @@ import java.util.List;
 /**
  * Created by alfredo on 31/08/17.
  */
-public class RankingRecyclerAdapter
-        extends RecyclerView.Adapter<RankingRecyclerAdapter.PersonViewHolder>{
+public class RankingRecyclerViewAdapter
+        extends RecyclerView.Adapter<RankingRecyclerViewAdapter.PersonViewHolder>{
 
-    private final static String TAG = RankingRecyclerAdapter.class.getSimpleName();
+    private final static String TAG = RankingRecyclerViewAdapter.class.getSimpleName();
 
     private List<User> users;
     private Context context;
 
-    public RankingRecyclerAdapter(Context context, List<User> users){
+    public RankingRecyclerViewAdapter(Context context, List<User> users){
         this.users = users;
         this.context = context;
     }

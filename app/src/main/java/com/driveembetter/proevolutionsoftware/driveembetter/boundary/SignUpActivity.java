@@ -182,7 +182,7 @@ public class SignUpActivity
 
     private void initWidget() {
         this.signUpButton = (Button) findViewById(R.id.sign_up_button);
-        this.usernameField = (EditText) findViewById(R.id.username_field);
+        // this.usernameField = (EditText) findViewById(R.id.username_field);
         this.emailField = (EditText) findViewById(R.id.email_field);
         this.passwordField = (EditText) findViewById(R.id.password_field);
         this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
