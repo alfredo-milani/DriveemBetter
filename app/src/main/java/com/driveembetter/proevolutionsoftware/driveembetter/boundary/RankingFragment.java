@@ -1,6 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -33,6 +34,7 @@ public class RankingFragment
         implements SwipeRefreshLayout.OnRefreshListener,
         DatabaseManager.SendData,
         LevelMenuFragment.LevelStateChanged,
+        RankingRecyclerViewAdapter.OnItemClickListener,
         Constants {
 
     private final static String TAG = RankingFragment.class.getSimpleName();
@@ -93,6 +95,11 @@ public class RankingFragment
         super.onActivityCreated(savedInstanceState);
 
         this.swipeRefreshLayout.setRefreshing(true);
+        // TODO:
+        // -trova posizione da API locali e convertile in Nazione/Regione/ecc...
+        // -query al nodo position per avere tutti gli utenti del livello desiderato
+        // -per ogni utente trovato fai query al nodo users per prendere info
+        // -riempi la recyclerView
         DatabaseManager.getUserRank(this);
     }
 
@@ -176,7 +183,7 @@ public class RankingFragment
         this.arrayList = users;
 
         RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
-                new RankingRecyclerViewAdapter(this.context, this.arrayList);
+                new RankingRecyclerViewAdapter(this.context, this.arrayList, this);
         // To avoid memory leaks set adapter in onACtivityCreated
         this.recycleView.setAdapter(rankingRecyclerViewAdapter);
 
@@ -195,5 +202,12 @@ public class RankingFragment
 
     public static int getLevel() {
         return RankingFragment.level;
+    }
+
+    @Override
+    public void onItemClick(User item) {
+        Log.d(TAG, "onClick");
+        Intent intent = new Intent(this.getActivity(), UserDetailsRanking.class);
+        this.startActivity(intent);
     }
 }

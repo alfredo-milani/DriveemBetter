@@ -138,7 +138,7 @@ public class MainFragmentActivity
         if (savedInstanceState != null) {
             this.onRestoreInstanceState(savedInstanceState);
         }
-        setContentView(R.layout.activity_main);
+        this.setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

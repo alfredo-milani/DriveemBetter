@@ -58,6 +58,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".boundary.UserDetailsRanking"
+            android:theme="@style/AppTheme.NoActionBar">
+            <!--Default Intent Filter-->
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".fcm.FirebaseUtility"
             android:exported="false">

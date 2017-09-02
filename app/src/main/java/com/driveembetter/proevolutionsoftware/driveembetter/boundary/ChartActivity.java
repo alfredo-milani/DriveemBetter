@@ -34,7 +34,7 @@ public class ChartActivity extends AppCompatActivity {
         /* Call through to the super class's implementation of this method */
         super.onCreate(savedInstanceState);
         /* Set the activity content from layout resource */
-        setContentView(R.layout.activity_graph);
+        this.setContentView(R.layout.activity_graph);
 
         /* Display home as an "up" affordance:
          user that selecting home will return one level up rather than to the top level of the app */

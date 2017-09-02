@@ -19,25 +19,34 @@ import java.util.List;
  * Created by alfredo on 31/08/17.
  */
 public class RankingRecyclerViewAdapter
-        extends RecyclerView.Adapter<RankingRecyclerViewAdapter.PersonViewHolder>{
+        extends RecyclerView
+        .Adapter<RankingRecyclerViewAdapter.UserViewHolder> {
 
     private final static String TAG = RankingRecyclerViewAdapter.class.getSimpleName();
 
     private List<User> users;
     private Context context;
+    private final OnItemClickListener listener;
 
-    public RankingRecyclerViewAdapter(Context context, List<User> users){
-        this.users = users;
-        this.context = context;
+
+
+    public interface OnItemClickListener {
+        void onItemClick(User item);
     }
 
-    static class PersonViewHolder extends RecyclerView.ViewHolder {
+    public RankingRecyclerViewAdapter(Context context, List<User> users, OnItemClickListener listener){
+        this.users = users;
+        this.context = context;
+        this.listener = listener;
+    }
+
+    static class UserViewHolder extends RecyclerView.ViewHolder {
         private TextView name;
         private TextView points;
         private TextView rank;
         private ImageView userPhoto;
 
-        PersonViewHolder(View itemView) {
+        UserViewHolder(View itemView) {
             super(itemView);
 
             this.name = (TextView) itemView.findViewById(R.id.name_user);
@@ -45,18 +54,27 @@ public class RankingRecyclerViewAdapter
             this.rank = (TextView) itemView.findViewById(R.id.rank_user);
             this.userPhoto = (ImageView) itemView.findViewById(R.id.user_picture);
         }
+
+        void bind(final User item, final OnItemClickListener listener) {
+            // itemView defined in super class
+            this.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    listener.onItemClick(item);
+                }
+            });
+        }
     }
 
     @Override
-    public PersonViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.item_ranking_user, parent, false);
-        return new PersonViewHolder(v);
+        return new UserViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(PersonViewHolder holder, int position) {
+    public void onBindViewHolder(UserViewHolder holder, int position) {
         if (this.users.get(position).getPhotoUrl() != null) {
             Glide.with(this.context)
                     .load(
@@ -89,6 +107,8 @@ public class RankingRecyclerViewAdapter
         holder.points.setText(String.valueOf(users.get(position).getPoints()));
 
         holder.rank.setText("Rank");
+
+        holder.bind(this.users.get(position), this.listener);
     }
 
     @Override

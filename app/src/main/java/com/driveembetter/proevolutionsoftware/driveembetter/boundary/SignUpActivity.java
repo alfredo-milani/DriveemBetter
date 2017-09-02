@@ -53,7 +53,7 @@ public class SignUpActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
+        this.setContentView(R.layout.activity_sign_up);
 
         this.initWidget();
         this.initResources();

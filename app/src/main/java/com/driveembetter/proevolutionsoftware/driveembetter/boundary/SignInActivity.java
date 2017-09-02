@@ -67,7 +67,7 @@ public class SignInActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.initResources();
-        setContentView(R.layout.activity_sign_in);
+        this.setContentView(R.layout.activity_sign_in);
 
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -323,7 +323,7 @@ public class SignInActivity
             // Sign up
             case R.id.sign_up_button:
                 Intent signUpIntent = new Intent(SignInActivity.this, SignUpActivity.class);
-                startActivity(signUpIntent);
+                this.startActivity(signUpIntent);
                 break;
 
             default:
