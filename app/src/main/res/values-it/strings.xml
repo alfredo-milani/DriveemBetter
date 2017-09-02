@@ -88,4 +88,5 @@
     <string name="level_nation">Nazione</string>
     <string name="level_region">Regione</string>
     <string name="level_district">Provincia</string>
+    <string name="unable_load_ranking">Impossibile caricare la classifica.</string>
 </resources>

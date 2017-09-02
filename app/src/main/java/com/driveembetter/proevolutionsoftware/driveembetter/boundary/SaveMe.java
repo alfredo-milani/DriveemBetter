@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
@@ -56,7 +57,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class SaveMe extends Fragment {
+public class SaveMe
+        extends Fragment
+        implements Constants {
 
     private final static String TAG = SaveMe.class.getSimpleName();
 
@@ -403,9 +406,8 @@ public class SaveMe extends Fragment {
                 for (String user : data.keySet()) {
                     if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         //Map<String, Object> coordinates = data.get(user);
-                        String coordinates = (String) data.get(user).get("currentUserPosition");
-                        StringParser stringParser = new StringParser();
-                        String[] latLon = stringParser.getCoordinates(coordinates);
+                        String coordinates = (String) data.get(user).get(CHILD_CURRENT_POSITION);
+                        String[] latLon = StringParser.getCoordinates(coordinates);
                         //LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
                         LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
                         if ( markerPool.containsKey(user)) {

@@ -20,9 +20,17 @@ import android.widget.Toast;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingRecyclerViewAdapter;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -42,6 +50,8 @@ public class RankingFragment
     // Resource
     private ArrayList<User> arrayList;
     private static int level;
+    private double latitude;
+    private double longitude;
 
     // Widgets
     private Context context;
@@ -91,16 +101,80 @@ public class RankingFragment
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         this.swipeRefreshLayout.setRefreshing(true);
+
+        final PositionManager positionManager = PositionManager.getInstance(getActivity());
+        final DatabaseReference referenceUser = FirebaseDatabase
+                .getInstance()
+                .getReference();
+
+        if (positionManager.getLatitude() == 0 || positionManager.getLongitude() == 0) {
+            referenceUser
+                    .child(NODE_USERS)
+                    .child(SingletonUser.getInstance().getUid())
+                    .child(CHILD_CURRENT_POSITION);
+            referenceUser.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String coordinates = (String) dataSnapshot.getValue();
+                        if (coordinates != null) {
+                            String[] strings = StringParser.getCoordinates(coordinates);
+                            latitude = Double.parseDouble(strings[0]);
+                            longitude = Double.parseDouble(strings[1]);
+                        } else {
+                            positionNotFound();
+                        }
+                    } else {
+                        positionNotFound();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.d(TAG, "The read failed: " + databaseError.getCode());
+                }
+            });
+        } else {
+            String[] location = positionManager.getLocationFromCoordinates(
+                    positionManager.getLatitude(),
+                    positionManager.getLongitude(),
+                    1
+            );
+            // location[0] --> nation; location[1] --> region; location[2] --> district
+            if (location[0] == null || location[1] == null || location[2] == null) {
+                this.positionNotFound();
+                return;
+            } else {
+                // TODO query to position
+            }
+        }
+
+
+        /*
+        final DatabaseReference referenceUser = FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child(NODE_POSITION)
+                .child(SingletonUser
+                        .getInstance()
+                        .getUid());
+                        */
+
         // TODO:
         // -trova posizione da API locali e convertile in Nazione/Regione/ecc...
         // -query al nodo position per avere tutti gli utenti del livello desiderato
         // -per ogni utente trovato fai query al nodo users per prendere info
         // -riempi la recyclerView
         DatabaseManager.getUserRank(this);
+    }
+
+    private void positionNotFound() {
+        Toast
+                .makeText(this.context, getString(R.string.unable_load_ranking), Toast.LENGTH_LONG)
+                .show();
     }
 
     @Override

@@ -25,4 +25,5 @@
     <string name="level_nation">Nation</string>
     <string name="level_region">Region</string>
     <string name="level_district">District</string>
+    <string name="unable_load_ranking">Failed to load ranking.</string>
 </resources>

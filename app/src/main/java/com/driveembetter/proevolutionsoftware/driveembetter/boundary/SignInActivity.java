@@ -44,7 +44,6 @@ public class SignInActivity
     // Activity resources
     private ArrayList<BaseProvider> baseProviderArrayList;
     private SingletonFirebaseProvider singletonFirebaseProvider;
-    private StringParser stringParser;
 
     // Activity widgets
     private Button signInButton;
@@ -237,7 +236,6 @@ public class SignInActivity
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
         this.baseProviderArrayList = factoryProviders.getAllProviders();
-        this.stringParser = new StringParser();
     }
 
     @Override
@@ -293,7 +291,7 @@ public class SignInActivity
                 this.baseProviderArrayList
                         .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
                         .signIn(
-                                this.stringParser.trimString(
+                                StringParser.trimString(
                                         this.emailField.getText().toString()
                                 ),
                                 this.passwordField.getText().toString()

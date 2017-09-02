@@ -14,7 +14,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_bias="1.0"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
@@ -26,21 +26,20 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="21dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
             app:srcCompat="@drawable/drivem_bett_white" />
 
         <EditText
             android:id="@+id/email_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/imageView7"
+            android:layout_below="@+id/imageView7"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:layout_marginTop="77dp"
-            android:backgroundTint="#ffffff"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/white"
             android:ems="10"
             android:hint="@string/email"
             android:inputType="textPersonName"
@@ -56,8 +55,8 @@
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:layout_marginTop="18dp"
-            android:backgroundTint="#ffffff"
+            android:layout_marginTop="15dp"
+            android:backgroundTint="@color/white"
             android:ems="10"
             android:hint="@string/password"
             android:inputType="textPassword"
@@ -67,24 +66,27 @@
 
         <Button
             android:id="@+id/sign_in_button"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="100dp"
             android:alpha="0.7"
             android:background="@drawable/buttonshape_2"
             android:text="@string/sign_in"
             android:textColor="#FFFFFF"
             android:textColorLink="@android:color/background_light"
-            android:textSize="20sp"
-            android:layout_above="@+id/textView7"
-            android:layout_centerHorizontal="true" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_above="@+id/sign_up_button"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="84dp"
+            android:layout_marginTop="25dp"
             android:text="@string/hint_create_account"
             android:textColor="@android:color/background_light"
             android:textSize="18sp" />
@@ -93,41 +95,43 @@
             android:id="@+id/sign_up_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/textView4"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
             android:background="@android:color/transparent"
             android:text="@string/sign_up"
             android:textColor="@android:color/background_light" />
 
         <TextView
             android:id="@+id/textView7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/sign_in_google_button"
+            android:layout_below="@+id/sign_in_button"
+            android:gravity="center_vertical|center_horizontal"
             android:text="@string/or"
             android:textColor="@android:color/background_light"
-            android:textSize="20sp"
-            android:layout_above="@+id/twitter_login_button"
-            android:layout_toStartOf="@+id/sign_in_google_button"
-            android:layout_marginBottom="17dp" />
+            android:textSize="20sp" />
 
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/sign_in_google_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/textView4"
-            android:layout_alignEnd="@+id/imageView7"
-            android:layout_marginBottom="9dp"
-            android:text="@string/sign_in"
-            android:visibility="visible" />
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_above="@+id/twitter_login_button"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:text="@string/sign_in" />
 
         <com.twitter.sdk.android.core.identity.TwitterLoginButton
             android:id="@+id/twitter_login_button"
-            android:layout_width="150dp"
-            android:layout_height="40dp"
-            android:layout_alignTop="@+id/sign_in_google_button"
-            android:layout_alignStart="@+id/password_field" />
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_above="@+id/textView4"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp" />
 
         <!--    Twitter / Facebook buttons
 
@@ -149,11 +153,10 @@
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/password_field"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            android:layout_marginTop="10dp"
+            android:visibility="gone" />
 
     </RelativeLayout>
-
 </android.support.constraint.ConstraintLayout>

@@ -15,7 +15,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,7 +32,9 @@ import java.util.Map;
  * Created by matti on 28/08/2017.
  */
 
-public class PositionManager extends Application {
+public class PositionManager
+        extends Application
+        implements Constants {
     @Override
     public void onTerminate() {
         super.onTerminate();
@@ -53,7 +56,7 @@ public class PositionManager extends Application {
     private FirebaseDatabase database;
     private Map<String, Object> emailMap;
     Location oldLocation;
-    private DatabaseReference myRef, checkRef;
+    private DatabaseReference myRef, checkRef, userRef;
 
 
     //Singleton
@@ -67,13 +70,12 @@ public class PositionManager extends Application {
     }
 
     public double getLatitude() {
-        return latitude;
+        return this.latitude;
     }
 
     public double getLongitude() {
-        return longitude;
+        return this.longitude;
     }
-
 
     public static PositionManager getInstance(Activity activity) {
         if (positionManager == null) {
@@ -95,8 +97,8 @@ public class PositionManager extends Application {
             Log.e("DB", "PERMISSION GRANTED");
         }
 
-        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        userId = SingletonUser.getInstance().getUid();
+        email = SingletonUser.getInstance().getEmail();
         geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
         database = FirebaseDatabase.getInstance();
         oldLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -136,24 +138,21 @@ public class PositionManager extends Application {
                 List<Address> addresses;
                 Map<String, Object> coordinates = new ArrayMap<>();
                 emailMap = new ArrayMap<>();
-                coordinates.put("currentUserPosition", latitude+";"+longitude);
+                coordinates.put(CHILD_CURRENT_POSITION, latitude+";"+longitude);
                 emailMap.put("email", email);
-                try {
-                    addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                    country = addresses.get(0).getCountryName();
-                    region = addresses.get(0).getAdminArea();
-                    subRegion = addresses.get(0).getSubAdminArea();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    //TODO TO HANDLE
-                }
+
+                String[] strings = getLocationFromCoordinates(latitude, longitude, 1);
+                country = strings[0];
+                region = strings[1];
+                subRegion = strings[2];
+
                 //coordinates.put("lat", latitude);
                 //coordinates.put("lon", longitude);
                 Boolean radicalChange = false;
                 if (oldCountry != null && oldRegion != null && oldSubRegion != null) {
                     if (!oldCountry.equals(country) || !oldRegion.equals(region) || !oldSubRegion.equals(subRegion)) {
                         //delete the current user instance and create a newer
-                        myRef = database.getReference("position" + "/" + oldCountry + "/" + oldRegion + "/" + oldSubRegion + "/" + userId);
+                        myRef = database.getReference(NODE_POSITION + "/" + oldCountry + "/" + oldRegion + "/" + oldSubRegion + "/" + userId);
                         myRef.removeValue();
                         radicalChange = true;
                     }
@@ -166,10 +165,17 @@ public class PositionManager extends Application {
                 oldCountry = country;
                 oldRegion = region;
                 oldSubRegion = subRegion;
-                myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
-                checkRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
+                myRef = database.getReference(NODE_POSITION + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
+                checkRef = database.getReference(NODE_POSITION + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
 
                 myRef.updateChildren(coordinates);
+
+                // we need to update even "users" node
+                userRef = database.getReference(NODE_USERS).child(userId);
+                // TODO controlla comportamento se non esistono i figli
+                userRef.updateChildren(coordinates);
+                ////
+
                 checkRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -198,7 +204,7 @@ public class PositionManager extends Application {
             @Override
             public void onProviderDisabled(String s) {
                 if (region != null && subRegion != null && country != null) {
-                    myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
+                    myRef = database.getReference(NODE_POSITION + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
                     myRef.removeValue();
                 }
             }
@@ -212,5 +218,27 @@ public class PositionManager extends Application {
         }
     }
 
+    /**
+     * Get Location from coordinates
+     * @param latitude latitude
+     * @param longitude longitude
+     * @param maxResult result's number
+     * @return string[0] --> Nation; string[1] --> Region; string[2] --> District
+     */
+    public String[] getLocationFromCoordinates(double latitude, double longitude, int maxResult) {
+        String[] strings = new String[3];
+        try {
+            List<Address> addresses = this.geocoder.getFromLocation(latitude, longitude, maxResult);
 
+            strings[0] = addresses.get(0).getCountryName();
+            strings[1] = addresses.get(0).getAdminArea();
+            strings[2] = addresses.get(0).getSubAdminArea();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            strings[0] = strings[1] = strings[2] = null;
+            // TODO TO HANDLE
+        }
+        return strings;
+    }
 }

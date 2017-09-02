@@ -6,11 +6,11 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 public class StringParser {
 
-    public String[] getCoordinates(String coordinates) {
+    public static String[] getCoordinates(String coordinates) {
         return coordinates.split(";");
      }
 
-     public String trimString(String input) {
+     public static String trimString(String input) {
          return input.replaceAll("\\s","");
      }
 }

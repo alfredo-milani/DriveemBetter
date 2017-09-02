@@ -37,7 +37,6 @@ public class SignUpActivity
     // Activity resources
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private SingletonEmailAndPasswordProvider singletonEmailAndPasswordProvider;
-    private StringParser stringParser;
 
     // Activity widgets
     private Button signUpButton;
@@ -177,7 +176,6 @@ public class SignUpActivity
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.singletonEmailAndPasswordProvider =
                 factoryProviders.getEmailAndPasswordProvider();
-        this.stringParser = new StringParser();
     }
 
     private void initWidget() {
@@ -202,7 +200,7 @@ public class SignUpActivity
 
                 this.showProgress();
                 this.singletonEmailAndPasswordProvider.signUp(
-                        this.stringParser.trimString(
+                        StringParser.trimString(
                                 this.emailField.getText().toString()
                         ),
                         this.passwordField.getText().toString(),
@@ -218,7 +216,7 @@ public class SignUpActivity
             case R.id.resend_email:
                 this.showProgress();
                 this.singletonEmailAndPasswordProvider.resendVerificationEmail(
-                        this.stringParser.trimString(
+                        StringParser.trimString(
                                 this.emailField.getText().toString()
                         ),
                         this.passwordField.getText().toString()
