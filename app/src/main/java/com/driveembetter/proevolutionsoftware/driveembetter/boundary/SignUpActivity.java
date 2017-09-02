@@ -206,7 +206,8 @@ public class SignUpActivity
                                 this.emailField.getText().toString()
                         ),
                         this.passwordField.getText().toString(),
-                        this.usernameField.getText().toString()
+                        // this.usernameField.getText().toString()
+                        null
                 );
                 break;
 

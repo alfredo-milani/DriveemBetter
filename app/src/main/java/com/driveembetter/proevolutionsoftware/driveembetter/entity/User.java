@@ -1,14 +1,65 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.entity;
 
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by alfredo on 31/08/17.
  */
 
-public class User {
+public class User
+        implements Parcelable {
 
     private final static String TAG = User.class.getSimpleName();
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    // Storing the Movie data to Parcel object
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(this.username);
+        parcel.writeString(this.email);
+        if (this.photoUrl != null) {
+            parcel.writeString(this.photoUrl.toString());
+        }
+        parcel.writeString(this.uid);
+        parcel.writeLong(this.points);
+    }
+
+    /**
+     * Retrieving Movie data from Parcel object
+     * This constructor is invoked by the method createFromParcel(Parcel source) of
+     * the object CREATOR
+     **/
+    private User(Parcel in){
+        this.username = in.readString();
+        this.email = in.readString();
+        this.photoUrl = this.getUriIfExist(in.readString());
+        this.uid = in.readString();
+        this.points = in.readLong();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    private Uri getUriIfExist(String s) {
+        return s != null ? Uri.parse(s) : null;
+    }
+
+
 
     private String username;
     private String email;

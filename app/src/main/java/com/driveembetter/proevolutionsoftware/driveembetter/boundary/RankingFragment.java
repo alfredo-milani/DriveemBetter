@@ -207,7 +207,8 @@ public class RankingFragment
     @Override
     public void onItemClick(User item) {
         Log.d(TAG, "onClick");
-        Intent intent = new Intent(this.getActivity(), UserDetailsRanking.class);
-        this.startActivity(intent);
+        Intent userDetail = new Intent(this.getActivity(), UserDetailsRanking.class);
+        userDetail.putExtra(USER, item);
+        this.startActivity(userDetail);
     }
 }
