@@ -37,6 +37,7 @@ public interface Constants {
     String CHILD_IMAGE = "image";
     String CHILD_POINTS = "points";
     String CHILD_CURRENT_POSITION = "currentUserPosition";
+    String CHILD_EMAIL = "email";
 
 
 

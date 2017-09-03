@@ -14,10 +14,10 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 /**
  * Created by alfredo on 26/08/17.
  */
-public class AboutUs
+public class AboutUsActivity
         extends Fragment {
 
-    private final static String TAG = AboutUs.class.getSimpleName();
+    private final static String TAG = AboutUsActivity.class.getSimpleName();
 
     // Widgets
     private View rootView;

@@ -50,7 +50,7 @@ public class MainFragmentActivity
         extends AppCompatActivity
         implements Constants, TypeMessages,
         NavigationView.OnNavigationItemSelectedListener,
-        TaskProgress {
+        TaskProgressInterface {
 
     private final static String TAG = MainFragmentActivity.class.getSimpleName();
 
@@ -173,7 +173,7 @@ public class MainFragmentActivity
         // Init fragments
         this.saveMe = new SaveMe();
         this.ranking = new RankingFragment();
-        this.aboutUs = new AboutUs();
+        this.aboutUs = new AboutUsActivity();
 
         //locationUpdater = new LocationUpdater(this, user);
         //locationUpdater.updateLocation();

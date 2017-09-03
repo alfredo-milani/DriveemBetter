@@ -37,7 +37,7 @@ public class SignInActivity
         extends AppCompatActivity
         implements View.OnClickListener,
         TypeMessages,
-        TaskProgress {
+        TaskProgressInterface {
 
     private final static String TAG = SignInActivity.class.getSimpleName();
 
@@ -95,6 +95,7 @@ public class SignInActivity
             int id = msg.what;
             switch (id) {
                 case USER_LOGIN:
+                    // TODO bug: logoff --> lancio schermata login e subito reindirizzamento activity MainFragmentActivity
                     hideProgress();
                     Log.d(TAG, "handleMessage:Login");
                     // Check if email has been verified
@@ -127,7 +128,6 @@ public class SignInActivity
                 case EMAIL_NOT_VERIFIED:
                     hideProgress();
                     Log.d(TAG, "handleMessage:email_not_verified");
-                    checkEmailBeforeLogIn = false;
                     emailField.setError(getString(R.string.email_not_verified));
                     break;
 

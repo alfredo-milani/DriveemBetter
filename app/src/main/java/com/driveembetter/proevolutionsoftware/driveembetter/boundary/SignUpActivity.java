@@ -30,7 +30,7 @@ public class SignUpActivity
         extends AppCompatActivity
         implements View.OnClickListener,
         TypeMessages,
-        TaskProgress {
+        TaskProgressInterface {
 
     private final static String TAG = SignUpActivity.class.getSimpleName();
 

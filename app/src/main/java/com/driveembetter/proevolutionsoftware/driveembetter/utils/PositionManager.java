@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,6 +36,9 @@ import java.util.Map;
 public class PositionManager
         extends Application
         implements Constants {
+
+    private final static String TAG = PositionManager.class.getSimpleName();
+
     @Override
     public void onTerminate() {
         super.onTerminate();
@@ -56,7 +60,7 @@ public class PositionManager
     private FirebaseDatabase database;
     private Map<String, Object> emailMap;
     Location oldLocation;
-    private DatabaseReference myRef, checkRef, userRef;
+    private DatabaseReference myRef, userRef;
 
 
     //Singleton
@@ -94,7 +98,7 @@ public class PositionManager
                     new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
                             android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         } else {
-            Log.e("DB", "PERMISSION GRANTED");
+            Log.d("DB", "PERMISSION GRANTED");
         }
 
         userId = SingletonUser.getInstance().getUid();
@@ -139,9 +143,9 @@ public class PositionManager
                 Map<String, Object> coordinates = new ArrayMap<>();
                 emailMap = new ArrayMap<>();
                 coordinates.put(CHILD_CURRENT_POSITION, latitude+";"+longitude);
-                emailMap.put("email", email);
+                emailMap.put(CHILD_EMAIL, email);
 
-                String[] strings = getLocationFromCoordinates(latitude, longitude, 1);
+                final String[] strings = getLocationFromCoordinates(latitude, longitude, 1);
                 country = strings[0];
                 region = strings[1];
                 subRegion = strings[2];
@@ -160,27 +164,70 @@ public class PositionManager
                 if (radicalChange) {
                     //I have to add old user information
                     radicalChange = false;
-
                 }
                 oldCountry = country;
                 oldRegion = region;
                 oldSubRegion = subRegion;
-                myRef = database.getReference(NODE_POSITION + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
-                checkRef = database.getReference(NODE_POSITION + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
 
-                myRef.updateChildren(coordinates);
+                Log.d(TAG, "Position: " + country + " / " + region + " / " + subRegion + " / " + userId);
+                if (country == null || region == null ||
+                        subRegion == null || userId == null) {
+                    return;
+                }
+                // TODO to fix: com.google.firebase.database.DatabaseException: Invalid Firebase Database path: Division No. 17. Firebase Database paths must not contain '.', '#', '$', '[', or ']'
+                myRef = DatabaseManager.getDatabaseReference()
+                        .child(NODE_POSITION)
+                        .child(country)
+                        .child(region)
+                        .child(subRegion)
+                        .child(userId);
 
                 // we need to update even "users" node
-                userRef = database.getReference(NODE_USERS).child(userId);
-                // TODO controlla comportamento se non esistono i figli
-                userRef.updateChildren(coordinates);
+                DatabaseManager.setDataOnLocationChange(latitude, longitude);
                 ////
 
-                checkRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                final Map<String, Object> currentCoordinates = coordinates;
+                myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.hasChild("email")) {
+                        if (SingletonUser.getInstance() == null) {
+                            return;
+                        }
+
+                        if (!dataSnapshot.hasChild(CHILD_EMAIL)) {
                             myRef.updateChildren(emailMap);
+                        }
+                        // update to the last known position
+                        if (!dataSnapshot.hasChild(CHILD_CURRENT_POSITION) ) {
+                            myRef.updateChildren(currentCoordinates);
+                        } else if (!dataSnapshot.child(CHILD_CURRENT_POSITION)
+                                    .getValue()
+                                    .toString()
+                                    .equals(StringParser.getStringFromCoordinates(latitude, longitude))) {
+                                DatabaseManager.updateCurrentPosition(latitude, longitude, strings);
+                        }
+                        ////
+                        if (SingletonUser.getInstance().getPhotoUrl() != null &&
+                                !dataSnapshot.hasChild(CHILD_IMAGE)) {
+                            myRef.child(CHILD_IMAGE).setValue(
+                                    SingletonUser.getInstance().getPhotoUrl().toString()
+                            );
+                        }
+                        // update to latest point value
+                        if (!dataSnapshot.hasChild(CHILD_POINTS)) {
+                            myRef.child(CHILD_POINTS).setValue(
+                                    SingletonUser.getInstance().getPoints()
+                            );
+                        } else if ((long) dataSnapshot.child(CHILD_POINTS).getValue() !=
+                                SingletonUser.getInstance().getPoints()) {
+                            DatabaseManager.updateCurrentPoint(SingletonUser.getInstance().getPoints(), strings);
+                        }
+                        ////
+                        if (!dataSnapshot.hasChild(CHILD_USERNAME)) {
+                            myRef.child(CHILD_USERNAME).setValue(
+                                    SingletonUser.getInstance().getUsername() == null ?
+                                            getString(R.string.username) : SingletonUser.getInstance().getUsername()
+                            );
                         }
                     }
 

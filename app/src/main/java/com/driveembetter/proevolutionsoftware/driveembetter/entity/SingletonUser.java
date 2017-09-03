@@ -4,14 +4,9 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.exception.CallbackNotInitialized;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +17,11 @@ import java.util.List;
 
 public class SingletonUser
         extends User
-        implements Constants {
+        implements Constants,
+        DatabaseManager.RetrieveVehiclesFromDB {
 
     private final static String TAG = SingletonUser.class.getSimpleName();
 
-    // TODO utilizza l'interfaccia Parcelable se si deve passare SingletonUser da un activity ad un'altra
     // Data from Firebase Authentication
     private boolean emailVerified;
     private String providerId;
@@ -36,7 +31,6 @@ public class SingletonUser
     private float currentUserLatitude;
     private float currentUserLongitude;
     private ArrayList<Vehicle> vehicleArrayList;
-    private UserDataCallback userDataCallback;
 
     // Miscellaneous user data
     private Vehicle currentVehicle;
@@ -86,7 +80,7 @@ public class SingletonUser
     }
 
     public boolean isEmailVerified() {
-        return emailVerified;
+        return this.emailVerified;
     }
 
     public void setEmailVerified(boolean emailVerified) {
@@ -94,7 +88,7 @@ public class SingletonUser
     }
 
     public String getProviderId() {
-        return providerId;
+        return this.providerId;
     }
 
     public void setProviderId(String providerId) {
@@ -102,7 +96,7 @@ public class SingletonUser
     }
 
     public List getProviderData() {
-        return providerData;
+        return this.providerData;
     }
 
     public void setProviderData(List providerData) {
@@ -110,7 +104,7 @@ public class SingletonUser
     }
 
     public float getCurrentUserLatitude() {
-        return currentUserLatitude;
+        return this.currentUserLatitude;
     }
 
     public void setCurrentUserLatitude(float currentUserLatitude) {
@@ -118,7 +112,7 @@ public class SingletonUser
     }
 
     public float getCurrentUserLongitude() {
-        return currentUserLongitude;
+        return this.currentUserLongitude;
     }
 
     public void setCurrentUserLongitude(float currentUserLongitude) {
@@ -126,7 +120,9 @@ public class SingletonUser
     }
 
     public ArrayList<Vehicle> getVehicleArrayList() {
-        return this.vehicleArrayList;
+        synchronized (this) {
+            return this.vehicleArrayList;
+        }
     }
 
     public void getVehicles(final UserDataCallback userDataCallback)
@@ -136,50 +132,12 @@ public class SingletonUser
             throw new CallbackNotInitialized("Callback not initialized");
         }
 
-        // Get a reference to our posts
-        Query query = FirebaseDatabase.getInstance()
-                .getReference()
-                .child(NODE_USERS)
-                .child(SingletonFirebaseProvider
-                        .getInstance()
-                        .getFirebaseUser()
-                        .getUid())
-                .child(NODE_VEHICLES);
+        DatabaseManager.getVehiclesDB(this, userDataCallback);
+    }
 
-        // Attach a listener to read the data at our posts reference
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterable<DataSnapshot> vehiclesList = dataSnapshot.getChildren();
-                if (!dataSnapshot.exists() || vehiclesList == null) {
-                    vehicleArrayList = null;
-                } else {
-                    for (DataSnapshot vehicle : vehiclesList) {
-                        if (vehicle.getValue() != null) {
-                            String[] parts = vehicle.getValue().toString().split(";");
-                            vehicleArrayList = new ArrayList<Vehicle>();
-                            vehicleArrayList.add(
-                                    new Vehicle(
-                                            parts[0],
-                                            parts[1],
-                                            parts[2],
-                                            parts[3]
-                                    )
-                            );
-                        } else {
-                            Log.d(TAG, "Error while retrieve data from database");
-                            vehicleArrayList = null;
-                        }
-                    }
-                }
-                userDataCallback.onVehiclesReceive();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println("The read failed: " + databaseError.getCode());
-            }
-        });
+    @Override
+    public void onUserVehiclesReceived(ArrayList<Vehicle> vehicles) {
+        this.vehicleArrayList = vehicles;
     }
 
     public void setVehicleArrayList(ArrayList<Vehicle> vehicleArrayList) {
@@ -187,7 +145,7 @@ public class SingletonUser
     }
 
     public Vehicle getCurrentVehicle() {
-        return currentVehicle;
+        return this.currentVehicle;
     }
 
     public void setCurrentVehicle(Vehicle currentVehicle) {

@@ -16,11 +16,11 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
  * Created by alfredo on 02/09/17.
  */
 
-public class UserDetailsRanking
+public class UserDetailsRankingActivity
         extends AppCompatActivity
         implements Constants {
 
-    private final static String TAG = UserDetailsRanking.class.getSimpleName();
+    private final static String TAG = UserDetailsRankingActivity.class.getSimpleName();
 
     // Resources
     private User user;

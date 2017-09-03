@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,17 +21,10 @@ import android.widget.Toast;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingRecyclerViewAdapter;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -40,10 +34,11 @@ import java.util.ArrayList;
 public class RankingFragment
         extends Fragment
         implements SwipeRefreshLayout.OnRefreshListener,
-        DatabaseManager.SendData,
+        DatabaseManager.RetrieveRankFromDB,
         LevelMenuFragment.LevelStateChanged,
         RankingRecyclerViewAdapter.OnItemClickListener,
-        Constants {
+        Constants,
+        TaskProgressInterface {
 
     private final static String TAG = RankingFragment.class.getSimpleName();
 
@@ -52,6 +47,7 @@ public class RankingFragment
     private static int level;
     private double latitude;
     private double longitude;
+    private PositionManager positionManager;
 
     // Widgets
     private Context context;
@@ -59,6 +55,9 @@ public class RankingFragment
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recycleView;
     private RecyclerView.LayoutManager layoutManager;
+
+    // Error code
+    private final static int POSITION_NOT_FOUND = 1;
 
 
 
@@ -85,6 +84,8 @@ public class RankingFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.initResources();
+
         RankingFragment.level = LEVEL_DISTRICT;
         // To modify Menu items
         this.setHasOptionsMenu(true);
@@ -93,88 +94,99 @@ public class RankingFragment
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        this.rootView = inflater.inflate(R.layout.fragment_ranking_list, container, false);
-
-        this.initWidgets();
-
-        return this.rootView;
+        return this.rootView = inflater.inflate(R.layout.fragment_ranking_list, container, false);
     }
 
     @Override
-    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        this.swipeRefreshLayout.setRefreshing(true);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        final PositionManager positionManager = PositionManager.getInstance(getActivity());
-        final DatabaseReference referenceUser = FirebaseDatabase
-                .getInstance()
-                .getReference();
-
-        if (positionManager.getLatitude() == 0 || positionManager.getLongitude() == 0) {
-            referenceUser
-                    .child(NODE_USERS)
-                    .child(SingletonUser.getInstance().getUid())
-                    .child(CHILD_CURRENT_POSITION);
-            referenceUser.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        String coordinates = (String) dataSnapshot.getValue();
-                        if (coordinates != null) {
-                            String[] strings = StringParser.getCoordinates(coordinates);
-                            latitude = Double.parseDouble(strings[0]);
-                            longitude = Double.parseDouble(strings[1]);
-                        } else {
-                            positionNotFound();
-                        }
-                    } else {
-                        positionNotFound();
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG, "The read failed: " + databaseError.getCode());
-                }
-            });
-        } else {
-            String[] location = positionManager.getLocationFromCoordinates(
-                    positionManager.getLatitude(),
-                    positionManager.getLongitude(),
-                    1
-            );
-            // location[0] --> nation; location[1] --> region; location[2] --> district
-            if (location[0] == null || location[1] == null || location[2] == null) {
-                this.positionNotFound();
-                return;
-            } else {
-                // TODO query to position
-            }
-        }
-
-
-        /*
-        final DatabaseReference referenceUser = FirebaseDatabase
-                .getInstance()
-                .getReference()
-                .child(NODE_POSITION)
-                .child(SingletonUser
-                        .getInstance()
-                        .getUid());
-                        */
-
-        // TODO:
-        // -trova posizione da API locali e convertile in Nazione/Regione/ecc...
-        // -query al nodo position per avere tutti gli utenti del livello desiderato
-        // -per ogni utente trovato fai query al nodo users per prendere info
-        // -riempi la recyclerView
-        DatabaseManager.getUserRank(this);
+        this.initWidgets();
     }
 
-    private void positionNotFound() {
-        Toast
-                .makeText(this.context, getString(R.string.unable_load_ranking), Toast.LENGTH_LONG)
-                .show();
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        this.startRoutineFillList();
+    }
+
+    private void startRoutineFillList() {
+        this.showProgress();
+        this.latitude = this.positionManager.getLatitude();
+        this.longitude = this.positionManager.getLongitude();
+        this.retrieveUserData();
+    }
+
+    private void retrieveUserData() {
+        if (this.latitude == 0 || this.longitude == 0) {
+            DatabaseManager.getCoordinates(this);
+        } else {
+            this.performQuery();
+        }
+    }
+
+    private void performQuery() {
+        Log.d(TAG, "lat: " + latitude + " long: " + longitude);
+
+        String[] location = this.positionManager.getLocationFromCoordinates(
+                this.latitude,
+                this.longitude,
+                1
+        );
+        // location[0] --> nation; location[1] --> region; location[2] --> district
+        String nation = location[0]; String region = location[1]; String district = location[2];
+        // DEBUG
+        nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
+        ////
+        if (nation == null || region == null || district == null) {
+            this.onErrorReceived(3);
+        } else {
+            DatabaseManager.getUsersRank(this, location);
+        }
+    }
+
+    @Override
+    public void onErrorReceived(int errorType) {
+        String string;
+        switch (errorType) {
+            case POSITION_NOT_FOUND:
+
+            default:
+                Log.d(TAG, "onErrorReceived: " + errorType);
+                string = getString(R.string.unable_load_ranking);
+        }
+
+        Toast.makeText(this.context, string, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onUsersCoordinatesReceived(double latitude, double longitude) {
+        Log.d(TAG, "onUserCoordinatesReceived");
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.performQuery();
+    }
+
+    @Override
+    public void onUsersRankingReceived(ArrayList<User> arrayList) {
+        Log.d(TAG, "onUsersRankingReceived");
+        this.arrayList = arrayList;
+        this.fillList();
+    }
+
+    private void fillList() {
+        RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
+                new RankingRecyclerViewAdapter(this.context, this.arrayList, this);
+        // To avoid memory leaks set adapter in onACtivityCreated
+        this.recycleView.setAdapter(rankingRecyclerViewAdapter);
+
+        this.hideProgress();
+        if (this.arrayList == null) {
+            Toast.makeText(this.context, getString(R.string.empty_user), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -184,9 +196,7 @@ public class RankingFragment
             // Check if user triggered a refresh:
             case R.id.refresh_action:
                 Log.i(TAG, "Refresh menu item selected");
-                // Signal SwipeRefreshLayout to start the progress indicator
-                this.swipeRefreshLayout.setRefreshing(true);
-                DatabaseManager.getUserRank(this);
+                this.startRoutineFillList();
                 return true;
 
             case R.id.menu_selection_level:
@@ -210,9 +220,23 @@ public class RankingFragment
         super.onPrepareOptionsMenu(menu);
     }
 
+    private void initResources() {
+        this.positionManager = PositionManager.getInstance((Activity) this.context);
+    }
+
     private void initWidgets() {
         this.recycleView = (RecyclerView) this.rootView.findViewById(R.id.recycler_view_user);
         this.recycleView.setHasFixedSize(true);
+        /*
+            This warning occurs because I set adapter in onViewCreated,
+            but creating the adapter in callback, onUsersRankingReceived.
+            Creating the adapter immediately adds a firebase listener which causes
+            notifyItemInserted to be called.
+            The error shouldn't really matter: it's just informing that while
+            notifyItemInserted was called, no data will be displayed because the
+            adapter hasn't been attached yet.
+            (The list items should still show up as a batch update once you attach the adapter).
+        */
         this.recycleView.setLayoutManager(this.layoutManager);
         this.swipeRefreshLayout = (SwipeRefreshLayout) this.rootView.findViewById(R.id.swiperefresh_ranking);
         this.swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.blue_900));
@@ -224,10 +248,20 @@ public class RankingFragment
     }
 
     @Override
+    public void hideProgress() {
+        this.swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void showProgress() {
+        this.swipeRefreshLayout.setRefreshing(true);
+    }
+
+    @Override
     public void onRefresh() {
         Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
 
-        DatabaseManager.getUserRank(this);
+        this.startRoutineFillList();
     }
 
     @Override
@@ -253,24 +287,7 @@ public class RankingFragment
     }
 
     @Override
-    public void dataReceived(ArrayList<User> users) {
-        this.arrayList = users;
-
-        RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
-                new RankingRecyclerViewAdapter(this.context, this.arrayList, this);
-        // To avoid memory leaks set adapter in onACtivityCreated
-        this.recycleView.setAdapter(rankingRecyclerViewAdapter);
-
-        this.swipeRefreshLayout.setRefreshing(false);
-        if (this.arrayList == null) {
-            Toast.makeText(this.context, getString(R.string.empty_user), Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void stateChanged(int level) {
+    public void levelChanged(int level) {
         RankingFragment.level = level;
     }
 
@@ -281,7 +298,7 @@ public class RankingFragment
     @Override
     public void onItemClick(User item) {
         Log.d(TAG, "onClick");
-        Intent userDetail = new Intent(this.getActivity(), UserDetailsRanking.class);
+        Intent userDetail = new Intent(this.getActivity(), UserDetailsRankingActivity.class);
         userDetail.putExtra(USER, item);
         this.startActivity(userDetail);
     }

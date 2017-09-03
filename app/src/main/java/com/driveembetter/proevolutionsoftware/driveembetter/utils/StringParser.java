@@ -6,6 +6,10 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 public class StringParser {
 
+    public static String getStringFromCoordinates(double latitude, double longitude) {
+        return Double.toString(latitude) + ";" + Double.toString(longitude);
+    }
+
     public static String[] getCoordinates(String coordinates) {
         return coordinates.split(";");
      }

@@ -41,7 +41,7 @@ public class LevelMenuFragment
 
 
     public interface LevelStateChanged {
-        public void stateChanged(int level);
+        void levelChanged(int level);
     }
 
     @Override
@@ -52,15 +52,24 @@ public class LevelMenuFragment
         this.layoutManager = new LinearLayoutManager(context);
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        this.initResources();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        this.rootView = inflater.inflate(R.layout.level_menu_list, container, false);
+        return this.rootView = inflater.inflate(R.layout.level_menu_list, container, false);
+    }
 
-        this.initResources();
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         this.initWidgets();
-
-        return this.rootView;
     }
 
     private void initResources() {
@@ -89,11 +98,6 @@ public class LevelMenuFragment
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-    }
-
-    @Override
     public void onClick(View view) {
         this.dismiss();
 
@@ -103,7 +107,7 @@ public class LevelMenuFragment
                 if (this.callback == null) {
                     throw new CallbackNotInitialized("LevelStateChanged callback not initialized");
                 }
-                this.callback.stateChanged(this.adapter.getSelectedItem());
+                this.callback.levelChanged(this.adapter.getSelectedItem());
                 break;
 
             case R.id.cancel:

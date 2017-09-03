@@ -404,18 +404,19 @@ public class SaveMe
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
                 for (String user : data.keySet()) {
+                    // TODO se l'utente fa logout --> l'uid avrà valore NULL --> gestire eccezione
                     if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         //Map<String, Object> coordinates = data.get(user);
                         String coordinates = (String) data.get(user).get(CHILD_CURRENT_POSITION);
                         String[] latLon = StringParser.getCoordinates(coordinates);
                         //LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
                         LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
-                        if ( markerPool.containsKey(user)) {
+                        if (markerPool.containsKey(user)) {
                             markerPool.get(user).setPosition(userPos);
                         } else {
                             String markerTitle = "user@drivembetter.com";
-                            if (data.get(user).get("email")!=null)
-                                markerTitle =(String) data.get(user).get("email");
+                            if (data.get(user).get(CHILD_EMAIL)!=null)
+                                markerTitle =(String) data.get(user).get(CHILD_EMAIL);
 
                             Marker userMarker = googleMap.addMarker(new MarkerOptions()
                                     .position(userPos)
