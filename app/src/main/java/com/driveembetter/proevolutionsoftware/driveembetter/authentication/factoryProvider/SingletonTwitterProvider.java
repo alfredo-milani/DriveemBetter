@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -81,7 +80,7 @@ public class SingletonTwitterProvider
         SingletonFirebaseProvider
                 .getAuth()
                 .signInWithCredential(credential)
-                .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {

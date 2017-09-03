@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -64,7 +63,7 @@ public class SingletonEmailAndPasswordProvider
         SingletonFirebaseProvider
                 .getAuth()
                 .signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
@@ -129,7 +128,7 @@ public class SingletonEmailAndPasswordProvider
         SingletonFirebaseProvider
                 .getAuth()
                 .createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener((Activity) this.singletonFirebaseProvider.getContext(), new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());

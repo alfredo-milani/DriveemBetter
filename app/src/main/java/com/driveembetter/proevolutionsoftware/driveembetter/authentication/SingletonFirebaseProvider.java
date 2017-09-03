@@ -44,7 +44,7 @@ public class SingletonFirebaseProvider
     private SingletonFirebaseProvider(Context context, Handler handler) {
         this.handler = handler;
         this.context = context;
-        this.auth = FirebaseAuth.getInstance();
+        SingletonFirebaseProvider.auth = FirebaseAuth.getInstance();
         this.initStateListener(USER_LOGIN, USER_LOGOUT);
     }
 
@@ -124,24 +124,24 @@ public class SingletonFirebaseProvider
     }
 
     public synchronized void setStateListener(int hashCurrentActivity) {
-        if (this.auth != null && this.authStateListener != null &&
+        if (SingletonFirebaseProvider.auth != null && this.authStateListener != null &&
                 !this.listenerSetted && this.listenerOwner == hashCurrentActivity) {
             Log.d(TAG, "setStateListener: setted");
-            this.auth.addAuthStateListener(this.authStateListener);
+            SingletonFirebaseProvider.auth.addAuthStateListener(this.authStateListener);
             this.listenerSetted = true;
         } else {
-            Log.w(TAG, "setStateListener:error: auth/listener/setted: " + this.auth + " / " + this.authStateListener + " / " + this.listenerSetted);
+            Log.w(TAG, "setStateListener:error: auth/listener/setted: " + SingletonFirebaseProvider.auth + " / " + this.authStateListener + " / " + this.listenerSetted);
         }
     }
 
     public synchronized void removeStateListener(int hashCurrentActivity) {
-        if (this.auth != null && this.authStateListener != null &&
+        if (SingletonFirebaseProvider.auth != null && this.authStateListener != null &&
                 this.listenerSetted && this.listenerOwner == hashCurrentActivity) {
             Log.d(TAG, "removeStateListener: removed");
-            this.auth.removeAuthStateListener(this.authStateListener);
+            SingletonFirebaseProvider.auth.removeAuthStateListener(this.authStateListener);
             this.listenerSetted = false;
         } else {
-            Log.w(TAG, "removeStateListener:error: auth/listener/setted: " + this.auth + " / " + this.authStateListener + " / " + this.listenerSetted);
+            Log.w(TAG, "removeStateListener:error: auth/listener/setted: " + SingletonFirebaseProvider.auth + " / " + this.authStateListener + " / " + this.listenerSetted);
         }
     }
 
@@ -185,7 +185,7 @@ public class SingletonFirebaseProvider
     public void forceSignOut() {
         if (this.getFirebaseUser() != null) {
             Log.d(TAG, "force Firebase sign out");
-            this.auth.signOut();
+            SingletonFirebaseProvider.auth.signOut();
         }
     }
 
