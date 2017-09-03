@@ -95,7 +95,6 @@ public class SignInActivity
             int id = msg.what;
             switch (id) {
                 case USER_LOGIN:
-                    // TODO bug: logoff --> lancio schermata login e subito reindirizzamento activity MainFragmentActivity
                     hideProgress();
                     Log.d(TAG, "handleMessage:Login");
                     // Check if email has been verified
@@ -105,7 +104,6 @@ public class SignInActivity
                                     .getFirebaseUser()
                                     .isEmailVerified())) {
                         Log.d(TAG, "handleMessage:login:email_not_verified");
-                        checkEmailBeforeLogIn = false;
                         break;
                     }
 
@@ -232,7 +230,7 @@ public class SignInActivity
     private void initResources() {
         Log.d(TAG, "init resources");
 
-        this.checkEmailBeforeLogIn = false;
+        this.checkEmailBeforeLogIn = true;
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
         this.baseProviderArrayList = factoryProviders.getAllProviders();
@@ -286,7 +284,9 @@ public class SignInActivity
 
             // Sign in with email and password
             case R.id.sign_in_button:
+                // Code strength
                 this.checkEmailBeforeLogIn = true;
+                ////
                 this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
@@ -305,6 +305,7 @@ public class SignInActivity
                         false, null, null, null, null);
                 startActivityForResult(intent, SingletonGoogleProvider.RC_SIGN_IN);
                 */
+                this.checkEmailBeforeLogIn = false;
                 this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.GOOGLE_PROVIDER)
@@ -313,6 +314,7 @@ public class SignInActivity
 
             // Sign in with Twitter
             case R.id.twitter_login_button:
+                this.checkEmailBeforeLogIn = false;
                 this.baseProviderArrayList
                         .get(FactoryProviders.TWITTER_PROVIDER)
                         .signIn(null, null);
@@ -320,6 +322,9 @@ public class SignInActivity
 
             // Sign up
             case R.id.sign_up_button:
+                // Code strength
+                this.checkEmailBeforeLogIn = true;
+                ////
                 Intent signUpIntent = new Intent(SignInActivity.this, SignUpActivity.class);
                 this.startActivity(signUpIntent);
                 break;

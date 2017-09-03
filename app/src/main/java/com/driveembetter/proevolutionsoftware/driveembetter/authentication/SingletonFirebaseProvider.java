@@ -8,7 +8,12 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 
 /**
@@ -76,7 +81,7 @@ public class SingletonFirebaseProvider
     }
 
     public FirebaseUser getFirebaseUser() {
-        return this.auth.getCurrentUser();
+        return SingletonFirebaseProvider.auth.getCurrentUser();
     }
 
     public SingletonUser getUserInformations() {
@@ -181,6 +186,41 @@ public class SingletonFirebaseProvider
         if (this.getFirebaseUser() != null) {
             Log.d(TAG, "force Firebase sign out");
             this.auth.signOut();
+        }
+    }
+
+    public void reauthenticateUser() {
+        if (this.getFirebaseUser() != null) {
+            this.getFirebaseUser().reload().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        // Sign in success
+                        Log.d(TAG, "reauthenticate:success");
+                    } else {
+                        // Sign in fails
+                        try {
+                            throw task.getException();
+                        } catch (FirebaseAuthInvalidCredentialsException e) {
+                            Log.d(TAG, "reauthenticate:failed", task.getException());
+                            sendMessageToUI(BAD_EMAIL_OR_PSW);
+                        } catch (FirebaseAuthInvalidUserException e3) {
+                            Log.d(TAG, "reauthenticate:failed", task.getException());
+                            sendMessageToUI(INVALID_USER);
+                        } catch (FirebaseNetworkException e4) {
+                            Log.d(TAG, "reauthenticate:failed", task.getException());
+                            sendMessageToUI(NETWORK_ERROR);
+                        } catch (Exception e1) {
+                            Log.w(TAG, "reauthenticate:failed", task.getException());
+                            sendMessageToUI(UNKNOWN_EVENT);
+                        }
+                        forceSignOut();
+                    }
+                }
+            });
+        } else {
+            Log.d(TAG, "reauthenticate:failed");
+            sendMessageToUI(INVALID_USER);
         }
     }
 }

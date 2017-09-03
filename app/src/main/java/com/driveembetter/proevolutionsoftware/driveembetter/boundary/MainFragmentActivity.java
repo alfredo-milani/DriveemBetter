@@ -89,6 +89,17 @@ public class MainFragmentActivity
 
             hideProgress();
             switch (msg.what) {
+                case BAD_EMAIL_OR_PSW:
+                case INVALID_USER:
+                case INVALID_CREDENTIALS:
+                case NETWORK_ERROR:
+                case UNKNOWN_EVENT:
+                    Toast
+                            .makeText(MainFragmentActivity.this, getString(R.string.session_expired), Toast.LENGTH_LONG)
+                            .show();
+                    closeCurrentActivity();
+                    break;
+
                 case USER_LOGIN:
                     String currentUser;
                     if (singletonUser.getUsername() != null && !singletonUser.getUsername().isEmpty()) {
@@ -132,9 +143,14 @@ public class MainFragmentActivity
         this.startActivity(newIntent);
     }
 
+    private void closeCurrentActivity() {
+        this.finish();
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.initResources();
         if (savedInstanceState != null) {
             this.onRestoreInstanceState(savedInstanceState);
         }
@@ -153,7 +169,6 @@ public class MainFragmentActivity
         navigationView.setNavigationItemSelectedListener(this);
         this.headerView =  navigationView.getHeaderView(0);
 
-        this.initResources();
         //TODO it should refresh automatically
         FirebaseUtility firebaseUtility = new FirebaseUtility();
         firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
@@ -166,6 +181,7 @@ public class MainFragmentActivity
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.baseProviderArrayList = factoryProviders.getAllProviders();
+
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
         this.positionManager = PositionManager.getInstance(this);
         this.fragmentState = new FragmentState(getSupportFragmentManager());
@@ -424,7 +440,8 @@ public class MainFragmentActivity
     protected void onResume() {
         super.onResume();
 
-        this.hideProgress();
+        // Check that user exist
+        this.singletonFirebaseProvider.reauthenticateUser();
 
         Log.d(TAG, ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
