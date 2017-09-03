@@ -239,11 +239,11 @@ public class RankingFragment
         */
         this.recycleView.setLayoutManager(this.layoutManager);
         this.swipeRefreshLayout = (SwipeRefreshLayout) this.rootView.findViewById(R.id.swiperefresh_ranking);
-        this.swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.blue_900));
-        /*
-         * Sets up a SwipeRefreshLayout.OnRefreshListener that is invoked when the user
-         * performs a swipe-to-refresh gesture.
-         */
+        this.swipeRefreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(getContext(), R.color.blue_800),
+                ContextCompat.getColor(getContext(), R.color.blue_600),
+                ContextCompat.getColor(getContext(), R.color.blue_400)
+        );
         this.swipeRefreshLayout.setOnRefreshListener(this);
     }
 

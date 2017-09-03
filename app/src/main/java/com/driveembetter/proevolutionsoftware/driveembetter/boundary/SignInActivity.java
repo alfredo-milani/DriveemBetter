@@ -315,6 +315,7 @@ public class SignInActivity
             // Sign in with Twitter
             case R.id.twitter_login_button:
                 this.checkEmailBeforeLogIn = false;
+                this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.TWITTER_PROVIDER)
                         .signIn(null, null);
