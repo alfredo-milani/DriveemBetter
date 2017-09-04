@@ -1,7 +1,10 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -10,8 +13,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -51,6 +57,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.greenrobot.eventbus.util.ErrorDialogManager;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -66,6 +74,7 @@ public class SaveMe
     MapView mMapView;
     private GoogleMap googleMap;
     private Context context;
+    private Activity activity;
     private PositionManager positionManager;
     private LocationManager locationManager;
     double latitude, longitude;
@@ -84,6 +93,8 @@ public class SaveMe
     private TextView driverUsername, driverLocation, driverFeedback;
     private String android_id;
     private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken;
+    private UpdatePosition updatePosition;
+    private Boolean chatActivitySwitched = false;
 
     private int progressToMeters(int progress) {
         int meters;
@@ -105,6 +116,7 @@ public class SaveMe
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
+        activity = getActivity();
         // For showing a move to my location button
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
@@ -122,7 +134,6 @@ public class SaveMe
             Toast.makeText(context, "Please, check you Internet connection!", Toast.LENGTH_SHORT).show();
         final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
-        //TODO I'll get latitude and longitude from singleton
         positionManager = ((MainFragmentActivity)getActivity()).getPositionManager();
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
@@ -137,7 +148,7 @@ public class SaveMe
 
         database = FirebaseDatabase.getInstance();
 
-        UpdatePosition updatePosition = new UpdatePosition();
+        updatePosition = new UpdatePosition();
         updatePosition.execute();
 
         //SEEK BAR LISTENER
@@ -202,9 +213,12 @@ public class SaveMe
                         userSelectedFeedback = "NA";
                         userSelectedEmail = marker.getTitle();
                         userSelectedToken = "";
-                        userSelectedUid = marker.getSnippet();
-
-
+                        userSelectedUid = "USERNAME_TEST";
+                        for (String key : markerPool.keySet()) {
+                            if (markerPool.get(key).getTitle().equals(userSelectedEmail)) {
+                                userSelectedUid = key;
+                            }
+                        }
 
                         List<Address> addresses;
                         Geocoder geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
@@ -235,21 +249,34 @@ public class SaveMe
                         message.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Toast.makeText(getActivity(), "How could I inform this user that I'm in trouble?", Toast.LENGTH_SHORT).show();
-                                //TODO start chat activity
-
                                 //catch user token
                                 DatabaseReference userRef = database.getReference("users/" + userSelectedUid);
+                                final DatabaseReference userPositionRef = myRef.child(userSelectedUid);
 
                                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         userSelectedToken = (String) dataSnapshot.child("firebaseToken").getValue();
-                                        //TODO: TO CHANGE
-                                        ChatActivity.startActivity(getActivity(),
-                                                userSelectedEmail,
-                                                userSelectedUid,
-                                                userSelectedToken);
+                                        userPositionRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                if (dataSnapshot.child(CHILD_AVAILABILITY).getValue().equals(AVAILABLE)) {
+                                                    //TODO DON'T MAKE MARKER SO DIRTY
+                                                    chatActivitySwitched = true;
+                                                    ChatActivity.startActivity(getActivity(),
+                                                            userSelectedEmail,
+                                                            userSelectedUid,
+                                                            userSelectedToken);
+                                                } else {
+                                                    Toast.makeText(context, "This user is not available anymore", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
                                     }
 
                                     @Override
@@ -290,24 +317,40 @@ public class SaveMe
 
     @Override
     public void onResume() {
-        super.onResume();
+        Log.e("DEBUG", "ON RESUME");
         mMapView.onResume();
+        if (!chatActivitySwitched) {
+            if (updatePosition.isCancelled() && updatePosition.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                updatePosition.execute();
+                updatePosition.cancel(false);
+            }
+            chatActivitySwitched = false;
+        }
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, true);
+        super.onResume();
+
     }
 
     @Override
     public void onPause() {
-        super.onPause();
-
         Log.d(TAG, "onPause");
+        if (updatePosition != null)
+            updatePosition.cancel(true);
+
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
         mMapView.onPause();
+        myRef.onDisconnect();
+        super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        if (updatePosition != null)
+            updatePosition.cancel(true);
+        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
         mMapView.onDestroy();
+        myRef.onDisconnect();
+        super.onDestroy();
     }
 
     @Override
@@ -318,29 +361,15 @@ public class SaveMe
 
     @Override
     public void onStop() {
-        super.onStop();
-
+        if (updatePosition != null)
+            updatePosition.cancel(true);
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
+        myRef.onDisconnect();
+        super.onStop();
     }
 
 
     private class UpdatePosition extends AsyncTask<String, String, String> {
-
-        @Override
-        protected void onProgressUpdate(String... params) {
-            super.onProgressUpdate(params);
-            locationTxt.setText(params[0]);
-            // Create a LatLng object for the current location
-            LatLng latLng = new LatLng(Double.parseDouble(params[1]), Double.parseDouble(params[2]));
-
-            // Show the current location in Google Map
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
-            circle.setVisible(false);
-            int zoom = getZoomLevel(circle);
-            googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
-            Log.e("animate", "camera animated at: " + String.valueOf(zoom));
-        }
 
         @Override
         protected String doInBackground(String... strings) {
@@ -349,13 +378,15 @@ public class SaveMe
                 List<Address> addresses;
                 String oldCountry = "NA";
                 String oldRegion = "NA";
-                String oldSubregion = "NA";
+                String oldSubRegion = "NA";
                 String country, region, subRegion;
                 geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.ENGLISH);
-                double latitude, longitude;
+                markerPool = new HashMap<>();
                 while (true) {
-                    latitude = positionManager.getLatitude();
-                    longitude = positionManager.getLongitude();
+                    if (updatePosition.isCancelled())
+                        return null;
+                    final double latitude = positionManager.getLatitude();
+                    final double longitude = positionManager.getLongitude();
                     if (latitude != 0 && longitude != 0) {
                         try {
                             Log.e("latitude", "inside latitude--" + latitude);
@@ -363,27 +394,51 @@ public class SaveMe
 
 
                             if (addresses != null && addresses.size() > 0) {
-                                String address = addresses.get(0).getAddressLine(0);
+                                final String address = addresses.get(0).getAddressLine(0);
                                 subRegion = addresses.get(0).getSubAdminArea();
                                 country = addresses.get(0).getCountryName();
                                 region = addresses.get(0).getAdminArea();
-                                if (!country.equals(oldCountry) || !country.equals(oldRegion) || !subRegion.equals(oldSubregion)) {
+                                if (!country.equals(oldCountry) || !oldRegion.equals(oldRegion) || !subRegion.equals(oldSubRegion)) {
+                                    Log.e("DEBUG", oldCountry + " " +  oldRegion + " " + oldSubRegion);
+                                    Log.e("DEBUG", country + " " +  region + " " + subRegion);
                                     lookForMyNeighbors(country, region, subRegion);
                                 }
                                 oldCountry = country;
                                 oldRegion = region;
-                                oldSubregion = subRegion;
-                                publishProgress(address, ""+latitude, ""+longitude);
+                                oldSubRegion = subRegion;
+                                //publishProgress(address, ""+latitude, ""+longitude);
+                                activity.runOnUiThread(new Runnable()
+                                {
+                                    public void run()
+                                    {
+                                        locationTxt.setText(address);
+                                        // Create a LatLng object for the current location
+                                        LatLng latLng = new LatLng(latitude, longitude);
+
+                                        // Show the current location in Google Map
+                                        if (latLng != null) {
+                                            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                            circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
+                                            circle.setVisible(false);
+                                            int zoom = getZoomLevel(circle);
+                                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+                                            Log.e("animate", "camera animated at: " + String.valueOf(zoom));
+                                        }
+                                    }
+                                });
                             }
                         } catch (IOException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                     }
+
                     try {
+                        //IT SEEMS TO BE CRITICAL
                         Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                        return null;
                     }
                 }
             } catch (Exception e) {
@@ -395,35 +450,47 @@ public class SaveMe
 
     private void lookForMyNeighbors(String country, String region, String subRegion) {
 
-        myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion);
-
-        markerPool = new HashMap<>();
+        myRef = database.getReference(NODE_POSITION + "/" + country + "/" + region + "/" + subRegion);
 
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (updatePosition.isCancelled())
+                    return;
                 Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
-                for (String user : data.keySet()) {
-                    // TODO se l'utente fa logout --> l'uid avrà valore NULL --> gestire eccezione
-                    if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                        //Map<String, Object> coordinates = data.get(user);
-                        String coordinates = (String) data.get(user).get(CHILD_CURRENT_POSITION);
-                        String[] latLon = StringParser.getCoordinates(coordinates);
-                        //LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
-                        LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
-                        if (markerPool.containsKey(user)) {
-                            markerPool.get(user).setPosition(userPos);
-                        } else {
-                            String markerTitle = "user@drivembetter.com";
-                            if (data.get(user).get(CHILD_EMAIL)!=null)
-                                markerTitle =(String) data.get(user).get(CHILD_EMAIL);
+                if (data.keySet().size() != 0) {
+                    for (String user : data.keySet()) {
+                        if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                            if (data.get(user).get(CHILD_AVAILABILITY).equals(UNAVAILABLE)) {
+                                if (markerPool.containsKey(user)) {
+                                    Marker toDeleteMarker = markerPool.get(user);
+                                    toDeleteMarker.remove();
+                                    markerPool.remove(user);
+                                    Log.e("DEBUG", "MARKER DELETED");
+                                }
+                            } else {
+                                //Map<String, Object> coordinates = data.get(user);
+                                String coordinates = (String) data.get(user).get(CHILD_CURRENT_POSITION);
+                                String[] latLon = StringParser.getCoordinates(coordinates);
+                                //LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
+                                LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
+                                if (markerPool.containsKey(user)) {
+                                    markerPool.get(user).setPosition(userPos);
+                                    Log.e("DEBUG", "GIA' ESISTE");
+                                } else {
+                                    String markerTitle = "user@drivembetter.com";
+                                    if (data.get(user).get(CHILD_EMAIL) != null)
+                                        markerTitle = (String) data.get(user).get(CHILD_EMAIL);
 
-                            Marker userMarker = googleMap.addMarker(new MarkerOptions()
-                                    .position(userPos)
-                                    .snippet(user)
-                                    .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_car))
-                                    .title(markerTitle));
-                            markerPool.put(user, userMarker);
+                                    Marker userMarker = googleMap.addMarker(new MarkerOptions()
+                                            .draggable(true)
+                                            .position(userPos)
+                                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_car))
+                                            .title(markerTitle));
+                                    markerPool.put(user, userMarker);
+                                    Log.e("DEBUG", "NON ESISTE");
+                                }
+                            }
                         }
                     }
                 }

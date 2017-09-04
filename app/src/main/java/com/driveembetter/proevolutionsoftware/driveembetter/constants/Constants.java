@@ -15,6 +15,17 @@ public interface Constants {
     String FACEBOOK_PROVIDER = "facebook_provider";
     String TWITTER_PROVIDER = "twitter_provider";
 
+    // PositionManager constants
+    String OLD_COUNTRY = "oldCountry";
+    String OLD_REGION = "oldRegion";
+    String OLD_SUB_REGION = "oldSubRegion";
+    String COUNTRY = "country";
+    String REGION = "region";
+    String SUB_REGION = "subRegion";
+
+    //SaveMe constants
+    String AVAILABLE = "Available";
+    String UNAVAILABLE = "Unavailable";
 
     // chat constants
     String ARG_USERS = "users";
@@ -38,6 +49,7 @@ public interface Constants {
     String CHILD_POINTS = "points";
     String CHILD_CURRENT_POSITION = "currentUserPosition";
     String CHILD_EMAIL = "email";
+    String CHILD_AVAILABILITY = "availability";
 
 
 

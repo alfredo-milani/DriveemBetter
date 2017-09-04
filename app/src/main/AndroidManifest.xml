@@ -68,6 +68,10 @@
         </activity>
 
         <service
+            android:name=".services.SwipeClosureHandler"
+            android:stopWithTask="false"/>
+
+        <service
             android:name=".fcm.FirebaseUtility"
             android:exported="false">
             <intent-filter>

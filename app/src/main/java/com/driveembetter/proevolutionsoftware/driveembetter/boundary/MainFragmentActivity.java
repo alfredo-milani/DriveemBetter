@@ -1,5 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
+import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,9 +37,12 @@ import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
+import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosureHandler;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
@@ -150,6 +155,8 @@ public class MainFragmentActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent serviceIntent = new Intent(getApplicationContext(), SwipeClosureHandler.class);
+        startService(serviceIntent);
         this.initResources();
         if (savedInstanceState != null) {
             this.onRestoreInstanceState(savedInstanceState);
@@ -178,6 +185,7 @@ public class MainFragmentActivity
     }
 
     private void initResources() {
+
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.baseProviderArrayList = factoryProviders.getAllProviders();
@@ -442,7 +450,7 @@ public class MainFragmentActivity
 
         // Check that user exist
         this.singletonFirebaseProvider.reauthenticateUser();
-
+        this.positionManager.getInstance(this).setUserAvailable();
         Log.d(TAG, ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
@@ -472,13 +480,14 @@ public class MainFragmentActivity
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
         Log.d(TAG, ":destroy");
+        this.positionManager.setUserUnavailable();
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
-        this.positionManager.deletePosition();
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
         //.removeGoogleClient();
     }

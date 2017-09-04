@@ -18,6 +18,7 @@ import android.util.Log;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -42,10 +43,6 @@ public class PositionManager
     @Override
     public void onTerminate() {
         super.onTerminate();
-        if (region != null && subRegion != null && country != null) {
-            myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
-            myRef.removeValue();
-        }
     }
 
     private double latitude = 0;
@@ -119,18 +116,18 @@ public class PositionManager
                     oldSubRegion = oldAddresses.get(0).getSubAdminArea();
                 }
                 if (oldCountry==null)
-                    oldCountry = "oldCountry";
+                    oldCountry = OLD_COUNTRY;
                 if (oldSubRegion==null)
-                    oldSubRegion = "oldSubRegion";
+                    oldSubRegion = OLD_SUB_REGION;
                 if (oldRegion==null)
-                    oldRegion = "oldRegion";
+                    oldRegion = OLD_REGION;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            oldCountry = "oldCountry";
-            oldRegion = "oldRegion";
-            oldSubRegion = "oldSubRegion";
+            oldCountry = OLD_COUNTRY;
+            oldRegion = OLD_REGION;
+            oldSubRegion = OLD_SUB_REGION;
         }
 
 
@@ -213,6 +210,13 @@ public class PositionManager
                                     SingletonUser.getInstance().getPhotoUrl().toString()
                             );
                         }
+
+                        //update user availability
+                        if (!dataSnapshot.hasChild(CHILD_AVAILABILITY)) {
+                            myRef.child(CHILD_AVAILABILITY).setValue("Available");
+                        } else if (dataSnapshot.child(CHILD_AVAILABILITY).getValue().equals("Unavailable"))
+                            myRef.child(CHILD_AVAILABILITY).setValue("Available");
+
                         // update to latest point value
                         if (!dataSnapshot.hasChild(CHILD_POINTS)) {
                             myRef.child(CHILD_POINTS).setValue(
@@ -250,10 +254,7 @@ public class PositionManager
 
             @Override
             public void onProviderDisabled(String s) {
-                if (region != null && subRegion != null && country != null) {
-                    myRef = database.getReference(NODE_POSITION + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
-                    myRef.removeValue();
-                }
+
             }
         });
     }
@@ -262,6 +263,24 @@ public class PositionManager
         if (region != null && subRegion != null && country != null) {
             myRef = database.getReference("position" + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
             myRef.removeValue();
+        }
+    }
+
+    public void setUserUnavailable() {
+        if (region != null && subRegion != null && country != null) {
+            myRef = database.getReference(NODE_POSITION + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
+            Map<String, Object> availabilityMap = new ArrayMap<>();
+            availabilityMap.put(CHILD_AVAILABILITY, UNAVAILABLE);
+            myRef.updateChildren(availabilityMap);
+        }
+    }
+
+    public void setUserAvailable() {
+        if (region != null && subRegion != null && country != null) {
+            myRef = database.getReference(NODE_POSITION + "/" + country + "/" + region + "/" + subRegion + "/" + userId);
+            Map<String, Object> availabilityMap = new ArrayMap<>();
+            availabilityMap.put(CHILD_AVAILABILITY, AVAILABLE);
+            myRef.updateChildren(availabilityMap);
         }
     }
 
@@ -283,8 +302,9 @@ public class PositionManager
         } catch (IOException e) {
             e.printStackTrace();
 
-            strings[0] = strings[1] = strings[2] = null;
-            // TODO TO HANDLE
+            strings[0] = COUNTRY;
+            strings[1] = REGION;
+            strings[2] = SUB_REGION;
         }
         return strings;
     }
