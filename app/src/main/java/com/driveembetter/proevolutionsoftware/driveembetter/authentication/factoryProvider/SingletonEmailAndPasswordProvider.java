@@ -244,9 +244,7 @@ public class SingletonEmailAndPasswordProvider
 
     @Override
     public void signOut() {
-        SingletonFirebaseProvider
-                .getAuth()
-                .signOut();
+        this.singletonFirebaseProvider.signOut();
     }
 
     /**

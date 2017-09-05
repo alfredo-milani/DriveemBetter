@@ -272,8 +272,7 @@ public class MainFragmentActivity
     }
 
     private void logoutCurrentProviders() {
-        for (BaseProvider baseProvider:
-                this.baseProviderArrayList) {
+        for (BaseProvider baseProvider : this.baseProviderArrayList) {
             if (baseProvider.isSignIn()) {
                 Log.d(TAG, "Logging out: " + baseProvider.getClass().toString());
                 this.showProgress();
@@ -282,7 +281,7 @@ public class MainFragmentActivity
         }
 
         if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
-            this.singletonFirebaseProvider.forceSignOut();
+            this.singletonFirebaseProvider.signOut();
         }
     }
 
@@ -467,7 +466,7 @@ public class MainFragmentActivity
     protected void onResume() {
         super.onResume();
 
-        // Check that user exist
+        // Check if user exist
         this.singletonFirebaseProvider.reauthenticateUser();
         this.positionManager.getInstance(this).setUserAvailable();
         Log.d(TAG, ":resume");
@@ -543,7 +542,7 @@ public class MainFragmentActivity
                             .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
                             .isSignIn()) {
                 Log.d(TAG, "restoring Firebase provider");
-                this.singletonFirebaseProvider.forceSignOut();
+                this.singletonFirebaseProvider.signOut();
                 // this.startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
             } else if (bundle.getBoolean(GOOGLE_PROVIDER, false) &&
                     !this.baseProviderArrayList

@@ -168,14 +168,8 @@ public class SignInActivity
 
                 case CANCELED_ACTION:
                     hideProgress();
-                    Log.d(TAG, "handleMessage:google_signin_error");
+                    Log.d(TAG, "handleMessage:signin_error:action_canceled");
                     Toast.makeText(SignInActivity.this, getString(R.string.canceled_action), Toast.LENGTH_SHORT).show();
-                    break;
-
-                case TWITTER_AUTH_FAIL:
-                    hideProgress();
-                    Log.d(TAG, "handleMessage:twitter_signin_error");
-                    Toast.makeText(SignInActivity.this, getString(R.string.twitter_auth_fail), Toast.LENGTH_LONG).show();
                     break;
 
                 case UNKNOWN_ERROR:
@@ -315,6 +309,7 @@ public class SignInActivity
             // Sign in with Twitter
             case R.id.twitter_login_button:
                 this.checkEmailBeforeLogIn = false;
+                this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.TWITTER_PROVIDER)
                         .signIn(null, null);
@@ -380,8 +375,6 @@ public class SignInActivity
     @Override
     protected void onResume() {
         super.onResume();
-
-        // this.hideProgress();
 
         Log.d(TAG, ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
