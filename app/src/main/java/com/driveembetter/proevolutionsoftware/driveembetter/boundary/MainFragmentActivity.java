@@ -2,8 +2,14 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,12 +20,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -41,11 +50,17 @@ import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosur
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.SharedPrefUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -198,7 +213,6 @@ public class MainFragmentActivity
         this.saveMe = new SaveMe();
         this.ranking = new RankingFragment();
         this.aboutUs = new AboutUsActivity();
-
         //locationUpdater = new LocationUpdater(this, user);
         //locationUpdater.updateLocation();
     }
@@ -234,6 +248,11 @@ public class MainFragmentActivity
             Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             this.startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
         }
+
+        ProtectedAppsManager protectedAppsManager = new ProtectedAppsManager(this);
+        protectedAppsManager.checkAlert();
+
+
     }
 
     @Override
@@ -558,4 +577,5 @@ public class MainFragmentActivity
             super.onBackPressed();
         }
     }
+
 }
