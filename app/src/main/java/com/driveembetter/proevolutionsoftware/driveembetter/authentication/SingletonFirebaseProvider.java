@@ -182,7 +182,7 @@ public class SingletonFirebaseProvider
         }
     }
 
-    public void forceSignOut() {
+    public void signOut() {
         if (this.getFirebaseUser() != null) {
             Log.d(TAG, "force Firebase sign out");
             SingletonFirebaseProvider.auth.signOut();
@@ -214,13 +214,13 @@ public class SingletonFirebaseProvider
                             Log.w(TAG, "reauthenticate:failed", task.getException());
                             sendMessageToUI(UNKNOWN_EVENT);
                         }
-                        forceSignOut();
+                        signOut();
                     }
                 }
             });
         } else {
             Log.d(TAG, "reauthenticate:failed");
-            sendMessageToUI(INVALID_USER);
+            this.sendMessageToUI(INVALID_USER);
         }
     }
 }

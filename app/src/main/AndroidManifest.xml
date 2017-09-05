@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
 
         <activity
             android:name=".boundary.SignInActivity"
@@ -92,15 +92,6 @@
         -->
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
      See README(https://goo.gl/l4GJaQ) for more. -->
-
-        <!-- I FRAGMENT NON VANNO AGGIUNTI NEL MANIFEST
-        <fragment
-            android:name=".boundary.SaveMe"
-            android:label="@string/title_activity_save_me"/>
-        <fragment
-            android:name=".boundary.ChatFragment"
-            android:label="Chat 'em Better"/>
-        -->
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

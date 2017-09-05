@@ -277,8 +277,6 @@ public class SignUpActivity
     protected void onResume() {
         super.onResume();
 
-        this.hideProgress();
-
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 

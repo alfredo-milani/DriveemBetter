@@ -118,26 +118,11 @@ public class SingletonTwitterProvider
                 public void failure(TwitterException exception) {
                     Log.w(TAG, "twitterLogin:failure", exception);
 
-                    /*
-                    TwitterConfig config = new TwitterConfig.Builder(singletonFirebaseProvider.getContext())
-                            .logger(new DefaultLogger(Log.DEBUG))
-                            .twitterAuthConfig(new TwitterAuthConfig(
-                                    singletonFirebaseProvider
-                                            .getContext()
-                                            .getString(R.string.com_twitter_sdk_android_CONSUMER_KEY),
-                                    singletonFirebaseProvider
-                                            .getContext()
-                                            .getString(R.string.com_twitter_sdk_android_CONSUMER_SECRET)
-                            ))
-                            .debug(true)
-                            .build();
-                    Twitter.initialize(config);
-                    */
                     try {
                         throw exception;
                     } catch (TwitterAuthException e2) {
                         Log.d(TAG, "authWithTwitter:failed", exception);
-                        singletonFirebaseProvider.sendMessageToUI(TWITTER_AUTH_FAIL);
+                        singletonFirebaseProvider.sendMessageToUI(CANCELED_ACTION);
                     } catch (Exception e1) {
                         Log.w(TAG, "authWithTwitter:failed", exception);
                         singletonFirebaseProvider.sendMessageToUI(UNKNOWN_ERROR);
@@ -154,10 +139,7 @@ public class SingletonTwitterProvider
 
     @Override
     public void signOut() {
-        if (this.singletonFirebaseProvider != null) {
-            // Firebase sign out
-            SingletonFirebaseProvider.getAuth().signOut();
-        }
+        this.singletonFirebaseProvider.signOut();
     }
 
     @Override
