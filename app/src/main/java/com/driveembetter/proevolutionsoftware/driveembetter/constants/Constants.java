@@ -23,7 +23,7 @@ public interface Constants {
     String REGION = "region";
     String SUB_REGION = "subRegion";
 
-    //SaveMe constants
+    //SaveMeFragment constants
     String AVAILABLE = "Available";
     String UNAVAILABLE = "Unavailable";
 
@@ -50,11 +50,4 @@ public interface Constants {
     String CHILD_CURRENT_POSITION = "currentUserPosition";
     String CHILD_EMAIL = "email";
     String CHILD_AVAILABILITY = "availability";
-
-
-
-    // Users divided by location
-    int LEVEL_NATION = 1;
-    int LEVEL_REGION = 2;
-    int LEVEL_DISTRICT = 3;
 }

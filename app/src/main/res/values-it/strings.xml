@@ -90,4 +90,7 @@
     <string name="level_district">Provincia</string>
     <string name="unable_load_ranking">Impossibile caricare la classifica.</string>
     <string name="session_expired">Sessione scaduta. Effettua il login.</string>
+    <string name="level_unavailable">Utenti non disponibili</string>
+    <string name="level_available">Tutti gli utenti disponibili</string>
+    <string name="level_all">Tutti gli utenti</string>
 </resources>

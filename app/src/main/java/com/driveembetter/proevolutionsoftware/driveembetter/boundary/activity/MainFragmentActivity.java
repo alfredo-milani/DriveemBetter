@@ -1,15 +1,7 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
-import android.app.Activity;
-import android.app.FragmentTransaction;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,15 +12,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -42,6 +31,10 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.FactoryProviders;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonGoogleProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.AboutUsFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
@@ -51,16 +44,9 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManage
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.SharedPrefUtil;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -79,11 +65,14 @@ public class MainFragmentActivity
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private SingletonUser singletonUser;
     private PositionManager positionManager;
-    private FragmentState fragmentState;
+
     // Fragments
+    private FragmentState fragmentState;
     private Fragment saveMe;
     private Fragment ranking;
     private Fragment aboutUs;
+    private Fragment garage;
+    private Fragment statistics;
 
     // Widgets
     private ProgressBar progressBar;
@@ -207,12 +196,12 @@ public class MainFragmentActivity
 
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
         this.positionManager = PositionManager.getInstance(this);
-        this.fragmentState = new FragmentState(getSupportFragmentManager());
 
         // Init fragments
-        this.saveMe = new SaveMe();
+        this.fragmentState = new FragmentState(getSupportFragmentManager());
+        this.saveMe = new SaveMeFragment();
         this.ranking = new RankingFragment();
-        this.aboutUs = new AboutUsActivity();
+        this.aboutUs = new AboutUsFragment();
         //locationUpdater = new LocationUpdater(this, user);
         //locationUpdater.updateLocation();
     }
@@ -354,12 +343,14 @@ public class MainFragmentActivity
                 }
 
                 Log.d(TAG, "DIO CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
+
+                Log.d(TAG, "Firebase signIn: " + this.singletonFirebaseProvider.isFirebaseSignIn());
                 ////
                 break;
 
             case R.id.ranking:
                 if (!FragmentState.isFragmentOpen(FragmentState.RANKING_FRAGMENT)) {
-                    FragmentState.replaceFragment(
+                    this.fragmentState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.ranking
                     );
@@ -369,8 +360,8 @@ public class MainFragmentActivity
 
             case R.id.save_me:
                 if (!FragmentState.isFragmentOpen(FragmentState.SAVE_ME_FRAGMENT)) {
-                    // TODO ferma esecuzione SaveMe in onPause()
-                    FragmentState.replaceFragment(
+                    // TODO ferma esecuzione SaveMeFragment in onPause()
+                    this.fragmentState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.saveMe
                     );
@@ -390,7 +381,7 @@ public class MainFragmentActivity
 
             case R.id.about_us:
                 if (!FragmentState.isFragmentOpen(FragmentState.ABOUT_US)) {
-                    FragmentState.replaceFragment(
+                    this.fragmentState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.aboutUs
                     );
@@ -478,6 +469,7 @@ public class MainFragmentActivity
         super.onPause();
 
         Log.d(TAG, ":pause");
+        DatabaseManager.disconnectReference();
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 

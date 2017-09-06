@@ -113,7 +113,8 @@ public class RankingRecyclerViewAdapter
 
     @Override
     public int getItemCount() {
-        return this.users.size();
+        return this.users == null ?
+                0 : this.users.size();
     }
 
     @Override

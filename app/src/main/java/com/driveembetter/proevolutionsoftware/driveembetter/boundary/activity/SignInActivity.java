@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +25,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeM
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.FactoryProviders;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonTwitterProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.common.SignInButton;
@@ -273,6 +274,8 @@ public class SignInActivity
                 }
 
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
+
+                Log.d(TAG, "Firebase SignIn: " + this.singletonFirebaseProvider.isFirebaseSignIn());
                 break;
 
 

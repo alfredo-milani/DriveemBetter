@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
 import com.github.mikephil.charting.charts.ScatterChart;
 import com.github.mikephil.charting.data.ScatterData;
 

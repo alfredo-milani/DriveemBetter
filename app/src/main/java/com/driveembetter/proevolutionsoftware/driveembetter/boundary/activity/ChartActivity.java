@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
@@ -12,8 +12,9 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.ChartAsyncTask;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.ChartFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.RetainedFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
 import com.github.mikephil.charting.charts.ScatterChart;
 
 /**

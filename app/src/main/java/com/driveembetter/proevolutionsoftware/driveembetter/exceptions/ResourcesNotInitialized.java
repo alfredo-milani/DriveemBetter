@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.exception;
+package com.driveembetter.proevolutionsoftware.driveembetter.exceptions;
 
 /**
  * Created by alfredo on 17/08/17.

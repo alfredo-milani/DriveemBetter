@@ -27,4 +27,7 @@
     <string name="level_district">District</string>
     <string name="unable_load_ranking">Failed to load ranking.</string>
     <string name="session_expired">Session expired. Re-login.</string>
+    <string name="level_unavailable">Unavailable users</string>
+    <string name="level_available">All available users</string>
+    <string name="level_all">All users</string>
 </resources>

@@ -10,7 +10,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChatActivity;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ChatActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;

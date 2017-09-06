@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name=".boundary.SignInActivity"
+            android:name=".boundary.activity.SignInActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -31,7 +31,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.SignUpActivity"
+            android:name=".boundary.activity.SignUpActivity"
             android:label="@string/sign_up"
             android:theme="@style/AppTheme.NoActionBar">
             <!--Default Intent Filter-->
@@ -41,7 +41,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.MainFragmentActivity"
+            android:name=".boundary.activity.MainFragmentActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <!--Default Intent Filter-->
             <intent-filter>
@@ -50,7 +50,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.ChatActivity"
+            android:name=".boundary.activity.ChatActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
@@ -59,7 +59,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.UserDetailsRankingActivity"
+            android:name=".boundary.activity.UserDetailsRankingActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <!--Default Intent Filter-->
             <intent-filter>

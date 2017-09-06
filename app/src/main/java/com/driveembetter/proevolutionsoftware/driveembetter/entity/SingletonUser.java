@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
-import com.driveembetter.proevolutionsoftware.driveembetter.exception.CallbackNotInitialized;
+import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 
 import java.util.ArrayList;

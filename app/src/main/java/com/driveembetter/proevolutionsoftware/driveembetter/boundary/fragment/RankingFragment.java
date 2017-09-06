@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
 import android.app.Activity;
 import android.content.Context;
@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingRecyclerViewAdapter;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.UserDetailsRankingActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
@@ -86,7 +88,7 @@ public class RankingFragment
 
         this.initResources();
 
-        RankingFragment.level = LEVEL_DISTRICT;
+        RankingFragment.level = LevelMenuFragment.LEVEL_DISTRICT;
         // To modify Menu items
         this.setHasOptionsMenu(true);
     }
@@ -157,6 +159,8 @@ public class RankingFragment
                 string = getString(R.string.unable_load_ranking);
         }
 
+        this.arrayList = null;
+        this.fillList();
         Toast.makeText(this.context, string, Toast.LENGTH_LONG).show();
     }
 
@@ -182,9 +186,7 @@ public class RankingFragment
         this.recycleView.setAdapter(rankingRecyclerViewAdapter);
 
         this.hideProgress();
-        if (this.arrayList == null) {
-            Toast.makeText(this.context, getString(R.string.empty_user), Toast.LENGTH_SHORT).show();
-        } else {
+        if (this.arrayList != null) {
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         }
     }

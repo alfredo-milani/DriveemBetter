@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter;
+package com.driveembetter.proevolutionsoftware.driveembetter.chat;
 
 import android.app.Application;
 

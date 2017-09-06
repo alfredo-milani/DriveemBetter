@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +20,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.FactoryProviders;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonEmailAndPasswordProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 
 /**
@@ -68,7 +69,6 @@ public class SignUpActivity
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            hideProgress();
             switch (msg.what) {
                 case USER_LOGIN:
                     Log.d(TAG, "login received");
@@ -79,37 +79,44 @@ public class SignUpActivity
                     break;
                 
                 case USER_LOGIN_EMAIL_PSW:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:login emailPsw");
                     startNewActivity(SignUpActivity.this, MainFragmentActivity.class);
                     break;
 
                 case EMAIL_NOT_VERIFIED:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:email_not_verified");
                     Toast.makeText(SignUpActivity.this, getString(R.string.email_not_verified), Toast.LENGTH_LONG).show();
                     break;
 
                 case BAD_EMAIL_OR_PSW:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:invalid email or password");
                     emailField.setError(getString(R.string.wrong_email_or_psw));
                     passwordField.setError(getString(R.string.wrong_email_or_psw));
                     break;
 
                 case USER_ALREADY_EXIST:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:user_already_exist");
                     emailField.setError(getString(R.string.user_exist));
                     break;
 
                 case EMAIL_REQUIRED:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:email_required");
                     emailField.setError(getString(R.string.field_required));
                     break;
 
                 case PASSWORD_REQUIRED:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:password_required");
                     passwordField.setError(getString(R.string.field_required));
                     break;
 
                 case VERIFICATION_EMAIL_SENT:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:verification_email_sent");
                     Toast.makeText(SignUpActivity.this, String.format(getString(R.string.verification_email_success), getString(R.string.app_name)), Toast.LENGTH_LONG).show();
 
@@ -117,38 +124,44 @@ public class SignUpActivity
                     break;
 
                 case VERIFICATION_EMAIL_NOT_SENT:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:verification_email_not_sent");
                     Toast.makeText(SignUpActivity.this, getString(R.string.verification_email_failure), Toast.LENGTH_LONG).show();
                     break;
 
                 case BAD_FORMATTED_EMAIL:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:bad_formatted_email");
                     emailField.setError(getString(R.string.bad_formatted_email));
                     break;
 
                 case PASSWORD_INVALID:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:invalid_password");
                     passwordField.setError(getString(R.string.password_invalid));
                     break;
 
                 case INVALID_CREDENTIALS:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:invalid_credentials");
                     passwordField.setError(getString(R.string.invalid_credentials));
                     break;
 
                 case INVALID_USER:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:invalid user");
                     emailField.setError(getString(R.string.invalid_user));
                     break;
 
                 case RESEND_VERIFICATION_EMAIL:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:verification_email_resent");
                     Toast.makeText(SignUpActivity.this, getString(R.string.postponed_verification_email), Toast.LENGTH_LONG).show();
-
                     previousActivity();
                     break;
 
                 case NETWORK_ERROR:
+                    hideProgress();
                     Log.d(TAG, "handleMessage:networ_error");
                     Toast.makeText(SignUpActivity.this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
                     break;
@@ -180,7 +193,7 @@ public class SignUpActivity
 
     private void initWidget() {
         this.signUpButton = (Button) findViewById(R.id.sign_up_button);
-        // this.usernameField = (EditText) findViewById(R.id.username_field);
+        this.usernameField = (EditText) findViewById(R.id.username_field);
         this.emailField = (EditText) findViewById(R.id.email_field);
         this.passwordField = (EditText) findViewById(R.id.password_field);
         this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -204,8 +217,7 @@ public class SignUpActivity
                                 this.emailField.getText().toString()
                         ),
                         this.passwordField.getText().toString(),
-                        // this.usernameField.getText().toString()
-                        null
+                        this.usernameField.getText().toString()
                 );
                 break;
 
@@ -256,14 +268,7 @@ public class SignUpActivity
         this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setHandler(this.handler);
-
-        /*
-        if (this.authenticationProvider == FactoryProviders.GOOGLE_PROVIDER) {
-            SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
-            singletonGoogleProvider.connectAfterResume();
-            singletonGoogleProvider.managePendingOperations();
-        }
-        */
+        this.singletonFirebaseProvider.setContext(this);
     }
 
     @Override

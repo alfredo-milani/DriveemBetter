@@ -4,7 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.MainFragmentActivity;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 
 

@@ -18,7 +18,6 @@ import android.util.Log;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,7 +56,7 @@ public class PositionManager
     private FirebaseDatabase database;
     private Map<String, Object> emailMap;
     Location oldLocation;
-    private DatabaseReference myRef, userRef;
+    private DatabaseReference myRef;
 
 
     //Singleton
@@ -136,7 +135,6 @@ public class PositionManager
             public void onLocationChanged(Location location) {
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
-                List<Address> addresses;
                 Map<String, Object> coordinates = new ArrayMap<>();
                 emailMap = new ArrayMap<>();
                 coordinates.put(CHILD_CURRENT_POSITION, latitude+";"+longitude);

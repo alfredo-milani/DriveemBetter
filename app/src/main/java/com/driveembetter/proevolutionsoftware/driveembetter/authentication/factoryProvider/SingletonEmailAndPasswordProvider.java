@@ -69,7 +69,6 @@ public class SingletonEmailAndPasswordProvider
                         Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
 
                         if (!task.isSuccessful()) {
-
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthInvalidCredentialsException e) {
@@ -85,7 +84,6 @@ public class SingletonEmailAndPasswordProvider
                                 Log.w(TAG, "signInWithEmail:failed", task.getException());
                                 singletonFirebaseProvider.sendMessageToUI(UNKNOWN_EVENT);
                             }
-
                         } else {
                             checkIfEmailVerified();
                         }
@@ -134,7 +132,6 @@ public class SingletonEmailAndPasswordProvider
                         Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
 
                         if (!task.isSuccessful()) {
-
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthUserCollisionException e) {
@@ -153,20 +150,43 @@ public class SingletonEmailAndPasswordProvider
                                 Log.w(TAG, "createUserWithEmailAndPassword:failed", task.getException());
                                 singletonFirebaseProvider.sendMessageToUI(UNKNOWN_EVENT);
                             }
-
                         } else {
-                            sendVerificationEmail();
+                            if (!TextUtils.isEmpty(username)) {
+                                Log.d(TAG, "username received");
+                                setUsername(username);
+                            } else {
+                                sendVerificationEmail();
+                            }
                         }
                     }
                 });
     }
 
-    public void setUsername(String username, String email, String password) {
+    public void setUsername(String username) {
+        Log.d(TAG, "setUsername");
         UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
 
         if (username != null) {
             builder.setDisplayName(username);
+            this.singletonFirebaseProvider
+                    .getFirebaseUser()
+                    .updateProfile(builder.build())
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "SingletonUser profile updated.");
+                            } else {
+                                Log.d(TAG, "SingletonUser profile NOT updated.");
+                            }
+
+                            sendVerificationEmail();
+                        }
+                    });
         }
+    }
+
+    public void setEmail(String email) {
         if (email != null) {
             this.singletonFirebaseProvider
                     .getFirebaseUser()
@@ -182,6 +202,9 @@ public class SingletonEmailAndPasswordProvider
                         }
                     });
         }
+    }
+
+    public void setPassword(String password) {
         if (password != null) {
             this.singletonFirebaseProvider
                     .getFirebaseUser()
@@ -197,22 +220,6 @@ public class SingletonEmailAndPasswordProvider
                         }
                     });
         }
-
-        if (username != null) {
-            this.singletonFirebaseProvider
-                    .getFirebaseUser()
-                    .updateProfile(builder.build())
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "SingletonUser profile updated.");
-                            } else {
-                                Log.d(TAG, "SingletonUser profile NOT updated.");
-                            }
-                        }
-                    });
-        }
     }
 
     public void resendVerificationEmail(String email, String password) {
@@ -221,6 +228,7 @@ public class SingletonEmailAndPasswordProvider
     }
 
     private void sendVerificationEmail() {
+        Log.d(TAG, "sendVerificationEmail");
         // Send email and wait for confirmation
         this.singletonFirebaseProvider
                 .getFirebaseUser()

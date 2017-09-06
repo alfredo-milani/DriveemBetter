@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -15,7 +15,7 @@ import android.widget.Button;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.adapters.LevelMenuRecyclerViewAdapter;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
-import com.driveembetter.proevolutionsoftware.driveembetter.exception.CallbackNotInitialized;
+import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
 
 /**
  * Created by sonu on 08/02/17.
@@ -37,6 +37,14 @@ public class LevelMenuFragment
     private View rootView;
     private RecyclerView recycleView;
     private RecyclerView.LayoutManager layoutManager;
+
+    // Users divided by location
+    public final static int LEVEL_NATION = 1;
+    public final static int LEVEL_REGION = 2;
+    public final static int LEVEL_DISTRICT = 3;
+    public final static int LEVEL_ALL_AVAILABLE = 4;
+    public final static int LEVEL_ALL_UNAVAILABLE = 5;
+    public final static int LEVEL_ALL = 6;
 
 
 
@@ -78,6 +86,9 @@ public class LevelMenuFragment
         this.sparseIntArray.append(LEVEL_NATION, R.string.level_nation);
         this.sparseIntArray.append(LEVEL_REGION, R.string.level_region);
         this.sparseIntArray.append(LEVEL_DISTRICT, R.string.level_district);
+        this.sparseIntArray.append(LEVEL_ALL_AVAILABLE, R.string.level_available);
+        this.sparseIntArray.append(LEVEL_ALL_UNAVAILABLE, R.string.level_unavailable);
+        this.sparseIntArray.append(LEVEL_ALL, R.string.level_all);
     }
 
     private void initWidgets() {

@@ -3,12 +3,12 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 import android.net.Uri;
 import android.util.Log;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.RankingFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
-import com.driveembetter.proevolutionsoftware.driveembetter.exception.CallbackNotInitialized;
+import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -17,6 +17,13 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_ALL;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_ALL_AVAILABLE;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_ALL_UNAVAILABLE;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_DISTRICT;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_NATION;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_REGION;
 
 /**
  * Created by alfredo on 01/09/17.
@@ -85,9 +92,7 @@ public class DatabaseManager
                     .child(subRegion)
                     .child(SingletonUser.getInstance().getUid())
                     .child(CHILD_POINTS);
-            databaseReference.setValue(
-                    SingletonUser.getInstance().getPoints()
-            );
+            databaseReference.setValue(points);
         }
     }
 
@@ -102,10 +107,11 @@ public class DatabaseManager
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                // TODO controlla bene
                 Iterable<DataSnapshot> userData = dataSnapshot.getChildren();
                 // dataSnapshot.exist() --> .child(.getUid) esiste?
                 // user == null --> user non ha almeno un figlio?
-                if (!dataSnapshot.exists() || userData == null || dataSnapshot.getChildrenCount() < 3) {
+                if (!dataSnapshot.exists() || userData == null || dataSnapshot.getChildrenCount() < 4) {
                     Log.d(TAG, "Create user data");
                     if (!dataSnapshot.hasChild(CHILD_POINTS)) {
                         query.getRef()
@@ -327,8 +333,21 @@ public class DatabaseManager
                 });
                 break;
 
+            case LEVEL_ALL_AVAILABLE:
+                break;
+
+            case LEVEL_ALL_UNAVAILABLE:
+                break;
+
+            case LEVEL_ALL:
+                break;
+
             default:
                 Log.w(TAG, "Error in level selection: " + RankingFragment.getLevel());
         }
+    }
+
+    public static void disconnectReference() {
+        DatabaseManager.databaseReference.onDisconnect();
     }
 }

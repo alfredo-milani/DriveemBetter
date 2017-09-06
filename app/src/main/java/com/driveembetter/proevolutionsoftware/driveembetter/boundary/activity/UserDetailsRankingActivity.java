@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

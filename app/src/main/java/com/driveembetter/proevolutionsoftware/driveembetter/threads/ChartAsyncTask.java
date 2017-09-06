@@ -1,10 +1,12 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.chartBuild;
+package com.driveembetter.proevolutionsoftware.driveembetter.threads;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.ExtendedDoubleEvaluator;
+import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.RetainedFragment;
 import com.fathzer.soft.javaluator.StaticVariableSet;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;

@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,10 +14,10 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 /**
  * Created by alfredo on 26/08/17.
  */
-public class AboutUsActivity
+public class AboutUsFragment
         extends Fragment {
 
-    private final static String TAG = AboutUsActivity.class.getSimpleName();
+    private final static String TAG = AboutUsFragment.class.getSimpleName();
 
     // Widgets
     private View rootView;

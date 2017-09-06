@@ -1,10 +1,8 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -13,11 +11,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -34,6 +29,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ChatActivity;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
@@ -57,19 +54,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.greenrobot.eventbus.util.ErrorDialogManager;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class SaveMe
+public class SaveMeFragment
         extends Fragment
         implements Constants {
 
-    private final static String TAG = SaveMe.class.getSimpleName();
+    private final static String TAG = SaveMeFragment.class.getSimpleName();
 
     MapView mMapView;
     private GoogleMap googleMap;
@@ -339,7 +334,9 @@ public class SaveMe
 
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
         mMapView.onPause();
-        myRef.onDisconnect();
+        if (this.myRef != null) {
+            myRef.onDisconnect();
+        }
         super.onPause();
     }
 
@@ -367,7 +364,6 @@ public class SaveMe
         myRef.onDisconnect();
         super.onStop();
     }
-
 
     private class UpdatePosition extends AsyncTask<String, String, String> {
 

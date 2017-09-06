@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.exception.WrongResourceType;
+import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.WrongResourceType;
 
 /**
  * Created by matti on 23/08/2017.
@@ -111,7 +111,7 @@ public class FragmentState extends Application {
                 .commit();
     }
 
-    public static void replaceFragment(int placeholder, Fragment fragment) {
+    public void replaceFragment(int placeholder, Fragment fragment) {
         FragmentTransaction fragmentTransaction = FragmentState.fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(
                 FragmentState.currentInAnimation,
@@ -124,7 +124,7 @@ public class FragmentState extends Application {
                 .commit();
     }
 
-    public static void removeFragment(Fragment fragment) {
+    public void removeFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = FragmentState.fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(
                 FragmentState.currentInAnimation,
