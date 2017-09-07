@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -71,7 +70,6 @@ public class SaveMeFragment
     private Context context;
     private Activity activity;
     private PositionManager positionManager;
-    private LocationManager locationManager;
     double latitude, longitude;
     private TextView locationTxt, rangeText;
     private SeekBar seekBar;
@@ -79,14 +77,12 @@ public class SaveMeFragment
     private Circle circle;
     private FirebaseDatabase database;
     private DatabaseReference myRef;
-    private LocationListener locationListener;
     private Map<String, Marker> markerPool;
     private GoogleMap.OnMarkerClickListener onMarkerClickListener;
     private PopupWindow driverInfo;
     private LayoutInflater layoutInflater;
     private RelativeLayout relativeLayout;
     private TextView driverUsername, driverLocation, driverFeedback;
-    private String android_id;
     private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken;
     private UpdatePosition updatePosition;
     private Boolean chatActivitySwitched = false;
@@ -130,7 +126,7 @@ public class SaveMeFragment
         final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
         positionManager = ((MainFragmentActivity)getActivity()).getPositionManager();
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -329,24 +325,27 @@ public class SaveMeFragment
     @Override
     public void onPause() {
         Log.d(TAG, "onPause");
-        if (updatePosition != null)
+        if (updatePosition != null) {
             updatePosition.cancel(true);
-
-        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
-        mMapView.onPause();
+        }
         if (this.myRef != null) {
             myRef.onDisconnect();
         }
+        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
+        mMapView.onPause();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        if (updatePosition != null)
+        if (updatePosition != null) {
             updatePosition.cancel(true);
+        }
+        if (this.myRef != null) {
+            myRef.onDisconnect();
+        }
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
         mMapView.onDestroy();
-        myRef.onDisconnect();
         super.onDestroy();
     }
 
@@ -358,10 +357,10 @@ public class SaveMeFragment
 
     @Override
     public void onStop() {
-        if (updatePosition != null)
+        if (updatePosition != null) {
             updatePosition.cancel(true);
+        }
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
-        myRef.onDisconnect();
         super.onStop();
     }
 

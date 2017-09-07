@@ -3,6 +3,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 import android.net.Uri;
 import android.util.Log;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
@@ -17,13 +18,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_ALL;
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_ALL_AVAILABLE;
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_ALL_UNAVAILABLE;
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_DISTRICT;
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_NATION;
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LEVEL_REGION;
+import java.util.Random;
 
 /**
  * Created by alfredo on 01/09/17.
@@ -31,6 +26,9 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.frag
 
 public class DatabaseManager
         implements Constants {
+
+    // Medium cohesion and *** high coupling ***
+    // DatabaseManager -> all others classes
 
     private final static String TAG = DatabaseManager.class.getSimpleName();
 
@@ -40,33 +38,41 @@ public class DatabaseManager
 
 
 
-    public interface RetrieveRankFromDB {
-        void onErrorReceived(int errorType);
-        void onUsersRankingReceived(ArrayList<User> users);
-        void onUsersCoordinatesReceived(double latitude, double longitude);
-    }
-
-    public interface RetrieveVehiclesFromDB {
-        void onUserVehiclesReceived(ArrayList<Vehicle> vehicles);
-    }
-
     public static DatabaseReference getDatabaseReference() {
         return DatabaseManager.databaseReference;
     }
 
-    public static void setDataOnLocationChange(double latitude, double longitude) {
+    public static void disconnectReference() {
+        DatabaseManager.databaseReference.onDisconnect();
+    }
+
+    /**
+     * Update DB with latitude and longitude of the user.
+     * Here we are in users node.
+     * @param position:
+     *                position[0] -> latitude
+     *                position[1] -> longitude.
+     */
+    public static void setDataOnLocationChange(double[] position) {
         if (SingletonUser.getInstance() != null) {
             DatabaseReference databaseReference = DatabaseManager.databaseReference
                     .child(NODE_USERS)
                     .child(SingletonUser.getInstance().getUid())
                     .child(CHILD_CURRENT_POSITION);
             databaseReference.setValue(
-                    StringParser.getStringFromCoordinates(latitude, longitude)
+                    StringParser.getStringFromCoordinates(position[0], position[1])
             );
         }
     }
 
-    public static void updateCurrentPosition(double latitude, double longitude, String[] location) {
+    /**
+     * Update DB with latitude and longitude of the user.
+     * Here we are in positions node.
+     * @param position:
+     *                position[0] -> latitude
+     *                position[1] -> longitude.
+     */
+    public static void updateCurrentPosition(double[] position, String[] location) {
         String country = location[0]; String region = location[1]; String subRegion = location[2];
         if (SingletonUser.getInstance() != null) {
             DatabaseReference databaseReference = DatabaseManager.databaseReference
@@ -77,7 +83,7 @@ public class DatabaseManager
                     .child(SingletonUser.getInstance().getUid())
                     .child(CHILD_CURRENT_POSITION);
             databaseReference.setValue(
-                    StringParser.getStringFromCoordinates(latitude, longitude)
+                    StringParser.getStringFromCoordinates(position[0], position[1])
             );
         }
     }
@@ -96,6 +102,16 @@ public class DatabaseManager
         }
     }
 
+    public static void manageUserAvailability(String availability) {
+        if (SingletonUser.getInstance() != null) {
+            DatabaseReference databaseReference = DatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(SingletonUser.getInstance().getUid())
+                    .child(CHILD_AVAILABILITY);
+            databaseReference.setValue(availability);
+        }
+    }
+
     public static void manageDataUserDB() {
         final Query query = DatabaseManager.databaseReference
                 .child(NODE_USERS)
@@ -107,11 +123,10 @@ public class DatabaseManager
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // TODO controlla bene
                 Iterable<DataSnapshot> userData = dataSnapshot.getChildren();
                 // dataSnapshot.exist() --> .child(.getUid) esiste?
                 // user == null --> user non ha almeno un figlio?
-                if (!dataSnapshot.exists() || userData == null || dataSnapshot.getChildrenCount() < 4) {
+                if (!dataSnapshot.exists() || userData == null || dataSnapshot.getChildrenCount() < 5) {
                     Log.d(TAG, "Create user data");
                     if (!dataSnapshot.hasChild(CHILD_POINTS)) {
                         query.getRef()
@@ -139,6 +154,12 @@ public class DatabaseManager
                                 .child(CHILD_USERNAME)
                                 .setValue(SingletonUser.getInstance().getEmail());
                     }
+
+                    if (!dataSnapshot.hasChild(CHILD_CURRENT_POSITION)) {
+                        query.getRef()
+                                .child(CHILD_AVAILABILITY)
+                                .setValue(UNAVAILABLE);
+                    }
                 } else {
                     SingletonUser
                         .getInstance()
@@ -155,11 +176,16 @@ public class DatabaseManager
         });
     }
 
+
+
+    public interface RetrieveVehiclesFromDB {
+        void onUserVehiclesReceived(ArrayList<Vehicle> vehicles);
+    }
+
     public static void getVehiclesDB(final RetrieveVehiclesFromDB retrieveVehiclesFromDB,
                                      final SingletonUser.UserDataCallback userDataCallback)
             throws CallbackNotInitialized {
         if (retrieveVehiclesFromDB == null || userDataCallback == null) {
-            Log.w(TAG, "Callback not initialized");
             throw new CallbackNotInitialized("Callback not initialized");
         }
 
@@ -208,10 +234,21 @@ public class DatabaseManager
         });
     }
 
+
+
+    public interface RetrieveRankFromDB {
+        // Result code
+        int POSITION_NOT_FOUND = 1;
+        int NOT_INITIALIZED = 2;
+
+        void onErrorReceived(int errorType);
+        void onUsersRankingReceived(ArrayList<User> users);
+        void onUsersCoordinatesReceived(double[] position);
+    }
+
     public static void getCoordinates(final RetrieveRankFromDB retrieveRankFromDB)
     throws CallbackNotInitialized {
         if (retrieveRankFromDB == null) {
-            Log.w(TAG, "Callback not initialized");
             throw new CallbackNotInitialized("Callback not initialized");
         }
 
@@ -225,18 +262,19 @@ public class DatabaseManager
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
                             String coordinates = dataSnapshot.getValue().toString();
-                            if (coordinates != null) {
+                            if (!coordinates.isEmpty()) {
                                 String[] strings = StringParser.getCoordinates(coordinates);
-                                retrieveRankFromDB.onUsersCoordinatesReceived(
-                                        Double.parseDouble(strings[0]),
-                                        Double.parseDouble(strings[1])
-                                );
+                                retrieveRankFromDB.onUsersCoordinatesReceived(new double[] {
+                                                Double.parseDouble(strings[0]),
+                                                Double.parseDouble(strings[1])
+                                });
                             } else {
-                                // TODO valore della chiave non trovato -> errore interno
-                                retrieveRankFromDB.onErrorReceived(1);
+                                // key's value not found
+                                retrieveRankFromDB.onUsersCoordinatesReceived(null);
                             }
                         } else {
-                            retrieveRankFromDB.onErrorReceived(2);
+                            // Key not found
+                            retrieveRankFromDB.onUsersCoordinatesReceived(null);
                         }
                     }
 
@@ -250,48 +288,53 @@ public class DatabaseManager
     public static void getUsersRank(final RetrieveRankFromDB retrieveRankFromDB, String[] location)
             throws CallbackNotInitialized {
         if (retrieveRankFromDB == null) {
-            Log.w(TAG, "Callback not initialized");
             throw new CallbackNotInitialized("Callback not initialized");
         }
 
         // location[0] --> nation; location[1] --> region; location[2] --> district
-        String nation = location[0]; String region = location[1]; String district = location[2];
-        // DEBUG
-        nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
-        ////
+        String nation, region, district;
+        nation = region = district = null;
+        if (location != null) {
+            nation = location[0];
+            region = location[1];
+            district = location[2];
+            // DEBUG
+            nation = "Italy";
+            region = "Lazio";
+            district = "Provincia di Frosinone";
+            ////
+        }
 
         Query query = DatabaseManager.getDatabaseReference()
-                .child(NODE_POSITION)
-                .child(nation);
+                .child(NODE_POSITION);
         switch (RankingFragment.getLevel()) {
-            case LEVEL_DISTRICT:
+            case LevelMenuFragment.LevelStateChanged.LEVEL_DISTRICT:
+                if (nation == null || region == null || district == null) {
+                    Log.w(TAG, "district, region, nation NULL");
+                    break;
+                }
                 Log.d(TAG, "DISTRICT");
                 query = query.getRef()
+                        .child(nation)
                         .child(region)
-                        .child(district);
+                        .child(district)
+                        .orderByChild(CHILD_POINTS);
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            Iterable<DataSnapshot> users = dataSnapshot.getChildren();
-                            if  (users != null) {
-                                ArrayList<User> arrayList = new ArrayList<>();
-                                for (DataSnapshot user : users) {
-                                    if (user.child(CHILD_CURRENT_POSITION) != null &&
-                                            user.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                                        arrayList.add(new User(
-                                                user.child(CHILD_EMAIL).getValue().toString(),
-                                                Uri.parse("dio"),
-                                                243
-                                        ));
-                                    }
-                                }
-                                retrieveRankFromDB.onUsersRankingReceived(arrayList);
+                        ArrayList<User> arrayList;
+                        Iterable<DataSnapshot> users;
+                        if (dataSnapshot.exists() &&
+                                (users = dataSnapshot.getChildren()) != null) {
+                            arrayList = new ArrayList<>();
+                            for (DataSnapshot user : users) {
+                                arrayList.add(DatabaseManager.getUserFromData(user));
                             }
                         } else {
-                            // TODO non c'è alcun utente (neanche l'utente corrente)
-                            retrieveRankFromDB.onErrorReceived(5);
+                            // TODO non c'è alcun utente neanche quello corrente
+                            arrayList = null;
                         }
+                        retrieveRankFromDB.onUsersRankingReceived(arrayList);
                     }
 
                     @Override
@@ -301,9 +344,14 @@ public class DatabaseManager
                 });
                 break;
 
-            case LEVEL_REGION:
+            case LevelMenuFragment.LevelStateChanged.LEVEL_REGION:
+                if (nation == null || region == null) {
+                    Log.w(TAG, "district, region, nation NULL");
+                    break;
+                }
                 Log.d(TAG, "REGION");
                 query = query.getRef()
+                        .child(nation)
                         .child(region);
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -318,8 +366,14 @@ public class DatabaseManager
                 });
                 break;
 
-            case LEVEL_NATION:
+            case LevelMenuFragment.LevelStateChanged.LEVEL_NATION:
+                if (nation == null) {
+                    Log.w(TAG, "district, region, nation NULL");
+                    break;
+                }
                 Log.d(TAG, "NATION");
+                query.getRef()
+                        .child(nation);
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -333,13 +387,50 @@ public class DatabaseManager
                 });
                 break;
 
-            case LEVEL_ALL_AVAILABLE:
+            case LevelMenuFragment.LevelStateChanged.LEVEL_AVAILABLE:
+                if (nation == null || region == null || district == null) {
+                    Log.w(TAG, "district, region, nation NULL");
+                    break;
+                }
+                Log.d(TAG, "AVAIABLE");
                 break;
 
-            case LEVEL_ALL_UNAVAILABLE:
+            case LevelMenuFragment.LevelStateChanged.LEVEL_UNAVAILABLE:
+                Log.d(TAG, "UNAVAIABLE");
+                query.getRef()
+                        .child(COUNTRY)
+                        .child(REGION)
+                        .child(SUB_REGION);
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<User> arrayList;
+                        Iterable<DataSnapshot> users;
+                        if (dataSnapshot.exists() &&
+                                (users = dataSnapshot.getChildren()) != null) {
+                            arrayList = new ArrayList<>();
+                            for (DataSnapshot user : users) {
+                                arrayList.add(DatabaseManager.getUserFromData(user));
+                            }
+                        } else {
+                            arrayList = null;
+                        }
+                        retrieveRankFromDB.onUsersRankingReceived(arrayList);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "The read failed: " + databaseError.getCode());
+                    }
+                });
                 break;
 
-            case LEVEL_ALL:
+            case LevelMenuFragment.LevelStateChanged.LEVEL_ALL:
+                if (nation == null || region == null || district == null) {
+                    Log.w(TAG, "district, region, nation NULL");
+                    break;
+                }
+                Log.d(TAG, "ALL");
                 break;
 
             default:
@@ -347,7 +438,23 @@ public class DatabaseManager
         }
     }
 
-    public static void disconnectReference() {
-        DatabaseManager.databaseReference.onDisconnect();
+    private static User getUserFromData(DataSnapshot user) {
+        String username = "User" + new Random().nextInt(Integer.MAX_VALUE);
+        long points = 0;
+        Uri image = null;
+
+        if (user.hasChild(CHILD_USERNAME) &&
+                user.child(CHILD_USERNAME).getValue() != null) {
+            username = user.child(CHILD_USERNAME).getValue().toString();
+        }
+        if (user.hasChild(CHILD_POINTS)) {
+            points = (long) user.child(CHILD_POINTS).getValue();
+        }
+        if (user.hasChild(CHILD_IMAGE) &&
+                user.child(CHILD_IMAGE).getValue() != null) {
+            image = Uri.parse(user.child(CHILD_IMAGE).getValue().toString());
+        }
+
+        return new User(username, image, points);
     }
 }

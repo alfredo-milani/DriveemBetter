@@ -113,7 +113,7 @@ public class SingletonGoogleProvider
         this.account = result.getSignInAccount();
         if (result.isSuccess() && this.account != null) {
             // Connecting to PlayServices
-            // connectToPlayStore();  ~~~ sistemato in @onConnected()
+            connectToPlayStore();  // codice in onConnected non sufficiente
 
             // Google Sign In was successful, authenticate with Firebase
             Log.d(TAG, "Google auth: user: " + this.account.getEmail());
@@ -190,9 +190,12 @@ public class SingletonGoogleProvider
                         signIn = false;
 
                         // Firebase sign out
-                        singletonFirebaseProvider.signOut();
+                        // singletonFirebaseProvider.signOut();
                     }
                 });
+
+        // Firebase sign out
+        singletonFirebaseProvider.signOut();
     }
 
     /**

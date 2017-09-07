@@ -158,6 +158,7 @@ public class MainFragmentActivity
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, ":create");
         super.onCreate(savedInstanceState);
         Intent serviceIntent = new Intent(getApplicationContext(), SwipeClosureHandler.class);
         startService(serviceIntent);
@@ -180,11 +181,6 @@ public class MainFragmentActivity
         navigationView.setNavigationItemSelectedListener(this);
         this.headerView =  navigationView.getHeaderView(0);
 
-        //TODO it should refresh automatically
-        FirebaseUtility firebaseUtility = new FirebaseUtility();
-        firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
-        DatabaseManager.manageDataUserDB();
-
         this.initWidgets();
     }
 
@@ -202,8 +198,11 @@ public class MainFragmentActivity
         this.saveMe = new SaveMeFragment();
         this.ranking = new RankingFragment();
         this.aboutUs = new AboutUsFragment();
-        //locationUpdater = new LocationUpdater(this, user);
-        //locationUpdater.updateLocation();
+
+        //TODO it should refresh automatically
+        FirebaseUtility firebaseUtility = new FirebaseUtility();
+        firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
+        DatabaseManager.manageDataUserDB();
     }
 
     private void initWidgets() {
@@ -329,7 +328,7 @@ public class MainFragmentActivity
                 // DEBUG
                 SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
                 if (singletonGoogleProvider != null) {
-                    Log.d(TAG, "SIGN IN: " + singletonGoogleProvider.isSignIn());
+                    Log.d(TAG, "SIGN IN GOOGLE: " + singletonGoogleProvider.isSignIn());
                 } else {
                     Log.d(TAG, "SING GOOGLE NULL");
                 }
@@ -342,7 +341,7 @@ public class MainFragmentActivity
                     Log.d(TAG, "USER FIRE NULL");
                 }
 
-                Log.d(TAG, "DIO CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
+                Log.d(TAG, "CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
 
                 Log.d(TAG, "Firebase signIn: " + this.singletonFirebaseProvider.isFirebaseSignIn());
                 ////
@@ -360,7 +359,6 @@ public class MainFragmentActivity
 
             case R.id.save_me:
                 if (!FragmentState.isFragmentOpen(FragmentState.SAVE_ME_FRAGMENT)) {
-                    // TODO ferma esecuzione SaveMeFragment in onPause()
                     this.fragmentState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.saveMe
@@ -370,10 +368,6 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_share:
-                // DEBUG
-                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                        .connectToPlayStore();
-                ////
                 break;
 
             case R.id.nav_send:
@@ -433,6 +427,14 @@ public class MainFragmentActivity
                 .isSignIn()) {
             ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                     .silentSignIn();
+        }
+
+        if (this.positionManager.isGPSEnabled()) {
+            Log.d(TAG, "GPS enabled");
+            DatabaseManager.manageUserAvailability(AVAILABLE);
+        } else {
+            Log.d(TAG, "GPS disabled");
+            DatabaseManager.manageUserAvailability(UNAVAILABLE);
         }
     }
 

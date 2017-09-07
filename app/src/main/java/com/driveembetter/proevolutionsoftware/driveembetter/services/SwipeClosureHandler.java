@@ -21,11 +21,6 @@ public class SwipeClosureHandler extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        //stars self
-        Intent myIntent = new Intent(this, SwipeClosureHandler.class);
-        startService(myIntent);
-
-        //TODO
         return null;
     }
 

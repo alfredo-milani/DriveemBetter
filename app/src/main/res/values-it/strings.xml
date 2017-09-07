@@ -93,4 +93,5 @@
     <string name="level_unavailable">Utenti non disponibili</string>
     <string name="level_available">Tutti gli utenti disponibili</string>
     <string name="level_all">Tutti gli utenti</string>
+    <string name="level_empty_list">Nessun utente trovato. Prova a cambiare filtro.</string>
 </resources>

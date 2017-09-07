@@ -38,18 +38,18 @@ public class LevelMenuFragment
     private RecyclerView recycleView;
     private RecyclerView.LayoutManager layoutManager;
 
-    // Users divided by location
-    public final static int LEVEL_NATION = 1;
-    public final static int LEVEL_REGION = 2;
-    public final static int LEVEL_DISTRICT = 3;
-    public final static int LEVEL_ALL_AVAILABLE = 4;
-    public final static int LEVEL_ALL_UNAVAILABLE = 5;
-    public final static int LEVEL_ALL = 6;
-
 
 
     public interface LevelStateChanged {
-        void levelChanged(int level);
+        // Users divided by location
+        int LEVEL_NATION = 1;
+        int LEVEL_REGION = 2;
+        int LEVEL_DISTRICT = 3;
+        int LEVEL_AVAILABLE = 4;
+        int LEVEL_UNAVAILABLE = 5;
+        int LEVEL_ALL = 6;
+
+        void onLevelChanged(int level);
     }
 
     @Override
@@ -83,12 +83,12 @@ public class LevelMenuFragment
     private void initResources() {
         // Key value of item level and corresponding string
         this.sparseIntArray = new SparseIntArray(3);
-        this.sparseIntArray.append(LEVEL_NATION, R.string.level_nation);
-        this.sparseIntArray.append(LEVEL_REGION, R.string.level_region);
-        this.sparseIntArray.append(LEVEL_DISTRICT, R.string.level_district);
-        this.sparseIntArray.append(LEVEL_ALL_AVAILABLE, R.string.level_available);
-        this.sparseIntArray.append(LEVEL_ALL_UNAVAILABLE, R.string.level_unavailable);
-        this.sparseIntArray.append(LEVEL_ALL, R.string.level_all);
+        this.sparseIntArray.append(LevelStateChanged.LEVEL_NATION, R.string.level_nation);
+        this.sparseIntArray.append(LevelStateChanged.LEVEL_REGION, R.string.level_region);
+        this.sparseIntArray.append(LevelStateChanged.LEVEL_DISTRICT, R.string.level_district);
+        this.sparseIntArray.append(LevelStateChanged.LEVEL_AVAILABLE, R.string.level_available);
+        this.sparseIntArray.append(LevelStateChanged.LEVEL_UNAVAILABLE, R.string.level_unavailable);
+        this.sparseIntArray.append(LevelStateChanged.LEVEL_ALL, R.string.level_all);
     }
 
     private void initWidgets() {
@@ -118,7 +118,7 @@ public class LevelMenuFragment
                 if (this.callback == null) {
                     throw new CallbackNotInitialized("LevelStateChanged callback not initialized");
                 }
-                this.callback.levelChanged(this.adapter.getSelectedItem());
+                this.callback.onLevelChanged(this.adapter.getSelectedItem());
                 break;
 
             case R.id.cancel:
@@ -126,7 +126,7 @@ public class LevelMenuFragment
         }
     }
 
-    public void initLevelStateChangedCallback(LevelStateChanged levelStateChanged) {
+    public void addLevelListener(LevelStateChanged levelStateChanged) {
         this.callback = levelStateChanged;
     }
 }

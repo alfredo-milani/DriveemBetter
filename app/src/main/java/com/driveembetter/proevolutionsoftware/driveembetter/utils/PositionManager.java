@@ -3,6 +3,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -75,6 +76,11 @@ public class PositionManager
 
     public double getLongitude() {
         return this.longitude;
+    }
+
+    public boolean isGPSEnabled() {
+        final LocationManager manager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     public static PositionManager getInstance(Activity activity) {
@@ -178,7 +184,7 @@ public class PositionManager
                         .child(userId);
 
                 // we need to update even "users" node
-                DatabaseManager.setDataOnLocationChange(latitude, longitude);
+                DatabaseManager.setDataOnLocationChange(new double[] {latitude, longitude});
                 ////
 
                 final Map<String, Object> currentCoordinates = coordinates;
@@ -199,7 +205,7 @@ public class PositionManager
                                     .getValue()
                                     .toString()
                                     .equals(StringParser.getStringFromCoordinates(latitude, longitude))) {
-                                DatabaseManager.updateCurrentPosition(latitude, longitude, strings);
+                                DatabaseManager.updateCurrentPosition(new double[] {latitude, longitude}, strings);
                         }
                         ////
                         if (SingletonUser.getInstance().getPhotoUrl() != null &&
@@ -211,9 +217,13 @@ public class PositionManager
 
                         //update user availability
                         if (!dataSnapshot.hasChild(CHILD_AVAILABILITY)) {
-                            myRef.child(CHILD_AVAILABILITY).setValue("Available");
-                        } else if (dataSnapshot.child(CHILD_AVAILABILITY).getValue().equals("Unavailable"))
-                            myRef.child(CHILD_AVAILABILITY).setValue("Available");
+                            myRef.child(CHILD_AVAILABILITY).setValue(AVAILABLE);
+                            DatabaseManager.manageUserAvailability(AVAILABLE);
+                        } else if (dataSnapshot.child(CHILD_AVAILABILITY).getValue().equals(UNAVAILABLE)) {
+                            myRef.child(CHILD_AVAILABILITY).setValue(AVAILABLE);
+                            DatabaseManager.manageUserAvailability(UNAVAILABLE);
+                        }
+                        ////
 
                         // update to latest point value
                         if (!dataSnapshot.hasChild(CHILD_POINTS)) {
@@ -270,6 +280,9 @@ public class PositionManager
             Map<String, Object> availabilityMap = new ArrayMap<>();
             availabilityMap.put(CHILD_AVAILABILITY, UNAVAILABLE);
             myRef.updateChildren(availabilityMap);
+            // Manage users node availability
+            DatabaseManager.manageUserAvailability(UNAVAILABLE);
+            ////
         }
     }
 
@@ -279,6 +292,9 @@ public class PositionManager
             Map<String, Object> availabilityMap = new ArrayMap<>();
             availabilityMap.put(CHILD_AVAILABILITY, AVAILABLE);
             myRef.updateChildren(availabilityMap);
+            // Manage users node availability
+            DatabaseManager.manageUserAvailability(AVAILABLE);
+            ////
         }
     }
 

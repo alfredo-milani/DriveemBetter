@@ -57,6 +57,7 @@ public class SignInActivity
 
     // If we are authenticated with Firebase we check if email is verified before log in
     private boolean checkEmailBeforeLogIn;
+    private boolean signInButtonPressed;
 
     //DEBUG
     private ImageView imageView;
@@ -96,6 +97,25 @@ public class SignInActivity
             int id = msg.what;
             switch (id) {
                 case USER_LOGIN:
+                    /*
+                    Log.d(TAG, "handleMessage:Login");
+                    if (signInButtonPressed) {
+                        signInButtonPressed = false;
+                        hideProgress();
+                        // Check if email has been verified
+                        if (checkEmailBeforeLogIn && (singletonFirebaseProvider
+                                .getFirebaseUser() == null ||
+                                !singletonFirebaseProvider
+                                        .getFirebaseUser()
+                                        .isEmailVerified())) {
+                            Log.d(TAG, "handleMessage:login:email_not_verified");
+                            break;
+                        }
+
+                        Log.d(TAG, "Login: email verified");
+                        startNewActivity(SignInActivity.this, MainFragmentActivity.class);
+                    }
+                    */
                     hideProgress();
                     Log.d(TAG, "handleMessage:Login");
                     // Check if email has been verified
@@ -225,6 +245,7 @@ public class SignInActivity
     private void initResources() {
         Log.d(TAG, "init resources");
 
+        this.signInButtonPressed = false;
         this.checkEmailBeforeLogIn = true;
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
@@ -277,10 +298,11 @@ public class SignInActivity
 
                 Log.d(TAG, "Firebase SignIn: " + this.singletonFirebaseProvider.isFirebaseSignIn());
                 break;
-
+            ////
 
             // Sign in with email and password
             case R.id.sign_in_button:
+                this.signInButtonPressed = true;
                 // Code strength
                 this.checkEmailBeforeLogIn = true;
                 ////
@@ -297,11 +319,7 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
-                /*
-                Intent intent = AccountPicker.newChooseAccountIntent(null, null, new String[]{"com.google"},
-                        false, null, null, null, null);
-                startActivityForResult(intent, SingletonGoogleProvider.RC_SIGN_IN);
-                */
+                this.signInButtonPressed = true;
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
                 this.baseProviderArrayList
@@ -311,6 +329,7 @@ public class SignInActivity
 
             // Sign in with Twitter
             case R.id.twitter_login_button:
+                this.signInButtonPressed = true;
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
                 this.baseProviderArrayList

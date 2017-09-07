@@ -47,8 +47,6 @@ public class RankingFragment
     // Resource
     private ArrayList<User> arrayList;
     private static int level;
-    private double latitude;
-    private double longitude;
     private PositionManager positionManager;
 
     // Widgets
@@ -57,9 +55,6 @@ public class RankingFragment
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recycleView;
     private RecyclerView.LayoutManager layoutManager;
-
-    // Error code
-    private final static int POSITION_NOT_FOUND = 1;
 
 
 
@@ -88,7 +83,7 @@ public class RankingFragment
 
         this.initResources();
 
-        RankingFragment.level = LevelMenuFragment.LEVEL_DISTRICT;
+        RankingFragment.level = LEVEL_DISTRICT;
         // To modify Menu items
         this.setHasOptionsMenu(true);
     }
@@ -115,32 +110,29 @@ public class RankingFragment
 
     private void startRoutineFillList() {
         this.showProgress();
-        this.latitude = this.positionManager.getLatitude();
-        this.longitude = this.positionManager.getLongitude();
-        this.retrieveUserData();
-    }
+        double latitude = this.positionManager.getLatitude();
+        double longitude = this.positionManager.getLongitude();
 
-    private void retrieveUserData() {
-        if (this.latitude == 0 || this.longitude == 0) {
+        Log.d(TAG, "startRoutineFillList: lat: " + latitude + " long: " + longitude);
+        if (latitude == 0 || longitude == 0) {
             DatabaseManager.getCoordinates(this);
         } else {
-            this.performQuery();
+            this.performQuery(new double[] {latitude, longitude});
         }
     }
 
-    private void performQuery() {
-        Log.d(TAG, "lat: " + latitude + " long: " + longitude);
-
+    private void performQuery(double[] position) {
         String[] location = this.positionManager.getLocationFromCoordinates(
-                this.latitude,
-                this.longitude,
+                position[0],
+                position[1],
                 1
         );
         // location[0] --> nation; location[1] --> region; location[2] --> district
         String nation = location[0]; String region = location[1]; String district = location[2];
         // DEBUG
-        nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
+        // nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
         ////
+        Log.d(TAG, "performQuery: " + nation + "/" + region + "/" + district);
         if (nation == null || region == null || district == null) {
             this.onErrorReceived(3);
         } else {
@@ -152,7 +144,13 @@ public class RankingFragment
     public void onErrorReceived(int errorType) {
         String string;
         switch (errorType) {
+            case NOT_INITIALIZED:
+                string = "";
+                break;
+
             case POSITION_NOT_FOUND:
+                string = "";
+                break;
 
             default:
                 Log.d(TAG, "onErrorReceived: " + errorType);
@@ -165,16 +163,20 @@ public class RankingFragment
     }
 
     @Override
-    public void onUsersCoordinatesReceived(double latitude, double longitude) {
-        Log.d(TAG, "onUserCoordinatesReceived");
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.performQuery();
+    public void onUsersCoordinatesReceived(double[] position) {
+        if (position != null) {
+            Log.d(TAG, "onUserCoordinatesReceived: position: " + position[0] + "/" + position[1]);
+            this.performQuery(position);
+        } else {
+            Log.d(TAG, "onUserCoordinatesReceived: position NULL");
+            RankingFragment.level = LEVEL_UNAVAILABLE;
+            DatabaseManager.getUsersRank(this, null);
+        }
     }
 
     @Override
     public void onUsersRankingReceived(ArrayList<User> arrayList) {
-        Log.d(TAG, "onUsersRankingReceived");
+        Log.d(TAG, "onUsersRankingReceived: " + arrayList);
         this.arrayList = arrayList;
         this.fillList();
     }
@@ -186,8 +188,18 @@ public class RankingFragment
         this.recycleView.setAdapter(rankingRecyclerViewAdapter);
 
         this.hideProgress();
+        Log.d(TAG, "list received: " + arrayList.size());
+        if (this.arrayList != null) {
+            for (User a : arrayList) {
+                Log.d(TAG, "user: " + a.getEmail() + " / " + a.getPoints() + " / " + a.getUsername() + " / " + a.getUid() + " / " + a.getPhotoUrl());
+            }
+        } else {
+            Log.d(TAG, "DIO NULL");
+        }
         if (this.arrayList != null) {
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -204,7 +216,7 @@ public class RankingFragment
             case R.id.menu_selection_level:
                 Log.i(TAG, "Level menu item selected");
                 LevelMenuFragment levelMenuFragment = new LevelMenuFragment();
-                levelMenuFragment.initLevelStateChangedCallback(this);
+                levelMenuFragment.addLevelListener(this);
                 // Show DialogFragment
                 levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));
                 return true;
@@ -289,7 +301,7 @@ public class RankingFragment
     }
 
     @Override
-    public void levelChanged(int level) {
+    public void onLevelChanged(int level) {
         RankingFragment.level = level;
     }
 

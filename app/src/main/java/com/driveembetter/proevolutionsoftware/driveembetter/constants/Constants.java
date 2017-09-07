@@ -36,14 +36,12 @@ public interface Constants {
     String ARG_FRIENDS = "friends";
     String ARG_UID = "uid";
 
-
-
     // Database's nodes
     String NODE_POSITION = "position";
     String NODE_USERS = "users";
     String NODE_VEHICLES = "vehicles";
 
-    // Database's child
+    // Database's child for entity User
     String CHILD_USERNAME = "username";
     String CHILD_IMAGE = "image";
     String CHILD_POINTS = "points";

@@ -106,7 +106,7 @@ public class RankingRecyclerViewAdapter
 
         holder.points.setText(String.valueOf(users.get(position).getPoints()));
 
-        holder.rank.setText("Rank");
+        holder.rank.setText(String.valueOf(position + 1).concat("°"));
 
         holder.bind(this.users.get(position), this.listener);
     }
