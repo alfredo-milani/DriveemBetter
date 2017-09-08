@@ -74,7 +74,7 @@ public class LevelMenuFragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT){
+        if (android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT){
             // Change the title divider color
             final Resources res = getResources();
             final int titleDividerId = res.getIdentifier("titleDivider", "id", "android");

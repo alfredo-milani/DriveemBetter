@@ -174,22 +174,28 @@ public class DatabaseManager
                                 .child(SingletonUser.getInstance().getUid())
                                 .child(CHILD_AVAILABILITY)
                                 .setValue(UNAVAILABLE);
-                        query.getRef()
-                                .child(SingletonUser.getInstance().getUid())
-                                .child(CHILD_USERNAME)
-                                .setValue(SingletonUser.getInstance().getUsername());
+                        if (SingletonUser.getInstance().getUsername() != null) {
+                            query.getRef()
+                                    .child(SingletonUser.getInstance().getUid())
+                                    .child(CHILD_USERNAME)
+                                    .setValue(SingletonUser.getInstance().getUsername());
+                        }
                         query.getRef()
                                 .child(SingletonUser.getInstance().getUid())
                                 .child(CHILD_POINTS)
                                 .setValue(SingletonUser.getInstance().getPoints());
-                        query.getRef()
-                                .child(SingletonUser.getInstance().getUid())
-                                .child(CHILD_EMAIL)
-                                .setValue(SingletonUser.getInstance().getEmail());
-                        query.getRef()
-                                .child(SingletonUser.getInstance().getUid())
-                                .child(CHILD_IMAGE)
-                                .setValue(SingletonUser.getInstance().getPhotoUrl().toString());
+                        if (SingletonUser.getInstance().getEmail() != null) {
+                            query.getRef()
+                                    .child(SingletonUser.getInstance().getUid())
+                                    .child(CHILD_EMAIL)
+                                    .setValue(SingletonUser.getInstance().getEmail());
+                        }
+                        if (SingletonUser.getInstance().getPhotoUrl() != null) {
+                            query.getRef()
+                                    .child(SingletonUser.getInstance().getUid())
+                                    .child(CHILD_IMAGE)
+                                    .setValue(SingletonUser.getInstance().getPhotoUrl().toString());
+                        }
                     }
                 }
             }
