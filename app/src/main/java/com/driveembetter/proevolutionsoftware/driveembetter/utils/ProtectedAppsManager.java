@@ -34,11 +34,11 @@ public class ProtectedAppsManager extends Application {
     }
 
     public void checkAlert() {
-        //if ("huawei".equalsIgnoreCase(android.os.Build.MANUFACTURER)) {
-        //    huaweiAlert();
-        //} else {
+        if ("huawei".equalsIgnoreCase(android.os.Build.MANUFACTURER)) {
+            huaweiAlert();
+        } else {
             generalAlert();
-        //}
+        }
     }
 
     private void generalAlert() {

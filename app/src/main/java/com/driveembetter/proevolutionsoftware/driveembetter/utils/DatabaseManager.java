@@ -299,9 +299,9 @@ public class DatabaseManager
             region = location[1];
             district = location[2];
             // DEBUG
-            nation = "Italy";
-            region = "Lazio";
-            district = "Provincia di Frosinone";
+            // nation = "Italy";
+            // region = "Lazio";
+            // district = "Provincia di Frosinone";
             ////
         }
 
@@ -455,6 +455,6 @@ public class DatabaseManager
             image = Uri.parse(user.child(CHILD_IMAGE).getValue().toString());
         }
 
-        return new User(username, image, points);
+        return new User(user.getKey().toString(), username, image, points);
     }
 }

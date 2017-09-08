@@ -78,6 +78,13 @@ public class User
         this.points = points;
     }
 
+    public User(String uid, String username, Uri photoUrl, long points) {
+        this.uid = uid;
+        this.username = username;
+        this.photoUrl = photoUrl;
+        this.points = points;
+    }
+
     public User(String username, String email, Uri photoUrl, String uid) {
         this(username, email);
         this.photoUrl = photoUrl;

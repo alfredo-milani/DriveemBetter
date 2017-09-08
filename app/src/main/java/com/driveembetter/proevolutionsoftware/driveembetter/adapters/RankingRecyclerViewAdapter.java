@@ -1,6 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.adapters;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 
 import java.util.List;
@@ -75,6 +77,14 @@ public class RankingRecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(UserViewHolder holder, int position) {
+        boolean currentUser = false;
+        if (SingletonUser.getInstance() != null) {
+            currentUser = users
+                    .get(position)
+                    .getUid()
+                    .equals(SingletonUser.getInstance().getUid());
+        }
+
         if (this.users.get(position).getPhotoUrl() != null) {
             Glide.with(this.context)
                     .load(
@@ -109,6 +119,14 @@ public class RankingRecyclerViewAdapter
         holder.rank.setText(String.valueOf(position + 1).concat("°"));
 
         holder.bind(this.users.get(position), this.listener);
+
+        if (currentUser) {
+            holder.name.setTextColor(ContextCompat.getColor(this.context, R.color.blue_800));
+            holder.name.setTextSize(18);
+            holder.points.setTextColor(ContextCompat.getColor(this.context, R.color.blue_800));
+            holder.points.setTextSize(18);
+            holder.rank.setTextSize(30);
+        }
     }
 
     @Override

@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.adapters.DividerItemDecoration;
 import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingRecyclerViewAdapter;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.UserDetailsRankingActivity;
@@ -29,6 +30,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by alfredo on 26/08/17.
@@ -177,14 +179,17 @@ public class RankingFragment
     @Override
     public void onUsersRankingReceived(ArrayList<User> arrayList) {
         Log.d(TAG, "onUsersRankingReceived: " + arrayList);
+        // Descending order
+        Collections.reverse(arrayList);
         this.arrayList = arrayList;
         this.fillList();
     }
 
     private void fillList() {
+        this.recycleView.addItemDecoration(new DividerItemDecoration(this.context));
         RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
                 new RankingRecyclerViewAdapter(this.context, this.arrayList, this);
-        // To avoid memory leaks set adapter in onACtivityCreated
+        // To avoid memory leaks set adapter in onActivityCreated
         this.recycleView.setAdapter(rankingRecyclerViewAdapter);
 
         this.hideProgress();
@@ -303,6 +308,7 @@ public class RankingFragment
     @Override
     public void onLevelChanged(int level) {
         RankingFragment.level = level;
+        this.startRoutineFillList();
     }
 
     public static int getLevel() {
