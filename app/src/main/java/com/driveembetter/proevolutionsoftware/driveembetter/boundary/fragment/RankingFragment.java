@@ -53,6 +53,9 @@ public class RankingFragment
     private static int level;
     private PositionManager positionManager;
 
+    // Dialog fragment
+    private LevelMenuFragment levelMenuFragment;
+
     // Widgets
     private Context context;
     private View rootView;
@@ -108,22 +111,30 @@ public class RankingFragment
         this.startRoutineFillList();
     }
 
-    // TODO RUNNABLE PER CARICARE LA LISTA
     private void startRoutineFillList() {
         this.showProgress();
-        double latitude = this.positionManager.getLatitude();
-        double longitude = this.positionManager.getLongitude();
 
-        Log.d(TAG, "startRoutineFillList: lat: " + latitude + " long: " + longitude);
-        if (latitude == 0 || longitude == 0) {
-            DatabaseManager.getCoordinates(this);
-        } else {
-            this.performQuery(new double[] {latitude, longitude});
+        double[] position = this.getCoordinates();
+
+        Log.d(TAG, "startRoutineFillList: lat: " + position[0] + " long: " + position[1]);
+        if (position[0] != 0 && position[1] != 0) {
+            this.performQuery(position);
         }
     }
 
+    private double[] getCoordinates() {
+        double latitude = this.positionManager.getLatitude();
+        double longitude = this.positionManager.getLongitude();
+
+        if (latitude == 0 || longitude == 0) {
+            DatabaseManager.getCoordinates(this);
+        }
+
+        return new double[] {latitude, longitude};
+    }
+
     private void performQuery(double[] position) {
-        // TODO getLocationFromCoordinates() NON FUNZIONA MANCO PER IL CAZZO PORCODDIO!!!
+        // TODO getLocationFromCoordinates() NON FUNZIONA PORCODDIO!!!
         String[] location = this.positionManager.getLocationFromCoordinates(
                 position[0],
                 position[1],
@@ -132,7 +143,7 @@ public class RankingFragment
         // location[0] --> nation; location[1] --> region; location[2] --> district
         String nation = location[0]; String region = location[1]; String district = location[2];
         // DEBUG
-        nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
+        // nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
         ////
         Log.d(TAG, "performQuery: " + nation + "/" + region + "/" + district);
         if (nation == null || region == null || district == null) {
@@ -140,7 +151,14 @@ public class RankingFragment
             this.onErrorReceived(POSITION_NOT_FOUND);
         } else if (nation.equals(COUNTRY) || region.equals(REGION) || district.equals(SUB_REGION)) {
             // Indefinite position
-            RankingFragment.level = LEVEL_UNAVAILABLE;
+            switch (RankingFragment.level) {
+                case LEVEL_NATION:
+                case LEVEL_REGION:
+                case LEVEL_DISTRICT:
+                    RankingFragment.level = LEVEL_UNAVAILABLE;
+                    this.onErrorReceived(NOT_ALLOWED);
+                    break;
+            }
             DatabaseManager.getUsersRank(this, new String[] {COUNTRY, REGION, SUB_REGION});
         } else {
             DatabaseManager.getUsersRank(this, new String[] {nation, region, district});
@@ -152,7 +170,10 @@ public class RankingFragment
         String string;
         switch (errorType) {
             case NOT_ALLOWED:
-                string = getString(R.string.bad_query_unknown_position);
+                string = String.format(
+                        getString(R.string.bad_query_unknown_position),
+                        getString(R.string.filter_unavailable)
+                );
                 break;
 
             case UNKNOWN_ERROR:
@@ -215,8 +236,18 @@ public class RankingFragment
         if (this.arrayList != null) {
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
+            // Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onLevelChanged(int level) {
+        RankingFragment.level = level;
+        this.startRoutineFillList();
+    }
+
+    public static int getLevel() {
+        return RankingFragment.level;
     }
 
     @Override
@@ -225,17 +256,14 @@ public class RankingFragment
         switch (id) {
             // Check if user triggered a refresh:
             case R.id.refresh_action:
-                Log.i(TAG, "Refresh menu item selected");
+                Log.d(TAG, "Refresh menu item selected");
                 this.startRoutineFillList();
                 return true;
 
             case R.id.menu_selection_level:
-                Log.i(TAG, "Level menu item selected");
-                LevelMenuFragment levelMenuFragment = new LevelMenuFragment();
-                levelMenuFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
-                levelMenuFragment.addLevelListener(this);
+                Log.d(TAG, "Level menu item selected");
                 // Show DialogFragment
-                levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));
+                this.levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));
                 return true;
         }
 
@@ -252,7 +280,12 @@ public class RankingFragment
     }
 
     private void initResources() {
+        this.levelMenuFragment = new LevelMenuFragment();
+        this.levelMenuFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+        this.levelMenuFragment.addLevelListener(this);
+
         this.positionManager = PositionManager.getInstance((Activity) this.context);
+
         RankingFragment.level = LEVEL_DISTRICT;
     }
 
@@ -322,30 +355,8 @@ public class RankingFragment
     }
 
     @Override
-    public void onLevelChanged(int level) {
-        /*
-        if (RankingFragment.level == LEVEL_UNAVAILABLE) {
-            switch (level) {
-                case LEVEL_NATION:
-                case LEVEL_REGION:
-                case LEVEL_DISTRICT:
-                    this.onErrorReceived(NOT_ALLOWED);
-                    return;
-            }
-        }
-        */
-
-        RankingFragment.level = level;
-        this.startRoutineFillList();
-    }
-
-    public static int getLevel() {
-        return RankingFragment.level;
-    }
-
-    @Override
     public void onItemClick(User item) {
-        Log.d(TAG, "onClick");
+        Log.d(TAG, "onItemClick");
         Intent userDetail = new Intent(this.getActivity(), UserDetailsRankingActivity.class);
         userDetail.putExtra(USER, item);
         this.startActivity(userDetail);
