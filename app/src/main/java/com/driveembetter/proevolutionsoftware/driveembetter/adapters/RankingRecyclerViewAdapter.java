@@ -79,7 +79,8 @@ public class RankingRecyclerViewAdapter
     @Override
     public void onBindViewHolder(UserViewHolder holder, int position) {
         boolean currentUser = false;
-        if (SingletonUser.getInstance() != null) {
+        if (SingletonUser.getInstance() != null &&
+                users.get(position).getUid() != null) {
             currentUser = users
                     .get(position)
                     .getUid()
@@ -112,18 +113,7 @@ public class RankingRecyclerViewAdapter
         if (users.get(position).getUsername() != null) {
             holder.name.setText(users.get(position).getUsername());
         } else {
-            String userUid = users.get(position).getUid();
-            String username = this.context.getString(R.string.user_item)
-                    .concat("_" + userUid.substring(
-                            userUid.length() / 2,
-                            userUid.length() * 3 / 4
-                    ).toLowerCase());
-            /*
-            int randomInt = new Random().nextInt(Integer.MAX_VALUE);
-            String username = this.context.getString(R.string.user_item)
-                    .concat(String.valueOf(randomInt));
-                    */
-            holder.name.setText(username);
+            holder.name.setText(users.get(position).getUsernameFromUid());
         }
 
         holder.points.setText(String.valueOf(users.get(position).getPoints()));

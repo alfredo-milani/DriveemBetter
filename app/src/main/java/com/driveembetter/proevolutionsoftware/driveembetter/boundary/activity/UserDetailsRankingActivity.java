@@ -3,6 +3,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,9 +27,10 @@ public class UserDetailsRankingActivity
     private User user;
 
     // Widgets
-    private TextView textView;
-    private TextView textView2;
+    private TextView username;
+    private TextView points;
     private ImageView imageView;
+    private ImageView availability;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,16 +46,18 @@ public class UserDetailsRankingActivity
     }
 
     private void initWidgets() {
-        this.textView = (TextView) findViewById(R.id.textView10);
-        this.textView2 = (TextView) findViewById(R.id.textView11);
+        this.username = (TextView) findViewById(R.id.user);
+        this.points = (TextView) findViewById(R.id.points);
         this.imageView = (ImageView) findViewById(R.id.user_picture);
+        this.availability = (ImageView) findViewById(R.id.availability);
 
         if (this.user.getUsername() != null) {
-            this.textView.setText(this.user.getUsername());
-        } else if (this.user.getEmail() != null) {
-            this.textView.setText(this.user.getEmail());
+            this.username.setText(this.user.getUsername());
+        } else {
+            this.username.setText(this.user.getUsernameFromUid());
         }
-        this.textView2.setText(String.valueOf(this.user.getPoints()));
+        this.points.setText(String.valueOf(this.user.getPoints()));
+        Log.d(TAG, "CANE: " + user.getUsername() + " / " + String.valueOf(user.getPoints()) + " / " + user.getPhotoUrl() + " / " + user.getAvailability());
         if (this.user.getPhotoUrl() != null) {
             Glide.with(this)
                     .load(this.user.getPhotoUrl())
@@ -70,6 +74,10 @@ public class UserDetailsRankingActivity
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(this.imageView);
+        }
+        if (this.user.getAvailability() != null &&
+            this.user.getAvailability().equals(AVAILABLE)) {
+            this.availability.setImageResource(R.drawable.available_shape);
         }
     }
 

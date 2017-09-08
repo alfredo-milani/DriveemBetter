@@ -37,17 +37,11 @@ public class SingletonUser
 
     private static SingletonUser singletonInstance;
 
-    // Short constructor
-    private SingletonUser(String username, String email) {
-        super(username, email);
-    }
-
-    // Extended constructor
     private SingletonUser(String username, String email, Uri photoUrl, String uid, boolean emailVerified, String providerId, List providerData) {
-        super(username, email, photoUrl, uid);
-        this.emailVerified = emailVerified;
-        this.providerId = providerId;
-        this.providerData = providerData;
+        super(uid, username, email, photoUrl, 0, null);
+        this.setEmailVerified(emailVerified);
+        this.setProviderId(providerId);
+        this.setProviderData(providerData);
     }
 
 

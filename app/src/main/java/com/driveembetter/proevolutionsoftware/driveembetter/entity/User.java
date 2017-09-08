@@ -21,13 +21,14 @@ public class User
     // Storing the Movie data to Parcel object
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(this.username);
-        parcel.writeString(this.email);
-        if (this.photoUrl != null) {
-            parcel.writeString(this.photoUrl.toString());
+        parcel.writeString(this.getUid());
+        parcel.writeString(this.getUsername());
+        parcel.writeString(this.getEmail());
+        parcel.writeString(this.getAvailability());
+        parcel.writeLong(this.getPoints());
+        if (this.getPhotoUrl() != null) {
+            parcel.writeString(this.getPhotoUrl().toString());
         }
-        parcel.writeString(this.uid);
-        parcel.writeLong(this.points);
     }
 
     /**
@@ -36,11 +37,12 @@ public class User
      * the object CREATOR
      **/
     private User(Parcel in){
-        this.username = in.readString();
-        this.email = in.readString();
-        this.photoUrl = this.getUriIfExist(in.readString());
-        this.uid = in.readString();
-        this.points = in.readLong();
+        this.setUid(in.readString());
+        this.setUsername(in.readString());
+        this.setEmail(in.readString());
+        this.setAvailability(in.readString());
+        this.setPoints(in.readLong());
+        this.setPhotoUrl(this.getUriIfExist(in.readString()));
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -56,43 +58,44 @@ public class User
     };
 
     private Uri getUriIfExist(String s) {
-        return s != null ? Uri.parse(s) : null;
+        return s != null ?
+                Uri.parse(s) : null;
     }
 
 
 
+    private String uid;
     private String username;
     private String email;
+    private String availability;
     private Uri photoUrl;
-    private String uid;
     private long points;
 
-    public User(String username, String email) {
+    public User(String uid, String username, String email, Uri photoUrl, long points, String availability) {
+        this.uid = uid;
         this.username = username;
         this.email = email;
-    }
-
-    public User(String username, Uri photoUrl, long points) {
-        this.username = username;
+        this.availability = availability;
         this.photoUrl = photoUrl;
         this.points = points;
     }
 
-    public User(String uid, String username, Uri photoUrl, long points) {
-        this.uid = uid;
-        this.username = username;
-        this.photoUrl = photoUrl;
-        this.points = points;
-    }
 
-    public User(String username, String email, Uri photoUrl, String uid) {
-        this(username, email);
-        this.photoUrl = photoUrl;
-        this.uid = uid;
-    }
 
     public String getUsername() {
         return this.username;
+    }
+
+    public String getUsernameFromUid() {
+        return "User_".concat(this.uid.substring(
+                this.uid.length() / 2,
+                this.uid.length() * 3 / 4
+        ).toLowerCase());
+            /*
+            int randomInt = new Random().nextInt(Integer.MAX_VALUE);
+            String username = this.context.getString(R.string.user_item)
+                    .concat(String.valueOf(randomInt));
+                    */
     }
 
     public void setUsername(String username) {
@@ -129,5 +132,13 @@ public class User
 
     public void setPoints(long points) {
         this.points = points;
+    }
+
+    public String getAvailability() {
+        return this.availability;
+    }
+
+    public void setAvailability(String availability) {
+        this.availability = availability;
     }
 }

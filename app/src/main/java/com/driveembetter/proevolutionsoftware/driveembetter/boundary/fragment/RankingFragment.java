@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,13 +25,10 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgres
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.UserDetailsRankingActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveRankingRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * Created by alfredo on 26/08/17.
@@ -40,7 +36,6 @@ import java.util.Comparator;
 public class RankingFragment
         extends Fragment
         implements SwipeRefreshLayout.OnRefreshListener,
-        DatabaseManager.RetrieveRankFromDB,
         LevelMenuFragment.LevelStateChanged,
         RankingRecyclerViewAdapter.OnItemClickListener,
         Constants,
@@ -49,9 +44,7 @@ public class RankingFragment
     private final static String TAG = RankingFragment.class.getSimpleName();
 
     // Resource
-    private ArrayList<User> arrayList;
     private static int level;
-    private PositionManager positionManager;
 
     // Dialog fragment
     private LevelMenuFragment levelMenuFragment;
@@ -108,132 +101,19 @@ public class RankingFragment
     public void onStart() {
         super.onStart();
 
-        this.startRoutineFillList();
-    }
-
-    private void startRoutineFillList() {
         this.showProgress();
-
-        double[] position = this.getCoordinates();
-
-        Log.d(TAG, "startRoutineFillList: lat: " + position[0] + " long: " + position[1]);
-        if (position[0] != 0 && position[1] != 0) {
-            this.performQuery(position);
-        }
+        new Thread(new RetrieveRankingRunnable(this)).start();
     }
 
-    private double[] getCoordinates() {
-        double latitude = this.positionManager.getLatitude();
-        double longitude = this.positionManager.getLongitude();
-
-        if (latitude == 0 || longitude == 0) {
-            DatabaseManager.getCoordinates(this);
-        }
-
-        return new double[] {latitude, longitude};
-    }
-
-    private void performQuery(double[] position) {
-        // TODO getLocationFromCoordinates() NON FUNZIONA PORCODDIO!!!
-        String[] location = this.positionManager.getLocationFromCoordinates(
-                position[0],
-                position[1],
-                1
-        );
-        // location[0] --> nation; location[1] --> region; location[2] --> district
-        String nation = location[0]; String region = location[1]; String district = location[2];
-        // DEBUG
-        // nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
-        ////
-        Log.d(TAG, "performQuery: " + nation + "/" + region + "/" + district);
-        if (nation == null || region == null || district == null) {
-            // Unknown error in PositionManager
-            this.onErrorReceived(POSITION_NOT_FOUND);
-        } else if (nation.equals(COUNTRY) || region.equals(REGION) || district.equals(SUB_REGION)) {
-            // Indefinite position
-            switch (RankingFragment.level) {
-                case LEVEL_NATION:
-                case LEVEL_REGION:
-                case LEVEL_DISTRICT:
-                    RankingFragment.level = LEVEL_UNAVAILABLE;
-                    this.onErrorReceived(NOT_ALLOWED);
-                    break;
-            }
-            DatabaseManager.getUsersRank(this, new String[] {COUNTRY, REGION, SUB_REGION});
-        } else {
-            DatabaseManager.getUsersRank(this, new String[] {nation, region, district});
-        }
-    }
-
-    @Override
-    public void onErrorReceived(int errorType) {
-        String string;
-        switch (errorType) {
-            case NOT_ALLOWED:
-                string = String.format(
-                        getString(R.string.bad_query_unknown_position),
-                        getString(R.string.filter_unavailable)
-                );
-                break;
-
-            case UNKNOWN_ERROR:
-                string = getString(R.string.unknown_error);
-                break;
-
-            case POSITION_NOT_FOUND:
-                string = getString(R.string.position_not_found);
-                break;
-
-            case INVALID_POSITION:
-                string = getString(R.string.invalid_position);
-                break;
-
-            default:
-                Log.d(TAG, "onErrorReceived: " + errorType);
-                string = getString(R.string.unable_load_ranking);
-        }
-
-        this.arrayList = null;
-        this.fillList();
-        Toast.makeText(this.context, string, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onUsersCoordinatesReceived(double[] position) {
-        if (position != null) {
-            Log.d(TAG, "onUserCoordinatesReceived: position: " + position[0] + "/" + position[1]);
-            this.performQuery(position);
-        } else {
-            Log.d(TAG, "onUserCoordinatesReceived: position NULL");
-            RankingFragment.level = LEVEL_UNAVAILABLE;
-            DatabaseManager.getUsersRank(this, null);
-        }
-    }
-
-    @Override
-    public void onUsersRankingReceived(ArrayList<User> arrayList) {
-        Log.d(TAG, "onUsersRankingReceived: " + arrayList);
-        // Descending order
-        Collections.sort(arrayList, new Comparator<User>() {
-            @Override
-            public int compare(User user1, User user2) {
-                return user1.getPoints() < user2.getPoints() ?
-                        1 : -1;
-            }
-        });
-        this.arrayList = arrayList;
-        this.fillList();
-    }
-
-    private void fillList() {
+    public void fillList(ArrayList<User> arrayList) {
         this.recycleView.addItemDecoration(new DividerItemDecoration(this.context));
         RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
-                new RankingRecyclerViewAdapter(this.context, this.arrayList, this);
+                new RankingRecyclerViewAdapter(this.context, arrayList, this);
         // To avoid memory leaks set adapter in onActivityCreated
         this.recycleView.setAdapter(rankingRecyclerViewAdapter);
 
         this.hideProgress();
-        if (this.arrayList != null) {
+        if (arrayList != null) {
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         } else {
             // Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
@@ -243,11 +123,17 @@ public class RankingFragment
     @Override
     public void onLevelChanged(int level) {
         RankingFragment.level = level;
-        this.startRoutineFillList();
+        this.showProgress();
+
+        new Thread(new RetrieveRankingRunnable(this)).start();
     }
 
     public static int getLevel() {
         return RankingFragment.level;
+    }
+
+    public static void setLevel(int level) {
+        RankingFragment.level = level;
     }
 
     @Override
@@ -257,7 +143,8 @@ public class RankingFragment
             // Check if user triggered a refresh:
             case R.id.refresh_action:
                 Log.d(TAG, "Refresh menu item selected");
-                this.startRoutineFillList();
+                this.showProgress();
+                new Thread(new RetrieveRankingRunnable(this)).start();
                 return true;
 
             case R.id.menu_selection_level:
@@ -283,8 +170,6 @@ public class RankingFragment
         this.levelMenuFragment = new LevelMenuFragment();
         this.levelMenuFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
         this.levelMenuFragment.addLevelListener(this);
-
-        this.positionManager = PositionManager.getInstance((Activity) this.context);
 
         RankingFragment.level = LEVEL_DISTRICT;
     }
@@ -329,7 +214,8 @@ public class RankingFragment
     public void onRefresh() {
         Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
 
-        this.startRoutineFillList();
+        this.showProgress();
+        new Thread(new RetrieveRankingRunnable(this)).start();
     }
 
     @Override
@@ -355,10 +241,10 @@ public class RankingFragment
     }
 
     @Override
-    public void onItemClick(User item) {
+    public void onItemClick(User user) {
         Log.d(TAG, "onItemClick");
         Intent userDetail = new Intent(this.getActivity(), UserDetailsRankingActivity.class);
-        userDetail.putExtra(USER, item);
+        userDetail.putExtra(USER, user);
         this.startActivity(userDetail);
     }
 }

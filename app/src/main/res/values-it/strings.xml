@@ -98,4 +98,5 @@
     <string name="position_not_found">Posizione non trovata</string>
     <string name="bad_query_unknown_position">Non è possibile determinare la tua posizione: il filtro è stato impostato su: %s</string>
     <string name="filter_unavailable">non disponibili</string>
+    <string name="availability">Disponibilità</string>
 </resources>

@@ -64,6 +64,60 @@ public class DatabaseManager
         }
     }
 
+    public static void manageUserAvailability(String availability) {
+        if (SingletonUser.getInstance() != null &&
+                availability != null) {
+            DatabaseReference databaseReference = DatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(SingletonUser.getInstance().getUid())
+                    .child(CHILD_AVAILABILITY);
+            databaseReference.setValue(availability);
+        }
+    }
+
+    public static void manageUserUsername(String username) {
+        if (SingletonUser.getInstance() != null &&
+                username != null) {
+            DatabaseReference databaseReference = DatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(SingletonUser.getInstance().getUid())
+                    .child(CHILD_USERNAME);
+            databaseReference.setValue(username);
+        }
+    }
+
+    public static void manageUserPoints(long points) {
+        if (SingletonUser.getInstance() != null) {
+            DatabaseReference databaseReference = DatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(SingletonUser.getInstance().getUid())
+                    .child(CHILD_POINTS);
+            databaseReference.setValue(points);
+        }
+    }
+
+    public static void manageUserEmail(String email) {
+        if (SingletonUser.getInstance() != null &&
+                email != null) {
+            DatabaseReference databaseReference = DatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(SingletonUser.getInstance().getUid())
+                    .child(CHILD_EMAIL);
+            databaseReference.setValue(email);
+        }
+    }
+
+    public static void manageUserPhoto(Uri photo) {
+        if (SingletonUser.getInstance() != null &&
+                photo != null) {
+            DatabaseReference databaseReference = DatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(SingletonUser.getInstance().getUid())
+                    .child(CHILD_IMAGE);
+            databaseReference.setValue(photo);
+        }
+    }
+
     /**
      * Update DB with latitude and longitude of the user.
      * Here we are in positions node.
@@ -101,14 +155,50 @@ public class DatabaseManager
         }
     }
 
-    public static void manageUserAvailability(String availability) {
-        if (SingletonUser.getInstance() != null) {
-            DatabaseReference databaseReference = DatabaseManager.databaseReference
-                    .child(NODE_USERS)
-                    .child(SingletonUser.getInstance().getUid())
-                    .child(CHILD_AVAILABILITY);
-            databaseReference.setValue(availability);
-        }
+    public static void checkUnknownPosition() {
+        final Query query = DatabaseManager.databaseReference
+                .child(NODE_POSITION)
+                .child(COUNTRY)
+                .child(REGION)
+                .child(SUB_REGION)
+                .equalTo(SingletonUser.getInstance().getUid());
+
+        // Attach a listener to read the data at our posts reference
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "Writing on DB about user unknown position");
+                if (!dataSnapshot.exists()) {
+                    if (SingletonUser.getInstance() != null) {
+                        query.getRef()
+                                .child(SingletonUser.getInstance().getUid())
+                                .child(CHILD_AVAILABILITY)
+                                .setValue(UNAVAILABLE);
+                        query.getRef()
+                                .child(SingletonUser.getInstance().getUid())
+                                .child(CHILD_USERNAME)
+                                .setValue(SingletonUser.getInstance().getUsername());
+                        query.getRef()
+                                .child(SingletonUser.getInstance().getUid())
+                                .child(CHILD_POINTS)
+                                .setValue(SingletonUser.getInstance().getPoints());
+                        query.getRef()
+                                .child(SingletonUser.getInstance().getUid())
+                                .child(CHILD_EMAIL)
+                                .setValue(SingletonUser.getInstance().getEmail());
+                        query.getRef()
+                                .child(SingletonUser.getInstance().getUid())
+                                .child(CHILD_IMAGE)
+                                .setValue(SingletonUser.getInstance().getPhotoUrl().toString());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "The read failed: " + databaseError.getCode());
+            }
+        });
     }
 
     public static void manageDataUserDB() {
@@ -288,27 +378,40 @@ public class DatabaseManager
 
     public static void getUsersRank(final RetrieveRankFromDB retrieveRankFromDB, String[] location)
             throws CallbackNotInitialized {
-        if (retrieveRankFromDB == null) {
-            throw new CallbackNotInitialized("Callback not initialized");
-        } else if (location == null) {
-            return;
-        }
-
-        // location[0] --> nation; location[1] --> region; location[2] --> district
-        String nation = location[0];
-        String region = location[1];
-        String district = location[2];
+        String nation = null;
+        String region = null;
+        String district = null;
         // DEBUG
         // nation = "Italy";
         // region = "Lazio";
         // district = "Provincia di Frosinone";
         ////
 
+        if (retrieveRankFromDB == null) {
+            throw new CallbackNotInitialized("Callback not initialized");
+        } else if (location == null) {
+                if (RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_UNAVAILABLE &&
+                        RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_AVAILABLE &&
+                        RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_ALL) {
+                    retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
+                    return;
+                }
+        } else {
+            // location[0] --> nation; location[1] --> region; location[2] --> district
+            nation = location[0];
+            region = location[1];
+            district = location[2];
+        }
+
         Query query = DatabaseManager.getDatabaseReference()
                 .child(NODE_POSITION);
         switch (RankingFragment.getLevel()) {
             case LevelMenuFragment.LevelStateChanged.LEVEL_DISTRICT:
                 Log.d(TAG, "DISTRICT");
+                if (nation == null || region == null || district == null) {
+                    retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
+                    return;
+                }
                 query = query.getRef()
                         .child(nation)
                         .child(region)
@@ -330,6 +433,10 @@ public class DatabaseManager
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_REGION:
                 Log.d(TAG, "REGION");
+                if (nation == null || region == null) {
+                    retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
+                    return;
+                }
                 query = query.getRef()
                         .child(nation)
                         .child(region);
@@ -356,6 +463,10 @@ public class DatabaseManager
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_NATION:
                 Log.d(TAG, "NATION");
+                if (nation == null) {
+                    retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
+                    return;
+                }
                 query = query.getRef()
                         .child(nation);
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -480,26 +591,37 @@ public class DatabaseManager
         } else {
             arrayList = null;
         }
+
         return arrayList;
     }
 
     private static User getUserFromData(DataSnapshot user) {
         String username = null;
-        long points = 0;
+        String email = null;
         Uri image = null;
+        long points = 0;
+        String availability = UNAVAILABLE;
 
         if (user.hasChild(CHILD_USERNAME) &&
                 user.child(CHILD_USERNAME).getValue() != null) {
             username = user.child(CHILD_USERNAME).getValue().toString();
         }
-        if (user.hasChild(CHILD_POINTS)) {
-            points = (long) user.child(CHILD_POINTS).getValue();
+        if (user.hasChild(CHILD_EMAIL) &&
+                user.child(CHILD_EMAIL).getValue() != null) {
+            email = user.child(CHILD_EMAIL).getValue().toString();
         }
         if (user.hasChild(CHILD_IMAGE) &&
                 user.child(CHILD_IMAGE).getValue() != null) {
             image = Uri.parse(user.child(CHILD_IMAGE).getValue().toString());
         }
+        if (user.hasChild(CHILD_POINTS)) {
+            points = (long) user.child(CHILD_POINTS).getValue();
+        }
+        if (user.hasChild(CHILD_AVAILABILITY) &&
+                user.child(CHILD_AVAILABILITY).getValue().toString().equals(AVAILABLE)) {
+            availability = AVAILABLE;
+        }
 
-        return new User(user.getKey().toString(), username, image, points);
+        return new User(user.getKey(), username, email, image, points, availability);
     }
 }

@@ -203,6 +203,7 @@ public class MainFragmentActivity
         FirebaseUtility firebaseUtility = new FirebaseUtility();
         firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
         DatabaseManager.manageDataUserDB();
+        DatabaseManager.checkUnknownPosition();
     }
 
     private void initWidgets() {
