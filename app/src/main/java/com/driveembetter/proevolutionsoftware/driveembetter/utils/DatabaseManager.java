@@ -237,6 +237,7 @@ public class DatabaseManager
 
     public interface RetrieveRankFromDB {
         // Result code
+        int NOT_ALLOWED = -1;
         int UNKNOWN_ERROR = 0;
         int POSITION_NOT_FOUND = 1;
         int INVALID_POSITION = 2;
@@ -355,12 +356,23 @@ public class DatabaseManager
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_NATION:
                 Log.d(TAG, "NATION");
-                query.getRef()
+                query = query.getRef()
                         .child(nation);
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-
+                        ArrayList<User> arrayList = null;
+                        if (dataSnapshot.exists()) {
+                            arrayList = new ArrayList<User>();
+                            Iterable<DataSnapshot> regions = dataSnapshot.getChildren();
+                            for (DataSnapshot region : regions) {
+                                Iterable<DataSnapshot> districts = region.getChildren();
+                                for (DataSnapshot district : districts) {
+                                    arrayList.addAll(DatabaseManager.getUsersList(district));
+                                }
+                            }
+                        }
+                        retrieveRankFromDB.onUsersRankingReceived(arrayList);
                     }
 
                     @Override
@@ -371,7 +383,34 @@ public class DatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_AVAILABLE:
-                Log.d(TAG, "AVAIABLE");
+                Log.d(TAG, "AVAILABLE");
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<User> arrayList = null;
+                        if (dataSnapshot.exists()) {
+                            arrayList = new ArrayList<User>();
+                            Iterable<DataSnapshot> nations = dataSnapshot.getChildren();
+                            for (DataSnapshot nation : nations) {
+                                if (!nation.getKey().equals(COUNTRY)) {
+                                    Iterable<DataSnapshot> regions = nation.getChildren();
+                                    for (DataSnapshot region : regions) {
+                                        Iterable<DataSnapshot> districts = region.getChildren();
+                                        for (DataSnapshot district : districts) {
+                                            arrayList.addAll(DatabaseManager.getUsersList(district));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        retrieveRankFromDB.onUsersRankingReceived(arrayList);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "The read failed: " + databaseError.getCode());
+                    }
+                });
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_UNAVAILABLE:
@@ -397,6 +436,31 @@ public class DatabaseManager
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_ALL:
                 Log.d(TAG, "ALL");
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<User> arrayList = null;
+                        if (dataSnapshot.exists()) {
+                            arrayList = new ArrayList<User>();
+                            Iterable<DataSnapshot> nations = dataSnapshot.getChildren();
+                            for (DataSnapshot nation : nations) {
+                                Iterable<DataSnapshot> regions = nation.getChildren();
+                                for (DataSnapshot region : regions) {
+                                    Iterable<DataSnapshot> districts = region.getChildren();
+                                    for (DataSnapshot district : districts) {
+                                        arrayList.addAll(DatabaseManager.getUsersList(district));
+                                    }
+                                }
+                            }
+                        }
+                        retrieveRankFromDB.onUsersRankingReceived(arrayList);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "The read failed: " + databaseError.getCode());
+                    }
+                });
                 break;
 
             default:

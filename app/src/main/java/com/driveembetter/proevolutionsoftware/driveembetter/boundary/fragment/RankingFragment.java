@@ -151,6 +151,10 @@ public class RankingFragment
     public void onErrorReceived(int errorType) {
         String string;
         switch (errorType) {
+            case NOT_ALLOWED:
+                string = getString(R.string.bad_query_unknown_position);
+                break;
+
             case UNKNOWN_ERROR:
                 string = getString(R.string.unknown_error);
                 break;
@@ -192,8 +196,8 @@ public class RankingFragment
         Collections.sort(arrayList, new Comparator<User>() {
             @Override
             public int compare(User user1, User user2) {
-                return user1.getPoints() > user2.getPoints() ?
-                        1 : 0;
+                return user1.getPoints() < user2.getPoints() ?
+                        1 : -1;
             }
         });
         this.arrayList = arrayList;
@@ -319,8 +323,19 @@ public class RankingFragment
 
     @Override
     public void onLevelChanged(int level) {
+        /*
+        if (RankingFragment.level == LEVEL_UNAVAILABLE) {
+            switch (level) {
+                case LEVEL_NATION:
+                case LEVEL_REGION:
+                case LEVEL_DISTRICT:
+                    this.onErrorReceived(NOT_ALLOWED);
+                    return;
+            }
+        }
+        */
+
         RankingFragment.level = level;
-        // TODO scrivi preRoutine();
         this.startRoutineFillList();
     }
 
