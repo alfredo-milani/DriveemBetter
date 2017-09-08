@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -221,6 +222,7 @@ public class RankingFragment
             case R.id.menu_selection_level:
                 Log.i(TAG, "Level menu item selected");
                 LevelMenuFragment levelMenuFragment = new LevelMenuFragment();
+                levelMenuFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
                 levelMenuFragment.addLevelListener(this);
                 // Show DialogFragment
                 levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));

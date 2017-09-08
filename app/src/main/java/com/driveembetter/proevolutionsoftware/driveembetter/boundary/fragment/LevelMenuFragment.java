@@ -1,9 +1,11 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseIntArray;
@@ -70,7 +72,7 @@ public class LevelMenuFragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return this.rootView = inflater.inflate(R.layout.level_menu_list, container, false);
+        return this.rootView = inflater.inflate(R.layout.fragment_level_list, container, false);
     }
 
     @Override
@@ -106,6 +108,12 @@ public class LevelMenuFragment
 
         ((Button) this.rootView.findViewById(R.id.ok)).setOnClickListener(this);
         ((Button) this.rootView.findViewById(R.id.cancel)).setOnClickListener(this);
+
+        // Change the title divider color
+        final Resources res = getResources();
+        final int titleDividerId = res.getIdentifier("titleDivider", "id", "android");
+        final View titleDivider = getDialog().findViewById(titleDividerId);
+        titleDivider.setBackgroundColor(ContextCompat.getColor(this.context, R.color.blue_800));
     }
 
     @Override
