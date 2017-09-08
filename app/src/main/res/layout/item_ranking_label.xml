@@ -15,6 +15,7 @@
         android:layout_weight="1"
         android:gravity="center_horizontal"
         android:text="@string/user_item"
+        android:textColor="@color/blue_800"
         android:textStyle="bold|italic" />
 
     <TextView
@@ -24,6 +25,7 @@
         android:layout_weight="1"
         android:gravity="center_horizontal"
         android:text="@string/point_item"
+        android:textColor="@color/blue_800"
         android:textStyle="bold|italic" />
 
     <TextView
@@ -33,5 +35,6 @@
         android:layout_weight="1"
         android:gravity="center_horizontal"
         android:text="@string/rank_item"
+        android:textColor="@color/blue_800"
         android:textStyle="bold|italic" />
 </LinearLayout>

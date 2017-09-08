@@ -6,6 +6,6 @@
         android:width="1dp"
         android:height="1dp" />
 
-    <solid android:color="@color/tw__composer_black" />
+    <solid android:color="@color/blue_800" />
 
 </shape>

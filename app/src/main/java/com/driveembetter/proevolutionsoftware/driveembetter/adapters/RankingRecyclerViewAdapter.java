@@ -1,6 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.adapters;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -122,10 +123,15 @@ public class RankingRecyclerViewAdapter
 
         if (currentUser) {
             holder.name.setTextColor(ContextCompat.getColor(this.context, R.color.blue_800));
-            holder.name.setTextSize(18);
+            holder.name.setTypeface(holder.name.getTypeface(), Typeface.BOLD);
+            holder.name.setTextSize(15);
+
             holder.points.setTextColor(ContextCompat.getColor(this.context, R.color.blue_800));
-            holder.points.setTextSize(18);
-            holder.rank.setTextSize(30);
+            holder.points.setTypeface(holder.points.getTypeface(), Typeface.BOLD);
+            holder.points.setTextSize(15);
+
+            holder.rank.setTextSize(25);
+            holder.points.setTypeface(holder.points.getTypeface(), Typeface.BOLD);
         }
     }
 

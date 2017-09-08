@@ -14,6 +14,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
  */
 
 public class DividerItemDecoration extends RecyclerView.ItemDecoration {
+
+    // Widgets
     private Drawable mDivider;
 
     public DividerItemDecoration(Context context) {

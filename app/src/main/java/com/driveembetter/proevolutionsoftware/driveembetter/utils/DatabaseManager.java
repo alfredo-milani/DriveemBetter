@@ -3,6 +3,8 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 import android.net.Uri;
 import android.util.Log;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
@@ -439,7 +441,12 @@ public class DatabaseManager
     }
 
     private static User getUserFromData(DataSnapshot user) {
-        String username = "User" + new Random().nextInt(Integer.MAX_VALUE);
+        String username = SingletonFirebaseProvider
+                .getInstance()
+                .getContext()
+                .getResources()
+                .getString(R.string.user_item) + new Random().nextInt(Integer.MAX_VALUE);
+
         long points = 0;
         Uri image = null;
 
