@@ -112,7 +112,18 @@ public class RankingRecyclerViewAdapter
         if (users.get(position).getUsername() != null) {
             holder.name.setText(users.get(position).getUsername());
         } else {
-            holder.name.setText(this.context.getString(R.string.user_item));
+            String userUid = users.get(position).getUid();
+            String username = this.context.getString(R.string.user_item)
+                    .concat("_" + userUid.substring(
+                            userUid.length() / 2,
+                            userUid.length() * 3 / 4
+                    ).toLowerCase());
+            /*
+            int randomInt = new Random().nextInt(Integer.MAX_VALUE);
+            String username = this.context.getString(R.string.user_item)
+                    .concat(String.valueOf(randomInt));
+                    */
+            holder.name.setText(username);
         }
 
         holder.points.setText(String.valueOf(users.get(position).getPoints()));
@@ -130,7 +141,7 @@ public class RankingRecyclerViewAdapter
             holder.points.setTypeface(holder.points.getTypeface(), Typeface.BOLD);
             holder.points.setTextSize(15);
 
-            holder.rank.setTextSize(25);
+            holder.rank.setTextSize(20);
             holder.points.setTypeface(holder.points.getTypeface(), Typeface.BOLD);
         }
     }

@@ -32,6 +32,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManage
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by alfredo on 26/08/17.
@@ -85,10 +86,6 @@ public class RankingFragment
         super.onCreate(savedInstanceState);
 
         this.initResources();
-
-        RankingFragment.level = LEVEL_DISTRICT;
-        // To modify Menu items
-        this.setHasOptionsMenu(true);
     }
 
     @Override
@@ -111,6 +108,7 @@ public class RankingFragment
         this.startRoutineFillList();
     }
 
+    // TODO RUNNABLE PER CARICARE LA LISTA
     private void startRoutineFillList() {
         this.showProgress();
         double latitude = this.positionManager.getLatitude();
@@ -125,6 +123,7 @@ public class RankingFragment
     }
 
     private void performQuery(double[] position) {
+        // TODO getLocationFromCoordinates() NON FUNZIONA MANCO PER IL CAZZO PORCODDIO!!!
         String[] location = this.positionManager.getLocationFromCoordinates(
                 position[0],
                 position[1],
@@ -133,13 +132,18 @@ public class RankingFragment
         // location[0] --> nation; location[1] --> region; location[2] --> district
         String nation = location[0]; String region = location[1]; String district = location[2];
         // DEBUG
-        // nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
+        nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
         ////
         Log.d(TAG, "performQuery: " + nation + "/" + region + "/" + district);
         if (nation == null || region == null || district == null) {
-            this.onErrorReceived(3);
+            // Unknown error in PositionManager
+            this.onErrorReceived(POSITION_NOT_FOUND);
+        } else if (nation.equals(COUNTRY) || region.equals(REGION) || district.equals(SUB_REGION)) {
+            // Indefinite position
+            RankingFragment.level = LEVEL_UNAVAILABLE;
+            DatabaseManager.getUsersRank(this, new String[] {COUNTRY, REGION, SUB_REGION});
         } else {
-            DatabaseManager.getUsersRank(this, location);
+            DatabaseManager.getUsersRank(this, new String[] {nation, region, district});
         }
     }
 
@@ -147,12 +151,16 @@ public class RankingFragment
     public void onErrorReceived(int errorType) {
         String string;
         switch (errorType) {
-            case NOT_INITIALIZED:
-                string = "";
+            case UNKNOWN_ERROR:
+                string = getString(R.string.unknown_error);
                 break;
 
             case POSITION_NOT_FOUND:
-                string = "";
+                string = getString(R.string.position_not_found);
+                break;
+
+            case INVALID_POSITION:
+                string = getString(R.string.invalid_position);
                 break;
 
             default:
@@ -181,7 +189,13 @@ public class RankingFragment
     public void onUsersRankingReceived(ArrayList<User> arrayList) {
         Log.d(TAG, "onUsersRankingReceived: " + arrayList);
         // Descending order
-        Collections.reverse(arrayList);
+        Collections.sort(arrayList, new Comparator<User>() {
+            @Override
+            public int compare(User user1, User user2) {
+                return user1.getPoints() > user2.getPoints() ?
+                        1 : 0;
+            }
+        });
         this.arrayList = arrayList;
         this.fillList();
     }
@@ -194,14 +208,6 @@ public class RankingFragment
         this.recycleView.setAdapter(rankingRecyclerViewAdapter);
 
         this.hideProgress();
-        Log.d(TAG, "list received: " + arrayList.size());
-        if (this.arrayList != null) {
-            for (User a : arrayList) {
-                Log.d(TAG, "user: " + a.getEmail() + " / " + a.getPoints() + " / " + a.getUsername() + " / " + a.getUid() + " / " + a.getPhotoUrl());
-            }
-        } else {
-            Log.d(TAG, "DIO NULL");
-        }
         if (this.arrayList != null) {
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         } else {
@@ -243,9 +249,13 @@ public class RankingFragment
 
     private void initResources() {
         this.positionManager = PositionManager.getInstance((Activity) this.context);
+        RankingFragment.level = LEVEL_DISTRICT;
     }
 
     private void initWidgets() {
+        // To modify Menu items
+        this.setHasOptionsMenu(true);
+
         this.recycleView = (RecyclerView) this.rootView.findViewById(R.id.recycler_view_user);
         this.recycleView.setHasFixedSize(true);
         /*
@@ -310,6 +320,7 @@ public class RankingFragment
     @Override
     public void onLevelChanged(int level) {
         RankingFragment.level = level;
+        // TODO scrivi preRoutine();
         this.startRoutineFillList();
     }
 

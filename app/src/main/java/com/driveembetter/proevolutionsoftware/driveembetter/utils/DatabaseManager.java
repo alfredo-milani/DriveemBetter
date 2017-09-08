@@ -3,8 +3,6 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 import android.net.Uri;
 import android.util.Log;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
@@ -20,7 +18,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Created by alfredo on 01/09/17.
@@ -240,8 +237,9 @@ public class DatabaseManager
 
     public interface RetrieveRankFromDB {
         // Result code
+        int UNKNOWN_ERROR = 0;
         int POSITION_NOT_FOUND = 1;
-        int NOT_INITIALIZED = 2;
+        int INVALID_POSITION = 2;
 
         void onErrorReceived(int errorType);
         void onUsersRankingReceived(ArrayList<User> users);
@@ -291,50 +289,59 @@ public class DatabaseManager
             throws CallbackNotInitialized {
         if (retrieveRankFromDB == null) {
             throw new CallbackNotInitialized("Callback not initialized");
+        } else if (location == null) {
+            return;
         }
 
         // location[0] --> nation; location[1] --> region; location[2] --> district
-        String nation, region, district;
-        nation = region = district = null;
-        if (location != null) {
-            nation = location[0];
-            region = location[1];
-            district = location[2];
-            // DEBUG
-            // nation = "Italy";
-            // region = "Lazio";
-            // district = "Provincia di Frosinone";
-            ////
-        }
+        String nation = location[0];
+        String region = location[1];
+        String district = location[2];
+        // DEBUG
+        // nation = "Italy";
+        // region = "Lazio";
+        // district = "Provincia di Frosinone";
+        ////
 
         Query query = DatabaseManager.getDatabaseReference()
                 .child(NODE_POSITION);
         switch (RankingFragment.getLevel()) {
             case LevelMenuFragment.LevelStateChanged.LEVEL_DISTRICT:
-                if (nation == null || region == null || district == null) {
-                    Log.w(TAG, "district, region, nation NULL");
-                    break;
-                }
                 Log.d(TAG, "DISTRICT");
                 query = query.getRef()
                         .child(nation)
                         .child(region)
-                        .child(district)
-                        .orderByChild(CHILD_POINTS);
+                        .child(district);
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<User> arrayList;
-                        Iterable<DataSnapshot> users;
-                        if (dataSnapshot.exists() &&
-                                (users = dataSnapshot.getChildren()) != null) {
-                            arrayList = new ArrayList<>();
-                            for (DataSnapshot user : users) {
-                                arrayList.add(DatabaseManager.getUserFromData(user));
+                        retrieveRankFromDB.onUsersRankingReceived(
+                                DatabaseManager.getUsersList(dataSnapshot)
+                        );
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "The read failed: " + databaseError.getCode());
+                    }
+                });
+                break;
+
+            case LevelMenuFragment.LevelStateChanged.LEVEL_REGION:
+                Log.d(TAG, "REGION");
+                query = query.getRef()
+                        .child(nation)
+                        .child(region);
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<User> arrayList = null;
+                        if (dataSnapshot.exists()) {
+                            Iterable<DataSnapshot> districts = dataSnapshot.getChildren();
+                            arrayList = new ArrayList<User>();
+                            for (DataSnapshot district : districts) {
+                                arrayList.addAll(DatabaseManager.getUsersList(district));
                             }
-                        } else {
-                            // TODO non c'è alcun utente neanche quello corrente
-                            arrayList = null;
                         }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
                     }
@@ -346,33 +353,7 @@ public class DatabaseManager
                 });
                 break;
 
-            case LevelMenuFragment.LevelStateChanged.LEVEL_REGION:
-                if (nation == null || region == null) {
-                    Log.w(TAG, "district, region, nation NULL");
-                    break;
-                }
-                Log.d(TAG, "REGION");
-                query = query.getRef()
-                        .child(nation)
-                        .child(region);
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.d(TAG, "The read failed: " + databaseError.getCode());
-                    }
-                });
-                break;
-
             case LevelMenuFragment.LevelStateChanged.LEVEL_NATION:
-                if (nation == null) {
-                    Log.w(TAG, "district, region, nation NULL");
-                    break;
-                }
                 Log.d(TAG, "NATION");
                 query.getRef()
                         .child(nation);
@@ -390,34 +371,21 @@ public class DatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_AVAILABLE:
-                if (nation == null || region == null || district == null) {
-                    Log.w(TAG, "district, region, nation NULL");
-                    break;
-                }
                 Log.d(TAG, "AVAIABLE");
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_UNAVAILABLE:
                 Log.d(TAG, "UNAVAIABLE");
-                query.getRef()
+                query = query.getRef()
                         .child(COUNTRY)
                         .child(REGION)
                         .child(SUB_REGION);
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<User> arrayList;
-                        Iterable<DataSnapshot> users;
-                        if (dataSnapshot.exists() &&
-                                (users = dataSnapshot.getChildren()) != null) {
-                            arrayList = new ArrayList<>();
-                            for (DataSnapshot user : users) {
-                                arrayList.add(DatabaseManager.getUserFromData(user));
-                            }
-                        } else {
-                            arrayList = null;
-                        }
-                        retrieveRankFromDB.onUsersRankingReceived(arrayList);
+                        retrieveRankFromDB.onUsersRankingReceived(
+                                DatabaseManager.getUsersList(dataSnapshot)
+                        );
                     }
 
                     @Override
@@ -428,10 +396,6 @@ public class DatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_ALL:
-                if (nation == null || region == null || district == null) {
-                    Log.w(TAG, "district, region, nation NULL");
-                    break;
-                }
                 Log.d(TAG, "ALL");
                 break;
 
@@ -440,13 +404,23 @@ public class DatabaseManager
         }
     }
 
-    private static User getUserFromData(DataSnapshot user) {
-        String username = SingletonFirebaseProvider
-                .getInstance()
-                .getContext()
-                .getResources()
-                .getString(R.string.user_item) + new Random().nextInt(Integer.MAX_VALUE);
+    private static ArrayList<User> getUsersList(DataSnapshot dataSnapshot) {
+        ArrayList<User> arrayList;
+        Iterable<DataSnapshot> users;
+        if (dataSnapshot.exists() &&
+                (users = dataSnapshot.getChildren()) != null) {
+            arrayList = new ArrayList<>();
+            for (DataSnapshot user : users) {
+                arrayList.add(DatabaseManager.getUserFromData(user));
+            }
+        } else {
+            arrayList = null;
+        }
+        return arrayList;
+    }
 
+    private static User getUserFromData(DataSnapshot user) {
+        String username = null;
         long points = 0;
         Uri image = null;
 

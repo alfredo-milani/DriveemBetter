@@ -31,4 +31,6 @@
     <string name="level_available">All available users</string>
     <string name="level_all">All users</string>
     <string name="level_empty_list">No users found. Try to change filter.</string>
+    <string name="invalid_position">Invalid position.</string>
+    <string name="position_not_found">Position not found</string>
 </resources>

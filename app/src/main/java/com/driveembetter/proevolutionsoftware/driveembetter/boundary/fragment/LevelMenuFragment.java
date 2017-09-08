@@ -84,7 +84,7 @@ public class LevelMenuFragment
 
     private void initResources() {
         // Key value of item level and corresponding string
-        this.sparseIntArray = new SparseIntArray(3);
+        this.sparseIntArray = new SparseIntArray(6);
         this.sparseIntArray.append(LevelStateChanged.LEVEL_NATION, R.string.level_nation);
         this.sparseIntArray.append(LevelStateChanged.LEVEL_REGION, R.string.level_region);
         this.sparseIntArray.append(LevelStateChanged.LEVEL_DISTRICT, R.string.level_district);
