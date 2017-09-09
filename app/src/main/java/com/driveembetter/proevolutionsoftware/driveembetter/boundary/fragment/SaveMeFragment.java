@@ -308,7 +308,7 @@ public class SaveMeFragment
 
     @Override
     public void onResume() {
-        Log.e("DEBUG", "ON RESUME");
+        Log.d("DEBUG", "ON RESUME");
         mMapView.onResume();
         if (!chatActivitySwitched) {
             if (updatePosition.isCancelled() && updatePosition.getStatus().equals(AsyncTask.Status.RUNNING)) {
@@ -319,7 +319,6 @@ public class SaveMeFragment
         }
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, true);
         super.onResume();
-
     }
 
     @Override

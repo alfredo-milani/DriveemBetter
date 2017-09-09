@@ -82,6 +82,8 @@ public class RankingFragment
         super.onCreate(savedInstanceState);
 
         this.initResources();
+        this.showProgress();
+        new Thread(new RetrieveRankingRunnable(this)).start();
     }
 
     @Override
@@ -100,9 +102,6 @@ public class RankingFragment
     @Override
     public void onStart() {
         super.onStart();
-
-        this.showProgress();
-        new Thread(new RetrieveRankingRunnable(this)).start();
     }
 
     public void fillList(ArrayList<User> arrayList) {
@@ -116,7 +115,7 @@ public class RankingFragment
         if (arrayList != null) {
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         } else {
-            // Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
         }
     }
 

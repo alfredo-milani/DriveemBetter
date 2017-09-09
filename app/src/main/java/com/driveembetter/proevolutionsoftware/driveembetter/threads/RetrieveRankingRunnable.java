@@ -143,13 +143,16 @@ public class RetrieveRankingRunnable
     public void onUsersRankingReceived(ArrayList<User> arrayList) {
         Log.d(TAG, "onUsersRankingReceived: " + arrayList);
         // Descending order
-        Collections.sort(arrayList, new Comparator<User>() {
-            @Override
-            public int compare(User user1, User user2) {
-                return user1.getPoints() < user2.getPoints() ?
-                        1 : -1;
-            }
-        });
+
+        if (arrayList != null) {
+            Collections.sort(arrayList, new Comparator<User>() {
+                @Override
+                public int compare(User user1, User user2) {
+                    return user1.getPoints() < user2.getPoints() ?
+                            1 : -1;
+                }
+            });
+        }
 
         this.rankingFragment.fillList(arrayList);
     }
