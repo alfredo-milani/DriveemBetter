@@ -42,8 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/user_item" />
+                android:gravity="center" />
 
         </LinearLayout>
 
@@ -53,8 +52,8 @@
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
             android:layout_weight="1"
-            android:background="@color/blue_800"
-            android:orientation="horizontal"></LinearLayout>
+            android:background="@color/blue_700"
+            android:orientation="horizontal" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -77,8 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="TextView" />
+                android:gravity="center" />
 
         </LinearLayout>
 
@@ -88,8 +86,8 @@
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
             android:layout_weight="1"
-            android:background="@color/blue_800"
-            android:orientation="horizontal"></LinearLayout>
+            android:background="@color/blue_700"
+            android:orientation="horizontal" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -112,10 +110,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/unavailable_shape" />
+                app:srcCompat="@drawable/unavailable_shape"
+                android:contentDescription="@string/availability" />
 
         </LinearLayout>
 
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="40dp"
+        android:background="@null"
+        android:contentDescription="@string/back"
+        app:srcCompat="@mipmap/ic_arrow_left_blue_700" />
 
 </RelativeLayout>

@@ -281,7 +281,7 @@ public class DatabaseManager
                                      final SingletonUser.UserDataCallback userDataCallback)
             throws CallbackNotInitialized {
         if (retrieveVehiclesFromDB == null || userDataCallback == null) {
-            throw new CallbackNotInitialized("Callback not initialized");
+            throw new CallbackNotInitialized(TAG);
         }
 
         // Create query
@@ -337,6 +337,7 @@ public class DatabaseManager
         int UNKNOWN_ERROR = 0;
         int POSITION_NOT_FOUND = 1;
         int INVALID_POSITION = 2;
+        int OK = Integer.MAX_VALUE;
 
         void onErrorReceived(int errorType);
         void onUsersRankingReceived(ArrayList<User> users);
@@ -346,7 +347,7 @@ public class DatabaseManager
     public static void getCoordinates(final RetrieveRankFromDB retrieveRankFromDB)
     throws CallbackNotInitialized {
         if (retrieveRankFromDB == null) {
-            throw new CallbackNotInitialized("Callback not initialized");
+            throw new CallbackNotInitialized(TAG);
         }
 
         Query query = DatabaseManager.getDatabaseReference()
@@ -394,7 +395,7 @@ public class DatabaseManager
         ////
 
         if (retrieveRankFromDB == null) {
-            throw new CallbackNotInitialized("Callback not initialized");
+            throw new CallbackNotInitialized(TAG);
         } else if (location == null) {
                 if (RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_UNAVAILABLE &&
                         RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_AVAILABLE &&

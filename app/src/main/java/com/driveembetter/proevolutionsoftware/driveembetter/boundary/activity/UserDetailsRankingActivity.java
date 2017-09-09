@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,7 +21,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 
 public class UserDetailsRankingActivity
         extends AppCompatActivity
-        implements Constants {
+        implements Constants,
+        View.OnClickListener {
 
     private final static String TAG = UserDetailsRankingActivity.class.getSimpleName();
 
@@ -31,6 +34,7 @@ public class UserDetailsRankingActivity
     private TextView points;
     private ImageView imageView;
     private ImageView availability;
+    private ImageButton backButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,10 +50,12 @@ public class UserDetailsRankingActivity
     }
 
     private void initWidgets() {
-        this.username = (TextView) findViewById(R.id.user);
-        this.points = (TextView) findViewById(R.id.points);
-        this.imageView = (ImageView) findViewById(R.id.user_picture);
-        this.availability = (ImageView) findViewById(R.id.availability);
+        this.username = findViewById(R.id.user);
+        this.points = findViewById(R.id.points);
+        this.imageView = findViewById(R.id.user_picture);
+        this.availability = findViewById(R.id.availability);
+        this.backButton = findViewById(R.id.back_button);
+        this.backButton.setOnClickListener(this);
 
         if (this.user.getUsername() != null) {
             this.username.setText(this.user.getUsername());
@@ -78,6 +84,19 @@ public class UserDetailsRankingActivity
         if (this.user.getAvailability() != null &&
             this.user.getAvailability().equals(AVAILABLE)) {
             this.availability.setImageResource(R.drawable.available_shape);
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+        switch (id) {
+            case R.id.back_button:
+                super.onBackPressed();
+                break;
+
+            default:
+                Log.e(TAG, "onClick: error touch: " + id);
         }
     }
 

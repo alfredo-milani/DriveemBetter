@@ -129,7 +129,7 @@ public class LevelMenuFragment
         switch (id) {
             case R.id.ok:
                 if (this.callback == null) {
-                    throw new CallbackNotInitialized("LevelStateChanged callback not initialized");
+                    throw new CallbackNotInitialized(TAG);
                 }
                 this.callback.onLevelChanged(this.adapter.getSelectedItem());
                 break;

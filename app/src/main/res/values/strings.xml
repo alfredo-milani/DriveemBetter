@@ -30,10 +30,10 @@
     <string name="level_unavailable">Unavailable users</string>
     <string name="level_available">All available users</string>
     <string name="level_all">All users</string>
-    <string name="level_empty_list">No users found. Try to change filter.</string>
+    <string name="level_empty_list">No users found.</string>
     <string name="invalid_position">Invalid position.</string>
     <string name="position_not_found">Position not found</string>
-    <string name="bad_query_unknown_position">Your position can not be determined: the filter was set to: %s</string>
+    <string name="bad_query_unknown_position">Your position can not be determined: the filter was set to %s</string>
     <string name="filter_unavailable">unavailable</string>
     <string name="availability">Availability</string>
 </resources>

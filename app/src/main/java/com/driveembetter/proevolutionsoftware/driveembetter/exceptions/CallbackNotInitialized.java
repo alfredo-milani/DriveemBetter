@@ -11,7 +11,7 @@ public class CallbackNotInitialized
 
     }
 
-    public CallbackNotInitialized(String msg) {
-        super(msg);
+    public CallbackNotInitialized(String className) {
+        super(className + ": Callback not initialized!");
     }
 }

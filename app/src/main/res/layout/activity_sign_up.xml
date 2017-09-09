@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/sign_up">
@@ -14,7 +15,7 @@
         android:layout_marginTop="50dp"
         android:ems="10"
         android:hint="@string/username"
-        android:inputType="textPersonName"
+        android:inputType="textAutoCorrect"
         android:textColor="@color/colorAccent"
         android:textColorHint="@color/white" />
 
@@ -28,9 +29,9 @@
         android:layout_marginTop="15dp"
         android:ems="10"
         android:hint="@string/email"
-        android:inputType="textPersonName"
         android:textColor="@color/colorAccent"
-        android:textColorHint="@color/white" />
+        android:textColorHint="@color/white"
+        android:inputType="textEmailAddress" />
 
     <EditText
         android:id="@+id/password_field"
@@ -42,7 +43,7 @@
         android:layout_marginTop="15dp"
         android:ems="10"
         android:hint="@string/password"
-        android:inputType="textPassword"
+        android:inputType="textVisiblePassword"
         android:textColor="@color/colorAccent"
         android:textColorHint="#ffffff" />
 
@@ -86,13 +87,14 @@
         android:layout_marginBottom="40dp"
         android:visibility="gone" />
 
-    <Button
+    <ImageButton
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/ic_keyboard_arrow_left_white_48dp" />
+        android:layout_marginTop="55dp"
+        android:background="@null"
+        app:srcCompat="@drawable/ic_keyboard_arrow_left_white_48dp"
+        android:contentDescription="@string/back" />
 
     <Button
         android:id="@+id/resend_email"

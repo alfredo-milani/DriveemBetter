@@ -30,6 +30,12 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 
 import java.util.ArrayList;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.INVALID_POSITION;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.NOT_ALLOWED;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.OK;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.POSITION_NOT_FOUND;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.UNKNOWN_ERROR;
+
 /**
  * Created by alfredo on 26/08/17.
  */
@@ -39,12 +45,14 @@ public class RankingFragment
         LevelMenuFragment.LevelStateChanged,
         RankingRecyclerViewAdapter.OnItemClickListener,
         Constants,
-        TaskProgressInterface {
+        TaskProgressInterface,
+        RetrieveRankingRunnable.RetrieveListFromRunnable {
 
     private final static String TAG = RankingFragment.class.getSimpleName();
 
     // Resource
     private static int level;
+    private boolean refreshListOnStart;
 
     // Dialog fragment
     private LevelMenuFragment levelMenuFragment;
@@ -62,17 +70,6 @@ public class RankingFragment
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception
-        /*
-        try {
-            this.callback = (CallbackToUI) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement CallbackToUI");
-        }
-        */
-
         this.context = context;
         this.layoutManager = new LinearLayoutManager(context);
     }
@@ -82,8 +79,6 @@ public class RankingFragment
         super.onCreate(savedInstanceState);
 
         this.initResources();
-        this.showProgress();
-        new Thread(new RetrieveRankingRunnable(this)).start();
     }
 
     @Override
@@ -102,9 +97,17 @@ public class RankingFragment
     @Override
     public void onStart() {
         super.onStart();
+
+        if (this.refreshListOnStart) {
+            this.showProgress();
+            new Thread(new RetrieveRankingRunnable(this)).start();
+        }
     }
 
-    public void fillList(ArrayList<User> arrayList) {
+    @Override
+    public void retrieveList(ArrayList<User> arrayList, ArrayList<Integer> resultCode) {
+        this.showToastFromResult(resultCode);
+
         this.recycleView.addItemDecoration(new DividerItemDecoration(this.context));
         RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
                 new RankingRecyclerViewAdapter(this.context, arrayList, this);
@@ -116,6 +119,44 @@ public class RankingFragment
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showToastFromResult(ArrayList<Integer> result) {
+        Log.d(TAG, "Ranking, result: " + result);
+        Toast toast = Toast.makeText(this.context, "null", Toast.LENGTH_LONG);
+        for (int code : result) {
+            switch (code) {
+                case OK:    break;
+
+                case NOT_ALLOWED:
+                    toast.setText(String.format(
+                            getString(R.string.bad_query_unknown_position),
+                            getString(R.string.filter_unavailable)
+                    ));
+                    toast.show();
+                    break;
+
+                case UNKNOWN_ERROR:
+                    toast.setText(getString(R.string.unknown_error));
+                    toast.show();
+                    break;
+
+                case POSITION_NOT_FOUND:
+                    toast.setText(getString(R.string.position_not_found));
+                    toast.show();
+                    break;
+
+                case INVALID_POSITION:
+                    toast.setText(getString(R.string.invalid_position));
+                    toast.show();
+                    break;
+
+                default:
+                    Log.d(TAG, "onErrorReceived: " + code);
+                    toast.setText(getString(R.string.unable_load_ranking));
+                    toast.show();
+            }
         }
     }
 
@@ -171,6 +212,8 @@ public class RankingFragment
         this.levelMenuFragment.addLevelListener(this);
 
         RankingFragment.level = LEVEL_DISTRICT;
+
+        this.refreshListOnStart = true;
     }
 
     private void initWidgets() {
@@ -228,6 +271,7 @@ public class RankingFragment
     public void onPause() {
         super.onPause();
 
+        this.refreshListOnStart = false;
         Log.d(TAG, "onPause");
         FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, false);
     }

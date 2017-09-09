@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -45,7 +46,7 @@ public class SignUpActivity
     private EditText emailField;
     private EditText passwordField;
     private ProgressBar progressBar;
-    private Button backButton;
+    private ImageButton backButton;
     private Button resendVerificationEmail;
 
 
@@ -192,13 +193,13 @@ public class SignUpActivity
     }
 
     private void initWidget() {
-        this.signUpButton = (Button) findViewById(R.id.sign_up_button);
-        this.usernameField = (EditText) findViewById(R.id.username_field);
-        this.emailField = (EditText) findViewById(R.id.email_field);
-        this.passwordField = (EditText) findViewById(R.id.password_field);
-        this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        this.backButton = (Button) findViewById(R.id.back_button);
-        this.resendVerificationEmail = (Button) findViewById(R.id.resend_email);
+        this.signUpButton = findViewById(R.id.sign_up_button);
+        this.usernameField = findViewById(R.id.username_field);
+        this.emailField = findViewById(R.id.email_field);
+        this.passwordField = findViewById(R.id.password_field);
+        this.progressBar = findViewById(R.id.progress_bar);
+        this.backButton = findViewById(R.id.back_button);
+        this.resendVerificationEmail = findViewById(R.id.resend_email);
 
         this.signUpButton.setOnClickListener(this);
         this.backButton.setOnClickListener(this);

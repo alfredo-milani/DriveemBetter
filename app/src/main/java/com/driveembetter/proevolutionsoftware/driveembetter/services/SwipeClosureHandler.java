@@ -25,14 +25,6 @@ public class SwipeClosureHandler extends Service {
     }
 
     @Override
-    public void onCreate() {
-    }
-
-    @Override
-    public void onDestroy() {
-    }
-
-    @Override
     public void onTaskRemoved (Intent rootIntent){
         PositionManager.getInstance((MainFragmentActivity)getApplicationContext()).setUserUnavailable();
         super.onTaskRemoved(rootIntent);

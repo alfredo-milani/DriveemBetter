@@ -293,6 +293,8 @@ public class MainFragmentActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.action_settings:
+                DatabaseManager.test2();
+                DatabaseManager.test();
                 return true;
         }
 
@@ -571,5 +573,4 @@ public class MainFragmentActivity
             super.onBackPressed();
         }
     }
-
 }

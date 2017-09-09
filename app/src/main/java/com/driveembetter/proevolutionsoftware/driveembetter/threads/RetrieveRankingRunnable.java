@@ -1,11 +1,10 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.threads;
 
 import android.util.Log;
-import android.widget.Toast;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 
@@ -34,10 +33,18 @@ public class RetrieveRankingRunnable
     // Resources
     private PositionManager positionManager;
     private RankingFragment rankingFragment;
+    private RetrieveListFromRunnable callback;
+    private ArrayList<Integer> errorCode;
+
+    public interface RetrieveListFromRunnable {
+        void retrieveList(ArrayList<User> arrayList, ArrayList<Integer> resultCode);
+    }
 
     public RetrieveRankingRunnable(RankingFragment rankingFragment) {
         this.rankingFragment = rankingFragment;
-        this.positionManager = PositionManager.getInstance(this.rankingFragment.getActivity());
+        this.positionManager = PositionManager.getInstance(rankingFragment.getActivity());
+        this.errorCode = new ArrayList<>();
+        this.onAttach();
     }
 
 
@@ -52,6 +59,14 @@ public class RetrieveRankingRunnable
             DatabaseManager.getCoordinates(this);
         } else {
             this.performQuery(new double[] {latitude, longitude});
+        }
+    }
+
+    private void onAttach() {
+        try {
+            this.callback = (RetrieveListFromRunnable) this.rankingFragment;
+        } catch (ClassCastException e) {
+            throw new CallbackNotInitialized(TAG);
         }
     }
 
@@ -89,34 +104,8 @@ public class RetrieveRankingRunnable
 
     @Override
     public void onErrorReceived(int errorType) {
-        String string;
-        switch (errorType) {
-            case NOT_ALLOWED:
-                string = String.format(
-                        this.rankingFragment.getContext().getString(R.string.bad_query_unknown_position),
-                        this.rankingFragment.getContext().getString(R.string.filter_unavailable)
-                );
-                break;
-
-            case UNKNOWN_ERROR:
-                string = this.rankingFragment.getContext().getString(R.string.unknown_error);
-                break;
-
-            case POSITION_NOT_FOUND:
-                string = this.rankingFragment.getContext().getString(R.string.position_not_found);
-                break;
-
-            case INVALID_POSITION:
-                string = this.rankingFragment.getContext().getString(R.string.invalid_position);
-                break;
-
-            default:
-                Log.d(TAG, "onErrorReceived: " + errorType);
-                string = this.rankingFragment.getContext().getString(R.string.unable_load_ranking);
-        }
-
-        this.rankingFragment.fillList(null);
-        Toast.makeText(this.rankingFragment.getContext(), string, Toast.LENGTH_LONG).show();
+        Log.d(TAG, "Runnable, error: " + errorType);
+        this.errorCode.add(errorType);
     }
 
     @Override
@@ -141,9 +130,8 @@ public class RetrieveRankingRunnable
 
     @Override
     public void onUsersRankingReceived(ArrayList<User> arrayList) {
-        Log.d(TAG, "onUsersRankingReceived: " + arrayList);
+        Log.d(TAG, "onUsersRankingReceived");
         // Descending order
-
         if (arrayList != null) {
             Collections.sort(arrayList, new Comparator<User>() {
                 @Override
@@ -154,6 +142,7 @@ public class RetrieveRankingRunnable
             });
         }
 
-        this.rankingFragment.fillList(arrayList);
+        this.errorCode.add(OK);
+        this.callback.retrieveList(arrayList, this.errorCode);
     }
 }

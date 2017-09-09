@@ -123,7 +123,7 @@ public class SingletonUser
             throws CallbackNotInitialized {
         if (userDataCallback == null) {
             Log.w(TAG, "Callback not initialized");
-            throw new CallbackNotInitialized("Callback not initialized");
+            throw new CallbackNotInitialized(TAG);
         }
 
         DatabaseManager.getVehiclesDB(this, userDataCallback);
