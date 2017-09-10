@@ -54,7 +54,7 @@
     <string name="strErrorStart">L\'estremo sinistro deve essere minore dell\'estremo destro.</string>
     <string name="strErrorEnd">L\'estremo destro deve essere maggiore dell\'estremo sinistro.</string>
     <string name="strInstruction">Istruzioni</string>
-    <string name="strGraph">Grafico</string>
+    <string name="strGraph">Statistiche</string>
     <string name="strNoGraph">Grafico non disponibile.</string>
     <string name="action_delete">Elimina</string>
 </resources>

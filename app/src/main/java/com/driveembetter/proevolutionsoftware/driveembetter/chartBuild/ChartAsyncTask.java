@@ -2,10 +2,14 @@ package com.driveembetter.proevolutionsoftware.driveembetter.chartBuild;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -16,6 +20,8 @@ import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 /* Chart Async Task Class */
 public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
@@ -90,45 +96,73 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         /* list of values */
         ArrayList<Entry> vals = new ArrayList<>();
         /* x axis */
-        ArrayList<String> xVals;
+        ArrayList<String> xVals = new ArrayList<>();
+        float sampleSum, sampleSize, mean;
 
-        if (!sessionData.isValid()) {
-            xVals = new ArrayList<>();
-            for (int i = 1; i <= 24; i++) {
+        MeanDay mean2 = MeanDay.getInstance();
+        Calendar calendar = Calendar.getInstance();
+        Date date = calendar.getTime();
+
+        //TEST!!!
+       /*int hour = date.getHours();
+        for (int i = 0; i <= 24; i ++) {
+
+
+            if (date.equals(mean2.getLocalDate())) { //stesso giorno
+
+
+                if (mean2.getMap().get(hour) != null){
+                    Mean meanDay = mean2.getMap().get(hour);
+                    meanDay.setSampleSum(10);  // modificare con il valore della velocità
+                    meanDay.setSampleSize();
+                    mean2.getMap().put(hour, meanDay);
+                } else{
+                    Mean meanDay = new Mean();
+                    meanDay.setSampleSum(50); //modificare con il valore della velocità
+                    meanDay.setSampleSize();
+                    mean2.getMap().put(hour, meanDay);
+                }
+            }else {
+                mean2.getMap().clear();
+                mean2.setLocalDate(date);
+                Mean meanDay = new Mean();
+                meanDay.setSampleSum(50); // modificare con il valore della velocità
+                meanDay.setSampleSize();
+                mean2.getMap().put(hour, meanDay);
+            }
+            System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno" );
+            Log.e("c","Programma per " + i + " eseguito in ora " + hour + " giorno");
+
+        }*/
+
+
+        for (int i = 0; i <= Constants.HOURS; i++) {
+            if(MeanDay.getInstance().getMap().get(i) != null) {
 
                 xVals.add(String.valueOf(i));
-
-                    /* If expression is infinity, skip */
-                Entry entry = new Entry((float) i + 10, i);
-
+                 /* Add entry with the mean of velocity */
+                sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSum();
+                sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSize();
+                mean = sampleSum / sampleSize;
+                Entry entry = new Entry(mean, i);
                 vals.add(entry);
-
-            }
-        }
-        else {
-            xVals = sessionData.getxVals();
-            for (int i = 25; i <= 40; i++) {
-
+            }else{
                 xVals.add(String.valueOf(i));
-                Entry entry = new Entry((float) i + 10, i);
-                sessionData.getData().addEntry(entry);
-
+                vals.add(new Entry(0,i));
             }
+
         }
 
         /* Create a new scatter data set and set properties */
-        if(!sessionData.isValid()) {
-            scatterDataSet = new ScatterDataSet(vals, "func");
-            scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-            scatterDataSet.setColor(Color.BLUE);
-            scatterDataSet.setScatterShapeSize(4f);
-            sessionData.setValid(true); //validate data
-            sessionData.setData(scatterDataSet);
-            sessionData.setxVals(xVals);
-        }   else {
-            scatterDataSet = sessionData.getData();
-            sessionData.setValid(false); //invalidate data
-        }
+
+        scatterDataSet = new ScatterDataSet(vals, "func");
+        scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+        scatterDataSet.setColor(Color.BLUE);
+        scatterDataSet.setScatterShapeSize(6f);
+        sessionData.setValid(true); //validate data
+        sessionData.setData(scatterDataSet);
+        sessionData.setxVals(xVals);
+
         /* List of scatter data set*/
         ArrayList<IScatterDataSet> dataSets= new ArrayList<>();
         dataSets.add(scatterDataSet);

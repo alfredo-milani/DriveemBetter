@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.ChartAsyncTask;
@@ -33,6 +34,9 @@ public class ChartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         /* Call through to the super class's implementation of this method */
         super.onCreate(savedInstanceState);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         /* Set the activity content from layout resource */
         setContentView(R.layout.activity_graph);
 
@@ -139,8 +143,12 @@ public class ChartActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 /* Home key pressed: close activity */
-                finish();
-                return true;
+                //finish();
+                //return true;
+                Intent intent = new Intent(ChartActivity.this, MainFragmentActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+
             default:
                 /* Do nothing */
                 return super.onOptionsItemSelected(item);

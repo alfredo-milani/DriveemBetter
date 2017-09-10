@@ -58,7 +58,7 @@
     <string name="strErrorStart">The extreme left has to be less than right end.</string>
     <string name="strErrorEnd">The right end must be greater than the extreme left.</string>
     <string name="strInstruction">Instructions</string>
-    <string name="strGraph">Graphic</string>
+    <string name="strGraph">Statistics</string>
     <string name="strNoGraph">Graph is not available.</string>
     <string name="action_delete">Delete</string>
 </resources>

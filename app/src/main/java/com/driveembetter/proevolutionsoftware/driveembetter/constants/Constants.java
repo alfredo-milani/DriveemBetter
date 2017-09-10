@@ -14,4 +14,7 @@ public interface Constants {
     String GOOGLE_PROVIDER = "google_provider";
     String FACEBOOK_PROVIDER = "facebook_provider";
     String TWITTER_PROVIDER = "twitter_provider";
+
+
+    int HOURS = 24;
 }

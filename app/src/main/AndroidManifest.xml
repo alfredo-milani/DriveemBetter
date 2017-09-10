@@ -36,8 +36,14 @@
             android:name=".boundary.MainFragmentActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <!--Default Intent Filter-->
-            <intent-filter>
+         <!--   <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />
+            </intent-filter> -->
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -50,6 +56,20 @@
             </intent-filter>
         </activity>
 
+
+        <activity android:name=".boundary.ChartActivity"
+            android:theme="@style/AppTheme"
+            android:label="@string/strGraph"
+            android:parentActivityName=".boundary.MainFragmentActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".boundary.MainFragmentActivity" />
+        </activity>
+
     </application>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+
 
 </manifest>

@@ -9,7 +9,7 @@
     <fragment class="com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment"
         android:id="@+id/chartFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         tools:layout="@layout/fragment_graph" />
 
 </LinearLayout>

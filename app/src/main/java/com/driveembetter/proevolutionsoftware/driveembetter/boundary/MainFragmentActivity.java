@@ -1,12 +1,21 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,9 +23,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -28,9 +39,12 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Facto
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
+import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.ChartAsyncTask;
+import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ImageLoadTask;
+import com.github.mikephil.charting.charts.ScatterChart;
 
 import java.util.ArrayList;
 
@@ -58,7 +72,8 @@ public class MainFragmentActivity
     private ImageView userPicture;
     private View headerView;
 
-
+    private ProgressDialog progress;
+    private ChartAsyncTask task;
 
     private final Handler handler = new Handler(Looper.getMainLooper()) {
         /*
@@ -126,6 +141,63 @@ public class MainFragmentActivity
 
         this.initResources();
         this.initWidgets();
+
+
+        // Plot part
+        /* Check if the device is a tablet */
+        ChartFragment chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
+
+        if (chartFragment != null) {
+            /* Chart fragment is shown */
+
+            /* Find retained fragment by tag: return null if fragment is not found */
+            FragmentManager fragmentManager = getFragmentManager();
+            RetainedFragment retainedFragment = (RetainedFragment) fragmentManager
+                    .findFragmentByTag(getString(R.string.fragment_tag));
+
+            if (retainedFragment != null) {
+                /* Retained fragment already exists; activity has been recreated */
+
+                if (retainedFragment.getTask() != null) {
+                    /* A task is running */
+
+                    /* Get chart fragment */
+                    chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
+
+                    /* Create and set a new progress dialog */
+                    progress = new ProgressDialog(MainFragmentActivity.this);
+                    progress.setMax(100);
+                    progress.setMessage(getString(R.string.strProgressDialogMessage));
+                    progress.setTitle(getString(R.string.strProgressDialogTitle));
+                    progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                    progress.setCancelable(true);
+                    progress.setCanceledOnTouchOutside(false);
+                    progress.setOnKeyListener(new KeyListener());
+                    progress.show();
+                    chartFragment.setProgressDialog(progress);
+                    retainedFragment.setProgressDialog(progress);
+
+                    /* Get chart from chart fragment */
+                    ScatterChart chart = chartFragment.getChart();
+                    retainedFragment.setChart(chart);
+                } else {
+                    /* Task is not running */
+
+                    /* Get chart fragment */
+                    chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
+
+                    if (retainedFragment.getData() != null) {
+                        /* Get chart */
+                        ScatterChart chart = chartFragment.getChart();
+                        chart.setData(retainedFragment.getData());
+
+                        /* Redraw chart */
+                        chart.invalidate();
+                    }
+                }
+            }
+
+        }
     }
 
     private void initResources() {
@@ -290,6 +362,54 @@ public class MainFragmentActivity
                 break;
             case R.id.nav_statistics:
 
+                ChartFragment chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
+
+                if (chartFragment == null) {
+                /* Launch a new activity */
+
+                    startNewActivity(MainFragmentActivity.this,ChartActivity.class);
+
+                } else {
+                /* Chart fragment is shown */
+
+                /* Find retained fragment by tag: return null if fragment is not found */
+                    FragmentManager fragmentManager = getFragmentManager();
+                    RetainedFragment retainedFragment = (RetainedFragment) fragmentManager
+                            .findFragmentByTag(getString(R.string.fragment_tag));
+
+                    if (retainedFragment == null) {
+                    /* First launch */
+
+                    /* Create a new retained fragment */
+                        retainedFragment = new RetainedFragment();
+                    /* Set fragment tag */
+                        fragmentManager.beginTransaction().add(retainedFragment, getString(R.string.fragment_tag)).commit();
+                    }
+
+                    /* Get chart fragment */
+                    chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
+
+                    /* Create and set a new progress dialog */
+                    progress = new ProgressDialog(MainFragmentActivity.this);
+                    progress.setMax(100);
+                    progress.setMessage(getString(R.string.strProgressDialogMessage));
+                    progress.setTitle(getString(R.string.strProgressDialogTitle));
+                    progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                    progress.setCancelable(true);
+                    progress.setCanceledOnTouchOutside(false);
+                    progress.setOnKeyListener(new KeyListener());
+                    chartFragment.setProgressDialog(progress);
+                    retainedFragment.setProgressDialog(progress);
+
+                    /* Get chart from chart fragment */
+                    ScatterChart chart = chartFragment.getChart();
+                    retainedFragment.setChart(chart);
+
+                    /* Create a new async task */
+                    task = new ChartAsyncTask(retainedFragment);
+                    task.execute();
+                    retainedFragment.setTask(task);
+                }
             default:
         }
 
@@ -449,4 +569,94 @@ public class MainFragmentActivity
             }
         }
     }
+
+
+    /* This method will be invoked when a button in the dialog is clicked */
+    private class DialogClickListener implements DialogInterface.OnClickListener {
+
+        @TargetApi(Build.VERSION_CODES.CUPCAKE)
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    /* "Yes" button clicked: stop task  */
+                    task.cancel(true);
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    /* "No" button clicked: do nothing */
+                    break;
+            }
+        }
+    }
+
+    // This method will be invoked when a hardware key event is dispatched to this dialog */
+    private class KeyListener implements DialogInterface.OnKeyListener {
+
+        @TargetApi(Build.VERSION_CODES.ECLAIR)
+        @Override
+        public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+            if (keyCode == KeyEvent.KEYCODE_BACK && !event.isCanceled()) {
+                /* "Back" button pressed */
+                if (progress.isShowing()) {
+                    /* If a progress dialog is showing, create a new dialog with "Yes" and "No" buttons */
+                    DialogClickListener listener = new DialogClickListener();
+                    AlertDialog.Builder ab = new AlertDialog.Builder(MainFragmentActivity.this);
+                    ab.setMessage(getString(R.string.strAreYouSure)).setNegativeButton(android.R.string.no, listener).setPositiveButton(android.R.string.yes, listener).show();
+                    AlertDialog alert11 = ab.create();
+                    alert11.show();
+
+                    Button buttonbackground = alert11.getButton(DialogInterface.BUTTON_NEGATIVE);
+                    buttonbackground.setBackgroundColor(Color.BLUE);
+
+                    Button buttonbackground1 = alert11.getButton(DialogInterface.BUTTON_POSITIVE);
+                    buttonbackground1.setBackgroundColor(Color.BLUE);
+
+
+                }
+                return true;
+            }
+            return false;
+        }
+    }
+
+
+   // @Override
+    /* Called when a key down event has occurred */
+   /* public boolean onKeyDown(int keyCode,KeyEvent ke){
+        if((keyCode==KeyEvent.KEYCODE_BACK)){
+
+            AlertDialog.Builder ab = new AlertDialog.Builder(this);
+            ab.setMessage(getString(R.string.strSure)).setPositiveButton("yes", dialogClickListener).setNegativeButton("no", dialogClickListener).show();
+            AlertDialog alert11 = ab.create();
+            alert11.show();
+
+            Button buttonbackground = alert11.getButton(DialogInterface.BUTTON_NEGATIVE);
+            buttonbackground.setBackgroundColor(Color.BLUE);
+
+            Button buttonbackground1 = alert11.getButton(DialogInterface.BUTTON_POSITIVE);
+            buttonbackground1.setBackgroundColor(Color.BLUE);
+        }
+        return super.onKeyDown(keyCode, ke);
+    }*/
+
+
+    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    /* "Yes" button clicked: stop task  */
+                    finish();
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    /* "No" button clicked: do nothing */
+                    break;
+            }
+        }
+    };
+
+
+
 }
