@@ -63,7 +63,6 @@ public class UserDetailsRankingActivity
             this.username.setText(this.user.getUsernameFromUid());
         }
         this.points.setText(String.valueOf(this.user.getPoints()));
-        Log.d(TAG, "CANE: " + user.getUsername() + " / " + String.valueOf(user.getPoints()) + " / " + user.getPhotoUrl() + " / " + user.getAvailability());
         if (this.user.getPhotoUrl() != null) {
             Glide.with(this)
                     .load(this.user.getPhotoUrl())

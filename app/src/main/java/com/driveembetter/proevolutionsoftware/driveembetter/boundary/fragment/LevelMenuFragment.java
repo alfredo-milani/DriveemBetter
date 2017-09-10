@@ -80,7 +80,7 @@ public class LevelMenuFragment
             final int titleDividerId = res.getIdentifier("titleDivider", "id", "android");
             Log.d(TAG, "Title: " + titleDividerId + " / " + getDialog());
             final View titleDivider = getDialog().findViewById(titleDividerId);
-            titleDivider.setBackgroundColor(ContextCompat.getColor(context, R.color.blue_800));
+            titleDivider.setBackgroundColor(ContextCompat.getColor(context, R.color.colorSchemas));
         }
 
         return this.rootView = inflater.inflate(R.layout.fragment_level_list, container, false);

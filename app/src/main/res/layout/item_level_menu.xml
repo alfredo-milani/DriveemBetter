@@ -20,6 +20,6 @@
         android:id="@+id/radio_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:buttonTint="@color/blue_800" />
+        app:buttonTint="@color/colorSchemas" />
 
 </LinearLayout>

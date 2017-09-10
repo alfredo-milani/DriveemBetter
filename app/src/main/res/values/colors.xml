@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#010426</color>
-    <color name="colorPrimaryDark">#010426</color>
+    <color name="colorPrimary">@color/light_blue_700</color>
+    <color name="colorPrimaryDark">@color/light_blue_900</color>
     <color name="colorAccent">#FFFFFF</color>
+
+    <color name="colorText">@color/colorPrimary</color>
+    <color name="colorSchemas">@color/colorPrimaryDark</color>
 
     <color name="red_50">#FFEBEE</color>
     <color name="red_100">#FFCDD2</color>
@@ -42,7 +45,7 @@
     <color name="light_blue_500">#03A9F4</color>
     <color name="light_blue_600">#039BE5</color>
     <color name="light_blue_700">#0288D1</color>
-    <color name="light_blue_800">#0277BD</color>
+    <color name="light_blue_800">#0277bd</color>
     <color name="light_blue_900">#01579B</color>
     <color name="light_blue_A100">#80D8FF</color>
     <color name="light_blue_A200">#40C4FF</color>

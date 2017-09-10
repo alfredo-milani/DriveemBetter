@@ -40,6 +40,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
 import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosureHandler;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.ReauthenticateUserRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
@@ -65,6 +66,7 @@ public class MainFragmentActivity
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private SingletonUser singletonUser;
     private PositionManager positionManager;
+    private Thread reauthenticationThread;
 
     // Fragments
     private FragmentState fragmentState;
@@ -161,25 +163,10 @@ public class MainFragmentActivity
         Log.d(TAG, ":create");
         super.onCreate(savedInstanceState);
         Intent serviceIntent = new Intent(getApplicationContext(), SwipeClosureHandler.class);
-        startService(serviceIntent);
+        this.startService(serviceIntent);
         this.initResources();
-        if (savedInstanceState != null) {
-            this.onRestoreInstanceState(savedInstanceState);
-        }
+
         this.setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        this.headerView =  navigationView.getHeaderView(0);
 
         this.initWidgets();
     }
@@ -199,6 +186,10 @@ public class MainFragmentActivity
         this.ranking = new RankingFragment();
         this.aboutUs = new AboutUsFragment();
 
+        // Start thread reauthentication
+        this.reauthenticationThread = new Thread(new ReauthenticateUserRunnable(this));
+        this.reauthenticationThread.start();
+
         //TODO it should refresh automatically
         FirebaseUtility firebaseUtility = new FirebaseUtility();
         firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
@@ -207,6 +198,19 @@ public class MainFragmentActivity
     }
 
     private void initWidgets() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        this.headerView =  navigationView.getHeaderView(0);
+
         this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         this.usernameTextView = this.headerView.findViewById(R.id.username_text_view);
         this.emailTextView = this.headerView.findViewById(R.id.email_text_view);
@@ -271,6 +275,25 @@ public class MainFragmentActivity
 
         if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
             this.singletonFirebaseProvider.signOut();
+        }
+    }
+
+    private void manageReathenticationThreadStatus() {
+        // java.lang.Thread.State can be NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED
+        // thread.getState() --> stato thread; thread.isAlive --> true sse il thread è in esecuzione
+        switch (this.reauthenticationThread.getState()) {
+            case BLOCKED: Log.d(TAG, "thread:blocked");
+            case TERMINATED: Log.d(TAG, "thread:terminated");
+                this.reauthenticationThread.interrupt();
+                this.reauthenticationThread = new Thread(new ReauthenticateUserRunnable(this));
+                this.reauthenticationThread.start();
+                break;
+
+            case NEW: Log.d(TAG, "thread:new");
+            case RUNNABLE: Log.d(TAG, "thread:runnable");
+            case TIMED_WAITING: Log.d(TAG, "thread:timed_waiting");
+            case WAITING: Log.d(TAG, "thread:waiting");
+                break;
         }
     }
 
@@ -439,15 +462,6 @@ public class MainFragmentActivity
         }
     }
 
-    // Called between onStart() and onPostCreate()
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        Log.d(TAG, ":onRestoreInstanceState");
-        // this.restoreProviders(savedInstanceState);
-    }
-
     @Override
     protected void onRestart() {
         super.onRestart();
@@ -460,9 +474,8 @@ public class MainFragmentActivity
     protected void onResume() {
         super.onResume();
 
-        // Check if user exist
-        this.singletonFirebaseProvider.reauthenticateUser();
-        this.positionManager.getInstance(this).setUserAvailable();
+        this.manageReathenticationThreadStatus();
+        PositionManager.getInstance(this).setUserAvailable();
         Log.d(TAG, ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
@@ -474,15 +487,6 @@ public class MainFragmentActivity
         Log.d(TAG, ":pause");
         DatabaseManager.disconnectReference();
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
-    }
-
-    // Called before onStop()
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        Log.d(TAG, ":onSaveInstanceState");
-        // this.saveProviders(outState);
     }
 
     @Override
@@ -505,66 +509,9 @@ public class MainFragmentActivity
         //.removeGoogleClient();
     }
 
-    // TODO:
-    // onSave / onRestore non sempre chiamate --> inserire i seguenti metodi in onStart o onResume o simili.
-    // se non funziona vedi se è questione di cambio di contesto
-    private void saveProviders(Bundle bundle) {
-        if (this.baseProviderArrayList != null) {
-            if (baseProviderArrayList
-                    .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
-                    .isSignIn()) {
-                bundle.putBoolean(FIREBASE_PROVIDER, true);
-            } else if (baseProviderArrayList
-                    .get(FactoryProviders.GOOGLE_PROVIDER)
-                    .isSignIn()) {
-                bundle.putBoolean(GOOGLE_PROVIDER, true);
-            } else if (baseProviderArrayList
-                    .get(FactoryProviders.FACEBOOK_PROVIDER)
-                    .isSignIn()) {
-                bundle.putBoolean(FACEBOOK_PROVIDER, true);
-            } else if (baseProviderArrayList
-                    .get(FactoryProviders.TWITTER_PROVIDER)
-                    .isSignIn()) {
-                bundle.putBoolean(TWITTER_PROVIDER, true);
-            }
-        }
-    }
-
-    private void restoreProviders(Bundle bundle) {
-        if (this.baseProviderArrayList != null) {
-            if (bundle.getBoolean(FIREBASE_PROVIDER, false) &&
-                    !this.baseProviderArrayList
-                            .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
-                            .isSignIn()) {
-                Log.d(TAG, "restoring Firebase provider");
-                this.singletonFirebaseProvider.signOut();
-                // this.startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
-            } else if (bundle.getBoolean(GOOGLE_PROVIDER, false) &&
-                    !this.baseProviderArrayList
-                            .get(FactoryProviders.GOOGLE_PROVIDER)
-                            .isSignIn()) {
-                Log.d(TAG, "restoring Google provider");
-                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                        .silentSignIn();
-            } else if (bundle.getBoolean(FACEBOOK_PROVIDER, false) &&
-                    !this.baseProviderArrayList
-                            .get(FactoryProviders.FACEBOOK_PROVIDER)
-                            .isSignIn()) {
-                Log.d(TAG, "restoring Facebook provider");
-                this.baseProviderArrayList.get(FactoryProviders.FACEBOOK_PROVIDER).signIn(null, null);
-            } else if (bundle.getBoolean(TWITTER_PROVIDER, false) &&
-                    !this.baseProviderArrayList
-                            .get(FactoryProviders.TWITTER_PROVIDER)
-                            .isSignIn()) {
-                Log.d(TAG, "restoring Twitter provider");
-                this.baseProviderArrayList.get(FactoryProviders.TWITTER_PROVIDER).signIn(null, null);
-            }
-        }
-    }
-
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {

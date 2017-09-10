@@ -1,8 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.adapters;
 
 import android.content.Context;
-import android.graphics.Typeface;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +28,8 @@ public class RankingRecyclerViewAdapter
     private List<User> users;
     private Context context;
     private final OnItemClickListener listener;
+
+    private final static int CURRENT_USER = -1;
 
 
 
@@ -70,23 +70,26 @@ public class RankingRecyclerViewAdapter
 
     @Override
     public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.item_ranking_user, parent, false);
-        return new UserViewHolder(v);
+        View view;
+        switch (viewType) {
+            case CURRENT_USER:
+                view = LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.item_ranking_current_user, parent, false);
+                break;
+
+            default:
+                view = LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.item_ranking_user, parent, false);
+                break;
+        }
+
+        return new UserViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(UserViewHolder holder, int position) {
-        boolean currentUser = false;
-        if (SingletonUser.getInstance() != null &&
-                users.get(position).getUid() != null) {
-            currentUser = users
-                    .get(position)
-                    .getUid()
-                    .equals(SingletonUser.getInstance().getUid());
-        }
-
         if (this.users.get(position).getPhotoUrl() != null) {
             Glide.with(this.context)
                     .load(
@@ -121,25 +124,23 @@ public class RankingRecyclerViewAdapter
         holder.rank.setText(String.valueOf(position + 1).concat("°"));
 
         holder.bind(this.users.get(position), this.listener);
-
-        if (currentUser) {
-            holder.name.setTextColor(ContextCompat.getColor(this.context, R.color.blue_800));
-            holder.name.setTypeface(holder.name.getTypeface(), Typeface.BOLD);
-            holder.name.setTextSize(15);
-
-            holder.points.setTextColor(ContextCompat.getColor(this.context, R.color.blue_800));
-            holder.points.setTypeface(holder.points.getTypeface(), Typeface.BOLD);
-            holder.points.setTextSize(15);
-
-            holder.rank.setTextSize(20);
-            holder.points.setTypeface(holder.points.getTypeface(), Typeface.BOLD);
-        }
     }
 
     @Override
     public int getItemCount() {
         return this.users == null ?
                 0 : this.users.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (SingletonUser.getInstance() != null &&
+                this.users.get(position).getUid().equals(SingletonUser.getInstance().getUid())) {
+            // Current user
+            return RankingRecyclerViewAdapter.CURRENT_USER;
+        }
+
+        return super.getItemViewType(position);
     }
 
     @Override

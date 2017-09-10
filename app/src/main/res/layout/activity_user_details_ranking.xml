@@ -26,7 +26,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:layout_weight="1"
             android:orientation="horizontal">
 
             <TextView
@@ -51,8 +50,7 @@
             android:layout_height="1dp"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
-            android:layout_weight="1"
-            android:background="@color/blue_700"
+            android:background="@color/colorSchemas"
             android:orientation="horizontal" />
 
         <LinearLayout
@@ -60,7 +58,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:layout_weight="1"
             android:orientation="horizontal">
 
             <TextView
@@ -85,8 +82,7 @@
             android:layout_height="1dp"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
-            android:layout_weight="1"
-            android:background="@color/blue_700"
+            android:background="@color/colorSchemas"
             android:orientation="horizontal" />
 
         <LinearLayout
@@ -94,7 +90,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:layout_weight="1"
             android:orientation="horizontal">
 
             <TextView
@@ -110,8 +105,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/unavailable_shape"
-                android:contentDescription="@string/availability" />
+                android:contentDescription="@string/availability"
+                app:srcCompat="@drawable/unavailable_shape" />
 
         </LinearLayout>
 

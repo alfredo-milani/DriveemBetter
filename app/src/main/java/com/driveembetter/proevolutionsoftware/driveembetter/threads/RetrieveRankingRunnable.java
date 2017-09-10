@@ -77,7 +77,7 @@ public class RetrieveRankingRunnable
                 position[1],
                 1
         );
-        // location[0] --> nation; location[1] --> region; location[2] --> district
+        // location[0] -> nation; location[1] -> region; location[2] -> district
         String nation = location[0]; String region = location[1]; String district = location[2];
         // DEBUG
         // nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";

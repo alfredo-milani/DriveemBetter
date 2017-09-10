@@ -108,6 +108,10 @@ public class RankingFragment
     public void retrieveList(ArrayList<User> arrayList, ArrayList<Integer> resultCode) {
         this.showToastFromResult(resultCode);
 
+        for (int i = 0; i < arrayList.size(); ++i) {
+            Log.d(TAG, "USER: " + arrayList.get(i).getUid() + " POS: " + i);
+        }
+
         this.recycleView.addItemDecoration(new DividerItemDecoration(this.context));
         RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
                 new RankingRecyclerViewAdapter(this.context, arrayList, this);
@@ -233,7 +237,7 @@ public class RankingFragment
             (The list items should still show up as a batch update once you attach the adapter).
         */
         this.recycleView.setLayoutManager(this.layoutManager);
-        this.swipeRefreshLayout = (SwipeRefreshLayout) this.rootView.findViewById(R.id.swiperefresh_ranking);
+        this.swipeRefreshLayout = this.rootView.findViewById(R.id.swiperefresh_ranking);
         this.swipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(getContext(), R.color.blue_800),
                 ContextCompat.getColor(getContext(), R.color.blue_600),
