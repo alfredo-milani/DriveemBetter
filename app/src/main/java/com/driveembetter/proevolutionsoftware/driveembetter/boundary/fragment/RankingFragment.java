@@ -24,6 +24,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingRecy
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.UserDetailsRankingActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveRankingRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
@@ -108,10 +109,6 @@ public class RankingFragment
     public void retrieveList(ArrayList<User> arrayList, ArrayList<Integer> resultCode) {
         this.showToastFromResult(resultCode);
 
-        for (int i = 0; i < arrayList.size(); ++i) {
-            Log.d(TAG, "USER: " + arrayList.get(i).getUid() + " POS: " + i);
-        }
-
         this.recycleView.addItemDecoration(new DividerItemDecoration(this.context));
         RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
                 new RankingRecyclerViewAdapter(this.context, arrayList, this);
@@ -120,10 +117,25 @@ public class RankingFragment
 
         this.hideProgress();
         if (arrayList != null) {
+            int scrollPosition = this.scrollPositionCurrentUser(arrayList);
+            if (scrollPosition >= 0) {
+                this.recycleView.smoothScrollToPosition(scrollPosition);
+            }
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private int scrollPositionCurrentUser(ArrayList<User> arrayList) {
+        for (int i = 0; i < arrayList.size(); ++i) {
+            if (SingletonUser.getInstance() != null && arrayList.get(i).getUid() != null &&
+                    SingletonUser.getInstance().getUid().equals(arrayList.get(i).getUid())) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private void showToastFromResult(ArrayList<Integer> result) {
