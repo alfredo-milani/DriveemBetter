@@ -256,6 +256,7 @@ public class DatabaseManager
                                 .setValue(UNAVAILABLE);
                     }
                 } else {
+                    // TODO prima di leggere i punti devo aspettare il risultato di quest query --> SERVONO LOCKS
                     SingletonUser
                         .getInstance()
                         .setPoints(

@@ -85,79 +85,6 @@ public class MainFragmentActivity
 
 
 
-    public PositionManager getPositionManager() {
-        return this.positionManager;
-    }
-
-    private final Handler handler = new Handler(Looper.getMainLooper()) {
-        /*
-         * handleMessage() defines the operations to perform when
-         * the Handler receives a new Message to process.
-         */
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            hideProgress();
-            switch (msg.what) {
-                case BAD_EMAIL_OR_PSW:
-                case INVALID_USER:
-                case INVALID_CREDENTIALS:
-                case NETWORK_ERROR:
-                case UNKNOWN_EVENT:
-                    Toast
-                            .makeText(MainFragmentActivity.this, getString(R.string.session_expired), Toast.LENGTH_LONG)
-                            .show();
-                    closeCurrentActivity();
-                    break;
-
-                case USER_LOGIN:
-                    String currentUser;
-                    if (singletonUser.getUsername() != null && !singletonUser.getUsername().isEmpty()) {
-                        currentUser = singletonUser.getUsername();
-                    } else if (singletonUser.getEmail() != null && !singletonUser.getEmail().isEmpty()) {
-                        currentUser = singletonUser.getEmail();
-                    } else {
-                        currentUser = getString(R.string.user_not_retrieved);
-                    }
-                    Log.d(TAG, "Log in");
-                    /*
-                    Toast.makeText(
-                            MainFragmentActivity.this,
-                            String.format(getString(R.string.sign_in_as), currentUser), Toast.LENGTH_SHORT
-                    ).show();
-                    */
-                    break;
-
-                case USER_LOGOUT:
-                    Log.d(TAG, "Log out");
-                    /*
-                    Toast.makeText(MainFragmentActivity.this, getString(R.string.logging_out), Toast.LENGTH_SHORT).show();
-                    */
-                    startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
-                    break;
-
-                default:
-                    Log.d(TAG, "MSG: " + msg.what);
-            }
-        }
-    };
-
-    private void startNewActivityCloseCurrent(Context context, Class newClass) {
-        Intent newIntent = new Intent(context, newClass);
-        this.finish();
-        this.startActivity(newIntent);
-    }
-
-    private void openNewActivity(Context context, Class newClass) {
-        Intent newIntent = new Intent(context, newClass);
-        this.startActivity(newIntent);
-    }
-
-    private void closeCurrentActivity() {
-        this.finish();
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, ":create");
@@ -246,6 +173,79 @@ public class MainFragmentActivity
         protectedAppsManager.checkAlert();
 
 
+    }
+
+    public PositionManager getPositionManager() {
+        return this.positionManager;
+    }
+
+    private final Handler handler = new Handler(Looper.getMainLooper()) {
+        /*
+         * handleMessage() defines the operations to perform when
+         * the Handler receives a new Message to process.
+         */
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            hideProgress();
+            switch (msg.what) {
+                case BAD_EMAIL_OR_PSW:
+                case INVALID_USER:
+                case INVALID_CREDENTIALS:
+                case NETWORK_ERROR:
+                case UNKNOWN_EVENT:
+                    Toast
+                            .makeText(MainFragmentActivity.this, getString(R.string.session_expired), Toast.LENGTH_LONG)
+                            .show();
+                    closeCurrentActivity();
+                    break;
+
+                case USER_LOGIN:
+                    String currentUser;
+                    if (singletonUser.getUsername() != null && !singletonUser.getUsername().isEmpty()) {
+                        currentUser = singletonUser.getUsername();
+                    } else if (singletonUser.getEmail() != null && !singletonUser.getEmail().isEmpty()) {
+                        currentUser = singletonUser.getEmail();
+                    } else {
+                        currentUser = getString(R.string.user_not_retrieved);
+                    }
+                    Log.d(TAG, "Log in");
+                    /*
+                    Toast.makeText(
+                            MainFragmentActivity.this,
+                            String.format(getString(R.string.sign_in_as), currentUser), Toast.LENGTH_SHORT
+                    ).show();
+                    */
+                    break;
+
+                case USER_LOGOUT:
+                    Log.d(TAG, "Log out");
+                    /*
+                    Toast.makeText(MainFragmentActivity.this, getString(R.string.logging_out), Toast.LENGTH_SHORT).show();
+                    */
+                    startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
+                    break;
+
+                default:
+                    Log.d(TAG, "MSG: " + msg.what);
+            }
+        }
+    };
+
+    private void startNewActivityCloseCurrent(Context context, Class newClass) {
+        Intent newIntent = new Intent(context, newClass);
+        this.finish();
+        this.startActivity(newIntent);
+    }
+
+    private void openNewActivity(Context context, Class newClass) {
+        Intent newIntent = new Intent(context, newClass);
+        this.startActivity(newIntent);
+    }
+
+    private void closeCurrentActivity() {
+        this.finish();
     }
 
     @Override
