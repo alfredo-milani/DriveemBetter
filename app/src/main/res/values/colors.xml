@@ -38,11 +38,11 @@
     <color name="deep_purple_A700">#6200EA</color>
 
     <color name="light_blue_50">#E1F5FE</color>
-    <color name="light_blue_100">#B3E5FC</color>
+    <color name="light_blue_100">#e6f6ff</color>
     <color name="light_blue_200">#81D4FA</color>
     <color name="light_blue_300">#4FC3F7</color>
     <color name="light_blue_400">#29B6F6</color>
-    <color name="light_blue_500">#03A9F4</color>
+    <color name="light_blue_500">#03a9f4</color>
     <color name="light_blue_600">#039BE5</color>
     <color name="light_blue_700">#0288D1</color>
     <color name="light_blue_800">#0277bd</color>

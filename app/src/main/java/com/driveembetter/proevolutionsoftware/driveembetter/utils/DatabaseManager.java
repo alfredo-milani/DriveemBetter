@@ -257,6 +257,7 @@ public class DatabaseManager
                     }
                 } else {
                     // TODO prima di leggere i punti devo aspettare il risultato di quest query --> SERVONO LOCKS
+                    // TODO salvataggio dati utente su file
                     SingletonUser
                         .getInstance()
                         .setPoints(
