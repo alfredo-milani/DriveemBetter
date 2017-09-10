@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -37,7 +38,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.Ra
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
 import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosureHandler;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ReauthenticateUserRunnable;
@@ -198,32 +198,18 @@ public class MainFragmentActivity
                     Toast
                             .makeText(MainFragmentActivity.this, getString(R.string.session_expired), Toast.LENGTH_LONG)
                             .show();
-                    closeCurrentActivity();
+                    startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
                 case USER_LOGIN:
-                    String currentUser;
-                    if (singletonUser.getUsername() != null && !singletonUser.getUsername().isEmpty()) {
-                        currentUser = singletonUser.getUsername();
-                    } else if (singletonUser.getEmail() != null && !singletonUser.getEmail().isEmpty()) {
-                        currentUser = singletonUser.getEmail();
-                    } else {
-                        currentUser = getString(R.string.user_not_retrieved);
-                    }
                     Log.d(TAG, "Log in");
-                    /*
-                    Toast.makeText(
-                            MainFragmentActivity.this,
-                            String.format(getString(R.string.sign_in_as), currentUser), Toast.LENGTH_SHORT
-                    ).show();
-                    */
                     break;
 
                 case USER_LOGOUT:
                     Log.d(TAG, "Log out");
-                    /*
-                    Toast.makeText(MainFragmentActivity.this, getString(R.string.logging_out), Toast.LENGTH_SHORT).show();
-                    */
+
+                    reauthenticationThread.interrupt();
+                    SingletonUser.resetSession();
                     startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
@@ -235,16 +221,7 @@ public class MainFragmentActivity
 
     private void startNewActivityCloseCurrent(Context context, Class newClass) {
         Intent newIntent = new Intent(context, newClass);
-        this.finish();
         this.startActivity(newIntent);
-    }
-
-    private void openNewActivity(Context context, Class newClass) {
-        Intent newIntent = new Intent(context, newClass);
-        this.startActivity(newIntent);
-    }
-
-    private void closeCurrentActivity() {
         this.finish();
     }
 
@@ -324,51 +301,15 @@ public class MainFragmentActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         switch (id) {
             case R.id.garage:
-                // Handle the camera action
-                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
-
-                this.singletonUser.getVehicles(new SingletonUser.UserDataCallback() {
-                    @Override
-                    public void onVehiclesReceive() {
-                        if (singletonUser.getVehicleArrayList() == null) {
-                            Log.d(TAG, "VEICH NULL");
-                        } else {
-                            for (Vehicle vehicle :
-                                    singletonUser.getVehicleArrayList()) {
-                                Log.d(TAG, "VEICH: " + vehicle.getNumberPlate() + " / " + vehicle.getType());
-                            }
-                        }
-                    }
-                });
                 break;
 
             case R.id.statistics:
-                // DEBUG
-                SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
-                if (singletonGoogleProvider != null) {
-                    Log.d(TAG, "SIGN IN GOOGLE: " + singletonGoogleProvider.isSignIn());
-                } else {
-                    Log.d(TAG, "SING GOOGLE NULL");
-                }
-
-                Log.d(TAG, "Singleton user: " + singletonUser.getEmail() + " / " + singletonUser.getUsername());
-
-                if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
-                    Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail() + " / " + this.singletonFirebaseProvider.getFirebaseUser().getUid());
-                } else {
-                    Log.d(TAG, "USER FIRE NULL");
-                }
-
-                Log.d(TAG, "CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
-
-                Log.d(TAG, "Firebase signIn: " + this.singletonFirebaseProvider.isFirebaseSignIn());
-                ////
                 break;
 
             case R.id.ranking:
@@ -392,9 +333,32 @@ public class MainFragmentActivity
                 break;
 
             case R.id.nav_share:
+                // DEBUG
+                SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
+                if (singletonGoogleProvider != null) {
+                    Log.d(TAG, "SIGN IN GOOGLE: " + singletonGoogleProvider.isSignIn());
+                } else {
+                    Log.d(TAG, "SING GOOGLE NULL");
+                }
+
+                Log.d(TAG, "Singleton user: " + singletonUser.getEmail() + " / " + singletonUser.getUsername());
+
+                if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
+                    Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail() + " / " + this.singletonFirebaseProvider.getFirebaseUser().getUid());
+                } else {
+                    Log.d(TAG, "USER FIRE NULL");
+                }
+
+                Log.d(TAG, "CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
+
+                Log.d(TAG, "Firebase signIn: " + this.singletonFirebaseProvider.isFirebaseSignIn());
+                ////
                 break;
 
             case R.id.nav_send:
+                // DEBUG
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
+                ////
                 break;
 
             case R.id.about_us:
@@ -411,12 +375,10 @@ public class MainFragmentActivity
                 Log.d(TAG, "Logout pressed");
 
                 this.logoutCurrentProviders();
-                SingletonUser.resetSession();
-                this.finish();
                 break;
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -496,7 +458,6 @@ public class MainFragmentActivity
         Log.d(TAG, ":stop");
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
-
 
     @Override
     protected void onDestroy() {
