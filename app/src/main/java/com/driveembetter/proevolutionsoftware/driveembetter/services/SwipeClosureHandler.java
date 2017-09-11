@@ -2,13 +2,9 @@ package com.driveembetter.proevolutionsoftware.driveembetter.services;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 
 
 /**
@@ -34,7 +30,7 @@ public class SwipeClosureHandler extends Service {
 
     @Override
     public void onTaskRemoved (Intent rootIntent){
-        PositionManager.getInstance((MainFragmentActivity) getApplicationContext()).setUserUnavailable();
+        // TODO SET USER UNAVAILABLE ???
         stopSelf();
     }
 }

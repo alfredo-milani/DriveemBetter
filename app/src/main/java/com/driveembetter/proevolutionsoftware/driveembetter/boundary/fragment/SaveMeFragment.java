@@ -31,6 +31,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ChatActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
@@ -108,6 +109,10 @@ public class SaveMeFragment
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         context = getActivity().getApplicationContext();
         activity = getActivity();
+
+        // Set action bar title
+        activity.setTitle(R.string.save_me);
+
         // For showing a move to my location button
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
@@ -377,8 +382,11 @@ public class SaveMeFragment
                 while (true) {
                     if (updatePosition.isCancelled())
                         return null;
-                    final double latitude = positionManager.getLatitude();
-                    final double longitude = positionManager.getLongitude();
+                    if (SingletonUser.getInstance() == null) {
+                        return null;
+                    }
+                    final double latitude = SingletonUser.getInstance().getLatitude();
+                    final double longitude = SingletonUser.getInstance().getLongitude();
                     if (latitude != 0 && longitude != 0) {
                         try {
                             Log.e("latitude", "inside latitude--" + latitude);

@@ -10,6 +10,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,6 +35,7 @@ public class FirebaseDatabaseManager
     private final static DatabaseReference databaseReference = FirebaseDatabase
             .getInstance()
             .getReference();
+    private final static SingletonUser user = SingletonUser.getInstance();
 
 
 
@@ -45,111 +47,163 @@ public class FirebaseDatabaseManager
         FirebaseDatabaseManager.databaseReference.onDisconnect();
     }
 
+    public static void refreshUserToken(String token) {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(user.getUid());
+
+            // Set user's token
+            databaseReference
+                    .child(ARG_FIREBASE_TOKEN)
+                    .setValue(token);
+        }
+    }
+
     /**
      * Update DB with latitude and longitude of the user.
      * Here we are in users node.
-     * @param position:
-     *                position[0] -> latitude
-     *                position[1] -> longitude.
      */
-    public static void updateUserPositionOnLocationChange(double[] position) {
-        if (SingletonUser.getInstance() != null) {
+    public static void updateUserCoordAndAvail() {
+        if (user != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
-                    .child(SingletonUser.getInstance().getUid())
-                    .child(CHILD_CURRENT_POSITION);
-            databaseReference.setValue(
-                    StringParser.getStringFromCoordinates(position[0], position[1])
-            );
+                    .child(user.getUid());
+
+            databaseReference
+                    .child(CHILD_CURRENT_POSITION)
+                    .setValue(user.getLatitude(), user.getLongitude());
+            databaseReference
+                    .child(CHILD_AVAILABILITY)
+                    .setValue(user.getAvailability());
         }
     }
 
     public static void manageUserAvailability(String availability) {
-        if (SingletonUser.getInstance() != null &&
+        if (user != null &&
                 availability != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
-                    .child(SingletonUser.getInstance().getUid())
+                    .child(user.getUid())
                     .child(CHILD_AVAILABILITY);
             databaseReference.setValue(availability);
         }
     }
 
     public static void manageUserUsername(String username) {
-        if (SingletonUser.getInstance() != null &&
+        if (user != null &&
                 username != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
-                    .child(SingletonUser.getInstance().getUid())
+                    .child(user.getUid())
                     .child(CHILD_USERNAME);
             databaseReference.setValue(username);
         }
     }
 
     public static void manageUserPoints(long points) {
-        if (SingletonUser.getInstance() != null) {
+        if (user != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
-                    .child(SingletonUser.getInstance().getUid())
+                    .child(user.getUid())
                     .child(CHILD_POINTS);
             databaseReference.setValue(points);
         }
     }
 
     public static void manageUserEmail(String email) {
-        if (SingletonUser.getInstance() != null &&
+        if (user != null &&
                 email != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
-                    .child(SingletonUser.getInstance().getUid())
+                    .child(user.getUid())
                     .child(CHILD_EMAIL);
             databaseReference.setValue(email);
         }
     }
 
     public static void manageUserPhoto(Uri photo) {
-        if (SingletonUser.getInstance() != null &&
+        if (user != null &&
                 photo != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
-                    .child(SingletonUser.getInstance().getUid())
+                    .child(user.getUid())
                     .child(CHILD_IMAGE);
             databaseReference.setValue(photo);
+        }
+    }
+
+    public static void removeOldPosition(String[] position) {
+        if (position != null && position[0] != null &&
+                position[1] != null && position[2] != null &&
+                user != null) {
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_POSITION)
+                    .child(position[0])
+                    .child(position[1])
+                    .child(position[2])
+                    .child(user.getUid());
+            databaseReference.removeValue();
+        }
+    }
+
+    public static void createNewUserPosition() {
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_POSITION)
+                    .child(user.getCountry())
+                    .child(user.getRegion())
+                    .child(user.getSubRegion())
+                    .child(user.getUid());
+
+            databaseReference
+                    .child(CHILD_USERNAME)
+                    .setValue(user.getUsername());
+            databaseReference
+                    .child(CHILD_EMAIL)
+                    .setValue(user.getEmail());
+            databaseReference
+                    .child(CHILD_IMAGE)
+                    .setValue(user.getPhotoUrl());
+            databaseReference
+                    .child(CHILD_POINTS)
+                    .setValue(user.getPoints());
         }
     }
 
     /**
      * Update DB with latitude and longitude of the user.
      * Here we are in positions node.
-     * @param position:
-     *                position[0] -> latitude
-     *                position[1] -> longitude.
      */
-    public static void updateCurrentPosition(double[] position, String[] location) {
-        String country = location[0]; String region = location[1]; String subRegion = location[2];
-        if (SingletonUser.getInstance() != null) {
+    public static void upPositionCoordAndAvail() {
+        if (user != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
-                    .child(country)
-                    .child(region)
-                    .child(subRegion)
-                    .child(SingletonUser.getInstance().getUid())
-                    .child(CHILD_CURRENT_POSITION);
-            databaseReference.setValue(
-                    StringParser.getStringFromCoordinates(position[0], position[1])
-            );
+                    .child(user.getCountry())
+                    .child(user.getRegion())
+                    .child(user.getSubRegion())
+                    .child(user.getUid());
+
+            databaseReference
+                    .child(CHILD_CURRENT_POSITION)
+                    .setValue(StringParser.getStringFromCoordinates(
+                            user.getLatitude(), user.getLongitude()
+                    ));
+            databaseReference
+                    .child(CHILD_AVAILABILITY)
+                    .setValue(user.getAvailability());
         }
     }
 
     public static void updateCurrentPoint(long points, String[] location) {
         String country = location[0]; String region = location[1]; String subRegion = location[2];
-        if (SingletonUser.getInstance() != null) {
+        if (user != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
                     .child(country)
                     .child(region)
                     .child(subRegion)
-                    .child(SingletonUser.getInstance().getUid())
+                    .child(user.getUid())
                     .child(CHILD_POINTS);
             databaseReference.setValue(points);
         }
@@ -161,7 +215,7 @@ public class FirebaseDatabaseManager
                 .child(COUNTRY)
                 .child(REGION)
                 .child(SUB_REGION)
-                .equalTo(SingletonUser.getInstance().getUid());
+                .equalTo(user.getUid());
 
         // Attach a listener to read the data at our posts reference
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -169,32 +223,32 @@ public class FirebaseDatabaseManager
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Writing on DB about user unknown position");
                 if (!dataSnapshot.exists()) {
-                    if (SingletonUser.getInstance() != null) {
+                    if (user != null) {
                         query.getRef()
-                                .child(SingletonUser.getInstance().getUid())
+                                .child(user.getUid())
                                 .child(CHILD_AVAILABILITY)
                                 .setValue(UNAVAILABLE);
-                        if (SingletonUser.getInstance().getUsername() != null) {
+                        if (user.getUsername() != null) {
                             query.getRef()
-                                    .child(SingletonUser.getInstance().getUid())
+                                    .child(user.getUid())
                                     .child(CHILD_USERNAME)
-                                    .setValue(SingletonUser.getInstance().getUsername());
+                                    .setValue(user.getUsername());
                         }
                         query.getRef()
-                                .child(SingletonUser.getInstance().getUid())
+                                .child(user.getUid())
                                 .child(CHILD_POINTS)
-                                .setValue(SingletonUser.getInstance().getPoints());
-                        if (SingletonUser.getInstance().getEmail() != null) {
+                                .setValue(user.getPoints());
+                        if (user.getEmail() != null) {
                             query.getRef()
-                                    .child(SingletonUser.getInstance().getUid())
+                                    .child(user.getUid())
                                     .child(CHILD_EMAIL)
-                                    .setValue(SingletonUser.getInstance().getEmail());
+                                    .setValue(user.getEmail());
                         }
-                        if (SingletonUser.getInstance().getPhotoUrl() != null) {
+                        if (user.getPhotoUrl() != null) {
                             query.getRef()
-                                    .child(SingletonUser.getInstance().getUid())
+                                    .child(user.getUid())
                                     .child(CHILD_IMAGE)
-                                    .setValue(SingletonUser.getInstance().getPhotoUrl().toString());
+                                    .setValue(user.getPhotoUrl().toString());
                         }
                     }
                 }
@@ -207,61 +261,82 @@ public class FirebaseDatabaseManager
         });
     }
 
-    public static void manageDataUserDB() {
+    public static void manageCurrentUserDataDB() {
+        if (user.getUid() == null) {
+            return;
+        }
         final Query query = FirebaseDatabaseManager.databaseReference
                 .child(NODE_USERS)
-                .child(SingletonUser
-                        .getInstance()
-                        .getUid());
+                .child(user.getUid());
 
         // Attach a listener to read the data at our posts reference
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterable<DataSnapshot> userData = dataSnapshot.getChildren();
                 // dataSnapshot.exist() --> .child(.getUid) esiste?
                 // user == null --> user non ha almeno un figlio?
-                if (!dataSnapshot.exists() || userData == null || dataSnapshot.getChildrenCount() < 5) {
-                    Log.d(TAG, "Create user data");
+                if (!dataSnapshot.exists() || dataSnapshot.getChildren() == null ||
+                        dataSnapshot.getChildrenCount() < 6) {
+                    Log.d(TAG, "User data integrity check");
                     if (!dataSnapshot.hasChild(CHILD_POINTS)) {
                         query.getRef()
                                 .child(CHILD_POINTS)
-                                .setValue(SingletonUser.getInstance().getPoints());
+                                .setValue(user.getPoints());
                     }
 
-                    if (SingletonUser.getInstance().getPhotoUrl() != null &&
+                    if (user.getPhotoUrl() != null &&
                             !dataSnapshot.hasChild(CHILD_IMAGE)) {
                         query.getRef()
                                 .child(CHILD_IMAGE)
-                                .setValue(SingletonUser.getInstance().getPhotoUrl().toString());
+                                .setValue(user.getPhotoUrl().toString());
                     }
 
-                    if (SingletonUser.getInstance().getUsername() != null &&
-                            !SingletonUser.getInstance().getUsername().isEmpty() &&
+                    if (user.getUsername() != null &&
+                            !user.getUsername().isEmpty() &&
                             !dataSnapshot.hasChild(CHILD_USERNAME)) {
                         query.getRef()
                                 .child(CHILD_USERNAME)
-                                .setValue(SingletonUser.getInstance().getUsername());
-                    } else if (SingletonUser.getInstance().getEmail() != null &&
-                            !SingletonUser.getInstance().getEmail().isEmpty() &&
-                            !dataSnapshot.hasChild(CHILD_USERNAME)) {
-                        query.getRef()
-                                .child(CHILD_USERNAME)
-                                .setValue(SingletonUser.getInstance().getEmail());
+                                .setValue(user.getUsername());
                     }
 
-                    if (!dataSnapshot.hasChild(CHILD_CURRENT_POSITION)) {
+                    if (user.getEmail() != null &&
+                            !user.getEmail().isEmpty() &&
+                            !dataSnapshot.hasChild(CHILD_EMAIL)) {
                         query.getRef()
-                                .child(CHILD_AVAILABILITY)
-                                .setValue(UNAVAILABLE);
+                                .child(CHILD_EMAIL)
+                                .setValue(user.getEmail());
+                    }
+
+                    if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
+                            dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
+                        String[] coordinates = StringParser.getCoordinates(
+                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
+                        );
+                        user.setLatitude(Double.parseDouble(coordinates[0]));
+                        user.setLongitude(Double.parseDouble(coordinates[1]));
+                    }
+                    if (dataSnapshot.hasChild(CHILD_AVAILABILITY)) {
+                        user.setAvailability(UNAVAILABLE);
+                        dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(UNAVAILABLE);
                     }
                 } else {
                     // TODO prima di leggere i punti devo aspettare il risultato di quest query --> SERVONO LOCKS
-                    SingletonUser
-                        .getInstance()
-                        .setPoints(
-                                (long) dataSnapshot.child(CHILD_POINTS).getValue()
+                    Log.d(TAG, "Update SingletonUser class data: " + dataSnapshot);
+                    user.setPoints(
+                            (long) dataSnapshot.child(CHILD_POINTS).getValue()
+                    );
+
+                    if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
+                        String[] coordinates = StringParser.getCoordinates(
+                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
+                        user.setLatitude(Double.parseDouble(coordinates[0]));
+                        user.setLongitude(Double.parseDouble(coordinates[1]));
+                    }
+                    if (dataSnapshot.hasChild(CHILD_AVAILABILITY)) {
+                        user.setAvailability(UNAVAILABLE);
+                        dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(UNAVAILABLE);
+                    }
                 }
             }
 
@@ -288,7 +363,7 @@ public class FirebaseDatabaseManager
         // Create query
         final Query query = FirebaseDatabaseManager.databaseReference
                 .child(NODE_USERS)
-                .child(SingletonUser.getInstance().getUid())
+                .child(user.getUid())
                 .child(NODE_VEHICLES);
 
         // Attach a listener to read the data at our posts reference
@@ -353,7 +428,7 @@ public class FirebaseDatabaseManager
 
         Query query = FirebaseDatabaseManager.getDatabaseReference()
                 .child(NODE_USERS)
-                .child(SingletonUser.getInstance().getUid())
+                .child(user.getUid())
                 .child(CHILD_CURRENT_POSITION);
         query
                 .addListenerForSingleValueEvent(new ValueEventListener() {

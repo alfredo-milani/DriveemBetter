@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -242,6 +243,9 @@ public class RankingFragment
     }
 
     private void initWidgets() {
+        // Set action bar title
+        ((Activity) this.context).setTitle(R.string.ranking);
+
         // To modify Menu items
         this.setHasOptionsMenu(true);
 

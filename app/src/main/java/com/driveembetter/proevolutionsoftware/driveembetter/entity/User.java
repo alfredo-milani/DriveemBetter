@@ -57,6 +57,7 @@ public class User
         }
     };
 
+    // TODO impedisci di avere valori null come URI
     private Uri getUriIfExist(String s) {
         return s != null ?
                 Uri.parse(s) : null;

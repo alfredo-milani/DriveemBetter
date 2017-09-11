@@ -28,8 +28,9 @@ public class SingletonUser
     private List providerData;
 
     // SingletonUser data to store in Firebase DB
-    private float currentUserLatitude;
-    private float currentUserLongitude;
+    private double latitude;
+    private double longitude;
+    private String country, region, subRegion;
     private ArrayList<Vehicle> vehicleArrayList;
 
     // Miscellaneous user data
@@ -70,7 +71,7 @@ public class SingletonUser
 
 
     public interface UserDataCallback {
-        public void onVehiclesReceive();
+        void onVehiclesReceive();
     }
 
     public boolean isEmailVerified() {
@@ -95,22 +96,6 @@ public class SingletonUser
 
     public void setProviderData(List providerData) {
         this.providerData = providerData;
-    }
-
-    public float getCurrentUserLatitude() {
-        return this.currentUserLatitude;
-    }
-
-    public void setCurrentUserLatitude(float currentUserLatitude) {
-        this.currentUserLatitude = currentUserLatitude;
-    }
-
-    public float getCurrentUserLongitude() {
-        return this.currentUserLongitude;
-    }
-
-    public void setCurrentUserLongitude(float currentUserLongitude) {
-        this.currentUserLongitude = currentUserLongitude;
     }
 
     public ArrayList<Vehicle> getVehicleArrayList() {
@@ -144,6 +129,46 @@ public class SingletonUser
 
     public void setCurrentVehicle(Vehicle currentVehicle) {
         this.currentVehicle = currentVehicle;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getSubRegion() {
+        return subRegion;
+    }
+
+    public void setSubRegion(String subRegion) {
+        this.subRegion = subRegion;
     }
 
     public static void resetSession() {

@@ -22,7 +22,6 @@
 
         <activity
             android:name=".boundary.activity.SignInActivity"
-            android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +32,6 @@
 
         <activity
             android:name=".boundary.activity.SignUpActivity"
-            android:label="@string/sign_up"
             android:theme="@style/AppTheme.NoActionBar">
             <!--Default Intent Filter-->
             <intent-filter>
@@ -62,6 +60,15 @@
         <activity
             android:name=".boundary.activity.UserDetailsRankingActivity"
             android:theme="@style/AppTheme.NoActionBar">
+            <!--Default Intent Filter-->
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".boundary.activity.SettingsActivity"
+            android:theme="@style/AppTheme">
             <!--Default Intent Filter-->
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />

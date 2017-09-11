@@ -3,10 +3,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.fcm;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
@@ -45,16 +42,6 @@ public class FirebaseUtility
      */
     public void sendRegistrationToServer(final String token) {
         //new SharedPrefUtil(getApplicationContext()).saveString(Constants.ARG_FIREBASE_TOKEN, token);
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            DatabaseReference user = FirebaseDatabase.getInstance()
-                    .getReference()
-                    .child(ARG_USERS)
-                    .child(SingletonUser.getInstance().getUid());
-
-            // Set user's token
-            user
-                    .child(ARG_FIREBASE_TOKEN)
-                    .setValue(token);
-        }
+        FirebaseDatabaseManager.refreshUserToken(token);
     }
 }

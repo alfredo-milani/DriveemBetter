@@ -96,7 +96,7 @@ public class MainFragmentActivity
     }
 
     private void initResources() {
-
+        // Get all providers to manage user's connection state
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.baseProviderArrayList = factoryProviders.getAllProviders();
@@ -110,20 +110,20 @@ public class MainFragmentActivity
         this.ranking = new RankingFragment();
         this.aboutUs = new AboutUsFragment();
 
-        // Start thread reauthentication
+        // Start reauthentication thread
         this.reauthenticationThread = new Thread(new ReauthenticateUserRunnable(this));
         this.reauthenticationThread.start();
 
         //TODO it should refresh automatically
         FirebaseUtility firebaseUtility = new FirebaseUtility();
         firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
-        FirebaseDatabaseManager.manageDataUserDB();
+        FirebaseDatabaseManager.manageCurrentUserDataDB();
         FirebaseDatabaseManager.checkUnknownPosition();
     }
 
     private void initWidgets() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        this.setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -222,6 +222,11 @@ public class MainFragmentActivity
         this.finish();
     }
 
+    private void startNewActivity(Context context, Class newClass) {
+        Intent newIntent = new Intent(context, newClass);
+        this.startActivity(newIntent);
+    }
+
     @Override
     public void hideProgress() {
         if (this.progressBar.getVisibility() == View.VISIBLE) {
@@ -278,10 +283,6 @@ public class MainFragmentActivity
         return true;
     }
 
-    /*
-     * Listen for option item selections so that we receive a notification
-     * when the singletonUser requests a refresh by selecting the refresh action bar item.
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -290,6 +291,7 @@ public class MainFragmentActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.action_settings:
+                this.startNewActivity(MainFragmentActivity.this, SettingsActivity.class);
                 return true;
         }
 
@@ -304,9 +306,27 @@ public class MainFragmentActivity
 
         switch (id) {
             case R.id.garage:
+                /*
+                if (!FragmentState.isFragmentOpen(FragmentState.GARAGE_FRAGMENT)) {
+                    this.fragmentState.replaceFragment(
+                            R.id.fragment_placeholder,
+                            this.garage
+                    );
+                    FragmentState.setFragmentState(FragmentState.GARAGE_FRAGMENT, true);
+                }
+                */
                 break;
 
             case R.id.statistics:
+                /*
+                if (!FragmentState.isFragmentOpen(FragmentState.STATISTICS_FRAGMENT)) {
+                    this.fragmentState.replaceFragment(
+                            R.id.fragment_placeholder,
+                            this.statistics
+                    );
+                    FragmentState.setFragmentState(FragmentState.STATISTICS_FRAGMENT, true);
+                }
+                */
                 break;
 
             case R.id.ranking:
@@ -434,7 +454,6 @@ public class MainFragmentActivity
         super.onResume();
 
         this.manageReathenticationThreadStatus();
-        PositionManager.getInstance(this).setUserAvailable();
         Log.d(TAG, ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
@@ -444,6 +463,7 @@ public class MainFragmentActivity
         super.onPause();
 
         Log.d(TAG, ":pause");
+        // TODO SET USER UNAVAILABLE ???
         FirebaseDatabaseManager.disconnectReference();
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
@@ -461,7 +481,7 @@ public class MainFragmentActivity
         super.onDestroy();
 
         Log.d(TAG, ":destroy");
-        this.positionManager.setUserUnavailable();
+        // TODO SET USER UNAVAILABLE ???
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
         //.removeGoogleClient();

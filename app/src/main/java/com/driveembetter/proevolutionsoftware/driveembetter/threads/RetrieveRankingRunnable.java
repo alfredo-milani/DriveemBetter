@@ -3,6 +3,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.threads;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
@@ -35,6 +36,7 @@ public class RetrieveRankingRunnable
     private RankingFragment rankingFragment;
     private RetrieveListFromRunnable callback;
     private ArrayList<Integer> errorCode;
+    private SingletonUser user;
 
     public interface RetrieveListFromRunnable {
         void retrieveList(ArrayList<User> arrayList, ArrayList<Integer> resultCode);
@@ -42,8 +44,9 @@ public class RetrieveRankingRunnable
 
     public RetrieveRankingRunnable(RankingFragment rankingFragment) {
         this.rankingFragment = rankingFragment;
-        this.positionManager = PositionManager.getInstance(rankingFragment.getActivity());
+        this.positionManager = PositionManager.getInstance(rankingFragment.getContext());
         this.errorCode = new ArrayList<>();
+        this.user = SingletonUser.getInstance();
         this.onAttach();
     }
 
@@ -51,14 +54,14 @@ public class RetrieveRankingRunnable
 
     @Override
     public void run() {
-        double latitude = this.positionManager.getLatitude();
-        double longitude = this.positionManager.getLongitude();
-
-        Log.d(TAG, "positionManager: lat: " + latitude + " long: " + longitude);
-        if (latitude == 0 || longitude == 0) {
+        if (this.user == null) {
+            return;
+        }
+        Log.d(TAG, "positionManager: lat: " + user.getLatitude() + " long: " + user.getLongitude());
+        if (user.getLatitude() == 0 || user.getLongitude() == 0) {
             FirebaseDatabaseManager.getCoordinates(this);
         } else {
-            this.performQuery(new double[] {latitude, longitude});
+            this.performQuery(new double[] {user.getLatitude(), user.getLongitude()});
         }
     }
 
@@ -71,6 +74,7 @@ public class RetrieveRankingRunnable
     }
 
     private void performQuery(double[] position) {
+        // TODO CONTINUA ---- NON MI SERVE POSITOIN MANAGER
         String[] location = this.positionManager.getLocationFromCoordinates(
                 position[0],
                 position[1],

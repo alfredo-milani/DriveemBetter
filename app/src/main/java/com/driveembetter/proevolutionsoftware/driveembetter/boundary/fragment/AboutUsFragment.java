@@ -1,5 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,8 +23,15 @@ public class AboutUsFragment
 
     // Widgets
     private View rootView;
+    private Context context;
 
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        this.context = context;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,14 +41,24 @@ public class AboutUsFragment
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        this.rootView = inflater.inflate(R.layout.fragment_about_us, container, false);
+        return this.rootView = inflater.inflate(R.layout.fragment_about_us, container, false);
+    }
 
-        return this.rootView;
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        this.initWidgets();
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+    }
+
+    private void initWidgets() {
+        // Set action bar title
+        ((Activity) this.context).setTitle(R.string.about_us);
     }
 
     @Override
