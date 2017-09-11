@@ -48,9 +48,7 @@ public class PositionManager
     private double latitude = 0;
     private double longitude = 0;
     private double oldLatitude, oldLongitude;
-    private String oldCountry = OLD_COUNTRY;
-    String oldRegion = OLD_REGION;
-    String oldSubRegion = OLD_SUB_REGION;
+    private String oldCountry, oldRegion, oldSubRegion;
     private String country, region, subRegion;
     private static PositionManager positionManager;
     private Activity activity;
@@ -60,6 +58,8 @@ public class PositionManager
     private Map<String, Object> emailMap;
     Location oldLocation;
     private DatabaseReference myRef;
+    private Boolean firstPositionUpdate = true;
+    private String lastCountry, lastRegion, lastSubRegion;
 
 
     //Singleton
@@ -67,7 +67,7 @@ public class PositionManager
         this.activity = activity;
         geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
         database = FirebaseDatabase.getInstance();
-        // deleteLastPosition();
+        searchLastPosition();
     }
 
     public void setActivity(Activity activity) {
@@ -157,6 +157,13 @@ public class PositionManager
                 country = strings[0];
                 region = strings[1];
                 subRegion = strings[2];
+
+                Log.e("DEBUG", "NOOOW   " + country + " " + region + " " + subRegion);
+
+                if (firstPositionUpdate) {
+                    deleteLastPosition();
+                    firstPositionUpdate = false;
+                }
 
                 //coordinates.put("lat", latitude);
                 //coordinates.put("lon", longitude);
@@ -375,8 +382,26 @@ public class PositionManager
     // TODO                    poi viene aggiornata la posizione nel nodo users (con il metodo
     // TODO                    FirebaseDatabaseManager.updateUserPositionOnLocationChange(new double[] {latitude, longitude}); vedi riga 194)
     private void deleteLastPosition() {
+        //DELETE POSITION IF COUNTRY OR REGION OR SUBREGION ARE DIFFERENT
+        Log.e("DDDDEBUG", region + " " + subRegion + " " + country);
+        Log.e("DDDDEBUG", lastRegion + " " +  lastSubRegion + " " + lastCountry);
+        if (!region.equals(lastRegion) || !subRegion.equals(lastSubRegion) || !country.equals(lastCountry)) {
+            myRef = FirebaseDatabaseManager.getDatabaseReference()
+                    .child(NODE_POSITION)
+                    .child(lastCountry)
+                    .child(lastRegion)
+                    .child(lastSubRegion)
+                    .child(SingletonUser.getInstance().getUid());
+            myRef.removeValue();
+        }
+    }
+
+    private void searchLastPosition() {
         //SEARCH LAST POSITION
         if (SingletonUser.getInstance().getUid() != null) {
+            lastCountry = COUNTRY;
+            lastRegion = REGION;
+            lastSubRegion = SUB_REGION;
             myRef = FirebaseDatabaseManager.getDatabaseReference()
                     .child(NODE_USERS)
                     .child(SingletonUser.getInstance().getUid());
@@ -389,45 +414,21 @@ public class PositionManager
                         double currentLatitude = Double.parseDouble(currentCoordinates[0]);
                         double currentLongitude = Double.parseDouble(currentCoordinates[1]);
                         List<Address> addresses;
-                        String countryName = COUNTRY;
-                        String regionName = REGION;
-                        String subRegionName = SUB_REGION;
                         try {
                             addresses = geocoder.getFromLocation(currentLatitude, currentLongitude, 1);
-                            if (addresses.size()!=0) {
+                            if (addresses.size() != 0) {
                                 if (addresses.get(0).getCountryName() != null && addresses.get(0).getAdminArea() != null &&
-                                addresses.get(0).getSubAdminArea()!= null) {
-                                    countryName = addresses.get(0).getCountryName();
-                                    regionName = addresses.get(0).getAdminArea();
-                                    subRegionName = addresses.get(0).getSubAdminArea();
+                                        addresses.get(0).getSubAdminArea() != null) {
+                                    lastCountry = addresses.get(0).getCountryName();
+                                    lastRegion = addresses.get(0).getAdminArea();
+                                    lastSubRegion = addresses.get(0).getSubAdminArea();
                                 }
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        //DELETE POSITION
-                        myRef = FirebaseDatabaseManager.getDatabaseReference()
-                                .child(NODE_POSITION)
-                                .child(countryName)
-                                .child(regionName)
-                                .child(subRegionName);
-                        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChild(SingletonUser.getInstance().getUid())) {
-                                    myRef.child(SingletonUser.getInstance().getUid()).removeValue();
-                                }
-                                updatePosition();
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    } else {
-                        updatePosition();
                     }
+                    updatePosition();
                 }
 
                 @Override
