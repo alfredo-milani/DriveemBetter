@@ -67,7 +67,7 @@ public class PositionManager
         this.activity = activity;
         geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
         database = FirebaseDatabase.getInstance();
-        deleteLastPosition();
+        // deleteLastPosition();
     }
 
     public void setActivity(Activity activity) {
@@ -183,7 +183,7 @@ public class PositionManager
                     return;
                 }
                 // TODO to fix: com.google.firebase.database.DatabaseException: Invalid Firebase Database path: Division No. 17. Firebase Database paths must not contain '.', '#', '$', '[', or ']'
-                myRef = DatabaseManager.getDatabaseReference()
+                myRef = FirebaseDatabaseManager.getDatabaseReference()
                         .child(NODE_POSITION)
                         .child(country)
                         .child(region)
@@ -191,7 +191,7 @@ public class PositionManager
                         .child(userId);
 
                 // we need to update even "users" node
-                DatabaseManager.setDataOnLocationChange(new double[] {latitude, longitude});
+                FirebaseDatabaseManager.updateUserPositionOnLocationChange(new double[] {latitude, longitude});
                 ////
 
                 final Map<String, Object> currentCoordinates = coordinates;
@@ -212,7 +212,7 @@ public class PositionManager
                                     .getValue()
                                     .toString()
                                     .equals(StringParser.getStringFromCoordinates(latitude, longitude))) {
-                                DatabaseManager.updateCurrentPosition(new double[] {latitude, longitude}, strings);
+                                FirebaseDatabaseManager.updateCurrentPosition(new double[] {latitude, longitude}, strings);
                         }
                         ////
                         if (SingletonUser.getInstance().getPhotoUrl() != null &&
@@ -225,10 +225,10 @@ public class PositionManager
                         //update user availability
                         if (!dataSnapshot.hasChild(CHILD_AVAILABILITY)) {
                             myRef.child(CHILD_AVAILABILITY).setValue(AVAILABLE);
-                            DatabaseManager.manageUserAvailability(AVAILABLE);
+                            FirebaseDatabaseManager.manageUserAvailability(AVAILABLE);
                         } else if (dataSnapshot.child(CHILD_AVAILABILITY).getValue().equals(UNAVAILABLE)) {
                             myRef.child(CHILD_AVAILABILITY).setValue(AVAILABLE);
-                            DatabaseManager.manageUserAvailability(UNAVAILABLE);
+                            FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
                         }
                         ////
 
@@ -239,7 +239,10 @@ public class PositionManager
                             );
                         } else if ((long) dataSnapshot.child(CHILD_POINTS).getValue() !=
                                 SingletonUser.getInstance().getPoints()) {
-                            DatabaseManager.updateCurrentPoint(SingletonUser.getInstance().getPoints(), strings);
+                            // TODO: possibile RACE CONDITION: se la variabile points non si aggiorna dal DB (nodo users)
+                            // TODO  prima di questo punto --> dati inconsistenti: valore di default (0) salvato sul DB
+                            // TODO: vedi se usare locks
+                            FirebaseDatabaseManager.updateCurrentPoint(SingletonUser.getInstance().getPoints(), strings);
                         }
                         ////
                         if (!dataSnapshot.hasChild(CHILD_USERNAME)) {
@@ -288,7 +291,7 @@ public class PositionManager
             availabilityMap.put(CHILD_AVAILABILITY, UNAVAILABLE);
             myRef.updateChildren(availabilityMap);
             // Manage users node availability
-            DatabaseManager.manageUserAvailability(UNAVAILABLE);
+            FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
             ////
         }
     }
@@ -300,7 +303,7 @@ public class PositionManager
             availabilityMap.put(CHILD_AVAILABILITY, AVAILABLE);
             myRef.updateChildren(availabilityMap);
             // Manage users node availability
-            DatabaseManager.manageUserAvailability(AVAILABLE);
+            FirebaseDatabaseManager.manageUserAvailability(AVAILABLE);
             ////
         }
     }
@@ -330,10 +333,51 @@ public class PositionManager
         return strings;
     }
 
+    /**
+     * FLOW:
+     *
+     * -nuovo utente: dalla mainFActivity viene creato l'utente nel nodo users e position;
+     *                l'istanza della classe SingletonUser ha i seguenti attributi:
+     *                currentLat/currentLong/Nation/Country/District a cui vengono assegnati valori iniziali in base
+     *                al geocoder... valori nulli se il geocoder non riesce a trovare posizione e in questo caso l'utente viene
+     *                messo nel nodo position alla posizione "/position/country/region/subRegion/";
+     *
+     * -un untente registrato si logga: dalla mainFActivity si controlla se l'utente è nel nodo users, se c'è
+     *                                  gli attributi dell'istanza della classe SingletonUser vengono aggiornati secondo
+     *                                  i valori nel DB, se l'utente non c'è -->errore profilo cancellato;
+     *
+     * -all'evento "rilevamento cambio posizione", da parte del gps:
+     *          -se la nuova posizione è diversa per Nation, Region o District rispetto a quella vecchia: si aggiornano gli attributi
+     *                 dell'istanza SingletonUser e si aggiornano i valori nel DB dei nodi users e position e si elimina il figlio
+     *                 del nodo position corrispondente alla vecchia istanza (altrimenti avremo duplicati);
+     *          -altrimenti: si aggiornano gli attributi di SingletonUser e si aggiornano i valori nel DB di users e position senza
+     *                 però eliminare il figlio in position;
+     *
+     * -se l'utente ha avviato almeno una volta l'app, anche se la mette in background (onPause e simili): l'app continua ad aggiornare
+     *                 la posizione e i nodi users e position come in "rilevamento cambio posizione"; (magari mettiamo uno switch on/off
+     *                 per decide se prende i dati della posizione a parti dall'avvio dell'app o meno);
+     *
+     * -se l'utente spegne il gps o il geocoder non rileva dati consistenti (country/region/subRegion null):
+     *          -se l'utente prima aveva dati nulli: non si cambia niente, l'utente rimane in "/position/country/region/subRegion/";
+     *          -(***)se l'utente prima aveva una posizione consistente: possiamo O settare gli attributi di SingletonUser
+     *                 e i nodi users e position a valori nulli (o di defalut) e l'utente viene cancellato da position e
+     *                 viene messo in "/position/country/region/subRegion/" OPPURE possiamo lasciarlo dove sta e settare
+     *                 l'attributo "unavailable" sul DB (io propenso per la seconda);
+     *
+     * -chiusura app (onDestroy o simili): come sopra (***).
+     *
+     */
+    // TODO: METODO SBAGLIATO: il metodo dovrebbe CONTROLLARE SE cancellare la vecchia posizione SOLO quando
+    // TODO                    viene rilevato un cambiamento di posizione da parte del gps;
+    // TODO                    in tal caso prende la precedente posizione dal nodo users e SE è cambiata una tra
+    // TODO                    provicia/regione/stato allora si elimina la vecchia posizione (in position),
+    // TODO                    altrimenti si aggiornano i dati correnti del nodo position;
+    // TODO                    poi viene aggiornata la posizione nel nodo users (con il metodo
+    // TODO                    FirebaseDatabaseManager.updateUserPositionOnLocationChange(new double[] {latitude, longitude}); vedi riga 194)
     private void deleteLastPosition() {
         //SEARCH LAST POSITION
         if (SingletonUser.getInstance().getUid() != null) {
-            myRef = DatabaseManager.getDatabaseReference()
+            myRef = FirebaseDatabaseManager.getDatabaseReference()
                     .child(NODE_USERS)
                     .child(SingletonUser.getInstance().getUid());
             //GET LAST LATITUDE AND LONGITUDE IF EXIST
@@ -344,7 +388,7 @@ public class PositionManager
                         String[] currentCoordinates = StringParser.getCoordinates(dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString());
                         double currentLatitude = Double.parseDouble(currentCoordinates[0]);
                         double currentLongitude = Double.parseDouble(currentCoordinates[1]);
-                        List<Address> addresses = null;
+                        List<Address> addresses;
                         String countryName = COUNTRY;
                         String regionName = REGION;
                         String subRegionName = SUB_REGION;
@@ -362,7 +406,7 @@ public class PositionManager
                             e.printStackTrace();
                         }
                         //DELETE POSITION
-                        myRef = DatabaseManager.getDatabaseReference()
+                        myRef = FirebaseDatabaseManager.getDatabaseReference()
                                 .child(NODE_POSITION)
                                 .child(countryName)
                                 .child(regionName)
@@ -372,10 +416,8 @@ public class PositionManager
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.hasChild(SingletonUser.getInstance().getUid())) {
                                     myRef.child(SingletonUser.getInstance().getUid()).removeValue();
-                                    updatePosition();
-                                } else {
-                                    updatePosition();
                                 }
+                                updatePosition();
                             }
 
                             @Override

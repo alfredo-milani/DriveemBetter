@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
 public class SingletonUser
         extends User
         implements Constants,
-        DatabaseManager.RetrieveVehiclesFromDB {
+        FirebaseDatabaseManager.RetrieveVehiclesFromDB {
 
     private final static String TAG = SingletonUser.class.getSimpleName();
 
@@ -126,7 +126,7 @@ public class SingletonUser
             throw new CallbackNotInitialized(TAG);
         }
 
-        DatabaseManager.getVehiclesDB(this, userDataCallback);
+        FirebaseDatabaseManager.getVehiclesDB(this, userDataCallback);
     }
 
     @Override

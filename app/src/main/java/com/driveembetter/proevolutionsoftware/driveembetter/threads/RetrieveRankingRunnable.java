@@ -5,7 +5,7 @@ import android.util.Log;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
 
 public class RetrieveRankingRunnable
         implements Runnable,
-        DatabaseManager.RetrieveRankFromDB {
+        FirebaseDatabaseManager.RetrieveRankFromDB {
 
     private final static String TAG = RetrieveRankingRunnable.class.getSimpleName();
 
@@ -56,7 +56,7 @@ public class RetrieveRankingRunnable
 
         Log.d(TAG, "positionManager: lat: " + latitude + " long: " + longitude);
         if (latitude == 0 || longitude == 0) {
-            DatabaseManager.getCoordinates(this);
+            FirebaseDatabaseManager.getCoordinates(this);
         } else {
             this.performQuery(new double[] {latitude, longitude});
         }
@@ -71,7 +71,6 @@ public class RetrieveRankingRunnable
     }
 
     private void performQuery(double[] position) {
-        // TODO getLocationFromCoordinates() NON FUNZIONA PORCODDIO!!!
         String[] location = this.positionManager.getLocationFromCoordinates(
                 position[0],
                 position[1],
@@ -96,9 +95,9 @@ public class RetrieveRankingRunnable
                     this.onErrorReceived(NOT_ALLOWED);
                     break;
             }
-            DatabaseManager.getUsersRank(this, new String[] {COUNTRY, REGION, SUB_REGION});
+            FirebaseDatabaseManager.getUsersRank(this, new String[] {COUNTRY, REGION, SUB_REGION});
         } else {
-            DatabaseManager.getUsersRank(this, new String[] {nation, region, district});
+            FirebaseDatabaseManager.getUsersRank(this, new String[] {nation, region, district});
         }
     }
 
@@ -124,7 +123,7 @@ public class RetrieveRankingRunnable
                     this.onErrorReceived(NOT_ALLOWED);
                     break;
             }
-            DatabaseManager.getUsersRank(this, null);
+            FirebaseDatabaseManager.getUsersRank(this, null);
         }
     }
 

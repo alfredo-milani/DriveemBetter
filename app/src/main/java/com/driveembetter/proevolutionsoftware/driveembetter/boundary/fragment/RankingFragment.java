@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,11 +32,11 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 
 import java.util.ArrayList;
 
-import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.INVALID_POSITION;
-import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.NOT_ALLOWED;
-import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.OK;
-import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.POSITION_NOT_FOUND;
-import static com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager.RetrieveRankFromDB.UNKNOWN_ERROR;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.INVALID_POSITION;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.NOT_ALLOWED;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.OK;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.POSITION_NOT_FOUND;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.UNKNOWN_ERROR;
 
 /**
  * Created by alfredo on 26/08/17.
@@ -115,11 +116,19 @@ public class RankingFragment
         // To avoid memory leaks set adapter in onActivityCreated
         this.recycleView.setAdapter(rankingRecyclerViewAdapter);
 
+
         this.hideProgress();
         if (arrayList != null) {
-            int scrollPosition = this.scrollPositionCurrentUser(arrayList);
+            int scrollPosition = this.getPositionCurrentUser(arrayList);
             if (scrollPosition >= 0) {
-                this.recycleView.smoothScrollToPosition(scrollPosition);
+                // To show current user on top of the list view
+                RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(this.context) {
+                    @Override protected int getVerticalSnapPreference() {
+                        return LinearSmoothScroller.SNAP_TO_START;
+                    }
+                };
+                smoothScroller.setTargetPosition(scrollPosition);
+                this.layoutManager.startSmoothScroll(smoothScroller);
             }
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         } else {
@@ -127,7 +136,7 @@ public class RankingFragment
         }
     }
 
-    private int scrollPositionCurrentUser(ArrayList<User> arrayList) {
+    private int getPositionCurrentUser(ArrayList<User> arrayList) {
         for (int i = 0; i < arrayList.size(); ++i) {
             if (SingletonUser.getInstance() != null && arrayList.get(i).getUid() != null &&
                     SingletonUser.getInstance().getUid().equals(arrayList.get(i).getUid())) {

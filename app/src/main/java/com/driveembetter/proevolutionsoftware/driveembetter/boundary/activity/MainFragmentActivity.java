@@ -39,9 +39,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.Sa
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
-import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosureHandler;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ReauthenticateUserRunnable;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.DatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
@@ -118,8 +117,8 @@ public class MainFragmentActivity
         //TODO it should refresh automatically
         FirebaseUtility firebaseUtility = new FirebaseUtility();
         firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
-        DatabaseManager.manageDataUserDB();
-        DatabaseManager.checkUnknownPosition();
+        FirebaseDatabaseManager.manageDataUserDB();
+        FirebaseDatabaseManager.checkUnknownPosition();
     }
 
     private void initWidgets() {
@@ -415,10 +414,10 @@ public class MainFragmentActivity
 
         if (this.positionManager.isGPSEnabled()) {
             Log.d(TAG, "GPS enabled");
-            DatabaseManager.manageUserAvailability(AVAILABLE);
+            FirebaseDatabaseManager.manageUserAvailability(AVAILABLE);
         } else {
             Log.d(TAG, "GPS disabled");
-            DatabaseManager.manageUserAvailability(UNAVAILABLE);
+            FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
         }
     }
 
@@ -445,7 +444,7 @@ public class MainFragmentActivity
         super.onPause();
 
         Log.d(TAG, ":pause");
-        DatabaseManager.disconnectReference();
+        FirebaseDatabaseManager.disconnectReference();
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }
 

@@ -23,13 +23,13 @@ import java.util.ArrayList;
  * Created by alfredo on 01/09/17.
  */
 
-public class DatabaseManager
+public class FirebaseDatabaseManager
         implements Constants {
 
     // Medium cohesion and *** high coupling ***
-    // DatabaseManager -> all others classes
+    // FirebaseDatabaseManager -> all others classes
 
-    private final static String TAG = DatabaseManager.class.getSimpleName();
+    private final static String TAG = FirebaseDatabaseManager.class.getSimpleName();
 
     private final static DatabaseReference databaseReference = FirebaseDatabase
             .getInstance()
@@ -38,11 +38,11 @@ public class DatabaseManager
 
 
     public static DatabaseReference getDatabaseReference() {
-        return DatabaseManager.databaseReference;
+        return FirebaseDatabaseManager.databaseReference;
     }
 
     public static void disconnectReference() {
-        DatabaseManager.databaseReference.onDisconnect();
+        FirebaseDatabaseManager.databaseReference.onDisconnect();
     }
 
     /**
@@ -52,9 +52,9 @@ public class DatabaseManager
      *                position[0] -> latitude
      *                position[1] -> longitude.
      */
-    public static void setDataOnLocationChange(double[] position) {
+    public static void updateUserPositionOnLocationChange(double[] position) {
         if (SingletonUser.getInstance() != null) {
-            DatabaseReference databaseReference = DatabaseManager.databaseReference
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
                     .child(SingletonUser.getInstance().getUid())
                     .child(CHILD_CURRENT_POSITION);
@@ -67,7 +67,7 @@ public class DatabaseManager
     public static void manageUserAvailability(String availability) {
         if (SingletonUser.getInstance() != null &&
                 availability != null) {
-            DatabaseReference databaseReference = DatabaseManager.databaseReference
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
                     .child(SingletonUser.getInstance().getUid())
                     .child(CHILD_AVAILABILITY);
@@ -78,7 +78,7 @@ public class DatabaseManager
     public static void manageUserUsername(String username) {
         if (SingletonUser.getInstance() != null &&
                 username != null) {
-            DatabaseReference databaseReference = DatabaseManager.databaseReference
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
                     .child(SingletonUser.getInstance().getUid())
                     .child(CHILD_USERNAME);
@@ -88,7 +88,7 @@ public class DatabaseManager
 
     public static void manageUserPoints(long points) {
         if (SingletonUser.getInstance() != null) {
-            DatabaseReference databaseReference = DatabaseManager.databaseReference
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
                     .child(SingletonUser.getInstance().getUid())
                     .child(CHILD_POINTS);
@@ -99,7 +99,7 @@ public class DatabaseManager
     public static void manageUserEmail(String email) {
         if (SingletonUser.getInstance() != null &&
                 email != null) {
-            DatabaseReference databaseReference = DatabaseManager.databaseReference
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
                     .child(SingletonUser.getInstance().getUid())
                     .child(CHILD_EMAIL);
@@ -110,7 +110,7 @@ public class DatabaseManager
     public static void manageUserPhoto(Uri photo) {
         if (SingletonUser.getInstance() != null &&
                 photo != null) {
-            DatabaseReference databaseReference = DatabaseManager.databaseReference
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
                     .child(SingletonUser.getInstance().getUid())
                     .child(CHILD_IMAGE);
@@ -128,7 +128,7 @@ public class DatabaseManager
     public static void updateCurrentPosition(double[] position, String[] location) {
         String country = location[0]; String region = location[1]; String subRegion = location[2];
         if (SingletonUser.getInstance() != null) {
-            DatabaseReference databaseReference = DatabaseManager.databaseReference
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
                     .child(country)
                     .child(region)
@@ -144,7 +144,7 @@ public class DatabaseManager
     public static void updateCurrentPoint(long points, String[] location) {
         String country = location[0]; String region = location[1]; String subRegion = location[2];
         if (SingletonUser.getInstance() != null) {
-            DatabaseReference databaseReference = DatabaseManager.databaseReference
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
                     .child(country)
                     .child(region)
@@ -156,7 +156,7 @@ public class DatabaseManager
     }
 
     public static void checkUnknownPosition() {
-        final Query query = DatabaseManager.databaseReference
+        final Query query = FirebaseDatabaseManager.databaseReference
                 .child(NODE_POSITION)
                 .child(COUNTRY)
                 .child(REGION)
@@ -208,7 +208,7 @@ public class DatabaseManager
     }
 
     public static void manageDataUserDB() {
-        final Query query = DatabaseManager.databaseReference
+        final Query query = FirebaseDatabaseManager.databaseReference
                 .child(NODE_USERS)
                 .child(SingletonUser
                         .getInstance()
@@ -257,7 +257,6 @@ public class DatabaseManager
                     }
                 } else {
                     // TODO prima di leggere i punti devo aspettare il risultato di quest query --> SERVONO LOCKS
-                    // TODO salvataggio dati utente su file
                     SingletonUser
                         .getInstance()
                         .setPoints(
@@ -287,7 +286,7 @@ public class DatabaseManager
         }
 
         // Create query
-        final Query query = DatabaseManager.databaseReference
+        final Query query = FirebaseDatabaseManager.databaseReference
                 .child(NODE_USERS)
                 .child(SingletonUser.getInstance().getUid())
                 .child(NODE_VEHICLES);
@@ -352,7 +351,7 @@ public class DatabaseManager
             throw new CallbackNotInitialized(TAG);
         }
 
-        Query query = DatabaseManager.getDatabaseReference()
+        Query query = FirebaseDatabaseManager.getDatabaseReference()
                 .child(NODE_USERS)
                 .child(SingletonUser.getInstance().getUid())
                 .child(CHILD_CURRENT_POSITION);
@@ -412,7 +411,7 @@ public class DatabaseManager
             district = location[2];
         }
 
-        Query query = DatabaseManager.getDatabaseReference()
+        Query query = FirebaseDatabaseManager.getDatabaseReference()
                 .child(NODE_POSITION);
         switch (RankingFragment.getLevel()) {
             case LevelMenuFragment.LevelStateChanged.LEVEL_DISTRICT:
@@ -429,7 +428,7 @@ public class DatabaseManager
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         retrieveRankFromDB.onUsersRankingReceived(
-                                DatabaseManager.getUsersList(dataSnapshot)
+                                FirebaseDatabaseManager.getUsersList(dataSnapshot)
                         );
                     }
 
@@ -457,7 +456,7 @@ public class DatabaseManager
                             Iterable<DataSnapshot> districts = dataSnapshot.getChildren();
                             arrayList = new ArrayList<User>();
                             for (DataSnapshot district : districts) {
-                                arrayList.addAll(DatabaseManager.getUsersList(district));
+                                arrayList.addAll(FirebaseDatabaseManager.getUsersList(district));
                             }
                         }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
@@ -488,7 +487,7 @@ public class DatabaseManager
                             for (DataSnapshot region : regions) {
                                 Iterable<DataSnapshot> districts = region.getChildren();
                                 for (DataSnapshot district : districts) {
-                                    arrayList.addAll(DatabaseManager.getUsersList(district));
+                                    arrayList.addAll(FirebaseDatabaseManager.getUsersList(district));
                                 }
                             }
                         }
@@ -517,7 +516,7 @@ public class DatabaseManager
                                     for (DataSnapshot region : regions) {
                                         Iterable<DataSnapshot> districts = region.getChildren();
                                         for (DataSnapshot district : districts) {
-                                            arrayList.addAll(DatabaseManager.getUsersList(district));
+                                            arrayList.addAll(FirebaseDatabaseManager.getUsersList(district));
                                         }
                                     }
                                 }
@@ -543,7 +542,7 @@ public class DatabaseManager
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         retrieveRankFromDB.onUsersRankingReceived(
-                                DatabaseManager.getUsersList(dataSnapshot)
+                                FirebaseDatabaseManager.getUsersList(dataSnapshot)
                         );
                     }
 
@@ -568,7 +567,7 @@ public class DatabaseManager
                                 for (DataSnapshot region : regions) {
                                     Iterable<DataSnapshot> districts = region.getChildren();
                                     for (DataSnapshot district : districts) {
-                                        arrayList.addAll(DatabaseManager.getUsersList(district));
+                                        arrayList.addAll(FirebaseDatabaseManager.getUsersList(district));
                                     }
                                 }
                             }
@@ -595,7 +594,7 @@ public class DatabaseManager
                 (users = dataSnapshot.getChildren()) != null) {
             arrayList = new ArrayList<>();
             for (DataSnapshot user : users) {
-                arrayList.add(DatabaseManager.getUserFromData(user));
+                arrayList.add(FirebaseDatabaseManager.getUserFromData(user));
             }
         } else {
             arrayList = null;
