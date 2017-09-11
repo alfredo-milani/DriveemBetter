@@ -89,8 +89,6 @@ public class MainFragmentActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, ":create");
         super.onCreate(savedInstanceState);
-        Intent serviceIntent = new Intent(getApplicationContext(), SwipeClosureHandler.class);
-        this.startService(serviceIntent);
         this.initResources();
 
         this.setContentView(R.layout.activity_main);

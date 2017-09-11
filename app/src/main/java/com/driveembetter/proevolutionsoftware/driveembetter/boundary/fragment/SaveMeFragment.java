@@ -310,12 +310,10 @@ public class SaveMeFragment
     public void onResume() {
         Log.d("DEBUG", "ON RESUME");
         mMapView.onResume();
-        if (!chatActivitySwitched) {
-            if (updatePosition.isCancelled() && updatePosition.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                updatePosition.execute();
-                updatePosition.cancel(false);
-            }
-            chatActivitySwitched = false;
+        if (updatePosition.isCancelled() && !updatePosition.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            Log.e("DEBUG", "GET HERE?");
+            updatePosition = new UpdatePosition();
+            updatePosition.execute();
         }
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, true);
         super.onResume();

@@ -48,7 +48,9 @@ public class PositionManager
     private double latitude = 0;
     private double longitude = 0;
     private double oldLatitude, oldLongitude;
-    private String oldCountry, oldRegion, oldSubRegion;
+    private String oldCountry = OLD_COUNTRY;
+    String oldRegion = OLD_REGION;
+    String oldSubRegion = OLD_SUB_REGION;
     private String country, region, subRegion;
     private static PositionManager positionManager;
     private Activity activity;
@@ -63,7 +65,9 @@ public class PositionManager
     //Singleton
     private PositionManager(Activity activity) {
         this.activity = activity;
-        updatePosition();
+        geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
+        database = FirebaseDatabase.getInstance();
+        deleteLastPosition();
     }
 
     public void setActivity(Activity activity) {
@@ -105,8 +109,9 @@ public class PositionManager
 
         userId = SingletonUser.getInstance().getUid();
         email = SingletonUser.getInstance().getEmail();
-        geocoder = new Geocoder(activity.getApplicationContext(), Locale.ENGLISH);
-        database = FirebaseDatabase.getInstance();
+
+        //PENDING OLD LOCATION
+        /*
         oldLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (oldLocation != null) {
             oldLatitude = oldLocation.getLatitude();
@@ -134,6 +139,8 @@ public class PositionManager
             oldRegion = OLD_REGION;
             oldSubRegion = OLD_SUB_REGION;
         }
+        */
+        //PENDING OLD LOCATION END
 
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, new LocationListener() {
@@ -321,5 +328,73 @@ public class PositionManager
             strings[2] = SUB_REGION;
         }
         return strings;
+    }
+
+    private void deleteLastPosition() {
+        //SEARCH LAST POSITION
+        if (SingletonUser.getInstance().getUid() != null) {
+            myRef = DatabaseManager.getDatabaseReference()
+                    .child(NODE_USERS)
+                    .child(SingletonUser.getInstance().getUid());
+            //GET LAST LATITUDE AND LONGITUDE IF EXIST
+            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION)) {
+                        String[] currentCoordinates = StringParser.getCoordinates(dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString());
+                        double currentLatitude = Double.parseDouble(currentCoordinates[0]);
+                        double currentLongitude = Double.parseDouble(currentCoordinates[1]);
+                        List<Address> addresses = null;
+                        String countryName = COUNTRY;
+                        String regionName = REGION;
+                        String subRegionName = SUB_REGION;
+                        try {
+                            addresses = geocoder.getFromLocation(currentLatitude, currentLongitude, 1);
+                            if (addresses.size()!=0) {
+                                if (addresses.get(0).getCountryName() != null && addresses.get(0).getAdminArea() != null &&
+                                addresses.get(0).getSubAdminArea()!= null) {
+                                    countryName = addresses.get(0).getCountryName();
+                                    regionName = addresses.get(0).getAdminArea();
+                                    subRegionName = addresses.get(0).getSubAdminArea();
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        //DELETE POSITION
+                        myRef = DatabaseManager.getDatabaseReference()
+                                .child(NODE_POSITION)
+                                .child(countryName)
+                                .child(regionName)
+                                .child(subRegionName);
+                        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.hasChild(SingletonUser.getInstance().getUid())) {
+                                    myRef.child(SingletonUser.getInstance().getUid()).removeValue();
+                                    updatePosition();
+                                } else {
+                                    updatePosition();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    } else {
+                        updatePosition();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        } else {
+            updatePosition();
+        }
     }
 }
