@@ -449,7 +449,8 @@ public class SaveMeFragment
                 if (updatePosition.isCancelled())
                     return;
                 Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
-                if (data.keySet().size() != 0) {
+
+                if (data != null && data.keySet().size() != 0) {
                     for (String user : data.keySet()) {
                         if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                             if (data.get(user).get(CHILD_AVAILABILITY).equals(UNAVAILABLE)) {

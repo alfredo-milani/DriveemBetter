@@ -59,26 +59,6 @@ public class FirebaseDatabaseManager
         }
     }
 
-    /**
-     * Update DB with latitude and longitude of the user.
-     * Here we are in users node.
-     */
-    public static void updateUserCoordAndAvail() {
-        SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
-            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
-                    .child(NODE_USERS)
-                    .child(user.getUid());
-
-            databaseReference
-                    .child(CHILD_CURRENT_POSITION)
-                    .setValue(user.getLatitude(), user.getLongitude());
-            databaseReference
-                    .child(CHILD_AVAILABILITY)
-                    .setValue(user.getAvailability());
-        }
-    }
-
     public static void manageUserAvailability(String availability) {
         SingletonUser user = SingletonUser.getInstance();
         if (user != null && availability != null) {
@@ -191,6 +171,28 @@ public class FirebaseDatabaseManager
 
     /**
      * Update DB with latitude and longitude of the user.
+     * Here we are in users node.
+     */
+    public static void updateUserCoordAndAvail() {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(user.getUid());
+
+            databaseReference
+                    .child(CHILD_CURRENT_POSITION)
+                    .setValue(StringParser.getStringFromCoordinates(
+                            user.getLatitude(), user.getLongitude()
+                    ));
+            databaseReference
+                    .child(CHILD_AVAILABILITY)
+                    .setValue(user.getAvailability());
+        }
+    }
+
+    /**
+     * Update DB with latitude and longitude of the user.
      * Here we are in positions node.
      */
     public static void upPositionCoordAndAvail() {
@@ -269,17 +271,20 @@ public class FirebaseDatabaseManager
                         String[] coordinates = StringParser.getCoordinates(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
-                        user.setLatitude(Double.parseDouble(coordinates[0]));
-                        user.setLongitude(Double.parseDouble(coordinates[1]));
 
-                        String[] position = PositionManager.getLocationFromCoordinates(
-                                user.getLatitude(),
-                                user.getLongitude(),
-                                1
-                        );
-                        user.setCountry(position[0]);
-                        user.setRegion(position[1]);
-                        user.setSubRegion(position[2]);
+                        if (coordinates.length == 2) {
+                            user.setLatitude(Double.parseDouble(coordinates[0]));
+                            user.setLongitude(Double.parseDouble(coordinates[1]));
+
+                            String[] position = PositionManager.getLocationFromCoordinates(
+                                    user.getLatitude(),
+                                    user.getLongitude(),
+                                    1
+                            );
+                            user.setCountry(position[0]);
+                            user.setRegion(position[1]);
+                            user.setSubRegion(position[2]);
+                        }
                     } else {
                         createNewUserPosition();
                         managePositionAvailability(UNAVAILABLE);
@@ -295,17 +300,20 @@ public class FirebaseDatabaseManager
                         String[] coordinates = StringParser.getCoordinates(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
-                        user.setLatitude(Double.parseDouble(coordinates[0]));
-                        user.setLongitude(Double.parseDouble(coordinates[1]));
 
-                        String[] position = PositionManager.getLocationFromCoordinates(
-                                user.getLatitude(),
-                                user.getLongitude(),
-                                1
-                        );
-                        user.setCountry(position[0]);
-                        user.setRegion(position[1]);
-                        user.setSubRegion(position[2]);
+                        if (coordinates.length == 2) {
+                            user.setLatitude(Double.parseDouble(coordinates[0]));
+                            user.setLongitude(Double.parseDouble(coordinates[1]));
+
+                            String[] position = PositionManager.getLocationFromCoordinates(
+                                    user.getLatitude(),
+                                    user.getLongitude(),
+                                    1
+                            );
+                            user.setCountry(position[0]);
+                            user.setRegion(position[1]);
+                            user.setSubRegion(position[2]);
+                        }
                     }
 
                     dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(UNAVAILABLE);

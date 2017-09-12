@@ -2,8 +2,10 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -50,6 +52,13 @@ public class UserDetailsRankingActivity
     }
 
     private void initWidgets() {
+        /* Display home as an "up" affordance:
+         user that selecting home will return one level up rather than to the top level of the app */
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         this.username = findViewById(R.id.user);
         this.points = findViewById(R.id.points);
         this.imageView = findViewById(R.id.user_picture);
@@ -84,6 +93,17 @@ public class UserDetailsRankingActivity
             this.user.getAvailability().equals(AVAILABLE)) {
             this.availability.setImageResource(R.drawable.available_shape);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

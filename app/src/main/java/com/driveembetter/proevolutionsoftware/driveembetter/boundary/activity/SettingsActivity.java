@@ -2,7 +2,9 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 
@@ -24,7 +26,25 @@ public class SettingsActivity
     }
 
     private void initWidgets() {
+        /* Display home as an "up" affordance:
+         user that selecting home will return one level up rather than to the top level of the app */
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         this.setTitle(R.string.action_settings);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

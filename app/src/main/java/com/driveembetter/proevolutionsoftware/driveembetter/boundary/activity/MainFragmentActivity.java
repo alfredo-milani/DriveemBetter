@@ -576,7 +576,6 @@ public class MainFragmentActivity
         super.onPause();
 
         Log.d(TAG, ":pause");
-        // TODO SET USER UNAVAILABLE ???
         FirebaseDatabaseManager.disconnectReference();
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
     }

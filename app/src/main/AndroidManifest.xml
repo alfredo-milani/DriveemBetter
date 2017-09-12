@@ -69,7 +69,7 @@
 
         <activity
             android:name=".boundary.activity.UserDetailsRankingActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
             <!--Default Intent Filter-->
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />
