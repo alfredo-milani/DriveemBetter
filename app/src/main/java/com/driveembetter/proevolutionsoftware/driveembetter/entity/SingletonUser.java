@@ -43,6 +43,10 @@ public class SingletonUser
         this.setEmailVerified(emailVerified);
         this.setProviderId(providerId);
         this.setProviderData(providerData);
+        this.setAvailability(UNAVAILABLE);
+        this.setCountry(COUNTRY);
+        this.setRegion(REGION);
+        this.setSubRegion(SUB_REGION);
     }
 
 

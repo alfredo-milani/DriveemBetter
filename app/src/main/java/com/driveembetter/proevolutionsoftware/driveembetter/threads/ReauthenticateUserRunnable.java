@@ -40,13 +40,6 @@ public class ReauthenticateUserRunnable
         boolean isAppInForeground = true;
 
         while (isAppInForeground) {
-            try {
-                Thread.sleep(this.timeToSleep * 1000);
-            } catch (InterruptedException e) {
-                Log.d(TAG, "Thread interrupted");
-                break;
-            }
-
             SingletonFirebaseProvider.getInstance().reauthenticateUser();
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -63,6 +56,13 @@ public class ReauthenticateUserRunnable
                 ActivityManager.RunningTaskInfo foregroundTaskInfo = am.getRunningTasks(1).get(0);
                 isAppInForeground = foregroundTaskInfo.topActivity.getPackageName()
                         .equalsIgnoreCase(this.context.getPackageName());
+            }
+
+            try {
+                Thread.sleep(this.timeToSleep * 1000);
+            } catch (InterruptedException e) {
+                Log.d(TAG, "Thread interrupted");
+                break;
             }
         }
     }

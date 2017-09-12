@@ -7,7 +7,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +31,6 @@ public class RetrieveRankingRunnable
     private final static String TAG = RetrieveRankingRunnable.class.getSimpleName();
 
     // Resources
-    private PositionManager positionManager;
     private RankingFragment rankingFragment;
     private RetrieveListFromRunnable callback;
     private ArrayList<Integer> errorCode;
@@ -44,7 +42,6 @@ public class RetrieveRankingRunnable
 
     public RetrieveRankingRunnable(RankingFragment rankingFragment) {
         this.rankingFragment = rankingFragment;
-        this.positionManager = PositionManager.getInstance(rankingFragment.getContext());
         this.errorCode = new ArrayList<>();
         this.user = SingletonUser.getInstance();
         this.onAttach();
@@ -58,11 +55,7 @@ public class RetrieveRankingRunnable
             return;
         }
         Log.d(TAG, "positionManager: lat: " + user.getLatitude() + " long: " + user.getLongitude());
-        if (user.getLatitude() == 0 || user.getLongitude() == 0) {
-            FirebaseDatabaseManager.getCoordinates(this);
-        } else {
-            this.performQuery(new double[] {user.getLatitude(), user.getLongitude()});
-        }
+        this.performQuery();
     }
 
     private void onAttach() {
@@ -73,23 +66,13 @@ public class RetrieveRankingRunnable
         }
     }
 
-    private void performQuery(double[] position) {
-        // TODO CONTINUA ---- NON MI SERVE POSITOIN MANAGER
-        String[] location = this.positionManager.getLocationFromCoordinates(
-                position[0],
-                position[1],
-                1
-        );
-        // location[0] -> nation; location[1] -> region; location[2] -> district
-        String nation = location[0]; String region = location[1]; String district = location[2];
-        // DEBUG
-        // nation = "Italy"; region = "Lazio"; district = "Provincia di Frosinone";
-        ////
-        Log.d(TAG, "performQuery: " + nation + "/" + region + "/" + district);
-        if (nation == null || region == null || district == null) {
-            // Unknown error in PositionManager
-            this.onErrorReceived(POSITION_NOT_FOUND);
-        } else if (nation.equals(COUNTRY) || region.equals(REGION) || district.equals(SUB_REGION)) {
+    private void performQuery() {
+        String coutry = this.user.getCountry();
+        String region = this.user.getRegion();
+        String subRegion = this.user.getSubRegion();
+
+        Log.d(TAG, "performQuery: " + coutry + "/" + region + "/" + subRegion);
+        if (subRegion.equals(SUB_REGION) || region.equals(REGION) || coutry.equals(COUNTRY)) {
             // Indefinite position
             switch (RankingFragment.getLevel()) {
                 case LEVEL_NATION:
@@ -99,36 +82,15 @@ public class RetrieveRankingRunnable
                     this.onErrorReceived(NOT_ALLOWED);
                     break;
             }
-            FirebaseDatabaseManager.getUsersRank(this, new String[] {COUNTRY, REGION, SUB_REGION});
-        } else {
-            FirebaseDatabaseManager.getUsersRank(this, new String[] {nation, region, district});
         }
+
+        FirebaseDatabaseManager.getUsersRank(this, new String[] {coutry, region, subRegion});
     }
 
     @Override
     public void onErrorReceived(int errorType) {
         Log.d(TAG, "Runnable, error: " + errorType);
         this.errorCode.add(errorType);
-    }
-
-    @Override
-    public void onUsersCoordinatesReceived(double[] position) {
-        if (position != null) {
-            Log.d(TAG, "onUserCoordinatesReceived: position: " + position[0] + "/" + position[1]);
-            this.performQuery(position);
-        } else {
-            Log.d(TAG, "onUserCoordinatesReceived: position NULL");
-            // Indefinite position
-            switch (RankingFragment.getLevel()) {
-                case LEVEL_NATION:
-                case LEVEL_REGION:
-                case LEVEL_DISTRICT:
-                    RankingFragment.setLevel(LEVEL_UNAVAILABLE);
-                    this.onErrorReceived(NOT_ALLOWED);
-                    break;
-            }
-            FirebaseDatabaseManager.getUsersRank(this, null);
-        }
     }
 
     @Override

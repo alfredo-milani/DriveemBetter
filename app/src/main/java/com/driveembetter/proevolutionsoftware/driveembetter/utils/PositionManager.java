@@ -33,15 +33,15 @@ public class PositionManager
     private final static String TAG = PositionManager.class.getSimpleName();
 
     private static PositionManager positionManager;
+    private static Geocoder geocoder;
     private SingletonUser user;
-    private Geocoder geocoder;
     private Context context;
 
     // Singleton
     private PositionManager(Context context) {
         this.context = context;
         this.user = SingletonUser.getInstance();
-        this.geocoder = new Geocoder(context, Locale.ENGLISH);
+        PositionManager.geocoder = new Geocoder(context, Locale.ENGLISH);
         this.updatePosition();
     }
 
@@ -140,10 +140,10 @@ public class PositionManager
      * @param maxResult result's number
      * @return string[0] --> Nation; string[1] --> Region; string[2] --> District
      */
-    public String[] getLocationFromCoordinates(double latitude, double longitude, int maxResult) {
+    public static String[] getLocationFromCoordinates(double latitude, double longitude, int maxResult) {
         String[] strings = new String[3];
         try {
-            List<Address> addresses = this.geocoder.getFromLocation(latitude, longitude, maxResult);
+            List<Address> addresses = PositionManager.geocoder.getFromLocation(latitude, longitude, maxResult);
 
             strings[0] = addresses.get(0).getCountryName();
             strings[1] = addresses.get(0).getAdminArea();

@@ -86,7 +86,6 @@ public class MainFragmentActivity
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, ":create");
         super.onCreate(savedInstanceState);
         this.initResources();
 
@@ -118,7 +117,6 @@ public class MainFragmentActivity
         FirebaseUtility firebaseUtility = new FirebaseUtility();
         firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
         FirebaseDatabaseManager.manageCurrentUserDataDB();
-        FirebaseDatabaseManager.checkUnknownPosition();
     }
 
     private void initWidgets() {
@@ -204,9 +202,6 @@ public class MainFragmentActivity
 
                 case USER_LOGOUT:
                     Log.d(TAG, "Log out");
-
-                    reauthenticationThread.interrupt();
-                    SingletonUser.resetSession();
                     startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
@@ -392,6 +387,8 @@ public class MainFragmentActivity
                 Log.d(TAG, "Logout pressed");
 
                 this.logoutCurrentProviders();
+                this.reauthenticationThread.interrupt();
+                SingletonUser.resetSession();
                 break;
         }
 
@@ -432,12 +429,8 @@ public class MainFragmentActivity
                     .silentSignIn();
         }
 
-        if (this.positionManager.isGPSEnabled()) {
-            Log.d(TAG, "GPS enabled");
-            FirebaseDatabaseManager.manageUserAvailability(AVAILABLE);
-        } else {
-            Log.d(TAG, "GPS disabled");
-            FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
+        if (!this.positionManager.isGPSEnabled()) {
+            Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -481,7 +474,8 @@ public class MainFragmentActivity
         super.onDestroy();
 
         Log.d(TAG, ":destroy");
-        // TODO SET USER UNAVAILABLE ???
+        FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
+        FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
         //.removeGoogleClient();

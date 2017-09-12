@@ -43,7 +43,7 @@
         android:layout_marginTop="15dp"
         android:ems="10"
         android:hint="@string/password"
-        android:inputType="textVisiblePassword"
+        android:inputType="textPassword"
         android:textColor="@color/colorAccent"
         android:textColorHint="#ffffff" />
 
