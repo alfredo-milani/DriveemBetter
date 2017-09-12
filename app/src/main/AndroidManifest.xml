@@ -57,6 +57,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".boundary.activity.ChartActivity"
+            android:theme="@style/AppTheme"
+            android:label="@string/strGraph"
+            android:parentActivityName=".boundary.activity.MainFragmentActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".boundary.activity.MainFragmentActivity" />
+        </activity>
+
         <activity
             android:name=".boundary.activity.UserDetailsRankingActivity"
             android:theme="@style/AppTheme.NoActionBar">

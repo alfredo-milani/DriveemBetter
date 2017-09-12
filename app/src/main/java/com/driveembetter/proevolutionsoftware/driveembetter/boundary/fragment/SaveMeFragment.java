@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -29,12 +28,10 @@ import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ChatActivity;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -70,7 +67,6 @@ public class SaveMeFragment
     private GoogleMap googleMap;
     private Context context;
     private Activity activity;
-    private PositionManager positionManager;
     double latitude, longitude;
     private TextView locationTxt, rangeText;
     private SeekBar seekBar;
@@ -86,7 +82,6 @@ public class SaveMeFragment
     private TextView driverUsername, driverLocation, driverFeedback;
     private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken;
     private UpdatePosition updatePosition;
-    private Boolean chatActivitySwitched = false;
 
     private int progressToMeters(int progress) {
         int meters;
@@ -129,9 +124,6 @@ public class SaveMeFragment
         if (!NetworkConnectionUtil.isConnectedToInternet(context))
             Toast.makeText(context, "Please, check you Internet connection!", Toast.LENGTH_SHORT).show();
         final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
-
-        positionManager = ((MainFragmentActivity)getActivity()).getPositionManager();
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -258,7 +250,6 @@ public class SaveMeFragment
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 if (dataSnapshot.child(CHILD_AVAILABILITY).getValue().equals(AVAILABLE)) {
                                                     //TODO DON'T MAKE MARKER SO DIRTY
-                                                    chatActivitySwitched = true;
                                                     ChatActivity.startActivity(getActivity(),
                                                             userSelectedEmail,
                                                             userSelectedUid,

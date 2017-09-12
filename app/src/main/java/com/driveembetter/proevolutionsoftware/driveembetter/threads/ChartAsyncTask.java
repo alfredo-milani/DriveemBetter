@@ -1,13 +1,12 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.threads;
+package com.driveembetter.proevolutionsoftware.driveembetter.chartBuild;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.ExtendedDoubleEvaluator;
-import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.RetainedFragment;
-import com.fathzer.soft.javaluator.StaticVariableSet;
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -16,34 +15,27 @@ import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 
 import java.util.ArrayList;
-
-/**
- * Created by alfredo on 28/08/17.
- */
+import java.util.Calendar;
+import java.util.Date;
 
 /* Chart Async Task Class */
 public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     RetainedFragment fragment;
-    private final ExtendedDoubleEvaluator evaluator;
+
 
     public ChartAsyncTask(RetainedFragment fragment) {
         this.fragment = fragment;
         setGraphProperties();
 
-        /* Create a new extended evaluator */
-        evaluator = new ExtendedDoubleEvaluator();
+
     }
 
     @Override
     /* This method perform a computation on a background thread */
     protected ScatterData doInBackground(String... params) {
-        /* Retrieve parameters (function, startIndex and endIndex) from arguments */
-        String function = params[0];
-        String startIndex = params[1];
-        String endIndex = params[2];
 
         /* Make computation */
-        return this.calculate(function, Double.valueOf(startIndex), Double.valueOf(endIndex));
+        return this.calculate();
     }
 
     @Override
@@ -92,64 +84,79 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     }
 
     /* Make computation */
-    public ScatterData calculate(String function, double startIndex, double endIndex) {
+    public ScatterData calculate() {
 
-        /* Create a new empty variable set */
-        final StaticVariableSet<Double> variables = new StaticVariableSet<>();
-        boolean check;
-        int k=0;
-        double step = (endIndex - startIndex) / 10000;
-        while(step>0.01){
-            k++;
-            step=(endIndex - startIndex) / (10000*Math.pow(10,k));
-        }
-
+        SingletonScatterData sessionData = SingletonScatterData.getInstance();
+        ScatterDataSet scatterDataSet;
         /* list of values */
         ArrayList<Entry> vals = new ArrayList<>();
         /* x axis */
         ArrayList<String> xVals = new ArrayList<>();
+        float sampleSum, sampleSize, mean;
 
-        for (double i = startIndex; i <= endIndex; i = i + step) {
-            try {
-                publishProgress((Math.abs(startIndex) + i) * 100 / (endIndex - startIndex));
+        MeanDay mean2 = MeanDay.getInstance();
+        Calendar calendar = Calendar.getInstance();
+        Date date = calendar.getTime();
 
-                if (isCancelled()) {
-                    return null;
+        //TEST!!!
+       /*int hour = date.getHours();
+        for (int i = 0; i <= 24; i ++) {
+
+
+            if (date.equals(mean2.getLocalDate())) { //stesso giorno
+
+
+                if (mean2.getMap().get(hour) != null){
+                    Mean meanDay = mean2.getMap().get(hour);
+                    meanDay.setSampleSum(10);  // modificare con il valore della velocità
+                    meanDay.setSampleSize();
+                    mean2.getMap().put(hour, meanDay);
+                } else{
+                    Mean meanDay = new Mean();
+                    meanDay.setSampleSum(50); //modificare con il valore della velocità
+                    meanDay.setSampleSize();
+                    mean2.getMap().put(hour, meanDay);
                 }
-                check=true;
-                /* Set the value of x */
-                variables.set("x", (i));
-
-                /* Add value to x axis */
-                xVals.add(String.valueOf(Math.floor(i * 100) / 100));
-
-                /* Evaluate the expression */
-                Double result = evaluator.evaluate(function, variables);
-                variables.set("x",(i+step));
-                Double result2=evaluator.evaluate(function,variables);
-
-                if(Math.abs(result-result2)>=0.1){
-                    check=false;
-                }
-                if (!result.equals(Double.NEGATIVE_INFINITY) && !result.equals(Double.POSITIVE_INFINITY) && check) {
-                    /* If expression is infinity, skip */
-                    Entry entry = new Entry(result.floatValue(), (int) ((i-startIndex) / step));
-                    vals.add(entry);
-                }
-            } catch(IllegalArgumentException w) {
-                if (w.getMessage() == null || !w.getMessage().contains("Invalid argument passed to")) {
-                    /* Syntax error */
-                    return null;
-                }
-                /* ... else value is out of domain of the function */
+            }else {
+                mean2.getMap().clear();
+                mean2.setLocalDate(date);
+                Mean meanDay = new Mean();
+                meanDay.setSampleSum(50); // modificare con il valore della velocità
+                meanDay.setSampleSize();
+                mean2.getMap().put(hour, meanDay);
             }
+            System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno" );
+            Log.e("c","Programma per " + i + " eseguito in ora " + hour + " giorno");
+
+        }*/
+
+
+        for (int i = 0; i <= Constants.HOURS; i++) {
+            if(MeanDay.getInstance().getMap().get(i) != null) {
+
+                xVals.add(String.valueOf(i));
+                 /* Add entry with the mean of velocity */
+                sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSum();
+                sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSize();
+                mean = sampleSum / sampleSize;
+                Entry entry = new Entry(mean, i);
+                vals.add(entry);
+            }else{
+                xVals.add(String.valueOf(i));
+                vals.add(new Entry(0,i));
+            }
+
         }
 
         /* Create a new scatter data set and set properties */
-        ScatterDataSet scatterDataSet = new ScatterDataSet(vals, "func");
+
+        scatterDataSet = new ScatterDataSet(vals, "func");
         scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-        scatterDataSet.setColor(Color.RED);
-        scatterDataSet.setScatterShapeSize(2f);
+        scatterDataSet.setColor(Color.BLUE);
+        scatterDataSet.setScatterShapeSize(6f);
+        sessionData.setValid(true); //validate data
+        sessionData.setData(scatterDataSet);
+        sessionData.setxVals(xVals);
 
         /* List of scatter data set*/
         ArrayList<IScatterDataSet> dataSets= new ArrayList<>();
@@ -246,3 +253,4 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     }
 
 }
+
