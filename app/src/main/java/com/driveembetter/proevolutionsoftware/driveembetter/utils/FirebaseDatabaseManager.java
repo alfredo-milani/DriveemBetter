@@ -190,10 +190,9 @@ public class FirebaseDatabaseManager
                     .setValue(StringParser.getStringFromCoordinates(
                             user.getLatitude(), user.getLongitude()
                     ));
-            Log.e(TAG, "NULL SETTED");
             databaseReference
                     .child(CHILD_AVAILABILITY)
-                    .setValue(/* user.getAvailability() */ null);
+                    .setValue(user.getAvailability());
         }
     }
 
