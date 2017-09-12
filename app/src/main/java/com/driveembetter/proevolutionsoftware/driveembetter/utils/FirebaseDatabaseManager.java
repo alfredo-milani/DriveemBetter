@@ -73,7 +73,9 @@ public class FirebaseDatabaseManager
 
     public static void managePositionAvailability(String availability) {
         SingletonUser user = SingletonUser.getInstance();
-        if (user != null && availability != null) {
+        if (user != null && availability != null &&
+                user.getSubRegion() != null && user.getRegion() != null &&
+                user.getCountry() != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
                     .child(user.getCountry())
@@ -103,7 +105,8 @@ public class FirebaseDatabaseManager
 
     public static void createNewUserPosition() {
         SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
+        if (user != null && user.getSubRegion() != null &&
+                user.getRegion() != null && user.getCountry() != null) {
             Log.d(TAG, "user: " + user.getUid() + " / " + user.getPhotoUrl() + " / " + user.getPoints());
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
@@ -118,9 +121,11 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_EMAIL)
                     .setValue(user.getEmail());
-            databaseReference
-                    .child(CHILD_IMAGE)
-                    .setValue(user.getPhotoUrl().toString());
+            if (user.getPhotoUrl() != null) {
+                databaseReference
+                        .child(CHILD_IMAGE)
+                        .setValue(user.getPhotoUrl().toString());
+            }
             databaseReference
                     .child(CHILD_POINTS)
                     .setValue(user.getPoints());
@@ -185,9 +190,10 @@ public class FirebaseDatabaseManager
                     .setValue(StringParser.getStringFromCoordinates(
                             user.getLatitude(), user.getLongitude()
                     ));
+            Log.e(TAG, "NULL SETTED");
             databaseReference
                     .child(CHILD_AVAILABILITY)
-                    .setValue(user.getAvailability());
+                    .setValue(/* user.getAvailability() */ null);
         }
     }
 
@@ -197,7 +203,8 @@ public class FirebaseDatabaseManager
      */
     public static void upPositionCoordAndAvail() {
         SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
+        if (user != null && user.getSubRegion() != null &&
+                user.getRegion() != null && user.getCountry() != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
                     .child(user.getCountry())
@@ -432,7 +439,6 @@ public class FirebaseDatabaseManager
                 .child(NODE_POSITION);
         switch (RankingFragment.getLevel()) {
             case LevelMenuFragment.LevelStateChanged.LEVEL_DISTRICT:
-                Log.d(TAG, "DISTRICT");
                 if (nation == null || region == null || district == null) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
                     return;
@@ -457,7 +463,6 @@ public class FirebaseDatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_REGION:
-                Log.d(TAG, "REGION");
                 if (nation == null || region == null) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
                     return;
@@ -487,7 +492,6 @@ public class FirebaseDatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_NATION:
-                Log.d(TAG, "NATION");
                 if (nation == null) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
                     return;
@@ -519,7 +523,6 @@ public class FirebaseDatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_AVAILABLE:
-                Log.d(TAG, "AVAILABLE");
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -550,7 +553,6 @@ public class FirebaseDatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_UNAVAILABLE:
-                Log.d(TAG, "UNAVAIABLE");
                 query = query.getRef()
                         .child(COUNTRY)
                         .child(REGION)
@@ -571,7 +573,6 @@ public class FirebaseDatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_ALL:
-                Log.d(TAG, "ALL");
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
