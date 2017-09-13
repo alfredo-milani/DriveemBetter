@@ -14,7 +14,6 @@ import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.adapters.LevelMenuRecyclerViewAdapter;
@@ -105,7 +104,7 @@ public class LevelMenuFragment
     }
 
     private void initWidgets() {
-        this.recycleView = (RecyclerView) this.rootView.findViewById(R.id.recycler_view);
+        this.recycleView = this.rootView.findViewById(R.id.recycler_view);
         this.recycleView.setHasFixedSize(true);
         this.recycleView.setLayoutManager(this.layoutManager);
 
@@ -117,8 +116,8 @@ public class LevelMenuFragment
         this.getDialog().setTitle(getString(R.string.dialogue_level_menu));
         this.getDialog().setCancelable(false);
 
-        ((Button) this.rootView.findViewById(R.id.ok)).setOnClickListener(this);
-        ((Button) this.rootView.findViewById(R.id.cancel)).setOnClickListener(this);
+        (this.rootView.findViewById(R.id.ok)).setOnClickListener(this);
+        (this.rootView.findViewById(R.id.cancel)).setOnClickListener(this);
     }
 
     @Override

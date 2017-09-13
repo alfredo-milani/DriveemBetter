@@ -47,6 +47,9 @@ public class UserDetailsRankingActivity
     }
 
     private void initWidgets() {
+        // Set action bar title
+        this.setTitle(R.string.detail_user);
+
         /* Display home as an "up" affordance:
          user that selecting home will return one level up rather than to the top level of the app */
         ActionBar actionBar = getSupportActionBar();

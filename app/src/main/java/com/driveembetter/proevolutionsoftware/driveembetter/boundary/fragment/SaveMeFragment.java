@@ -105,6 +105,8 @@ public class SaveMeFragment
         context = getActivity().getApplicationContext();
         activity = getActivity();
 
+        this.setRetainInstance(true);
+
         // Set action bar title
         activity.setTitle(R.string.save_me);
 

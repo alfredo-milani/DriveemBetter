@@ -37,12 +37,15 @@ public class FirebaseDatabaseManager
 
 
 
-    public static DatabaseReference getDatabaseReference() {
-        return FirebaseDatabaseManager.databaseReference;
+    public interface ResultCodeCallback {
+        int ok = 0;
+        int GEOCODER_NOT_WORKING = 1;
+
+        void onError(int error);
     }
 
-    public static void disconnectReference() {
-        FirebaseDatabaseManager.databaseReference.onDisconnect();
+    public static DatabaseReference getDatabaseReference() {
+        return FirebaseDatabaseManager.databaseReference;
     }
 
     public static void refreshUserToken(String token) {
@@ -150,18 +153,38 @@ public class FirebaseDatabaseManager
                     } else {
                         if (!dataSnapshot.hasChild(CHILD_USERNAME) &&
                                 user.getUsername() != null) {
-                            dataSnapshot.getRef().child(CHILD_USERNAME).setValue(user.getUsername());
+                            dataSnapshot.getRef()
+                                    .child(CHILD_USERNAME)
+                                    .setValue(user.getUsername());
                         }
                         if (!dataSnapshot.hasChild(CHILD_EMAIL) &&
                                 user.getEmail() != null) {
-                            dataSnapshot.getRef().child(CHILD_EMAIL).setValue(user.getEmail());
+                            dataSnapshot.getRef()
+                                    .child(CHILD_EMAIL)
+                                    .setValue(user.getEmail());
                         }
                         if (!dataSnapshot.hasChild(CHILD_IMAGE) &&
                                 user.getPhotoUrl() != null) {
-                            dataSnapshot.getRef().child(CHILD_IMAGE).setValue(user.getPhotoUrl().toString());
+                            dataSnapshot.getRef()
+                                    .child(CHILD_IMAGE)
+                                    .setValue(user.getPhotoUrl().toString());
                         }
                         if (!dataSnapshot.hasChild(CHILD_POINTS)) {
-                            dataSnapshot.getRef().child(CHILD_POINTS).setValue(user.getPoints());
+                            dataSnapshot.getRef()
+                                    .child(CHILD_POINTS)
+                                    .setValue(user.getPoints());
+                        }
+                        if (!dataSnapshot.hasChild(CHILD_CURRENT_POSITION)) {
+                            dataSnapshot.getRef()
+                                    .child(CHILD_CURRENT_POSITION)
+                                    .setValue(StringParser.getStringFromCoordinates(
+                                            user.getLatitude(), user.getLongitude()
+                                    ));
+                        }
+                        if (!dataSnapshot.hasChild(CHILD_AVAILABILITY)) {
+                            dataSnapshot.getRef()
+                                    .child(CHILD_AVAILABILITY)
+                                    .setValue(user.getAvailability());
                         }
                     }
                 }
@@ -200,7 +223,7 @@ public class FirebaseDatabaseManager
      * Update DB with latitude and longitude of the user.
      * Here we are in positions node.
      */
-    public static void upPositionCoordAndAvail() {
+    public static void updatePositionCoordAndAvail() {
         SingletonUser user = SingletonUser.getInstance();
         if (user != null && user.getSubRegion() != null &&
                 user.getRegion() != null && user.getCountry() != null) {
@@ -222,9 +245,8 @@ public class FirebaseDatabaseManager
         }
     }
 
-    public static void manageCurrentUserDataDB() {
-        final
-        SingletonUser user = SingletonUser.getInstance();
+    public static void syncCurrentUser() {
+        final SingletonUser user = SingletonUser.getInstance();
         if (user == null || user.getUid() == null) {
             return;
         }
@@ -290,6 +312,9 @@ public class FirebaseDatabaseManager
                             user.setCountry(position[0]);
                             user.setRegion(position[1]);
                             user.setSubRegion(position[2]);
+
+                            // TODO se lat/long != null && contry/ecc == defaultValue --> geocoder non funziona -->
+                            // TODO usa parser JSON per dererminare posizione
                         }
                     } else {
                         createNewUserPosition();
@@ -297,7 +322,7 @@ public class FirebaseDatabaseManager
                     }
                 } else {
                     // TODO prima di leggere i punti devo aspettare il risultato di quest query --> SERVONO LOCKS
-                    Log.d(TAG, "Update SingletonUser class data: " + dataSnapshot);
+                    Log.d(TAG, "Update SingletonUser class data");
                     user.setPoints(
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
                     );
@@ -319,6 +344,9 @@ public class FirebaseDatabaseManager
                             user.setCountry(position[0]);
                             user.setRegion(position[1]);
                             user.setSubRegion(position[2]);
+
+                            // TODO se lat/long != null && contry/ecc == defaultValue --> geocoder non funziona -->
+                            // TODO usa parser JSON per dererminare posizione
                         }
                     }
 

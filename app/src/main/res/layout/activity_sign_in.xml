@@ -29,7 +29,8 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
-            app:srcCompat="@drawable/drivem_bett_white" />
+            app:srcCompat="@drawable/drivem_bett_white"
+            android:contentDescription="@string/app_name" />
 
         <EditText
             android:id="@+id/email_field"
@@ -42,7 +43,7 @@
             android:backgroundTint="@color/white"
             android:ems="10"
             android:hint="@string/email"
-            android:inputType="textPersonName"
+            android:inputType="textEmailAddress"
             android:textColor="@android:color/background_light"
             android:textColorHint="@android:color/background_light"
             android:textColorLink="@android:color/background_light" />
@@ -96,9 +97,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginBottom="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:background="@android:color/transparent"
             android:text="@string/sign_up"
             android:textColor="@android:color/background_light" />

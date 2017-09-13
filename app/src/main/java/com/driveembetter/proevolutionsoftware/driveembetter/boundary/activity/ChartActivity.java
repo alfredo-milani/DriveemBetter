@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
-import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,10 +11,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.ChartFragment;
-import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.ChartAsyncTask;
-import com.driveembetter.proevolutionsoftware.driveembetter.chartBuild.RetainedFragment;
-import com.github.mikephil.charting.charts.ScatterChart;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
 
 /**
  * Created by alfredo on 28/08/17.
@@ -35,7 +31,7 @@ public class ChartActivity extends AppCompatActivity {
         /* Call through to the super class's implementation of this method */
         super.onCreate(savedInstanceState);
         /* Set the activity content from layout resource */
-        this.setContentView(R.layout.activity_graph);
+        // this.setContentView(R.layout.activity_graph);
 
         /* Display home as an "up" affordance:
          user that selecting home will return one level up rather than to the top level of the app */
@@ -44,86 +40,7 @@ public class ChartActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        /* Find retained fragment by tag: return null if fragment is not found */
-        FragmentManager fragmentManager = getFragmentManager();
-        RetainedFragment retainedFragment = (RetainedFragment) fragmentManager.findFragmentByTag(getString(R.string.fragment_tag));
 
-        if (retainedFragment == null) {
-            /* First launch */
-
-            /* Initialize data */
-            initData();
-
-            /* Create a new retained fragment */
-            retainedFragment = new RetainedFragment();
-            /* Set fragment tag */
-            fragmentManager.beginTransaction().add(retainedFragment, getString(R.string.fragment_tag)).commit();
-
-            /* Get chart fragment */
-            ChartFragment chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
-
-            /* Create and set a new progress dialog */
-            progress = new ProgressDialog(this);
-            progress.setMax(100);
-            progress.setMessage(getString(R.string.strProgressDialogMessage));
-            progress.setTitle(getString(R.string.strProgressDialogTitle));
-            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setCancelable(true);
-            progress.setCanceledOnTouchOutside(false);
-            progress.setOnKeyListener(new KeyListener());
-            chartFragment.setProgressDialog(progress);
-            retainedFragment.setProgressDialog(progress);
-
-            /* Get chart from chart fragment */
-            ScatterChart chart = chartFragment.getChart();
-            retainedFragment.setChart(chart);
-
-            /* Create a new async task */
-            task = new ChartAsyncTask(retainedFragment);
-            task.execute(function, String.valueOf(startIndex), String.valueOf(endIndex));
-            retainedFragment.setTask(task);
-        } else {
-            /* Retained fragment already exists; activity has been recreated */
-            initData();
-
-            if (retainedFragment.getTask() != null) {
-                /* Task is running */
-
-                /* Get chart fragment */
-                ChartFragment chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
-
-                /* Create and set a new progress dialog */
-                progress = new ProgressDialog(this);
-                progress.setMax(100);
-                progress.setMessage(getString(R.string.strProgressDialogMessage));
-                progress.setTitle(getString(R.string.strProgressDialogTitle));
-                progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                progress.setCancelable(true);
-                progress.setCanceledOnTouchOutside(false);
-                progress.setOnKeyListener(new KeyListener());
-                progress.show();
-                chartFragment.setProgressDialog(progress);
-                retainedFragment.setProgressDialog(progress);
-
-                /* Get chart from chart fragment */
-                ScatterChart chart = chartFragment.getChart();
-                retainedFragment.setChart(chart);
-            } else {
-                /* Task is not running */
-
-                /* Get chart fragment */
-                ChartFragment chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
-
-                if (retainedFragment.getData() != null) {
-                    /* Get chart */
-                    ScatterChart chart = chartFragment.getChart();
-                    chart.setData(retainedFragment.getData());
-
-                    /*Redraw chart */
-                    chart.invalidate();
-                }
-            }
-        }
     }
 
     /* Initialize function, startIndex and endIndex variables from intent extras */

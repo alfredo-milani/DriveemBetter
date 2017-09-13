@@ -42,8 +42,7 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.utils.Firebas
 /**
  * Created by alfredo on 26/08/17.
  */
-public class RankingFragment
-        extends Fragment
+public class RankingFragment extends Fragment
         implements SwipeRefreshLayout.OnRefreshListener,
         LevelMenuFragment.LevelStateChanged,
         RankingRecyclerViewAdapter.OnItemClickListener,
@@ -57,7 +56,7 @@ public class RankingFragment
     private static int level;
     private boolean refreshListOnStart;
 
-    // Dialog fragment
+    // Fragment dialog
     private LevelMenuFragment levelMenuFragment;
 
     // Widgets
@@ -233,6 +232,8 @@ public class RankingFragment
     }
 
     private void initResources() {
+        this.setRetainInstance(true);
+
         this.levelMenuFragment = new LevelMenuFragment();
         this.levelMenuFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
         this.levelMenuFragment.addLevelListener(this);
@@ -249,7 +250,7 @@ public class RankingFragment
         // To modify Menu items
         this.setHasOptionsMenu(true);
 
-        this.recycleView = (RecyclerView) this.rootView.findViewById(R.id.recycler_view_user);
+        this.recycleView = this.rootView.findViewById(R.id.recycler_view_user);
         this.recycleView.setHasFixedSize(true);
         /*
             This warning occurs because I set adapter in onViewCreated,
@@ -282,6 +283,14 @@ public class RankingFragment
     }
 
     @Override
+    public void onItemClick(User user) {
+        Log.d(TAG, "onItemClick");
+        Intent userDetail = new Intent(this.getActivity(), UserDetailsRankingActivity.class);
+        userDetail.putExtra(USER, user);
+        this.startActivity(userDetail);
+    }
+
+    @Override
     public void onRefresh() {
         Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
 
@@ -310,13 +319,5 @@ public class RankingFragment
         super.onStop();
 
         FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, false);
-    }
-
-    @Override
-    public void onItemClick(User user) {
-        Log.d(TAG, "onItemClick");
-        Intent userDetail = new Intent(this.getActivity(), UserDetailsRankingActivity.class);
-        userDetail.putExtra(USER, user);
-        this.startActivity(userDetail);
     }
 }

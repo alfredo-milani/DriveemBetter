@@ -16,14 +16,14 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 /**
  * Created by alfredo on 26/08/17.
  */
-public class AboutUsFragment
-        extends Fragment {
+public class AboutUsFragment extends Fragment {
 
     private final static String TAG = AboutUsFragment.class.getSimpleName();
 
     // Widgets
     private View rootView;
     private Context context;
+
 
 
     @Override
@@ -36,6 +36,8 @@ public class AboutUsFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.initResources();
     }
 
     @Override
@@ -54,6 +56,10 @@ public class AboutUsFragment
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+    }
+
+    private void initResources() {
+        this.setRetainInstance(true);
     }
 
     private void initWidgets() {

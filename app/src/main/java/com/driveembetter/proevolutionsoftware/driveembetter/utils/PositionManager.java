@@ -35,6 +35,8 @@ public class PositionManager
     private static PositionManager positionManager;
     private static Geocoder geocoder;
     private SingletonUser user;
+    private LocationManager locationManager;
+    private boolean listenerSetted = false;
     private Context context;
 
     // Singleton
@@ -42,6 +44,7 @@ public class PositionManager
         this.context = context;
         this.user = SingletonUser.getInstance();
         PositionManager.geocoder = new Geocoder(context, Locale.ENGLISH);
+        this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         this.updatePosition();
     }
 
@@ -54,13 +57,71 @@ public class PositionManager
 
 
 
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            if (user == null || user.getUid().isEmpty()) {
+                return;
+            }
+
+            String oldCountry = user.getCountry();
+            String oldRegion = user.getRegion();
+            String oldSubRegion = user.getSubRegion();
+
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+            final String[] strings = getLocationFromCoordinates(latitude, longitude, 1);
+
+            // Update SingletonUser state
+            user.setLatitude(latitude);
+            user.setLongitude(longitude);
+            user.setCountry(strings[0]);
+            user.setRegion(strings[1]);
+            user.setSubRegion(strings[2]);
+            Log.d(TAG, "Position: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
+
+            if (!oldSubRegion.equals(user.getSubRegion()) || !oldRegion.equals(user.getRegion()) ||
+                    !oldCountry.equals(user.getCountry())) {
+                // Remove user from position node only if his position has changed
+                FirebaseDatabaseManager.removeOldPosition(new String[] {oldCountry, oldRegion, oldSubRegion});
+                // Create user in new position
+                FirebaseDatabaseManager.createNewUserPosition();
+            }
+
+            if (user.getSubRegion().equals(SUB_REGION) || user.getRegion().equals(REGION) ||
+                    user.getCountry().equals(COUNTRY)) {
+                user.setAvailability(UNAVAILABLE);
+            } else {
+                user.setAvailability(AVAILABLE);
+            }
+
+            // Update position node
+            FirebaseDatabaseManager.updatePositionCoordAndAvail();
+            // Update users node
+            FirebaseDatabaseManager.updateUserCoordAndAvail();
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
+    };
+
     public boolean isGPSEnabled() {
-        final LocationManager manager = (LocationManager) this.context.getSystemService(Context.LOCATION_SERVICE);
-        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        return this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
-    private void updatePosition() {
-        LocationManager locationManager = (LocationManager) this.context.getSystemService(LOCATION_SERVICE);
+    public void updatePosition() {
         if (ContextCompat.checkSelfPermission(this.context,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this.context,
@@ -72,65 +133,17 @@ public class PositionManager
             Log.d("DB", "PERMISSION GRANTED");
         }
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                if (user == null || user.getUid().isEmpty()) {
-                    return;
-                }
+        this.listenerSetted = true;
+        this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, this.locationListener);
+    }
 
-                String oldCountry = user.getCountry();
-                String oldRegion = user.getRegion();
-                String oldSubRegion = user.getSubRegion();
+    public void removeLocationUpdates() {
+        this.locationManager.removeUpdates(this.locationListener);
+        this.listenerSetted = false;
+    }
 
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-                final String[] strings = getLocationFromCoordinates(latitude, longitude, 1);
-
-                // Update SingletonUser state
-                user.setLatitude(latitude);
-                user.setLongitude(longitude);
-                user.setCountry(strings[0]);
-                user.setRegion(strings[1]);
-                user.setSubRegion(strings[2]);
-                Log.d(TAG, "Position: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
-
-                if (!oldSubRegion.equals(user.getSubRegion()) || !oldRegion.equals(user.getRegion()) ||
-                        !oldCountry.equals(user.getCountry())) {
-                    // Remove user from position node only if his position has changed
-                    FirebaseDatabaseManager.removeOldPosition(new String[] {oldCountry, oldRegion, oldSubRegion});
-                    // Create user in new position
-                    FirebaseDatabaseManager.createNewUserPosition();
-                }
-
-                if (user.getSubRegion().equals(SUB_REGION) || user.getRegion().equals(REGION) ||
-                        user.getCountry().equals(COUNTRY)) {
-                    user.setAvailability(UNAVAILABLE);
-                } else {
-                    user.setAvailability(AVAILABLE);
-                }
-
-                // Update position node
-                FirebaseDatabaseManager.upPositionCoordAndAvail();
-                // Update users node
-                FirebaseDatabaseManager.updateUserCoordAndAvail();
-            }
-
-            @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String s) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String s) {
-
-            }
-        });
+    public boolean isListenerSetted() {
+        return this.listenerSetted;
     }
 
     /**
@@ -143,6 +156,10 @@ public class PositionManager
     public static String[] getLocationFromCoordinates(double latitude, double longitude, int maxResult) {
         String[] strings = new String[3];
         try {
+            /*
+                The issue is Geocoder backend service is not available in emulator.
+                Emulator needs Google API in order to works correctly with Geocoder.
+             */
             List<Address> addresses = PositionManager.geocoder.getFromLocation(latitude, longitude, maxResult);
 
             strings[0] = addresses.get(0).getCountryName();

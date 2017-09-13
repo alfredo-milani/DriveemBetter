@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.chartBuild;
+package com.driveembetter.proevolutionsoftware.driveembetter.statistics;
 
 /**
  * Created by FabianaRossi94 on 30/08/2017.
@@ -13,10 +13,13 @@ import java.util.ArrayList;
  */
 
 public  class SingletonScatterData {
+
     private static SingletonScatterData instance = null;
     private ScatterDataSet data ;
     private boolean valid;
     private ArrayList<String> xVals;
+
+
 
     private SingletonScatterData() {
         this.valid = false;
@@ -29,6 +32,8 @@ public  class SingletonScatterData {
         return instance;
 
     }
+
+
 
     public ArrayList<String> getxVals() {
         return xVals;

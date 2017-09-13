@@ -100,4 +100,5 @@
     <string name="filter_unavailable">non disponibili</string>
     <string name="availability">Disponibilità</string>
     <string name="gps_ask_enable">Per favore abilita il GPS</string>
+    <string name="detail_user">Dettagli utente</string>
 </resources>

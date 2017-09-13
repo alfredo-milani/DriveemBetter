@@ -196,7 +196,7 @@ public class SingletonFirebaseProvider
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
                         // Sign in success
-                        Log.d(TAG, "reauthenticate:success: old: " + SingletonUser.getInstance().getUid() + " new: " + singletonInstance.getFirebaseUser().getUid());
+                        Log.d(TAG, "reauthenticate:success");
                     } else {
                         // Sign in fails
                         try {
