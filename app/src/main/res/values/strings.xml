@@ -38,4 +38,5 @@
     <string name="availability">Availability</string>
     <string name="gps_ask_enable">Please enable GPS</string>
     <string name="detail_user">User details</string>
+    <string name="suspend_location_update">Location updates</string>
 </resources>

@@ -24,6 +24,7 @@ public class ReauthenticateUserRunnable
 
     public ReauthenticateUserRunnable(Context context) {
         this.context = context;
+        // Default value 5 minutes
         this.timeToSleep = 60 * 5;
     }
 

@@ -7,6 +7,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.AboutUsFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.StatisticsFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.WrongResourceType;
 
 /**
@@ -17,18 +21,27 @@ public class FragmentState extends Application {
 
     private final static String TAG = FragmentState.class.getSimpleName();
 
+    // Resources
     private static FragmentManager fragmentManager;
     private static int currentInAnimation;
     private static int currentOutAnimation;
 
-    public final static short SAVE_ME_FRAGMENT = 1;
-    public final static short STATISTICS_FRAGMENT = 2;
-    public final static short RANKING_FRAGMENT = 3;
-    public final static short GARAGE_FRAGMENT = 4;
-    public final static short ABOUT_US = 5;
-    public final static short LEVEL_MENU = 6;
+    // Constants
+    public final static short SAVE_ME_FRAGMENT = 0;
+    public final static short STATISTICS_FRAGMENT = 1;
+    public final static short RANKING_FRAGMENT = 2;
+    public final static short GARAGE_FRAGMENT = 3;
+    public final static short ABOUT_US = 4;
 
-    private static boolean fragmentState[] = new boolean[6];
+    // State
+    private static boolean[] fragmentState = new boolean[6];
+    private static String[] fragmetsTag = new String[] {
+            SaveMeFragment.class.getSimpleName(),
+            StatisticsFragment.class.getSimpleName(),
+            RankingFragment.class.getSimpleName(),
+            "GarageFragment",
+            AboutUsFragment.class.getSimpleName()
+    };
 
 
 
@@ -58,13 +71,16 @@ public class FragmentState extends Application {
             case ABOUT_US:
                 return FragmentState.fragmentState[ABOUT_US];
 
-            case LEVEL_MENU:
-                return FragmentState.fragmentState[LEVEL_MENU];
-
             default:
                 Log.w(TAG, "Error in isFragmentOpen:wrong fragment type: " + fragmentType);
                 throw new WrongResourceType("Error in isFragmentOpen:wrong fragment type: " + fragmentType);
         }
+    }
+
+    public static boolean wasFragmentCreated(int fragmentType) {
+        return FragmentState.fragmentManager.findFragmentByTag(
+                FragmentState.fragmetsTag[fragmentType]
+        ) != null;
     }
 
     public static void setFragmentState(int fragmentType, boolean status)
@@ -88,10 +104,6 @@ public class FragmentState extends Application {
 
             case ABOUT_US:
                 FragmentState.fragmentState[ABOUT_US] = status;
-                break;
-
-            case LEVEL_MENU:
-                FragmentState.fragmentState[LEVEL_MENU] = status;
                 break;
 
             default:
@@ -118,7 +130,7 @@ public class FragmentState extends Application {
                 FragmentState.currentOutAnimation
         );
         fragmentTransaction
-                .replace(placeholder, fragment)
+                .replace(placeholder, fragment, fragment.getClass().getSimpleName())
                 // to override backButton behavior
                 // .addToBackStack(null)
                 .commit();

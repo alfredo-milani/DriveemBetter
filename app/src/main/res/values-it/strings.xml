@@ -101,4 +101,5 @@
     <string name="availability">Disponibilità</string>
     <string name="gps_ask_enable">Per favore abilita il GPS</string>
     <string name="detail_user">Dettagli utente</string>
+    <string name="suspend_location_update">Aggiornamento posizione</string>
 </resources>
