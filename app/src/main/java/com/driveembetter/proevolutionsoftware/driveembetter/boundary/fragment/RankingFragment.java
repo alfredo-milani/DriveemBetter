@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.adapters.DividerItemDecoration;
 import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingRecyclerViewAdapter;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.UserDetailsRankingActivity;
@@ -109,7 +108,7 @@ public class RankingFragment extends Fragment
     public void retrieveList(ArrayList<User> arrayList, ArrayList<Integer> resultCode) {
         this.showToastFromResult(resultCode);
 
-        this.recycleView.addItemDecoration(new DividerItemDecoration(this.context));
+        // this.recycleView.addItemDecoration(new DividerItemDecoration(this.context));
         RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
                 new RankingRecyclerViewAdapter(this.context, arrayList, this);
         // To avoid memory leaks set adapter in onActivityCreated

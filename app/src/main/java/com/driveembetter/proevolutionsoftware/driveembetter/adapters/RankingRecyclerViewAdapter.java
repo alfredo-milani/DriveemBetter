@@ -52,10 +52,10 @@ public class RankingRecyclerViewAdapter
         UserViewHolder(View itemView) {
             super(itemView);
 
-            this.name = (TextView) itemView.findViewById(R.id.name_user);
-            this.points = (TextView) itemView.findViewById(R.id.point_user);
-            this.rank = (TextView) itemView.findViewById(R.id.rank_user);
-            this.userPhoto = (ImageView) itemView.findViewById(R.id.user_picture);
+            this.name = itemView.findViewById(R.id.name_user);
+            this.points = itemView.findViewById(R.id.point_user);
+            this.rank = itemView.findViewById(R.id.rank_user);
+            this.userPhoto = itemView.findViewById(R.id.user_picture);
         }
 
         void bind(final User item, final OnItemClickListener listener) {

@@ -38,14 +38,21 @@ public class ReauthenticateUserRunnable
     @Override
     public void run() {
         ActivityManager am = (ActivityManager) this.context.getSystemService(ACTIVITY_SERVICE);
-        boolean isAppInForeground = true;
+        boolean isAppInForeground;
 
-        while (isAppInForeground) {
+        do {
             SingletonFirebaseProvider.getInstance().reauthenticateUser();
 
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                Thread.sleep(this.timeToSleep * 1000);
+            } catch (InterruptedException e) {
+                Log.d(TAG, "Thread interrupted");
+                break;
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Log.d(TAG, "over LOLLIPOP");
-                // TODO sostituire metodi deprecati. Vedere anche nel manifest.
+                // TODO in questo branch sostituire metodi deprecati. Vedere anche nel manifest.
 
                 // The first in the list of RunningTasks is always the foreground task.
                 ActivityManager.RunningTaskInfo foregroundTaskInfo = am.getRunningTasks(1).get(0);
@@ -58,13 +65,6 @@ public class ReauthenticateUserRunnable
                 isAppInForeground = foregroundTaskInfo.topActivity.getPackageName()
                         .equalsIgnoreCase(this.context.getPackageName());
             }
-
-            try {
-                Thread.sleep(this.timeToSleep * 1000);
-            } catch (InterruptedException e) {
-                Log.d(TAG, "Thread interrupted");
-                break;
-            }
-        }
+        } while (isAppInForeground);
     }
 }

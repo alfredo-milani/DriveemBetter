@@ -113,6 +113,9 @@ public class MainFragmentActivity extends AppCompatActivity
 
                 case USER_LOGOUT:
                     Log.d(TAG, "Log out");
+
+                    reauthenticationThread.interrupt();
+                    SingletonUser.resetSession();
                     startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
@@ -391,8 +394,6 @@ public class MainFragmentActivity extends AppCompatActivity
                 Log.d(TAG, "Logout pressed");
 
                 this.logoutCurrentProviders();
-                this.reauthenticationThread.interrupt();
-                SingletonUser.resetSession();
                 break;
         }
 
@@ -472,6 +473,8 @@ public class MainFragmentActivity extends AppCompatActivity
         super.onDestroy();
 
         Log.d(TAG, ":destroy");
+
+        this.reauthenticationThread.interrupt();
         FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
         FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
