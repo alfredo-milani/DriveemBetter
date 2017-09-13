@@ -35,7 +35,6 @@ import java.util.ArrayList;
 
 import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.INVALID_POSITION;
 import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.NOT_ALLOWED;
-import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.OK;
 import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.POSITION_NOT_FOUND;
 import static com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager.RetrieveRankFromDB.UNKNOWN_ERROR;
 
@@ -152,9 +151,7 @@ public class RankingFragment extends Fragment
         Toast toast = Toast.makeText(this.context, "null", Toast.LENGTH_LONG);
         for (int code : result) {
             switch (code) {
-                case OK:    break;
-
-                case NOT_ALLOWED:
+               case NOT_ALLOWED:
                     toast.setText(String.format(
                             getString(R.string.bad_query_unknown_position),
                             getString(R.string.filter_unavailable)

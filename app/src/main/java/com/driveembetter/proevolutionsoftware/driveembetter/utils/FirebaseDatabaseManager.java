@@ -10,6 +10,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSON;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -137,7 +138,8 @@ public class FirebaseDatabaseManager
 
     public static void checkOldPositionData() {
         final SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
+        if (user != null && user.getSubRegion() != null &&
+                user.getRegion() != null && user.getCountry() != null) {
             final Query query = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
                     .child(user.getCountry())
@@ -296,26 +298,10 @@ public class FirebaseDatabaseManager
 
                     if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
                             dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        String[] coordinates = StringParser.getCoordinates(
-                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
+                        updateUserCoordinatesIfNecessary(
+                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString(),
+                                user
                         );
-
-                        if (coordinates.length == 2) {
-                            user.setLatitude(Double.parseDouble(coordinates[0]));
-                            user.setLongitude(Double.parseDouble(coordinates[1]));
-
-                            String[] position = PositionManager.getLocationFromCoordinates(
-                                    user.getLatitude(),
-                                    user.getLongitude(),
-                                    1
-                            );
-                            user.setCountry(position[0]);
-                            user.setRegion(position[1]);
-                            user.setSubRegion(position[2]);
-
-                            // TODO se lat/long != null && contry/ecc == defaultValue --> geocoder non funziona -->
-                            // TODO usa parser JSON per dererminare posizione
-                        }
                     } else {
                         createNewUserPosition();
                         managePositionAvailability(UNAVAILABLE);
@@ -328,26 +314,10 @@ public class FirebaseDatabaseManager
                     );
 
                     if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        String[] coordinates = StringParser.getCoordinates(
-                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
+                        updateUserCoordinatesIfNecessary(
+                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString(),
+                                user
                         );
-
-                        if (coordinates.length == 2) {
-                            user.setLatitude(Double.parseDouble(coordinates[0]));
-                            user.setLongitude(Double.parseDouble(coordinates[1]));
-
-                            String[] position = PositionManager.getLocationFromCoordinates(
-                                    user.getLatitude(),
-                                    user.getLongitude(),
-                                    1
-                            );
-                            user.setCountry(position[0]);
-                            user.setRegion(position[1]);
-                            user.setSubRegion(position[2]);
-
-                            // TODO se lat/long != null && contry/ecc == defaultValue --> geocoder non funziona -->
-                            // TODO usa parser JSON per dererminare posizione
-                        }
                     }
 
                     dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(UNAVAILABLE);
@@ -362,7 +332,44 @@ public class FirebaseDatabaseManager
         });
     }
 
+    private static void updateUserCoordinatesIfNecessary(String location, SingletonUser user) {
+        String[] coordinates = StringParser.getCoordinates(location);
 
+        if (coordinates.length == 2) {
+            user.setLatitude(Double.parseDouble(coordinates[0]));
+            user.setLongitude(Double.parseDouble(coordinates[1]));
+
+            String[] position = PositionManager.getLocationFromCoordinates(
+                    user.getLatitude(),
+                    user.getLongitude(),
+                    1
+            );
+            user.setCountry(position[0]);
+            user.setRegion(position[1]);
+            user.setSubRegion(position[2]);
+
+            Log.d(TAG, "DB POS PARSED: " + user.getCountry() + "/" + user.getRegion() + "/" + user.getSubRegion());
+
+            if ((user.getLatitude() != 0 && user.getLongitude() != 0) &&
+                    (user.getCountry().equals(COUNTRY) || user.getRegion().equals(REGION) || user.getSubRegion().equals(SUB_REGION))) {
+                new Thread(new RetrieveAndParseJSON(
+                        new RetrieveAndParseJSON.CallbackRetrieveAndParseJSON() {
+                            @Override
+                            public void onDataComputed(String[] position) {
+                                SingletonUser user = SingletonUser.getInstance();
+                                if (user != null) {
+                                    user.setCountry(position[0]);
+                                    user.setRegion(position[1]);
+                                    user.setSubRegion(position[2]);
+                                }
+                            }
+                        },
+                        user.getLatitude(),
+                        user.getLongitude()
+                )).start();
+            }
+        }
+    }
 
     public interface RetrieveVehiclesFromDB {
         void onUserVehiclesReceived(ArrayList<Vehicle> vehicles);
@@ -429,7 +436,6 @@ public class FirebaseDatabaseManager
         int UNKNOWN_ERROR = 0;
         int POSITION_NOT_FOUND = 1;
         int INVALID_POSITION = 2;
-        int OK = Integer.MAX_VALUE;
 
         void onErrorReceived(int errorType);
         void onUsersRankingReceived(ArrayList<User> users);
@@ -440,11 +446,6 @@ public class FirebaseDatabaseManager
         String nation = null;
         String region = null;
         String district = null;
-        // DEBUG
-        // nation = "Italy";
-        // region = "Lazio";
-        // district = "Provincia di Frosinone";
-        ////
 
         if (retrieveRankFromDB == null) {
             throw new CallbackNotInitialized(TAG);
@@ -468,7 +469,7 @@ public class FirebaseDatabaseManager
             case LevelMenuFragment.LevelStateChanged.LEVEL_DISTRICT:
                 if (nation == null || region == null || district == null) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
-                    return;
+                    break;
                 }
                 query = query.getRef()
                         .child(nation)
@@ -492,7 +493,7 @@ public class FirebaseDatabaseManager
             case LevelMenuFragment.LevelStateChanged.LEVEL_REGION:
                 if (nation == null || region == null) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
-                    return;
+                    break;
                 }
                 query = query.getRef()
                         .child(nation)
@@ -521,7 +522,7 @@ public class FirebaseDatabaseManager
             case LevelMenuFragment.LevelStateChanged.LEVEL_NATION:
                 if (nation == null) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
-                    return;
+                    break;
                 }
                 query = query.getRef()
                         .child(nation);

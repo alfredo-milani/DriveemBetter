@@ -7,7 +7,7 @@
     <string name="navigation_drawer_open">Apri barra di navigazione</string>
     <string name="username_email">Nome utente o email</string>
     <string name="password">Password</string>
-    <string name="or">O</string>
+    <string name="or">OPPURE</string>
     <string name="range">Distanza</string>
     <string name="location_loading">Sto cercando la tua posizione..</string>
     <string name="sign_in">Accedi</string>

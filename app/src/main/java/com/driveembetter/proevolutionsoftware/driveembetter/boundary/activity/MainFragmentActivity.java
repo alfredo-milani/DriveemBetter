@@ -164,6 +164,11 @@ public class MainFragmentActivity extends AppCompatActivity
         // Check protected app feature
         ProtectedAppsManager protectedAppsManager = new ProtectedAppsManager(this);
         protectedAppsManager.checkAlert();
+
+        // Ask user to enable GPS if it is disabled
+        if (!this.positionManager.isGPSEnabled()) {
+            Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void initWidgets() {
@@ -426,10 +431,6 @@ public class MainFragmentActivity extends AppCompatActivity
                 .isSignIn()) {
             ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                     .silentSignIn();
-        }
-
-        if (!this.positionManager.isGPSEnabled()) {
-            Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
         }
     }
 

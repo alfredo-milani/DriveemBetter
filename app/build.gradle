@@ -62,9 +62,6 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.3'
     compile 'com.fathzer:javaluator:3.0.1'
     ////
-    //// JSON parser
-    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
-    ////
     //// okhttp
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     ////

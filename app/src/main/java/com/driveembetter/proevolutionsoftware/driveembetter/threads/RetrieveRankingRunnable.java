@@ -72,7 +72,8 @@ public class RetrieveRankingRunnable
         String subRegion = this.user.getSubRegion();
 
         Log.d(TAG, "performQuery: " + coutry + "/" + region + "/" + subRegion);
-        if (subRegion.equals(SUB_REGION) || region.equals(REGION) || coutry.equals(COUNTRY)) {
+        if ((subRegion != null && region != null && coutry != null) &&
+                (subRegion.equals(SUB_REGION) || region.equals(REGION) || coutry.equals(COUNTRY))) {
             // Indefinite position
             switch (RankingFragment.getLevel()) {
                 case LEVEL_NATION:
@@ -91,6 +92,11 @@ public class RetrieveRankingRunnable
     public void onErrorReceived(int errorType) {
         Log.d(TAG, "Runnable, error: " + errorType);
         this.errorCode.add(errorType);
+
+        // TODO BUG: problemi con toast: se la posizione non viene decodificata --> Can't create handler inside thread that has not called Looper.prepare(). Altrimenti il toast viene mostrato...
+        if (errorType == UNKNOWN_ERROR) {
+            this.callback.retrieveList(null, this.errorCode);
+        }
     }
 
     @Override
@@ -107,7 +113,6 @@ public class RetrieveRankingRunnable
             });
         }
 
-        this.errorCode.add(OK);
         this.callback.retrieveList(arrayList, this.errorCode);
     }
 }

@@ -43,7 +43,7 @@ public class PositionManager
     private PositionManager(Context context) {
         this.context = context;
         this.user = SingletonUser.getInstance();
-        PositionManager.geocoder = new Geocoder(context, Locale.ENGLISH);
+        PositionManager.geocoder = new Geocoder(context, Locale.ITALIAN);
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         this.updatePosition();
     }
@@ -88,8 +88,8 @@ public class PositionManager
                 FirebaseDatabaseManager.createNewUserPosition();
             }
 
-            if (user.getSubRegion().equals(SUB_REGION) || user.getRegion().equals(REGION) ||
-                    user.getCountry().equals(COUNTRY)) {
+            if ((user.getSubRegion() != null && user.getRegion() != null && user.getCountry() != null) &&
+                    (user.getSubRegion().equals(SUB_REGION) || user.getRegion().equals(REGION) || user.getCountry().equals(COUNTRY))) {
                 user.setAvailability(UNAVAILABLE);
             } else {
                 user.setAvailability(AVAILABLE);
