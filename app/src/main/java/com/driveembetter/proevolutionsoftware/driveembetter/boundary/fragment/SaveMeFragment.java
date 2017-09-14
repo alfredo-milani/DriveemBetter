@@ -370,7 +370,7 @@ public class SaveMeFragment
                 String oldRegion = "NA";
                 String oldSubRegion = "NA";
                 String country, region, subRegion;
-                geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.ENGLISH);
+                geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.ITALIAN);
                 markerPool = new HashMap<>();
                 while (true) {
                     if (updatePosition.isCancelled())
