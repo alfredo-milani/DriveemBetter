@@ -39,6 +39,10 @@ public interface Constants {
     String ARG_FRIENDS = "friends";
     String ARG_UID = "uid";
 
+    // Database timestamp
+    String CHILD_TIMESTAMP = "timestamp";
+    int MAX_TIMESTAMP_TIME = 30;    // Minimum value for validity of timestamp (in MINUTES)
+
     // Database's nodes
     String NODE_POSITION = "position";
     String NODE_USERS = "users";

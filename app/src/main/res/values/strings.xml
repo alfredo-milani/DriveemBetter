@@ -39,4 +39,7 @@
     <string name="gps_ask_enable">Please enable GPS</string>
     <string name="detail_user">User details</string>
     <string name="suspend_location_update">Location updates</string>
+    <string name="filter_not_traceable">Not traceable</string>
+    <string name="level_not_traceable">Not traceable users</string>
+    <string name="bad_system_clock">Wrong system clock: Update it for more accurate results</string>
 </resources>

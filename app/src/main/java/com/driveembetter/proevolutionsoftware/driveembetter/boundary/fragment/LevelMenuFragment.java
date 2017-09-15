@@ -49,7 +49,7 @@ public class LevelMenuFragment
         int LEVEL_REGION = 2;
         int LEVEL_DISTRICT = 3;
         int LEVEL_AVAILABLE = 4;
-        int LEVEL_UNAVAILABLE = 5;
+        int LEVEL_NOT_TRACEABLE = 5;
         int LEVEL_ALL = 6;
 
         void onLevelChanged(int level);
@@ -99,7 +99,7 @@ public class LevelMenuFragment
         this.sparseIntArray.append(LevelStateChanged.LEVEL_REGION, R.string.level_region);
         this.sparseIntArray.append(LevelStateChanged.LEVEL_DISTRICT, R.string.level_district);
         this.sparseIntArray.append(LevelStateChanged.LEVEL_AVAILABLE, R.string.level_available);
-        this.sparseIntArray.append(LevelStateChanged.LEVEL_UNAVAILABLE, R.string.level_unavailable);
+        this.sparseIntArray.append(LevelStateChanged.LEVEL_NOT_TRACEABLE, R.string.level_not_traceable);
         this.sparseIntArray.append(LevelStateChanged.LEVEL_ALL, R.string.level_all);
     }
 

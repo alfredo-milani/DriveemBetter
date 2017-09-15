@@ -85,9 +85,10 @@ public class UserDetailsRankingActivity
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(this.imageView);
         }
-        if (this.user.getAvailability() != null &&
-            this.user.getAvailability().equals(AVAILABLE)) {
+        if (this.user.getAvailability().equals(AVAILABLE)) {
             this.availability.setImageResource(R.drawable.available_shape);
+        } else {
+            this.availability.setImageResource(R.drawable.unavailable_shape);
         }
     }
 

@@ -27,6 +27,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Us
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveNetworkTime;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveRankingRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 
@@ -46,7 +47,8 @@ public class RankingFragment extends Fragment
         RankingRecyclerViewAdapter.OnItemClickListener,
         Constants,
         TaskProgressInterface,
-        RetrieveRankingRunnable.RetrieveListFromRunnable {
+        RetrieveRankingRunnable.RetrieveListFromRunnable,
+        RetrieveNetworkTime.CallbackTime {
 
     private final static String TAG = RankingFragment.class.getSimpleName();
 
@@ -145,40 +147,64 @@ public class RankingFragment extends Fragment
         return -1;
     }
 
-    private void showToastFromResult(ArrayList<Integer> result) {
-        Log.d(TAG, "Ranking, result: " + result);
-        Toast toast = Toast.makeText(this.context, "null", Toast.LENGTH_LONG);
-        for (int code : result) {
-            switch (code) {
-               case NOT_ALLOWED:
-                    toast.setText(String.format(
-                            getString(R.string.bad_query_unknown_position),
-                            getString(R.string.filter_unavailable)
-                    ));
-                    toast.show();
-                    break;
+    private void showToastFromResult(final ArrayList<Integer> result) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(getActivity(), "null", Toast.LENGTH_LONG);
+                for (int code : result) {
+                    switch (code) {
+                        case NOT_ALLOWED:
+                            try {
+                                toast.setText(String.format(
+                                        getString(R.string.bad_query_unknown_position),
+                                        getString(R.string.filter_not_traceable)
+                                ));
+                            } catch (IllegalStateException e) {
+                                e.printStackTrace();
+                            }
+                            toast.show();
+                            break;
 
-                case UNKNOWN_ERROR:
-                    toast.setText(getString(R.string.unknown_error));
-                    toast.show();
-                    break;
+                        case UNKNOWN_ERROR:
+                            try {
+                                toast.setText(getString(R.string.unknown_error));
+                            } catch (IllegalStateException e) {
+                                e.printStackTrace();
+                            }
+                            toast.show();
+                            break;
 
-                case POSITION_NOT_FOUND:
-                    toast.setText(getString(R.string.position_not_found));
-                    toast.show();
-                    break;
+                        case POSITION_NOT_FOUND:
+                            try {
+                                toast.setText(getString(R.string.position_not_found));
+                            } catch (IllegalStateException e) {
+                                e.printStackTrace();
+                            }
+                            toast.show();
+                            break;
 
-                case INVALID_POSITION:
-                    toast.setText(getString(R.string.invalid_position));
-                    toast.show();
-                    break;
+                        case INVALID_POSITION:
+                            try {
+                                toast.setText(getString(R.string.invalid_position));
+                            } catch (IllegalStateException e) {
+                                e.printStackTrace();
+                            }
+                            toast.show();
+                            break;
 
-                default:
-                    Log.d(TAG, "onErrorReceived: " + code);
-                    toast.setText(getString(R.string.unable_load_ranking));
-                    toast.show();
+                        default:
+                            Log.d(TAG, "onErrorReceived: " + code);
+                            try {
+                                toast.setText(getString(R.string.unable_load_ranking));
+                            } catch (IllegalStateException e) {
+                                e.printStackTrace();
+                            }
+                            toast.show();
+                    }
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -237,6 +263,9 @@ public class RankingFragment extends Fragment
         RankingFragment.level = LEVEL_DISTRICT;
 
         this.refreshListOnStart = true;
+
+        // Check if system clock is correct
+        new Thread(new RetrieveNetworkTime(this)).start();
     }
 
     private void initWidgets() {
@@ -276,6 +305,22 @@ public class RankingFragment extends Fragment
     @Override
     public void showProgress() {
         this.swipeRefreshLayout.setRefreshing(true);
+    }
+
+    @Override
+    public void onTimeRetrieved(final boolean result) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(getActivity(), "null", Toast.LENGTH_LONG);
+                String string;
+                if (!result) {
+                    string = getString(R.string.bad_system_clock);
+                    toast.setText(string);
+                    toast.show();
+                }
+            }
+        });
     }
 
     @Override

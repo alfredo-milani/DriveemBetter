@@ -14,8 +14,8 @@ import java.util.Comparator;
 
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LevelStateChanged.LEVEL_DISTRICT;
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LevelStateChanged.LEVEL_NATION;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LevelStateChanged.LEVEL_NOT_TRACEABLE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LevelStateChanged.LEVEL_REGION;
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment.LevelStateChanged.LEVEL_UNAVAILABLE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.COUNTRY;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.REGION;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.SUB_REGION;
@@ -79,7 +79,7 @@ public class RetrieveRankingRunnable
                 case LEVEL_NATION:
                 case LEVEL_REGION:
                 case LEVEL_DISTRICT:
-                    RankingFragment.setLevel(LEVEL_UNAVAILABLE);
+                    RankingFragment.setLevel(LEVEL_NOT_TRACEABLE);
                     this.onErrorReceived(NOT_ALLOWED);
                     break;
             }

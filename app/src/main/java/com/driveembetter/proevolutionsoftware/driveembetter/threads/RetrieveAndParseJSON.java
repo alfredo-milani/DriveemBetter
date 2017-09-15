@@ -43,6 +43,10 @@ public class RetrieveAndParseJSON implements Runnable {
     private final static String KEY_RESULT_OBJ = "results";
     private final static String KEY_ADDRESS_OBJ = "address_components";
     private final static String KEY_LONG_NAME = "long_name";
+    private final static String KEY_TYPES = "types";
+    private final static String VALUE_TYPES_COUNTRY = "country";
+    private final static String VALUE_TYPES_REGION = "administrative_area_level_1";
+    private final static String VALUE_TYPES_SUB_REGION = "administrative_area_level_2";
 
     public interface CallbackRetrieveAndParseJSON {
         void onDataComputed(String[] position);
@@ -68,36 +72,65 @@ public class RetrieveAndParseJSON implements Runnable {
         );
     }
 
+    private boolean isItemNull(String[] string) {
+        return string[0] != null && string[1] != null && string[2] != null;
+    }
+
     private String[] getPositionFromJSON(double latitude, double longitude) {
         String[] position = new String[3];
         JSONObject jsonObjectResponse;
         try {
+            // See example response from Google API below
             jsonObjectResponse = new JSONObject(
                     this.retrieveJSONFromCoordinates(latitude, longitude)
             );
             Log.d(TAG, "RES: " + jsonObjectResponse.getString(KEY_STATUS_RESPONSE));
 
             if (jsonObjectResponse.getString(KEY_STATUS_RESPONSE).equals(VALUE_STATUS_OK)) {
-                // See example response from Google API below
                 JSONArray jsonArrayResponse = jsonObjectResponse.getJSONArray(KEY_RESULT_OBJ);
-                JSONObject jsonObjectPosition = jsonArrayResponse.getJSONObject(4);
-                JSONArray jsonArrayPosition = jsonObjectPosition.getJSONArray(KEY_ADDRESS_OBJ);
 
-                for (int i = 0, arrayLenght = jsonArrayPosition.length(); i < arrayLenght; ++i) {
-                    JSONObject keyPosition = jsonArrayPosition.getJSONObject(i);
-                    // Put the value in the array as Country / Region / Sub Region
-                    position[arrayLenght - i - 1] = keyPosition.getString(KEY_LONG_NAME);
+                // Check all result type until position array is filled
+                for (int i = 0; i < jsonObjectResponse.length() && !this.isItemNull(position); ++i) {
+                    JSONObject jsonObjectPosition = jsonArrayResponse.getJSONObject(i);
+                    JSONArray jsonArrayAddress = jsonObjectPosition.getJSONArray(KEY_ADDRESS_OBJ);
+
+                    // In address component find countr / region /sub region
+                    for (int j = 0; j < jsonArrayAddress.length(); ++j) {
+                        JSONObject keyPosition = jsonArrayAddress.getJSONObject(j);
+                        JSONArray jsonArrayType = keyPosition.getJSONArray(KEY_TYPES);
+                        String levelPosition = jsonArrayType.getString(0);
+
+                        // Put the value in the array as Country / Region / Sub Region
+                        switch (levelPosition) {
+                            case VALUE_TYPES_COUNTRY:
+                                position[0] = keyPosition.getString(KEY_LONG_NAME);
+                                break;
+
+                            case VALUE_TYPES_REGION:
+                                position[1] = keyPosition.getString(KEY_LONG_NAME);
+                                break;
+
+                            case VALUE_TYPES_SUB_REGION:
+                                position[2] = keyPosition.getString(KEY_LONG_NAME);
+                                break;
+                        }
+                    }
                 }
-            } else {
-                position[0] = COUNTRY;
-                position[1] = REGION;
-                position[2] = SUB_REGION;
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "POS: " + position[0] + " / " + position[1] + " / " + position[2]);
+        if (position[0] == null) {
+            position[0] = COUNTRY;
+        }
+        if (position[1] == null) {
+            position[1] = REGION;
+        }
+        if (position[2] == null) {
+            position[2] = SUB_REGION;
+        }
+
         return position;
     }
 

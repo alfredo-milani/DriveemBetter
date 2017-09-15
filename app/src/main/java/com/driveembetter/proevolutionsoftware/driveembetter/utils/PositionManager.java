@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSON;
 
 import java.io.IOException;
 import java.util.List;
@@ -70,7 +71,8 @@ public class PositionManager
 
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
-            final String[] strings = getLocationFromCoordinates(latitude, longitude, 1);
+            // TODO: se è troppo dispendioso utilizza anche getLocationFromCoordinates(lat, long, 1)
+            final String[] strings = getLocationFromCoordinates(latitude, longitude);
 
             // Update SingletonUser state
             user.setLatitude(latitude);
@@ -80,7 +82,8 @@ public class PositionManager
             user.setSubRegion(strings[2]);
             Log.d(TAG, "Position: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
 
-            if (!oldSubRegion.equals(user.getSubRegion()) || !oldRegion.equals(user.getRegion()) ||
+            if (!oldSubRegion.equals(user.getSubRegion()) ||
+                    !oldRegion.equals(user.getRegion()) ||
                     !oldCountry.equals(user.getCountry())) {
                 // Remove user from position node only if his position has changed
                 FirebaseDatabaseManager.removeOldPosition(new String[] {oldCountry, oldRegion, oldSubRegion});
@@ -88,8 +91,12 @@ public class PositionManager
                 FirebaseDatabaseManager.createNewUserPosition();
             }
 
-            if ((user.getSubRegion() != null && user.getRegion() != null && user.getCountry() != null) &&
-                    (user.getSubRegion().equals(SUB_REGION) || user.getRegion().equals(REGION) || user.getCountry().equals(COUNTRY))) {
+            if (user.getSubRegion() == null ||
+                    user.getRegion() == null ||
+                    user.getCountry() == null ||
+                    user.getSubRegion().equals(SUB_REGION) ||
+                    user.getRegion().equals(REGION) ||
+                    user.getCountry().equals(COUNTRY)) {
                 user.setAvailability(UNAVAILABLE);
             } else {
                 user.setAvailability(AVAILABLE);
@@ -134,7 +141,7 @@ public class PositionManager
         }
 
         this.listenerSetted = true;
-        this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, this.locationListener);
+        this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, this.locationListener);
     }
 
     public void removeLocationUpdates() {
@@ -154,7 +161,7 @@ public class PositionManager
      * @return string[0] --> Nation; string[1] --> Region; string[2] --> District
      */
     public static String[] getLocationFromCoordinates(double latitude, double longitude, int maxResult) {
-        String[] strings = new String[3];
+        final String[] strings = new String[3];
         try {
             /*
                 The issue is Geocoder backend service is not available in emulator.
@@ -162,10 +169,47 @@ public class PositionManager
              */
             List<Address> addresses = PositionManager.geocoder.getFromLocation(latitude, longitude, maxResult);
 
+            if (addresses.size() == 0) {
+                Thread geoC = new Thread(new RetrieveAndParseJSON(new RetrieveAndParseJSON.CallbackRetrieveAndParseJSON() {
+                    @Override
+                    public void onDataComputed(String[] position) {
+                        strings[0] = position[0];
+                        strings[1] = position[1];
+                        strings[2] = position[2];
+                    }
+                }, latitude, longitude));
+                geoC.start();
+                geoC.join();
+                return strings;
+            }
+
             strings[0] = addresses.get(0).getCountryName();
             strings[1] = addresses.get(0).getAdminArea();
             strings[2] = addresses.get(0).getSubAdminArea();
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+
+            strings[0] = COUNTRY;
+            strings[1] = REGION;
+            strings[2] = SUB_REGION;
+        }
+        return strings;
+    }
+
+    public static String[] getLocationFromCoordinates(double latitude, double longitude) {
+        final String[] strings = new String[3];
+        try {
+            Thread geoC = new Thread(new RetrieveAndParseJSON(new RetrieveAndParseJSON.CallbackRetrieveAndParseJSON() {
+                @Override
+                public void onDataComputed(String[] position) {
+                    strings[0] = position[0];
+                    strings[1] = position[1];
+                    strings[2] = position[2];
+                }
+            }, latitude, longitude));
+            geoC.start();
+            geoC.join();
+        } catch (InterruptedException e) {
             e.printStackTrace();
 
             strings[0] = COUNTRY;

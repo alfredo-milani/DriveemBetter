@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -133,6 +134,9 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_POINTS)
                     .setValue(user.getPoints());
+            databaseReference
+                    .child(CHILD_AVAILABILITY)
+                    .setValue(user.getAvailability());
         }
     }
 
@@ -244,6 +248,9 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .setValue(user.getAvailability());
+            databaseReference
+                    .child(CHILD_TIMESTAMP)
+                    .setValue(ServerValue.TIMESTAMP);
         }
     }
 
@@ -294,33 +301,33 @@ public class FirebaseDatabaseManager
                                 .setValue(user.getEmail());
                     }
 
-                    dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(UNAVAILABLE);
+                    dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(user.getAvailability());
 
                     if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
                             dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        updateUserCoordinatesIfNecessary(
+                        updateCurrentUserCoordIfNecessary(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString(),
                                 user
                         );
                     } else {
                         createNewUserPosition();
-                        managePositionAvailability(UNAVAILABLE);
                     }
                 } else {
-                    // TODO prima di leggere i punti devo aspettare il risultato di quest query --> SERVONO LOCKS
+                    // TODO prima di leggere i punti devo aspettare il risultato di questa query --> SERVONO LOCKS
                     Log.d(TAG, "Update SingletonUser class data");
                     user.setPoints(
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
                     );
 
+                    dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(user.getAvailability());
+
                     if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        updateUserCoordinatesIfNecessary(
+                        updateCurrentUserCoordIfNecessary(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString(),
                                 user
                         );
                     }
 
-                    dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(UNAVAILABLE);
                     checkOldPositionData();
                 }
             }
@@ -332,7 +339,7 @@ public class FirebaseDatabaseManager
         });
     }
 
-    private static void updateUserCoordinatesIfNecessary(String location, SingletonUser user) {
+    private static void updateCurrentUserCoordIfNecessary(String location, SingletonUser user) {
         String[] coordinates = StringParser.getCoordinates(location);
 
         if (coordinates.length == 2) {
@@ -341,8 +348,7 @@ public class FirebaseDatabaseManager
 
             String[] position = PositionManager.getLocationFromCoordinates(
                     user.getLatitude(),
-                    user.getLongitude(),
-                    1
+                    user.getLongitude()
             );
             user.setCountry(position[0]);
             user.setRegion(position[1]);
@@ -351,7 +357,10 @@ public class FirebaseDatabaseManager
             Log.d(TAG, "DB POS PARSED: " + user.getCountry() + "/" + user.getRegion() + "/" + user.getSubRegion());
 
             if ((user.getLatitude() != 0 && user.getLongitude() != 0) &&
-                    (user.getCountry().equals(COUNTRY) || user.getRegion().equals(REGION) || user.getSubRegion().equals(SUB_REGION))) {
+                    (user.getCountry().equals(COUNTRY) ||
+                            user.getRegion().equals(REGION) ||
+                            user.getSubRegion().equals(SUB_REGION))) {
+                // TODO forse sarebbe meglio mettere country/region/subRegion come attributo dell'entità users su DB
                 new Thread(new RetrieveAndParseJSON(
                         new RetrieveAndParseJSON.CallbackRetrieveAndParseJSON() {
                             @Override
@@ -450,7 +459,7 @@ public class FirebaseDatabaseManager
         if (retrieveRankFromDB == null) {
             throw new CallbackNotInitialized(TAG);
         } else if (location == null) {
-                if (RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_UNAVAILABLE &&
+                if (RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_NOT_TRACEABLE &&
                         RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_AVAILABLE &&
                         RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_ALL) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
@@ -467,6 +476,7 @@ public class FirebaseDatabaseManager
                 .child(NODE_POSITION);
         switch (RankingFragment.getLevel()) {
             case LevelMenuFragment.LevelStateChanged.LEVEL_DISTRICT:
+                // All users in same district, even those unavailable
                 if (nation == null || region == null || district == null) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
                     break;
@@ -491,6 +501,7 @@ public class FirebaseDatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_REGION:
+                // All users in same region, even those unavailable
                 if (nation == null || region == null) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
                     break;
@@ -520,6 +531,7 @@ public class FirebaseDatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_NATION:
+                // All users in same nation, even those unavailable
                 if (nation == null) {
                     retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
                     break;
@@ -551,6 +563,7 @@ public class FirebaseDatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_AVAILABLE:
+                // Only available users: if a user has old timestamp he is not taken
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -564,7 +577,7 @@ public class FirebaseDatabaseManager
                                     for (DataSnapshot region : regions) {
                                         Iterable<DataSnapshot> districts = region.getChildren();
                                         for (DataSnapshot district : districts) {
-                                            arrayList.addAll(FirebaseDatabaseManager.getUsersList(district));
+                                            arrayList.addAll(FirebaseDatabaseManager.getUsersAvailableList(district));
                                         }
                                     }
                                 }
@@ -580,7 +593,8 @@ public class FirebaseDatabaseManager
                 });
                 break;
 
-            case LevelMenuFragment.LevelStateChanged.LEVEL_UNAVAILABLE:
+            case LevelMenuFragment.LevelStateChanged.LEVEL_NOT_TRACEABLE:
+                // All not traceable users
                 query = query.getRef()
                         .child(COUNTRY)
                         .child(REGION)
@@ -601,6 +615,7 @@ public class FirebaseDatabaseManager
                 break;
 
             case LevelMenuFragment.LevelStateChanged.LEVEL_ALL:
+                // All users in the server
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -636,8 +651,7 @@ public class FirebaseDatabaseManager
     private static ArrayList<User> getUsersList(DataSnapshot dataSnapshot) {
         ArrayList<User> arrayList;
         Iterable<DataSnapshot> users;
-        if (dataSnapshot.exists() &&
-                (users = dataSnapshot.getChildren()) != null) {
+        if (dataSnapshot.exists() && (users = dataSnapshot.getChildren()) != null) {
             arrayList = new ArrayList<>();
             for (DataSnapshot user : users) {
                 arrayList.add(FirebaseDatabaseManager.getUserFromData(user));
@@ -647,6 +661,42 @@ public class FirebaseDatabaseManager
         }
 
         return arrayList;
+    }
+
+    private static ArrayList<User> getUsersAvailableList(DataSnapshot dataSnapshot) {
+        ArrayList<User> arrayList;
+        Iterable<DataSnapshot> users;
+        if (dataSnapshot.exists() && (users = dataSnapshot.getChildren()) != null) {
+            arrayList = new ArrayList<>();
+            for (DataSnapshot user : users) {
+                if (user.hasChild(CHILD_AVAILABILITY) &&
+                        user.child(CHILD_AVAILABILITY).getValue() != null &&
+                        user.child(CHILD_AVAILABILITY).getValue().equals(AVAILABLE) &&
+                        user.hasChild(CHILD_TIMESTAMP) &&
+                        user.child(CHILD_TIMESTAMP).getValue() != null &&
+                        checkTimeStamp((long) user.child(CHILD_TIMESTAMP).getValue(), MAX_TIMESTAMP_TIME)) {
+                    arrayList.add(FirebaseDatabaseManager.getUserFromData(user));
+                }
+            }
+        } else {
+            arrayList = null;
+        }
+
+        return arrayList;
+    }
+
+    /**
+     * Check if first timestamp arg if older then minValidity
+     * @param timestamp: long value of timestamp received from server (in milliseconds)
+     * @param minValidity: max validity value accepted from timestamp in minutes
+     * @return true if timestamp is still valid, false otherwise
+     */
+    private static boolean checkTimeStamp(long timestamp, int minValidity) {
+        // From minutes to milliseconds
+        long validityTime = minValidity * 60 * 1000;
+        long currentTime = System.currentTimeMillis();
+
+        return currentTime - timestamp <= validityTime;
     }
 
     private static User getUserFromData(DataSnapshot user) {

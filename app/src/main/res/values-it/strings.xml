@@ -102,4 +102,7 @@
     <string name="gps_ask_enable">Per favore abilita il GPS</string>
     <string name="detail_user">Dettagli utente</string>
     <string name="suspend_location_update">Aggiornamento posizione</string>
+    <string name="filter_not_traceable">Non rintracciabile</string>
+    <string name="level_not_traceable">Utenti non tracciabili</string>
+    <string name="bad_system_clock">Orologio di sistema errato: aggiorna l\'ora per avere risultati più accurati</string>
 </resources>
