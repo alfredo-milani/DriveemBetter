@@ -1,5 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,6 +28,7 @@ public class StatisticsFragment extends Fragment
     private final static String TAG = StatisticsFragment.class.getSimpleName();
 
     // Widgets
+    private Context context;
     private View rootView;
     private ScatterChart chart;
     private ProgressBar progressBar;
@@ -34,6 +37,12 @@ public class StatisticsFragment extends Fragment
     private ScatterData data;
 
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        this.context = context;
+    }
 
     @Override
     /* Called when the activity is starting */
@@ -66,6 +75,9 @@ public class StatisticsFragment extends Fragment
     }
 
     private void initWidgets() {
+        // Set action bar title
+        ((Activity) this.context).setTitle(R.string.statistics);
+
         this.chart = this.rootView.findViewById(R.id.graph_view);
         this.progressBar = this.getActivity().findViewById(R.id.progress_bar);
     }

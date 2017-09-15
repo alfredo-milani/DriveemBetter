@@ -25,6 +25,7 @@ public  class SingletonScatterData {
         this.valid = false;
         this.xVals = new ArrayList<>();
     }
+
     public static final SingletonScatterData getInstance() {
         if (instance == null) {
             instance = new SingletonScatterData();
