@@ -118,7 +118,7 @@ public class RankingFragment extends Fragment
 
 
         this.hideProgress();
-        if (arrayList != null) {
+        if (arrayList != null && arrayList.size() > 0) {
             int scrollPosition = this.getPositionCurrentUser(arrayList);
             if (scrollPosition >= 0) {
                 // To show current user on top of the list view
