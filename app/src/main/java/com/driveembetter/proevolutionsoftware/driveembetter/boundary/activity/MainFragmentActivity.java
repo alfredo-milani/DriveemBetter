@@ -193,7 +193,7 @@ public class MainFragmentActivity extends AppCompatActivity
         this.emailTextView = this.headerView.findViewById(R.id.email_text_view);
         this.userPicture = this.headerView.findViewById(R.id.user_picture);
         if (this.singletonUser != null) {
-            Log.d(TAG, "USER: " + this.singletonUser.getEmail() + " / " + this.singletonUser.getUsername() + " / " + this.singletonUser.getPhotoUrl());
+            Log.d(TAG, "USER: " + this.singletonUser.getEmail() + " / " + this.singletonUser.getUsername());
 
             if (this.singletonUser.getEmail() != null) {
                 this.emailTextView.setText(this.singletonUser.getEmail());
@@ -302,7 +302,6 @@ public class MainFragmentActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
@@ -408,7 +407,6 @@ public class MainFragmentActivity extends AppCompatActivity
 
         switch (requestCode) {
             case SingletonGoogleProvider.RC_SIGN_IN:
-                Log.d(TAG, "onActivityResult: GOOGLE" + requestCode);
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                         .activityResult(requestCode, resultCode, data);
                 break;

@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -26,8 +25,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.facto
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.common.SignInButton;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
@@ -59,9 +56,6 @@ public class SignInActivity
     // If we are authenticated with Firebase we check if email is verified before log in
     private boolean checkEmailBeforeLogIn;
 
-    //DEBUG
-    private ImageView imageView;
-    ////
 
 
     @Override
@@ -98,6 +92,7 @@ public class SignInActivity
             int id = msg.what;
             switch (id) {
                 case USER_LOGIN:
+                    // TODO a volte a seguito del logout, il silent-signin di google manda un segnale di login (causato dalla onStart)
                     hideProgress();
                     Log.d(TAG, "handleMessage:Login");
                     // Check if email has been verified
@@ -194,13 +189,13 @@ public class SignInActivity
     }
 
     private void initWidget() {
-        this.signInButton = (Button) findViewById(R.id.sign_in_button);
-        this.signInGoogleButton = (SignInButton) findViewById(R.id.sign_in_google_button);
-        this.twitterLoginButton = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
-        this.signUpButton = (Button) findViewById(R.id.sign_up_button);
-        this.emailField = (EditText) findViewById(R.id.email_field);
-        this.passwordField = (EditText) findViewById(R.id.password_field);
-        this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        this.signInButton = findViewById(R.id.sign_in_button);
+        this.signInGoogleButton = findViewById(R.id.sign_in_google_button);
+        this.twitterLoginButton = findViewById(R.id.twitter_login_button);
+        this.signUpButton = findViewById(R.id.sign_up_button);
+        this.emailField = findViewById(R.id.email_field);
+        this.passwordField = findViewById(R.id.password_field);
+        this.progressBar = findViewById(R.id.progress_bar);
 
         this.signInButton.setOnClickListener(this);
         this.signInGoogleButton.setOnClickListener(this);
@@ -209,19 +204,6 @@ public class SignInActivity
         ((SingletonTwitterProvider) this.baseProviderArrayList
                 .get(FactoryProviders.TWITTER_PROVIDER))
                 .setCallback(this.twitterLoginButton);
-
-        //DEBUG
-        this.imageView = (ImageView) findViewById(R.id.imageView7);
-        this.imageView.setOnClickListener(this);
-        this.imageView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)
-                        .signOut();
-
-                return false;
-            }
-        });
     }
 
     private void initResources() {
@@ -258,31 +240,6 @@ public class SignInActivity
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            // DEBUG
-            case R.id.imageView7:
-                FirebaseDatabaseManager.syncCurrentUser();
-
-                SingletonUser singletonUser = this.baseProviderArrayList
-                        .get(FactoryProviders.GOOGLE_PROVIDER)
-                        .getUserInformations();
-                if (singletonUser != null) {
-                    Log.d(TAG, "GOOGLE USER: " + singletonUser.getUsername() + " jjj " + singletonUser.getEmail());
-                } else {
-                    Log.d(TAG, "USER GOOGLE NULL");
-                }
-
-                if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
-                    Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail());
-                } else {
-                    Log.d(TAG, "USER FIRE NULL");
-                }
-
-                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
-
-                Log.d(TAG, "Firebase SignIn: " + this.singletonFirebaseProvider.isFirebaseSignIn());
-                break;
-            ////
-
             // Sign in with email and password
             case R.id.sign_in_button:
                 // Code strength

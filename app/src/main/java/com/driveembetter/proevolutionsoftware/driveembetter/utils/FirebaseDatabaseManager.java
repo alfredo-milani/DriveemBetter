@@ -10,13 +10,11 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
-import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSON;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -38,13 +36,6 @@ public class FirebaseDatabaseManager
             .getReference();
 
 
-
-    public interface ResultCodeCallback {
-        int ok = 0;
-        int GEOCODER_NOT_WORKING = 1;
-
-        void onError(int error);
-    }
 
     public static DatabaseReference getDatabaseReference() {
         return FirebaseDatabaseManager.databaseReference;
@@ -142,8 +133,7 @@ public class FirebaseDatabaseManager
 
     public static void checkOldPositionData() {
         final SingletonUser user = SingletonUser.getInstance();
-        if (user != null && user.getSubRegion() != null &&
-                user.getRegion() != null && user.getCountry() != null) {
+        if (user != null) {
             final Query query = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
                     .child(user.getCountry())
@@ -187,7 +177,9 @@ public class FirebaseDatabaseManager
                                             user.getLatitude(), user.getLongitude()
                                     ));
                         }
-                        if (!dataSnapshot.hasChild(CHILD_AVAILABILITY)) {
+                        if (!dataSnapshot.hasChild(CHILD_AVAILABILITY) &&
+                                !dataSnapshot.child(CHILD_AVAILABILITY).toString()
+                                        .equals(user.getAvailability())) {
                             dataSnapshot.getRef()
                                     .child(CHILD_AVAILABILITY)
                                     .setValue(user.getAvailability());
@@ -222,6 +214,12 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .setValue(user.getAvailability());
+            if (user.getAvailability().equals(AVAILABLE)) {
+                databaseReference
+                        .child(CHILD_AVAILABILITY)
+                        .onDisconnect()
+                        .setValue(UNAVAILABLE);
+            }
         }
     }
 
@@ -248,9 +246,17 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .setValue(user.getAvailability());
+            if (user.getAvailability().equals(AVAILABLE)) {
+                databaseReference
+                        .child(CHILD_AVAILABILITY)
+                        .onDisconnect()
+                        .setValue(UNAVAILABLE);
+            }
+            /*
             databaseReference
                     .child(CHILD_TIMESTAMP)
                     .setValue(ServerValue.TIMESTAMP);
+            */
         }
     }
 
@@ -301,13 +307,23 @@ public class FirebaseDatabaseManager
                                 .setValue(user.getEmail());
                     }
 
-                    dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(user.getAvailability());
+                    if (user.getAvailability().equals(AVAILABLE) &&
+                            !dataSnapshot.child(CHILD_AVAILABILITY).toString()
+                                    .equals(AVAILABLE)) {
+                        dataSnapshot.getRef()
+                                .child(CHILD_AVAILABILITY)
+                                .setValue(user.getAvailability());
+                        dataSnapshot
+                                .getRef()
+                                .child(CHILD_AVAILABILITY)
+                                .onDisconnect()
+                                .setValue(UNAVAILABLE);
+                    }
 
                     if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
                             dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        updateCurrentUserCoordIfNecessary(
-                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString(),
-                                user
+                        updateCurrentUserPositionIfNecessary(
+                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
                     } else {
                         createNewUserPosition();
@@ -319,12 +335,22 @@ public class FirebaseDatabaseManager
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
                     );
 
-                    dataSnapshot.getRef().child(CHILD_AVAILABILITY).setValue(user.getAvailability());
+                    if (user.getAvailability().equals(AVAILABLE) &&
+                            !dataSnapshot.child(CHILD_AVAILABILITY).toString()
+                                    .equals(AVAILABLE)) {
+                        dataSnapshot.getRef()
+                                .child(CHILD_AVAILABILITY)
+                                .setValue(user.getAvailability());
+                        dataSnapshot
+                                .getRef()
+                                .child(CHILD_AVAILABILITY)
+                                .onDisconnect()
+                                .setValue(UNAVAILABLE);
+                    }
 
                     if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        updateCurrentUserCoordIfNecessary(
-                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString(),
-                                user
+                        updateCurrentUserPositionIfNecessary(
+                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
                     }
 
@@ -339,10 +365,11 @@ public class FirebaseDatabaseManager
         });
     }
 
-    private static void updateCurrentUserCoordIfNecessary(String location, SingletonUser user) {
+    private static void updateCurrentUserPositionIfNecessary(String location) {
         String[] coordinates = StringParser.getCoordinates(location);
+        SingletonUser user = SingletonUser.getInstance();
 
-        if (coordinates.length == 2) {
+        if (user != null && coordinates.length == 2) {
             user.setLatitude(Double.parseDouble(coordinates[0]));
             user.setLongitude(Double.parseDouble(coordinates[1]));
 
@@ -355,28 +382,7 @@ public class FirebaseDatabaseManager
             user.setSubRegion(position[2]);
 
             Log.d(TAG, "DB POS PARSED: " + user.getCountry() + "/" + user.getRegion() + "/" + user.getSubRegion());
-
-            if ((user.getLatitude() != 0 && user.getLongitude() != 0) &&
-                    (user.getCountry().equals(COUNTRY) ||
-                            user.getRegion().equals(REGION) ||
-                            user.getSubRegion().equals(SUB_REGION))) {
-                // TODO forse sarebbe meglio mettere country/region/subRegion come attributo dell'entità users su DB
-                new Thread(new RetrieveAndParseJSON(
-                        new RetrieveAndParseJSON.CallbackRetrieveAndParseJSON() {
-                            @Override
-                            public void onDataComputed(String[] position) {
-                                SingletonUser user = SingletonUser.getInstance();
-                                if (user != null) {
-                                    user.setCountry(position[0]);
-                                    user.setRegion(position[1]);
-                                    user.setSubRegion(position[2]);
-                                }
-                            }
-                        },
-                        user.getLatitude(),
-                        user.getLongitude()
-                )).start();
-            }
+            // TODO forse sarebbe meglio mettere country/region/subRegion come attributo dell'entità users su DB
         }
     }
 
@@ -450,27 +456,20 @@ public class FirebaseDatabaseManager
         void onUsersRankingReceived(ArrayList<User> users);
     }
 
-    public static void getUsersRank(final RetrieveRankFromDB retrieveRankFromDB, String[] location)
+    public static void getUsersRank(final RetrieveRankFromDB retrieveRankFromDB)
             throws CallbackNotInitialized {
-        String nation = null;
-        String region = null;
-        String district = null;
+        SingletonUser user = SingletonUser.getInstance();
 
         if (retrieveRankFromDB == null) {
             throw new CallbackNotInitialized(TAG);
-        } else if (location == null) {
-                if (RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_NOT_TRACEABLE &&
-                        RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_AVAILABLE &&
-                        RankingFragment.getLevel() != LevelMenuFragment.LevelStateChanged.LEVEL_ALL) {
-                    retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
-                    return;
-                }
-        } else {
-            // location[0] --> nation; location[1] --> region; location[2] --> district
-            nation = location[0];
-            region = location[1];
-            district = location[2];
+        } else if (user == null) {
+            retrieveRankFromDB.onErrorReceived(RetrieveRankFromDB.UNKNOWN_ERROR);
+            return;
         }
+
+        String nation = user.getCountry();
+        String region = user.getRegion();
+        String district = user.getSubRegion();
 
         Query query = FirebaseDatabaseManager.getDatabaseReference()
                 .child(NODE_POSITION);
@@ -671,10 +670,7 @@ public class FirebaseDatabaseManager
             for (DataSnapshot user : users) {
                 if (user.hasChild(CHILD_AVAILABILITY) &&
                         user.child(CHILD_AVAILABILITY).getValue() != null &&
-                        user.child(CHILD_AVAILABILITY).getValue().equals(AVAILABLE) &&
-                        user.hasChild(CHILD_TIMESTAMP) &&
-                        user.child(CHILD_TIMESTAMP).getValue() != null &&
-                        checkTimeStamp((long) user.child(CHILD_TIMESTAMP).getValue(), MAX_TIMESTAMP_TIME)) {
+                        user.child(CHILD_AVAILABILITY).getValue().equals(AVAILABLE)) {
                     arrayList.add(FirebaseDatabaseManager.getUserFromData(user));
                 }
             }
@@ -694,6 +690,7 @@ public class FirebaseDatabaseManager
     private static boolean checkTimeStamp(long timestamp, int minValidity) {
         // From minutes to milliseconds
         long validityTime = minValidity * 60 * 1000;
+        // TODO evitare di usare il tempo del device corrente: potrebbe esere sbagliato
         long currentTime = System.currentTimeMillis();
 
         return currentTime - timestamp <= validityTime;

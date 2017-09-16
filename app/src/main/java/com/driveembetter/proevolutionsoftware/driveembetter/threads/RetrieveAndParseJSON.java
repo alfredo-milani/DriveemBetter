@@ -72,7 +72,7 @@ public class RetrieveAndParseJSON implements Runnable {
         );
     }
 
-    private boolean isItemNull(String[] string) {
+    private boolean areItemsNotNull(String[] string) {
         return string[0] != null && string[1] != null && string[2] != null;
     }
 
@@ -90,14 +90,15 @@ public class RetrieveAndParseJSON implements Runnable {
                 JSONArray jsonArrayResponse = jsonObjectResponse.getJSONArray(KEY_RESULT_OBJ);
 
                 // Check all result type until position array is filled
-                for (int i = 0; i < jsonObjectResponse.length() && !this.isItemNull(position); ++i) {
+                for (int i = 0; i < jsonObjectResponse.length() && !this.areItemsNotNull(position); ++i) {
                     JSONObject jsonObjectPosition = jsonArrayResponse.getJSONObject(i);
                     JSONArray jsonArrayAddress = jsonObjectPosition.getJSONArray(KEY_ADDRESS_OBJ);
 
-                    // In address component find countr / region /sub region
+                    // In address component find country / region /sub region
                     for (int j = 0; j < jsonArrayAddress.length(); ++j) {
                         JSONObject keyPosition = jsonArrayAddress.getJSONObject(j);
                         JSONArray jsonArrayType = keyPosition.getJSONArray(KEY_TYPES);
+                        // It the first position there should be the type of the component address
                         String levelPosition = jsonArrayType.getString(0);
 
                         // Put the value in the array as Country / Region / Sub Region

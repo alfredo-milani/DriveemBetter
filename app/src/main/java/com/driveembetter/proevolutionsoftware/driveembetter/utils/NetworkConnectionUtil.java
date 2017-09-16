@@ -12,11 +12,14 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
 
 
 public class NetworkConnectionUtil {
-    public static final String ERR_DIALOG_TITLE = "No internet connection detected !";
-    private static final String ERR_DIALOG_MSG = "Looks like our application is not able to detect an active internet connection, " +
-            "please check your device's network settings.";
+
+    private final static String TAG = NetworkConnectionUtil.class.getSimpleName();
+
+    private static final String ERR_DIALOG_MSG = "Looks like our application is not able to detect an active internet connection, " + "please check your device's network settings.";
     private static final String ERR_DIALOG_POSITIVE_BTN = "Settings";
     private static final String ERR_DIALOG_NEGATIVE_BTN = "Dismiss";
+
+
 
     /**
      * Check if the device is connected to internet or not.
@@ -65,7 +68,7 @@ public class NetworkConnectionUtil {
      */
     public static void showNoInternetAvailableErrorDialog(final Context context) {
         new AlertDialog.Builder(context)
-                .setTitle(ERR_DIALOG_TITLE)
+                .setTitle(context.getString(R.string.no_internet_connection))
                 .setMessage(ERR_DIALOG_MSG)
                 .setIcon(R.drawable.ic_error_24dp)
                 .setPositiveButton(ERR_DIALOG_POSITIVE_BTN, new DialogInterface.OnClickListener() {

@@ -91,10 +91,7 @@ public class PositionManager
                 FirebaseDatabaseManager.createNewUserPosition();
             }
 
-            if (user.getSubRegion() == null ||
-                    user.getRegion() == null ||
-                    user.getCountry() == null ||
-                    user.getSubRegion().equals(SUB_REGION) ||
+            if (user.getSubRegion().equals(SUB_REGION) ||
                     user.getRegion().equals(REGION) ||
                     user.getCountry().equals(COUNTRY)) {
                 user.setAvailability(UNAVAILABLE);

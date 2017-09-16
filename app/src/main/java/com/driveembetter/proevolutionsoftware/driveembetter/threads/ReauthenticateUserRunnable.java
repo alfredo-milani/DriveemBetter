@@ -6,6 +6,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -38,10 +39,28 @@ public class ReauthenticateUserRunnable
     @Override
     public void run() {
         ActivityManager am = (ActivityManager) this.context.getSystemService(ACTIVITY_SERVICE);
-        boolean isAppInForeground;
+        boolean isAppInForeground = true;
 
         do {
-            SingletonFirebaseProvider.getInstance().reauthenticateUser();
+            if (NetworkConnectionUtil.isConnectedToInternet(this.context)) {
+                SingletonFirebaseProvider.getInstance().reauthenticateUser();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Log.d(TAG, "over LOLLIPOP");
+                    // TODO in questo branch sostituire metodi deprecati. Vedere anche nel manifest.
+
+                    // The first in the list of RunningTasks is always the foreground task.
+                    ActivityManager.RunningTaskInfo foregroundTaskInfo = am.getRunningTasks(1).get(0);
+                    isAppInForeground = foregroundTaskInfo.topActivity.getPackageName()
+                            .equalsIgnoreCase(this.context.getPackageName());
+                } else {
+                    Log.d(TAG, "under LOLLOPOP");
+                    // The first in the list of RunningTasks is always the foreground task.
+                    ActivityManager.RunningTaskInfo foregroundTaskInfo = am.getRunningTasks(1).get(0);
+                    isAppInForeground = foregroundTaskInfo.topActivity.getPackageName()
+                            .equalsIgnoreCase(this.context.getPackageName());
+                }
+            }
 
             try {
                 Thread.sleep(this.timeToSleep * 1000);
@@ -49,22 +68,6 @@ public class ReauthenticateUserRunnable
                 Log.d(TAG, "Thread interrupted");
                 break;
             }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Log.d(TAG, "over LOLLIPOP");
-                // TODO in questo branch sostituire metodi deprecati. Vedere anche nel manifest.
-
-                // The first in the list of RunningTasks is always the foreground task.
-                ActivityManager.RunningTaskInfo foregroundTaskInfo = am.getRunningTasks(1).get(0);
-                isAppInForeground = foregroundTaskInfo.topActivity.getPackageName()
-                        .equalsIgnoreCase(this.context.getPackageName());
-            } else {
-                Log.d(TAG, "under LOLLOPOP");
-                // The first in the list of RunningTasks is always the foreground task.
-                ActivityManager.RunningTaskInfo foregroundTaskInfo = am.getRunningTasks(1).get(0);
-                isAppInForeground = foregroundTaskInfo.topActivity.getPackageName()
-                        .equalsIgnoreCase(this.context.getPackageName());
-            }
-        } while (isAppInForeground);
+        } while (isAppInForeground && !Thread.currentThread().isInterrupted());
     }
 }

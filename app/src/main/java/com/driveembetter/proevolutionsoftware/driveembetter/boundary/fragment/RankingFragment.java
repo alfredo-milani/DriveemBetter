@@ -27,9 +27,9 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Us
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
-import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveNetworkTime;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveRankingRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 
 import java.util.ArrayList;
 
@@ -47,14 +47,13 @@ public class RankingFragment extends Fragment
         RankingRecyclerViewAdapter.OnItemClickListener,
         Constants,
         TaskProgressInterface,
-        RetrieveRankingRunnable.RetrieveListFromRunnable,
-        RetrieveNetworkTime.CallbackTime {
+        RetrieveRankingRunnable.RetrieveListFromRunnable {
 
     private final static String TAG = RankingFragment.class.getSimpleName();
 
     // Resource
     private static int level;
-    private boolean refreshListOnStart;
+    private boolean refreshListOnFirstStart;
 
     // Fragment dialog
     private LevelMenuFragment levelMenuFragment;
@@ -100,9 +99,8 @@ public class RankingFragment extends Fragment
     public void onStart() {
         super.onStart();
 
-        if (this.refreshListOnStart) {
-            this.showProgress();
-            new Thread(new RetrieveRankingRunnable(this)).start();
+        if (this.refreshListOnFirstStart) {
+            this.onRefresh();
         }
     }
 
@@ -210,9 +208,8 @@ public class RankingFragment extends Fragment
     @Override
     public void onLevelChanged(int level) {
         RankingFragment.level = level;
-        this.showProgress();
 
-        new Thread(new RetrieveRankingRunnable(this)).start();
+        this.onRefresh();
     }
 
     public static int getLevel() {
@@ -229,13 +226,10 @@ public class RankingFragment extends Fragment
         switch (id) {
             // Check if user triggered a refresh:
             case R.id.refresh_action:
-                Log.d(TAG, "Refresh menu item selected");
-                this.showProgress();
-                new Thread(new RetrieveRankingRunnable(this)).start();
+                this.onRefresh();
                 return true;
 
             case R.id.menu_selection_level:
-                Log.d(TAG, "Level menu item selected");
                 // Show DialogFragment
                 this.levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));
                 return true;
@@ -246,8 +240,6 @@ public class RankingFragment extends Fragment
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        Log.d(TAG, "Called oncreate...");
-
         menu.findItem(R.id.menu_selection_level).setVisible(true);
         menu.findItem(R.id.refresh_action).setVisible(true);
         super.onPrepareOptionsMenu(menu);
@@ -262,10 +254,10 @@ public class RankingFragment extends Fragment
 
         RankingFragment.level = LEVEL_DISTRICT;
 
-        this.refreshListOnStart = true;
+        this.refreshListOnFirstStart = true;
 
         // Check if system clock is correct
-        new Thread(new RetrieveNetworkTime(this)).start();
+        // new Thread(new RetrieveNetworkTime(this)).start();
     }
 
     private void initWidgets() {
@@ -308,24 +300,7 @@ public class RankingFragment extends Fragment
     }
 
     @Override
-    public void onTimeRetrieved(final boolean result) {
-        this.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast toast = Toast.makeText(getActivity(), "null", Toast.LENGTH_LONG);
-                String string;
-                if (!result) {
-                    string = getString(R.string.bad_system_clock);
-                    toast.setText(string);
-                    toast.show();
-                }
-            }
-        });
-    }
-
-    @Override
     public void onItemClick(User user) {
-        Log.d(TAG, "onItemClick");
         Intent userDetail = new Intent(this.getActivity(), UserDetailsRankingActivity.class);
         userDetail.putExtra(USER, user);
         this.startActivity(userDetail);
@@ -333,9 +308,22 @@ public class RankingFragment extends Fragment
 
     @Override
     public void onRefresh() {
-        Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
+        if (!NetworkConnectionUtil.isConnectedToInternet(this.context)) {
+            this.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getActivity(), getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+                }
+            });
+            if (this.swipeRefreshLayout.isRefreshing()) {
+                this.hideProgress();
+            }
+            return;
+        }
 
-        this.showProgress();
+        if (!this.swipeRefreshLayout.isRefreshing()) {
+            this.showProgress();
+        }
         new Thread(new RetrieveRankingRunnable(this)).start();
     }
 
@@ -350,7 +338,7 @@ public class RankingFragment extends Fragment
     public void onPause() {
         super.onPause();
 
-        this.refreshListOnStart = false;
+        this.refreshListOnFirstStart = false;
         Log.d(TAG, "onPause");
         FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, false);
     }

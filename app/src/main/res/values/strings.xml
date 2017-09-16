@@ -42,4 +42,5 @@
     <string name="filter_not_traceable">Not traceable</string>
     <string name="level_not_traceable">Not traceable users</string>
     <string name="bad_system_clock">Wrong system clock: Update it for more accurate results</string>
+    <string name="no_internet_connection">No internet connection detected!</string>
 </resources>

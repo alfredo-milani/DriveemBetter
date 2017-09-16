@@ -20,7 +20,7 @@ public class RetrieveNetworkTime
 
     // Resources
     private final CallbackTime callbackTime;
-    private final static int maxLatency = 5 * 60 * 1000;    // Max latency in minutes
+    private final static int maxLatency = 5 * 60 * 1000;    // Max difference in minutes
 
     public interface CallbackTime {
         void onTimeRetrieved(boolean result);

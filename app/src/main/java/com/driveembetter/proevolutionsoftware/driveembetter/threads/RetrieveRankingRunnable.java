@@ -34,7 +34,6 @@ public class RetrieveRankingRunnable
     private RankingFragment rankingFragment;
     private RetrieveListFromRunnable callback;
     private ArrayList<Integer> errorCode;
-    private SingletonUser user;
 
     public interface RetrieveListFromRunnable {
         void retrieveList(ArrayList<User> arrayList, ArrayList<Integer> resultCode);
@@ -43,7 +42,6 @@ public class RetrieveRankingRunnable
     public RetrieveRankingRunnable(RankingFragment rankingFragment) {
         this.rankingFragment = rankingFragment;
         this.errorCode = new ArrayList<>();
-        this.user = SingletonUser.getInstance();
         this.onAttach();
     }
 
@@ -51,10 +49,10 @@ public class RetrieveRankingRunnable
 
     @Override
     public void run() {
-        if (this.user == null) {
+        if (SingletonUser.getInstance() == null) {
             return;
         }
-        Log.d(TAG, "positionManager: lat: " + user.getLatitude() + " long: " + user.getLongitude());
+        Log.d(TAG, "positionManager: lat: " + SingletonUser.getInstance().getLatitude() + " long: " + SingletonUser.getInstance().getLongitude());
         this.performQuery();
     }
 
@@ -67,13 +65,12 @@ public class RetrieveRankingRunnable
     }
 
     private void performQuery() {
-        String coutry = this.user.getCountry();
-        String region = this.user.getRegion();
-        String subRegion = this.user.getSubRegion();
+        String country = SingletonUser.getInstance().getCountry();
+        String region = SingletonUser.getInstance().getRegion();
+        String subRegion = SingletonUser.getInstance().getSubRegion();
 
-        Log.d(TAG, "performQuery: " + coutry + "/" + region + "/" + subRegion);
-        if ((subRegion != null && region != null && coutry != null) &&
-                (subRegion.equals(SUB_REGION) || region.equals(REGION) || coutry.equals(COUNTRY))) {
+        Log.d(TAG, "performQuery: " + country + "/" + region + "/" + subRegion);
+        if (subRegion.equals(SUB_REGION) || region.equals(REGION) || country.equals(COUNTRY)) {
             // Indefinite position
             switch (RankingFragment.getLevel()) {
                 case LEVEL_NATION:
@@ -85,15 +82,14 @@ public class RetrieveRankingRunnable
             }
         }
 
-        FirebaseDatabaseManager.getUsersRank(this, new String[] {coutry, region, subRegion});
+        FirebaseDatabaseManager.getUsersRank(this);
     }
 
     @Override
     public void onErrorReceived(int errorType) {
         Log.d(TAG, "Runnable, error: " + errorType);
-        this.errorCode.add(errorType);
 
-        // TODO BUG: problemi con toast: se la posizione non viene decodificata --> Can't create handler inside thread that has not called Looper.prepare(). Altrimenti il toast viene mostrato...
+        this.errorCode.add(errorType);
         if (errorType == UNKNOWN_ERROR) {
             this.callback.retrieveList(null, this.errorCode);
         }
