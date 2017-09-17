@@ -46,6 +46,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDataba
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
@@ -138,26 +139,17 @@ public class MainFragmentActivity extends AppCompatActivity
     private void initResources() {
         // Get all providers to manage user's connection state
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
+        SensorHandler sensorHandler = new SensorHandler();
+        sensorHandler.startSensorHandler(this);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.baseProviderArrayList = factoryProviders.getAllProviders();
-
-        this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
-        this.positionManager = PositionManager.getInstance(this);
-
-        // Init fragments
-        this.fragmentState = new FragmentState(getSupportFragmentManager());
-        this.saveMe = new SaveMeFragment();
-        this.ranking = new RankingFragment();
-        this.aboutUs = new AboutUsFragment();
-        this.statistics = new StatisticsFragment();
 
         // Start reauthentication thread
         this.reauthenticationThread = new Thread(new ReauthenticateUserRunnable(this));
         this.reauthenticationThread.start();
 
-        // Start service to manage task manager behaviour
-        Intent serviceIntent = new Intent(getApplicationContext(), SwipeClosureHandler.class);
-        this.startService(serviceIntent);
+        // Init user
+        this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
 
         // It should refresh automatically
         FirebaseUtility firebaseUtility = new FirebaseUtility();
@@ -169,6 +161,20 @@ public class MainFragmentActivity extends AppCompatActivity
             FirebaseDatabaseManager.syncCurrentUser();
         }
 
+        // Start listening to update position
+        this.positionManager = PositionManager.getInstance(this);
+
+        // Init fragments
+        this.fragmentState = new FragmentState(getSupportFragmentManager());
+        this.saveMe = new SaveMeFragment();
+        this.ranking = new RankingFragment();
+        this.aboutUs = new AboutUsFragment();
+        this.statistics = new StatisticsFragment();
+
+        // Start service to manage task manager behaviour
+        Intent serviceIntent = new Intent(getApplicationContext(), SwipeClosureHandler.class);
+        this.startService(serviceIntent);
+
         // Check protected app feature
         ProtectedAppsManager protectedAppsManager = new ProtectedAppsManager(this);
         protectedAppsManager.checkAlert();
@@ -178,6 +184,7 @@ public class MainFragmentActivity extends AppCompatActivity
             Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
         }
     }
+
 
     private void initWidgets() {
         Toolbar toolbar = findViewById(R.id.toolbar);

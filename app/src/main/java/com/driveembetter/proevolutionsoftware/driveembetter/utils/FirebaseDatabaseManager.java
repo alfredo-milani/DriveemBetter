@@ -259,6 +259,7 @@ public class FirebaseDatabaseManager
                 .child(NODE_USERS)
                 .child(user.getUid());
 
+        user.getMtxUpdatePosition().lock();
         // Attach a listener to read the data at our posts reference
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -345,10 +346,9 @@ public class FirebaseDatabaseManager
                     }
                     user.getMtxSyncData().unlock();
 
-                    user.getMtxUpdatePosition().lock();
                     checkOldPositionData();
-                    user.getMtxUpdatePosition().unlock();
                 }
+                user.getMtxUpdatePosition().unlock();
             }
 
             @Override

@@ -14,12 +14,18 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSONPosition;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +44,12 @@ public class PositionManager extends Application
     private LocationManager locationManager;
     private boolean listenerSetted = false;
     private Context context;
+    private int speed;
+    private double initialTime;
+    private double time;
+    private int initialSpeed = -1; //Symbolic value just to check when "onLocationChanged" is called for the first time
+    private double deltaT;
+
 
     // Singleton
     private PositionManager(Context context) {
@@ -55,6 +67,78 @@ public class PositionManager extends Application
         return positionManager;
     }
 
+    private void updateStatistics(double speed) {
+
+        //TRY
+        MeanDay mean2 = MeanDay.getInstance();
+        Calendar calendar = Calendar.getInstance();
+        Date date = calendar.getTime();
+        int hour = date.getHours();
+        for (int i = 0; i <= 24; i ++) {
+
+
+            if (date.equals(mean2.getLocalDate())) { //stesso giorno
+
+
+                if (mean2.getMap().get(hour) != null) {
+                    Mean meanDay = mean2.getMap().get(hour);
+                    meanDay.setSampleSum((float) speed);  // modificare con il valore della velocità
+                    meanDay.setSampleSize();
+                    mean2.getMap().put(hour, meanDay);
+                } else {
+                    Mean meanDay = new Mean();
+                    meanDay.setSampleSum((float) speed); //modificare con il valore della velocità
+                    meanDay.setSampleSize();
+                    mean2.getMap().put(hour, meanDay);
+                }
+            } else {
+                mean2.setLocalDate(date);
+                mean2.getMap().clear();
+                Mean meanDay = new Mean();
+                meanDay.setSampleSum((float) speed); // modificare con il valore della velocità
+                meanDay.setSampleSize();
+                mean2.getMap().put(hour, meanDay);
+            }
+            System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno");
+            Log.e("c", "Programma per " + i + " eseguito in ora " + hour + " giorno");
+
+        }
+
+        //END TRY
+    }
+
+    private void checkSpeedAndAcceleration(Location location) {
+        if (location.hasSpeed()) {
+            if (initialSpeed == -1) {
+                //first time that velocity has been detected, I don't check acceleration
+                initialSpeed = (int) ((location.getSpeed()*3600)/1000);
+                initialTime = System.currentTimeMillis();
+                Log.e("SPEED", "Speed: " + initialSpeed);
+                updateStatistics(initialSpeed);
+                //Toast.makeText(context, "Speed: " + initialSpeed, Toast.LENGTH_SHORT).show();
+                //Check speed limits through OpenStreetMap
+                //speedLimitManager.requestSpeedLimit("www.overpass-api.de/api/xapi?*[maxspeed=*][bbox=5.6283473,50.5348043,5.6285261,50.534884]\n");
+                //TODO
+                //check speed limits
+            } else {
+                speed = (int) ((location.getSpeed()*3600)/1000);
+                time = System.currentTimeMillis();
+                deltaT = (time - initialTime)/1000;
+                double acceleration = ((double) (speed - initialSpeed)) / deltaT;
+                //Toast.makeText(context, "Acceleration: " + acceleration, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "Speed: " + speed, Toast.LENGTH_SHORT).show();
+                Log.e("SPEED", "Speed: " + speed);
+                Log.e("ACCELERATION", "Acceleration: " + acceleration);
+                updateStatistics(speed);
+                //TODO
+                //check speed limits or abrupt braking or acceleration
+                //speedLimitManager.requestSpeedLimit("www.overpass-api.de/api/xapi?*[maxspeed=*][bbox=5.6283473,50.5348043,5.6285261,50.534884]\n");
+                initialTime = time;
+                initialSpeed = speed;
+            }
+        }
+    }
+
 
 
     private final LocationListener locationListener = new LocationListener() {
@@ -63,6 +147,8 @@ public class PositionManager extends Application
             if (user == null || user.getUid().isEmpty()) {
                 return;
             }
+
+            checkSpeedAndAcceleration(location);
 
             user.getMtxUpdatePosition().lock();
             String oldCountry = user.getCountry();
