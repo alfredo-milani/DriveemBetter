@@ -162,7 +162,12 @@ public class MainFragmentActivity extends AppCompatActivity
         // It should refresh automatically
         FirebaseUtility firebaseUtility = new FirebaseUtility();
         firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
-        FirebaseDatabaseManager.syncCurrentUser();
+        // Sync SingletonUser with DB data
+        if (this.singletonUser == null ||
+                (this.singletonUser.getUid() != null && !this.singletonUser.getUid().isEmpty())) {
+            Log.d(TAG, "Sync user data");
+            FirebaseDatabaseManager.syncCurrentUser();
+        }
 
         // Check protected app feature
         ProtectedAppsManager protectedAppsManager = new ProtectedAppsManager(this);
@@ -473,8 +478,6 @@ public class MainFragmentActivity extends AppCompatActivity
         Log.d(TAG, ":destroy");
 
         this.reauthenticationThread.interrupt();
-        FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
-        FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
 
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))

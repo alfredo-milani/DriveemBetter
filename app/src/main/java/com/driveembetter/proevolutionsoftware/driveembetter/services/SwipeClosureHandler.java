@@ -30,7 +30,6 @@ public class SwipeClosureHandler extends Service {
 
     @Override
     public void onTaskRemoved (Intent rootIntent){
-        // TODO SET USER UNAVAILABLE ???
         stopSelf();
     }
 }

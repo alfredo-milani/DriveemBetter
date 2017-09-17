@@ -86,15 +86,18 @@ public class FirebaseDatabaseManager
 
     public static void removeOldPosition(String[] position) {
         SingletonUser user = SingletonUser.getInstance();
-        if (position != null && position[0] != null &&
-                position[1] != null && position[2] != null &&
-                user != null) {
+        if (user != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
                     .child(position[0])
                     .child(position[1])
                     .child(position[2])
                     .child(user.getUid());
+
+            databaseReference
+                    .child(CHILD_AVAILABILITY)
+                    .onDisconnect()
+                    .cancel();
             databaseReference.removeValue();
         }
     }
@@ -128,6 +131,10 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .setValue(user.getAvailability());
+            databaseReference
+                    .child(CHILD_AVAILABILITY)
+                    .onDisconnect()
+                    .setValue(UNAVAILABLE);
         }
     }
 
@@ -214,12 +221,6 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .setValue(user.getAvailability());
-            if (user.getAvailability().equals(AVAILABLE)) {
-                databaseReference
-                        .child(CHILD_AVAILABILITY)
-                        .onDisconnect()
-                        .setValue(UNAVAILABLE);
-            }
         }
     }
 
@@ -246,17 +247,6 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .setValue(user.getAvailability());
-            if (user.getAvailability().equals(AVAILABLE)) {
-                databaseReference
-                        .child(CHILD_AVAILABILITY)
-                        .onDisconnect()
-                        .setValue(UNAVAILABLE);
-            }
-            /*
-            databaseReference
-                    .child(CHILD_TIMESTAMP)
-                    .setValue(ServerValue.TIMESTAMP);
-            */
         }
     }
 
@@ -307,18 +297,16 @@ public class FirebaseDatabaseManager
                                 .setValue(user.getEmail());
                     }
 
-                    if (user.getAvailability().equals(AVAILABLE) &&
-                            !dataSnapshot.child(CHILD_AVAILABILITY).toString()
-                                    .equals(AVAILABLE)) {
+                    if (!dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString()
+                            .equals(user.getAvailability())) {
                         dataSnapshot.getRef()
                                 .child(CHILD_AVAILABILITY)
                                 .setValue(user.getAvailability());
-                        dataSnapshot
-                                .getRef()
-                                .child(CHILD_AVAILABILITY)
-                                .onDisconnect()
-                                .setValue(UNAVAILABLE);
                     }
+                    dataSnapshot.getRef()
+                            .child(CHILD_AVAILABILITY)
+                            .onDisconnect()
+                            .setValue(UNAVAILABLE);
 
                     if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
                             dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
@@ -329,7 +317,9 @@ public class FirebaseDatabaseManager
                         );
                         user.getMtx().unlock();
                     } else {
+                        user.getMtx().lock();
                         createNewUserPosition();
+                        user.getMtx().unlock();
                     }
                 } else {
                     Log.d(TAG, "Update SingletonUser class data");
@@ -337,18 +327,16 @@ public class FirebaseDatabaseManager
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
                     );
 
-                    if (user.getAvailability().equals(AVAILABLE) &&
-                            !dataSnapshot.child(CHILD_AVAILABILITY).toString()
-                                    .equals(AVAILABLE)) {
+                    if (!dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString()
+                            .equals(user.getAvailability())) {
                         dataSnapshot.getRef()
                                 .child(CHILD_AVAILABILITY)
                                 .setValue(user.getAvailability());
-                        dataSnapshot
-                                .getRef()
-                                .child(CHILD_AVAILABILITY)
-                                .onDisconnect()
-                                .setValue(UNAVAILABLE);
                     }
+                    dataSnapshot.getRef()
+                            .child(CHILD_AVAILABILITY)
+                            .onDisconnect()
+                            .setValue(UNAVAILABLE);
 
                     if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
                         // Acquire lock while update user's position
@@ -358,8 +346,6 @@ public class FirebaseDatabaseManager
                         );
                         user.getMtx().unlock();
                     }
-
-                    checkOldPositionData();
                 }
             }
 
