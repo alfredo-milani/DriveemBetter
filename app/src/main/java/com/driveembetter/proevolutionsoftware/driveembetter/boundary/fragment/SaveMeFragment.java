@@ -146,18 +146,16 @@ public class SaveMeFragment
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
+
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
+
             }
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // TODO Auto-generated method stub
-
                 radius = progressToMeters(progress);
                 rangeText.setText(radius + " m");
 
@@ -385,7 +383,6 @@ public class SaveMeFragment
                             Log.e("latitude", "inside latitude--" + latitude);
                             addresses = geocoder.getFromLocation(latitude, longitude, 1);
 
-
                             if (addresses != null && addresses.size() > 0) {
                                 final String address = addresses.get(0).getAddressLine(0);
                                 subRegion = addresses.get(0).getSubAdminArea();
@@ -421,7 +418,6 @@ public class SaveMeFragment
                                 });
                             }
                         } catch (IOException e) {
-                            // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                     }

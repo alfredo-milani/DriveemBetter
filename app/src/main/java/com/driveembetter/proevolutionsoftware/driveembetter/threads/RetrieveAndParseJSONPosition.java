@@ -24,9 +24,9 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
  * Created by alfredo on 13/09/17.
  */
 
-public class RetrieveAndParseJSON implements Runnable {
+public class RetrieveAndParseJSONPosition implements Runnable {
 
-    private final static String TAG = RetrieveAndParseJSON.class.getSimpleName();
+    private final static String TAG = RetrieveAndParseJSONPosition.class.getSimpleName();
 
     // Resources
     private final static String URLResource = "http://maps.googleapis.com/maps/api/geocode/json?latlng=%f,%f&sensor=true";
@@ -47,13 +47,14 @@ public class RetrieveAndParseJSON implements Runnable {
     private final static String VALUE_TYPES_COUNTRY = "country";
     private final static String VALUE_TYPES_REGION = "administrative_area_level_1";
     private final static String VALUE_TYPES_SUB_REGION = "administrative_area_level_2";
+    private final static String VALUE_TYPES_LOCALITY = "locality";
 
     public interface CallbackRetrieveAndParseJSON {
         void onDataComputed(String[] position);
     }
 
-    public RetrieveAndParseJSON(CallbackRetrieveAndParseJSON callback,
-                                double latitude, double longitude) {
+    public RetrieveAndParseJSONPosition(CallbackRetrieveAndParseJSON callback,
+                                        double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
         if (callback == null) {
@@ -111,6 +112,7 @@ public class RetrieveAndParseJSON implements Runnable {
                                 position[1] = keyPosition.getString(KEY_LONG_NAME);
                                 break;
 
+                            case VALUE_TYPES_LOCALITY:
                             case VALUE_TYPES_SUB_REGION:
                                 position[2] = keyPosition.getString(KEY_LONG_NAME);
                                 break;

@@ -322,14 +322,16 @@ public class FirebaseDatabaseManager
 
                     if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
                             dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
+                        // Acquire lock while update user's position
+                        user.getMtx().lock();
                         updateCurrentUserPositionIfNecessary(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
+                        user.getMtx().unlock();
                     } else {
                         createNewUserPosition();
                     }
                 } else {
-                    // TODO prima di leggere i punti devo aspettare il risultato di questa query --> SERVONO LOCKS
                     Log.d(TAG, "Update SingletonUser class data");
                     user.setPoints(
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
@@ -349,9 +351,12 @@ public class FirebaseDatabaseManager
                     }
 
                     if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
+                        // Acquire lock while update user's position
+                        user.getMtx().lock();
                         updateCurrentUserPositionIfNecessary(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
+                        user.getMtx().unlock();
                     }
 
                     checkOldPositionData();

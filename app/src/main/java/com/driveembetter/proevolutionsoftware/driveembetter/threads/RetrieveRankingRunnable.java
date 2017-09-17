@@ -34,6 +34,7 @@ public class RetrieveRankingRunnable
     private RankingFragment rankingFragment;
     private RetrieveListFromRunnable callback;
     private ArrayList<Integer> errorCode;
+    private SingletonUser user;
 
     public interface RetrieveListFromRunnable {
         void retrieveList(ArrayList<User> arrayList, ArrayList<Integer> resultCode);
@@ -42,6 +43,7 @@ public class RetrieveRankingRunnable
     public RetrieveRankingRunnable(RankingFragment rankingFragment) {
         this.rankingFragment = rankingFragment;
         this.errorCode = new ArrayList<>();
+        this.user = SingletonUser.getInstance();
         this.onAttach();
     }
 
@@ -49,10 +51,10 @@ public class RetrieveRankingRunnable
 
     @Override
     public void run() {
-        if (SingletonUser.getInstance() == null) {
+        if (this.user == null) {
             return;
         }
-        Log.d(TAG, "positionManager: lat: " + SingletonUser.getInstance().getLatitude() + " long: " + SingletonUser.getInstance().getLongitude());
+        Log.d(TAG, "positionManager: lat: " + this.user.getLatitude() + " long: " + this.user.getLongitude());
         this.performQuery();
     }
 
@@ -65,9 +67,11 @@ public class RetrieveRankingRunnable
     }
 
     private void performQuery() {
-        String country = SingletonUser.getInstance().getCountry();
-        String region = SingletonUser.getInstance().getRegion();
-        String subRegion = SingletonUser.getInstance().getSubRegion();
+        this.user.getMtx().lock();
+        String country = this.user.getCountry();
+        String region = this.user.getRegion();
+        String subRegion = this.user.getSubRegion();
+        this.user.getMtx().unlock();
 
         Log.d(TAG, "performQuery: " + country + "/" + region + "/" + subRegion);
         if (subRegion.equals(SUB_REGION) || region.equals(REGION) || country.equals(COUNTRY)) {

@@ -10,6 +10,9 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDataba
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by alfredo on 10/08/17.
@@ -36,6 +39,10 @@ public class SingletonUser
     // Miscellaneous user data
     private Vehicle currentVehicle;
 
+    // Sync
+    private final Lock mtx;
+    private final Condition initPosition;
+
     private static SingletonUser singletonInstance;
 
     private SingletonUser(String username, String email, Uri photoUrl, String uid, boolean emailVerified, String providerId, List providerData) {
@@ -47,6 +54,8 @@ public class SingletonUser
         this.setCountry(COUNTRY);
         this.setRegion(REGION);
         this.setSubRegion(SUB_REGION);
+        this.mtx = new ReentrantLock(true);
+        this.initPosition = this.getMtx().newCondition();
     }
 
 
@@ -177,5 +186,13 @@ public class SingletonUser
 
     public static void resetSession() {
         SingletonUser.singletonInstance = null;
+    }
+
+    public Lock getMtx() {
+        return this.mtx;
+    }
+
+    public Condition getInitPosition() {
+        return this.initPosition;
     }
 }

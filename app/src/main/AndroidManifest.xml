@@ -118,14 +118,15 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <!-- To manage shutdown event -->
+        <!-- To manage shutdown event
         <receiver android:name=".events.ShutdownReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
-                <!-- To manage some HTC phone -->
+                To manage some HTC phone
                 <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
             </intent-filter>
         </receiver>
+        -->
 
     </application>
 

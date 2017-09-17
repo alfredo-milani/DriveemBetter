@@ -17,7 +17,7 @@ import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSON;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSONPosition;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,8 +27,7 @@ import java.util.Locale;
  * Created by matti on 28/08/2017.
  */
 
-public class PositionManager
-        extends Application
+public class PositionManager extends Application
         implements Constants {
 
     private final static String TAG = PositionManager.class.getSimpleName();
@@ -167,7 +166,7 @@ public class PositionManager
             List<Address> addresses = PositionManager.geocoder.getFromLocation(latitude, longitude, maxResult);
 
             if (addresses.size() == 0) {
-                Thread geoC = new Thread(new RetrieveAndParseJSON(new RetrieveAndParseJSON.CallbackRetrieveAndParseJSON() {
+                Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
                     @Override
                     public void onDataComputed(String[] position) {
                         strings[0] = position[0];
@@ -196,7 +195,7 @@ public class PositionManager
     public static String[] getLocationFromCoordinates(double latitude, double longitude) {
         final String[] strings = new String[3];
         try {
-            Thread geoC = new Thread(new RetrieveAndParseJSON(new RetrieveAndParseJSON.CallbackRetrieveAndParseJSON() {
+            Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
                 @Override
                 public void onDataComputed(String[] position) {
                     strings[0] = position[0];
