@@ -10,7 +10,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDataba
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -40,8 +39,8 @@ public class SingletonUser
     private Vehicle currentVehicle;
 
     // Sync
-    private final Lock mtx;
-    private final Condition initPosition;
+    private final Lock mtxSyncData;
+    private final Lock mtxUpdatePosition;
 
     private static SingletonUser singletonInstance;
 
@@ -54,8 +53,8 @@ public class SingletonUser
         this.setCountry(COUNTRY);
         this.setRegion(REGION);
         this.setSubRegion(SUB_REGION);
-        this.mtx = new ReentrantLock(true);
-        this.initPosition = this.getMtx().newCondition();
+        this.mtxSyncData = new ReentrantLock(true);
+        this.mtxUpdatePosition = new ReentrantLock(true);
     }
 
 
@@ -188,11 +187,11 @@ public class SingletonUser
         SingletonUser.singletonInstance = null;
     }
 
-    public Lock getMtx() {
-        return this.mtx;
+    public Lock getMtxSyncData() {
+        return this.mtxSyncData;
     }
 
-    public Condition getInitPosition() {
-        return this.initPosition;
+    public Lock getMtxUpdatePosition() {
+        return this.mtxUpdatePosition;
     }
 }

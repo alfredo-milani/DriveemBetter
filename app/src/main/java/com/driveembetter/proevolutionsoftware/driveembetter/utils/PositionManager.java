@@ -64,9 +64,11 @@ public class PositionManager extends Application
                 return;
             }
 
+            user.getMtxUpdatePosition().lock();
             String oldCountry = user.getCountry();
             String oldRegion = user.getRegion();
             String oldSubRegion = user.getSubRegion();
+            user.getMtxUpdatePosition().unlock();
 
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();

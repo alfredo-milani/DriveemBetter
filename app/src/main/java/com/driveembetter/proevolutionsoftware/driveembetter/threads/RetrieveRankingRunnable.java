@@ -67,11 +67,11 @@ public class RetrieveRankingRunnable
     }
 
     private void performQuery() {
-        this.user.getMtx().lock();
+        this.user.getMtxSyncData().lock();
         String country = this.user.getCountry();
         String region = this.user.getRegion();
         String subRegion = this.user.getSubRegion();
-        this.user.getMtx().unlock();
+        this.user.getMtxSyncData().unlock();
 
         Log.d(TAG, "performQuery: " + country + "/" + region + "/" + subRegion);
         if (subRegion.equals(SUB_REGION) || region.equals(REGION) || country.equals(COUNTRY)) {

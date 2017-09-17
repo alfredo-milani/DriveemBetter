@@ -308,19 +308,17 @@ public class FirebaseDatabaseManager
                             .onDisconnect()
                             .setValue(UNAVAILABLE);
 
+                    // Acquire lock while update user's position
+                    user.getMtxSyncData().lock();
                     if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
                             dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        // Acquire lock while update user's position
-                        user.getMtx().lock();
                         updateCurrentUserPositionIfNecessary(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
-                        user.getMtx().unlock();
                     } else {
-                        user.getMtx().lock();
                         createNewUserPosition();
-                        user.getMtx().unlock();
                     }
+                    user.getMtxSyncData().unlock();
                 } else {
                     Log.d(TAG, "Update SingletonUser class data");
                     user.setPoints(
@@ -338,14 +336,18 @@ public class FirebaseDatabaseManager
                             .onDisconnect()
                             .setValue(UNAVAILABLE);
 
+                    // Acquire lock while update user's position
+                    user.getMtxSyncData().lock();
                     if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        // Acquire lock while update user's position
-                        user.getMtx().lock();
                         updateCurrentUserPositionIfNecessary(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
-                        user.getMtx().unlock();
                     }
+                    user.getMtxSyncData().unlock();
+
+                    user.getMtxUpdatePosition().lock();
+                    checkOldPositionData();
+                    user.getMtxUpdatePosition().unlock();
                 }
             }
 
