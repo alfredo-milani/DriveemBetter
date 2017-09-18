@@ -7,7 +7,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -18,11 +17,16 @@ import static android.hardware.SensorManager.getAltitude;
  */
 
 public class SensorHandler extends Application implements SensorEventListener {
+
+    private final static String TAG = SensorHandler.class.getSimpleName();
+
     private SensorManager sensorManager;
     private List<Sensor> sensors;
     private Sensor barometer;
     private Activity activity;
     float pressure, altitude;
+
+
 
     public void startSensorHandler(Activity activity) {
         this.activity = activity;
@@ -39,14 +43,12 @@ public class SensorHandler extends Application implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
         if (event.sensor.getType()==Sensor.TYPE_PRESSURE) {
             pressure = event.values[0];
             altitude = getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure);
             //TODO
             //send altitude to RabbitMQ
-            Toast.makeText(activity, "Altitude: " + altitude, Toast.LENGTH_SHORT).show();
-            Log.e("ALTITUDE", "Altitude: " + altitude);
+            Log.d("ALTITUDE", "Altitude: " + altitude);
         }
     }
 
