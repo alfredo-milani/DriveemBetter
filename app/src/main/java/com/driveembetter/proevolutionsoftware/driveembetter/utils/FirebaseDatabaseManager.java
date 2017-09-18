@@ -327,12 +327,9 @@ public class FirebaseDatabaseManager
                     checkOldPositionData();
                 }
 
-                if (!dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString()
-                        .equals(user.getAvailability())) {
-                    dataSnapshot.getRef()
-                            .child(CHILD_AVAILABILITY)
-                            .setValue(user.getAvailability());
-                }
+                dataSnapshot.getRef()
+                        .child(CHILD_AVAILABILITY)
+                        .setValue(user.getAvailability());
                 dataSnapshot.getRef()
                         .child(CHILD_AVAILABILITY)
                         .onDisconnect()
