@@ -14,9 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
@@ -99,7 +97,6 @@ public class PositionManager extends Application
                 meanDay.setSampleSize();
                 mean2.getMap().put(hour, meanDay);
             }
-            System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno");
             Log.e("c", "Programma per " + i + " eseguito in ora " + hour + " giorno");
 
         }

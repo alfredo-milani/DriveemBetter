@@ -298,17 +298,6 @@ public class FirebaseDatabaseManager
                                 .setValue(user.getEmail());
                     }
 
-                    if (!dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString()
-                            .equals(user.getAvailability())) {
-                        dataSnapshot.getRef()
-                                .child(CHILD_AVAILABILITY)
-                                .setValue(user.getAvailability());
-                    }
-                    dataSnapshot.getRef()
-                            .child(CHILD_AVAILABILITY)
-                            .onDisconnect()
-                            .setValue(UNAVAILABLE);
-
                     // Acquire lock while update user's position
                     user.getMtxSyncData().lock();
                     if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
@@ -326,17 +315,6 @@ public class FirebaseDatabaseManager
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
                     );
 
-                    if (!dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString()
-                            .equals(user.getAvailability())) {
-                        dataSnapshot.getRef()
-                                .child(CHILD_AVAILABILITY)
-                                .setValue(user.getAvailability());
-                    }
-                    dataSnapshot.getRef()
-                            .child(CHILD_AVAILABILITY)
-                            .onDisconnect()
-                            .setValue(UNAVAILABLE);
-
                     // Acquire lock while update user's position
                     user.getMtxSyncData().lock();
                     if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
@@ -348,6 +326,17 @@ public class FirebaseDatabaseManager
 
                     checkOldPositionData();
                 }
+
+                if (!dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString()
+                        .equals(user.getAvailability())) {
+                    dataSnapshot.getRef()
+                            .child(CHILD_AVAILABILITY)
+                            .setValue(user.getAvailability());
+                }
+                dataSnapshot.getRef()
+                        .child(CHILD_AVAILABILITY)
+                        .onDisconnect()
+                        .setValue(UNAVAILABLE);
                 user.getMtxUpdatePosition().unlock();
             }
 

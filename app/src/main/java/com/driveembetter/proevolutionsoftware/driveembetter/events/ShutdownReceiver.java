@@ -19,7 +19,7 @@ public class ShutdownReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "shutdown smartphone");
+        Log.d(TAG, "Turning off smartphone");
         FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
         FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
     }

@@ -485,6 +485,8 @@ public class MainFragmentActivity extends AppCompatActivity
         Log.d(TAG, ":destroy");
 
         this.reauthenticationThread.interrupt();
+        FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
+        FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
 
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
