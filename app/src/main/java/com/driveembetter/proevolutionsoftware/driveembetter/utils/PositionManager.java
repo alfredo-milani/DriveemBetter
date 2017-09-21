@@ -38,7 +38,7 @@ public class PositionManager extends Application
 
     private static PositionManager positionManager;
     private static Geocoder geocoder;
-    private SingletonUser user;
+    private static SingletonUser user;
     private LocationManager locationManager;
     private boolean listenerSetted = false;
     private Context context;
@@ -222,7 +222,7 @@ public class PositionManager extends Application
         }
 
         this.listenerSetted = true;
-        this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, this.locationListener);
+        this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 50, this.locationListener);
     }
 
     public void removeLocationUpdates() {
@@ -254,19 +254,25 @@ public class PositionManager extends Application
                 Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
                     @Override
                     public void onDataComputed(String[] position) {
-                        strings[0] = position[0];
-                        strings[1] = position[1];
-                        strings[2] = position[2];
+                        if (position != null) {
+                            strings[0] = position[0];
+                            strings[1] = position[1];
+                            strings[2] = position[2];
+                        } else {
+                            strings[0] = user.getCountry();
+                            strings[1] = user.getRegion();
+                            strings[2] = user.getSubRegion();
+                        }
                     }
                 }, latitude, longitude));
                 geoC.start();
                 geoC.join();
                 return strings;
+            } else {
+                strings[0] = addresses.get(0).getCountryName();
+                strings[1] = addresses.get(0).getAdminArea();
+                strings[2] = addresses.get(0).getSubAdminArea();
             }
-
-            strings[0] = addresses.get(0).getCountryName();
-            strings[1] = addresses.get(0).getAdminArea();
-            strings[2] = addresses.get(0).getSubAdminArea();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
 
@@ -283,9 +289,15 @@ public class PositionManager extends Application
             Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
                 @Override
                 public void onDataComputed(String[] position) {
-                    strings[0] = position[0];
-                    strings[1] = position[1];
-                    strings[2] = position[2];
+                    if (position != null) {
+                        strings[0] = position[0];
+                        strings[1] = position[1];
+                        strings[2] = position[2];
+                    } else {
+                        strings[0] = user.getCountry();
+                        strings[1] = user.getRegion();
+                        strings[2] = user.getSubRegion();
+                    }
                 }
             }, latitude, longitude));
             geoC.start();

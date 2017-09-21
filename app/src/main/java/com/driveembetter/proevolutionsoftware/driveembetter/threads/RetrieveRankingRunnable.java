@@ -54,19 +54,8 @@ public class RetrieveRankingRunnable
         if (this.user == null) {
             return;
         }
+
         Log.d(TAG, "positionManager: lat: " + this.user.getLatitude() + " long: " + this.user.getLongitude());
-        this.performQuery();
-    }
-
-    private void onAttach() {
-        try {
-            this.callback = (RetrieveListFromRunnable) this.rankingFragment;
-        } catch (ClassCastException e) {
-            throw new CallbackNotInitialized(TAG);
-        }
-    }
-
-    private void performQuery() {
         this.user.getMtxSyncData().lock();
         String country = this.user.getCountry();
         String region = this.user.getRegion();
@@ -87,6 +76,14 @@ public class RetrieveRankingRunnable
         }
 
         FirebaseDatabaseManager.getUsersRank(this);
+    }
+
+    private void onAttach() {
+        try {
+            this.callback = (RetrieveListFromRunnable) this.rankingFragment;
+        } catch (ClassCastException e) {
+            throw new CallbackNotInitialized(TAG);
+        }
     }
 
     @Override

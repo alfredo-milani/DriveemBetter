@@ -28,16 +28,27 @@ public class SensorHandler extends Application implements SensorEventListener {
 
 
 
-    public void startSensorHandler(Activity activity) {
+    public SensorHandler(Activity activity) {
         this.activity = activity;
-        sensorManager=(SensorManager) activity.getSystemService(SENSOR_SERVICE);
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SensorManager.SENSOR_DELAY_FASTEST);
-        sensors = sensorManager.getSensorList(Sensor.TYPE_PRESSURE);
-        if(sensors.size() > 0) {
-            Log.e("DEBUG", "SENSOR SIZE OK");
-            barometer = sensors.get(0);
-            sensorManager.registerListener(this, barometer, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    public void startSensorHandler() {
+        if (this.activity != null) {
+            sensorManager=(SensorManager) activity.getSystemService(SENSOR_SERVICE);
+            sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                    SensorManager.SENSOR_DELAY_FASTEST);
+            sensors = sensorManager.getSensorList(Sensor.TYPE_PRESSURE);
+            if(sensors.size() > 0) {
+                Log.e("DEBUG", "SENSOR SIZE OK");
+                barometer = sensors.get(0);
+                sensorManager.registerListener(this, barometer, SensorManager.SENSOR_DELAY_NORMAL);
+            }
+        }
+    }
+
+    public void removeSensorHandler() {
+        if (this.sensorManager != null) {
+            this.sensorManager.unregisterListener(this);
         }
     }
 

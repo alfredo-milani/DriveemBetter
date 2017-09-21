@@ -139,8 +139,8 @@ public class MainFragmentActivity extends AppCompatActivity
     private void initResources() {
         // Get all providers to manage user's connection state
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
-        SensorHandler sensorHandler = new SensorHandler();
-        sensorHandler.startSensorHandler(this);
+        SensorHandler sensorHandler = new SensorHandler(this);
+        sensorHandler.startSensorHandler();
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.baseProviderArrayList = factoryProviders.getAllProviders();
 
@@ -155,8 +155,7 @@ public class MainFragmentActivity extends AppCompatActivity
         FirebaseUtility firebaseUtility = new FirebaseUtility();
         firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
         // Sync SingletonUser with DB data
-        if (this.singletonUser == null ||
-                (this.singletonUser.getUid() != null && !this.singletonUser.getUid().isEmpty())) {
+        if (this.singletonUser.getUid() != null && !this.singletonUser.getUid().isEmpty()) {
             Log.d(TAG, "Sync user data");
             FirebaseDatabaseManager.syncCurrentUser();
         }

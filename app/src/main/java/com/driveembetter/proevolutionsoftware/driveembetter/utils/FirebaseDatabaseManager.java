@@ -259,6 +259,7 @@ public class FirebaseDatabaseManager
                 .child(NODE_USERS)
                 .child(user.getUid());
 
+        user.getMtxSyncData().lock();
         user.getMtxUpdatePosition().lock();
         // Attach a listener to read the data at our posts reference
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -298,8 +299,6 @@ public class FirebaseDatabaseManager
                                 .setValue(user.getEmail());
                     }
 
-                    // Acquire lock while update user's position
-                    user.getMtxSyncData().lock();
                     if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
                             dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
                         updateCurrentUserPositionIfNecessary(
@@ -308,21 +307,17 @@ public class FirebaseDatabaseManager
                     } else {
                         createNewUserPosition();
                     }
-                    user.getMtxSyncData().unlock();
                 } else {
                     Log.d(TAG, "Update SingletonUser class data");
                     user.setPoints(
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
                     );
 
-                    // Acquire lock while update user's position
-                    user.getMtxSyncData().lock();
                     if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
                         updateCurrentUserPositionIfNecessary(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
                     }
-                    user.getMtxSyncData().unlock();
 
                     checkOldPositionData();
                 }
@@ -334,12 +329,16 @@ public class FirebaseDatabaseManager
                         .child(CHILD_AVAILABILITY)
                         .onDisconnect()
                         .setValue(UNAVAILABLE);
+
+                user.getMtxSyncData().unlock();
                 user.getMtxUpdatePosition().unlock();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.d(TAG, "The read failed: " + databaseError.getCode());
+                user.getMtxSyncData().unlock();
+                user.getMtxUpdatePosition().unlock();
             }
         });
     }

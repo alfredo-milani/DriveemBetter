@@ -40,6 +40,7 @@ public class RetrieveAndParseJSONPosition implements Runnable {
     // Key of JSON object file to receive from Google's geocoder
     private final static String KEY_STATUS_RESPONSE = "status";
     private final static String VALUE_STATUS_OK = "OK";
+    private final static String VALUE_STATUS_TOO_MANY_QUERY = "OVER_QUERY_LIMIT";
     private final static String KEY_RESULT_OBJ = "results";
     private final static String KEY_ADDRESS_OBJ = "address_components";
     private final static String KEY_LONG_NAME = "long_name";
@@ -119,6 +120,9 @@ public class RetrieveAndParseJSONPosition implements Runnable {
                         }
                     }
                 }
+            } else if (jsonObjectResponse.get(KEY_STATUS_RESPONSE).equals(VALUE_STATUS_TOO_MANY_QUERY)) {
+                // Too many query to Google API
+                return null;
             }
         } catch (JSONException e) {
             e.printStackTrace();

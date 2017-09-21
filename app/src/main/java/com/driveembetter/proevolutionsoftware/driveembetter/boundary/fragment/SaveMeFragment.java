@@ -51,7 +51,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -208,9 +207,11 @@ public class SaveMeFragment
                             }
                         }
 
+                        /*
                         List<Address> addresses;
                         Geocoder geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
                         LatLng latLng = marker.getPosition();
+
                         try {
                             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                             if (addresses != null && addresses.size() > 0) {
@@ -218,7 +219,10 @@ public class SaveMeFragment
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
-                        }
+                        }*/
+                        userSelectedLocation = SingletonUser.getInstance().getSubRegion() + ", " +
+                                SingletonUser.getInstance().getRegion() + ", " +
+                                SingletonUser.getInstance().getCountry();
 
 
                         relativeLayout = (RelativeLayout) rootView.findViewById(R.id.relative);
@@ -376,6 +380,7 @@ public class SaveMeFragment
                     if (SingletonUser.getInstance() == null) {
                         return null;
                     }
+                    /*
                     final double latitude = SingletonUser.getInstance().getLatitude();
                     final double longitude = SingletonUser.getInstance().getLongitude();
                     if (latitude != 0 && longitude != 0) {
@@ -421,6 +426,42 @@ public class SaveMeFragment
                             e.printStackTrace();
                         }
                     }
+                    */
+
+                    final double latitude = SingletonUser.getInstance().getLatitude();
+                    final double longitude = SingletonUser.getInstance().getLongitude();
+                    country = SingletonUser.getInstance().getCountry();
+                    region = SingletonUser.getInstance().getRegion();
+                    subRegion = SingletonUser.getInstance().getSubRegion();
+
+                    if (!country.equals(oldCountry) || !oldRegion.equals(oldRegion) || !subRegion.equals(oldSubRegion)) {
+                        Log.e("DEBUG", oldCountry + " " +  oldRegion + " " + oldSubRegion);
+                        Log.e("DEBUG", country + " " +  region + " " + subRegion);
+                        lookForMyNeighbors(country, region, subRegion);
+                    }
+
+                    oldCountry = country;
+                    oldRegion = region;
+                    oldSubRegion = subRegion;
+                    final String address = subRegion + ", " + region + ", " + country;
+                    if (!country.equals(COUNTRY) && !region.equals(REGION) && !subRegion.equals(SUB_REGION)) {
+                        activity.runOnUiThread(new Runnable() {
+                            public void run() {
+                                locationTxt.setText(address);
+                                // Show the current location in Google Map
+                                googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude)));
+                                circle = googleMap.addCircle(
+                                        new CircleOptions().center(
+                                                new LatLng(latitude, longitude)
+                                        ).radius(radius).strokeColor(Color.DKGRAY)
+                                );
+                                circle.setVisible(false);
+                                int zoom = getZoomLevel(circle);
+                                googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+                                Log.e("animate", "camera animated at: " + String.valueOf(zoom));
+                            }
+                        });
+                    }
 
                     try {
                         //IT SEEMS TO BE CRITICAL
@@ -451,7 +492,9 @@ public class SaveMeFragment
                 if (data != null && data.keySet().size() != 0) {
                     for (String user : data.keySet()) {
                         if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                            if (data.get(user).get(CHILD_AVAILABILITY).equals(UNAVAILABLE)) {
+                            if (data.get(user) != null &&
+                                    data.get(user).get(CHILD_AVAILABILITY) != null &&
+                                    data.get(user).get(CHILD_AVAILABILITY).equals(UNAVAILABLE)) {
                                 if (markerPool.containsKey(user)) {
                                     Marker toDeleteMarker = markerPool.get(user);
                                     toDeleteMarker.remove();
@@ -462,6 +505,9 @@ public class SaveMeFragment
                                 //Map<String, Object> coordinates = data.get(user);
                                 String coordinates = (String) data.get(user).get(CHILD_CURRENT_POSITION);
                                 String[] latLon = StringParser.getCoordinates(coordinates);
+                                if (latLon == null) {
+                                    return;
+                                }
                                 //LatLng userPos = new LatLng(Double.valueOf(coordinates.get("lat").toString()), Double.valueOf(coordinates.get("lon").toString()));
                                 LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
                                 if (markerPool.containsKey(user)) {

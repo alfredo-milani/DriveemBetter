@@ -10,6 +10,7 @@ import android.widget.Switch;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
 
 /**
  * Created by alfredo on 11/09/17.
@@ -25,6 +26,7 @@ public class SettingsActivity
     private Switch aSwitch;
 
     // Resources
+    private SensorHandler sensorHandler;
     private PositionManager positionManager;
 
     @Override
@@ -37,6 +39,7 @@ public class SettingsActivity
     }
 
     private void initResources() {
+        this.sensorHandler = new SensorHandler(this);
         this.positionManager = PositionManager.getInstance(this);
     }
 
@@ -58,10 +61,12 @@ public class SettingsActivity
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
         if (b) {
             if (!this.positionManager.isListenerSetted()) {
+                this.sensorHandler.startSensorHandler();
                 this.positionManager.updatePosition();
             }
         } else {
             if (this.positionManager.isListenerSetted()) {
+                this.sensorHandler.removeSensorHandler();
                 this.positionManager.removeLocationUpdates();
             }
         }

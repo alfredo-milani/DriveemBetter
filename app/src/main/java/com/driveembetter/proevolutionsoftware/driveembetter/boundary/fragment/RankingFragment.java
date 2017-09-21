@@ -229,8 +229,8 @@ public class RankingFragment extends Fragment
                 this.onRefresh();
                 return true;
 
+            // Show DialogFragment
             case R.id.menu_selection_level:
-                // Show DialogFragment
                 this.levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));
                 return true;
         }

@@ -11,7 +11,8 @@ public class StringParser {
     }
 
     public static String[] getCoordinates(String coordinates) {
-        return coordinates.split(";");
+        return coordinates == null ?
+                null : coordinates.split(";");
      }
 
      public static String trimString(String input) {
