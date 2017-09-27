@@ -261,6 +261,7 @@ public class FirebaseDatabaseManager
 
         user.getMtxSyncData().lock();
         user.getMtxUpdatePosition().lock();
+        // TODO deadlock se non viene fatto unlock a causa di mancanza connessione?
         // Attach a listener to read the data at our posts reference
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

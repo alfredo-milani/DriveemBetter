@@ -448,17 +448,20 @@ public class SaveMeFragment
                         activity.runOnUiThread(new Runnable() {
                             public void run() {
                                 locationTxt.setText(address);
+                                // TODO adattare i cambiamenti
                                 // Show the current location in Google Map
-                                googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude)));
-                                circle = googleMap.addCircle(
-                                        new CircleOptions().center(
-                                                new LatLng(latitude, longitude)
-                                        ).radius(radius).strokeColor(Color.DKGRAY)
-                                );
-                                circle.setVisible(false);
-                                int zoom = getZoomLevel(circle);
-                                googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
-                                Log.e("animate", "camera animated at: " + String.valueOf(zoom));
+                                if (googleMap != null) {
+                                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude)));
+                                    circle = googleMap.addCircle(
+                                            new CircleOptions().center(
+                                                    new LatLng(latitude, longitude)
+                                            ).radius(radius).strokeColor(Color.DKGRAY)
+                                    );
+                                    circle.setVisible(false);
+                                    int zoom = getZoomLevel(circle);
+                                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+                                    Log.e("animate", "camera animated at: " + String.valueOf(zoom));
+                                }
                             }
                         });
                     }

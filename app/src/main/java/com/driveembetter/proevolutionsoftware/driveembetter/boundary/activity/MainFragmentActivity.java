@@ -44,6 +44,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosur
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ReauthenticateUserRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
@@ -183,7 +184,6 @@ public class MainFragmentActivity extends AppCompatActivity
             Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
         }
     }
-
 
     private void initWidgets() {
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -421,6 +421,7 @@ public class MainFragmentActivity extends AppCompatActivity
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                         .activityResult(requestCode, resultCode, data);
                 break;
+
             default:
                 Log.w(TAG, "onActivityResult: Unknown requestCode: " + requestCode);
         }
@@ -436,11 +437,15 @@ public class MainFragmentActivity extends AppCompatActivity
         this.singletonFirebaseProvider.setHandler(this.handler);
         this.singletonFirebaseProvider.setContext(this);
 
-        if (this.baseProviderArrayList
-                .get(FactoryProviders.GOOGLE_PROVIDER)
-                .isSignIn()) {
-            ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
-                    .silentSignIn();
+        if (NetworkConnectionUtil.isConnectedToInternet(this)) {
+            if (this.baseProviderArrayList
+                    .get(FactoryProviders.GOOGLE_PROVIDER)
+                    .isSignIn()) {
+                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
+                        .silentSignIn();
+            }
+        } else {
+            Toast.makeText(this, getString(R.string.network_error), Toast.LENGTH_SHORT).show();
         }
     }
 
