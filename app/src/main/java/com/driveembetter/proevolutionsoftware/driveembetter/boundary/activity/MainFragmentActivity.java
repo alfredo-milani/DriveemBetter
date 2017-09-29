@@ -143,6 +143,7 @@ public class MainFragmentActivity extends AppCompatActivity
         SensorHandler sensorHandler = new SensorHandler(this);
         sensorHandler.startSensorHandler();
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
+        this.initContextHandlerFirebaseProvider();
         this.baseProviderArrayList = factoryProviders.getAllProviders();
 
         // Start reauthentication thread
@@ -427,6 +428,17 @@ public class MainFragmentActivity extends AppCompatActivity
         }
     }
 
+    private void initContextHandlerFirebaseProvider() {
+        if (this.singletonFirebaseProvider != null) {
+            if (this.singletonFirebaseProvider.getHandler() == null) {
+                this.singletonFirebaseProvider.setHandler(this.handler);
+            }
+            if (this.singletonFirebaseProvider.getContext() == null) {
+                this.singletonFirebaseProvider.setContext(this);
+            }
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -434,8 +446,7 @@ public class MainFragmentActivity extends AppCompatActivity
         Log.d(TAG, ":start");
         this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
-        this.singletonFirebaseProvider.setHandler(this.handler);
-        this.singletonFirebaseProvider.setContext(this);
+        this.initContextHandlerFirebaseProvider();
 
         if (NetworkConnectionUtil.isConnectedToInternet(this)) {
             if (this.baseProviderArrayList
