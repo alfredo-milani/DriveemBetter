@@ -75,6 +75,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".boundary.activity.ChartActivity"
+            android:theme="@style/AppTheme">
+            <!--Default Intent Filter-->
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".services.SwipeClosureHandler"
             android:stopWithTask="false"/>

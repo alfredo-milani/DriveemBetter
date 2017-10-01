@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.StatisticsFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.statistics.SingletonScatterData;
@@ -22,22 +22,14 @@ import java.util.Date;
 
 /* Chart Async Task Class */
 public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
+    RetainedFragment fragment;
 
-    // Resources
-    private StatisticsFragment fragment;
 
-    public ChartAsyncTask(StatisticsFragment fragment) {
+    public ChartAsyncTask(RetainedFragment fragment) {
         this.fragment = fragment;
-        this.setGraphProperties();
-    }
+        setGraphProperties();
 
 
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-
-        this.fragment.showProgress();
     }
 
     @Override
@@ -51,6 +43,10 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     @Override
     /* Called on the UI thread after cancel(boolean) is invoked */
     protected void onCancelled() {
+        /* Dismiss progress dialog, removing it from the screen */
+        fragment.getProgressDialog().dismiss();
+        /* Mark task as cancelled */
+        fragment.setTask(null);
         /* Display a toast notification */
         Toast.makeText(fragment.getActivity().getApplicationContext(), fragment.getString(R.string.strAborted), Toast.LENGTH_LONG).show();
     }
@@ -58,10 +54,12 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     @Override
     /* Invoked on the UI thread after the background computation finishes */
     protected void onPostExecute(ScatterData data) {
-        this.fragment.hideProgress();
-
+        /* Dismiss progress dialog, removing it from the screen */
+        fragment.getProgressDialog().dismiss();
         /* Get scatter data*/
         fragment.setData(data);
+        /* Mark task as cancelled */
+        fragment.setTask(null);
         if (data != null) {
             /* If data is valid, plot function */
             this.draw(data);
@@ -71,8 +69,24 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         }
     }
 
+    @Override
+    /* Invoked on the UI thread before the task is executed */
+    protected void onPreExecute() {
+        super.onPreExecute();
+        /* Set progress dialog to 0 */
+        fragment.getProgressDialog().setProgress(0);
+        /* Show progress dialog */
+        fragment.getProgressDialog().show();
+    }
+
+    @Override
+    /* Update progress value */
+    protected void onProgressUpdate(Double... values) {
+        fragment.getProgressDialog().setProgress(values[0].intValue());
+    }
+
     /* Make computation */
-    private ScatterData calculate() {
+    public ScatterData calculate() {
 
         SingletonScatterData sessionData = SingletonScatterData.getInstance();
         ScatterDataSet scatterDataSet;
@@ -154,7 +168,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     }
 
     /* Plot function */
-    private void draw(ScatterData data) {
+    public void draw(ScatterData data) {
         /* Check if data is valid */
         if (data == null) {
             return;
@@ -171,6 +185,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
     /* Set graph properties */
     private void setGraphProperties() {
+
         fragment.getChart().getLegend().setEnabled(false);
 
         // Sets the background color that will cover the whole fragment.getChart()-view
@@ -238,5 +253,5 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         // Sets the position where the XAxis should appear
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
     }
-}
 
+}

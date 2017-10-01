@@ -8,9 +8,9 @@ import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.AboutUsFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.ChartFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.StatisticsFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.WrongResourceType;
 
 /**
@@ -37,7 +37,7 @@ public class FragmentState extends Application {
     private static boolean[] fragmentState = new boolean[6];
     private static String[] fragmetsTag = new String[] {
             SaveMeFragment.class.getSimpleName(),
-            StatisticsFragment.class.getSimpleName(),
+            ChartFragment.class.getSimpleName(),
             RankingFragment.class.getSimpleName(),
             "GarageFragment",
             AboutUsFragment.class.getSimpleName()
