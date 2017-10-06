@@ -55,4 +55,24 @@ public interface Constants {
     String CHILD_CURRENT_POSITION = "currentUserPosition";
     String CHILD_EMAIL = "email";
     String CHILD_AVAILABILITY = "availability";
+
+
+
+
+    // TODO DA TOGLIERE
+    String CAR = "Car";
+    String MOTO = "Moto";
+    String VAN = "Van";
+    String EMPTY_TYPE_FIELD = "Please select type";
+    String EMPTY_FIELD = "Please insert all informations";
+    String CHILD_COUNT = "child_count";
+    Integer ADD_VCL_ACTIVITY_ID = 1;
+    String PLATE_LIST = "Plate list";
+    String VEHICLE_EXISTS_YET = "Plate exists yet";
+    String PLATE = "Plate, ";
+    String TYPE = "Type, ";
+    String MODEL = "Model, ";
+    String OWNER = "Owner, ";
+    String YES = "Yes";
+    String NO = "No";
 }

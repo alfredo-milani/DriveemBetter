@@ -44,6 +44,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.facto
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.AboutUsFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.ChartFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.GarageFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
@@ -187,6 +188,7 @@ public class MainFragmentActivity extends AppCompatActivity
         this.saveMe = new SaveMeFragment();
         this.ranking = new RankingFragment();
         this.aboutUs = new AboutUsFragment();
+        this.garage = new GarageFragment();
         // this.statistics = new StatisticsFragment();
 
         // Start service to manage task manager behaviour
@@ -396,7 +398,6 @@ public class MainFragmentActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.garage:
-                /*
                 if (!FragmentState.isFragmentOpen(FragmentState.GARAGE_FRAGMENT)) {
                     this.fragmentState.replaceFragment(
                             R.id.fragment_placeholder,
@@ -404,7 +405,6 @@ public class MainFragmentActivity extends AppCompatActivity
                     );
                     FragmentState.setFragmentState(FragmentState.GARAGE_FRAGMENT, true);
                 }
-                */
                 break;
 
             case R.id.statistics:

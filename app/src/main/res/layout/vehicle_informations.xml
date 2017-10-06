@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/popup_element"
+    android:background="@drawable/info">
+
+
+    <TextView
+        android:id="@+id/modelview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="35dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="40sp"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/typeview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/plateview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:textColor="#dfe2e2"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/ownerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:textColor="#dfe2e2"
+        android:textSize="30sp" />
+
+    <Button
+        android:id="@+id/ok"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="@android:string/ok"
+        android:textColorLink="#dfe2e2" />
+
+</LinearLayout>

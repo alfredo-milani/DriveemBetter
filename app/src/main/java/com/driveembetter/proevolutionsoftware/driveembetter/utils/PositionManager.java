@@ -73,11 +73,7 @@ public class PositionManager extends Application
         Date date = calendar.getTime();
         int hour = date.getHours();
         for (int i = 0; i <= 24; i ++) {
-
-
             if (date.equals(mean2.getLocalDate())) { //stesso giorno
-
-
                 if (mean2.getMap().get(hour) != null) {
                     Mean meanDay = mean2.getMap().get(hour);
                     meanDay.setSampleSum((float) speed);  // modificare con il valore della velocità
@@ -156,7 +152,7 @@ public class PositionManager extends Application
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
             // TODO: se è troppo dispendioso utilizza anche getLocationFromCoordinates(lat, long, 1)
-            final String[] strings = getLocationFromCoordinates(latitude, longitude);
+            final String[] strings = getLocationFromCoordinates(latitude, longitude, 1);
 
             // Update SingletonUser state
             user.setLatitude(latitude);
@@ -249,8 +245,12 @@ public class PositionManager extends Application
                 Emulator needs Google API in order to works correctly with Geocoder.
              */
             List<Address> addresses = PositionManager.geocoder.getFromLocation(latitude, longitude, maxResult);
+            strings[0] = addresses.get(0).getCountryName();
+            strings[1] = addresses.get(0).getAdminArea();
+            strings[2] = addresses.get(0).getSubAdminArea();
 
-            if (addresses.size() == 0) {
+            Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2]);
+            if (strings[0] == null || strings[1] == null || strings[2] == null) {
                 Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
                     @Override
                     public void onDataComputed(String[] position) {
@@ -267,11 +267,6 @@ public class PositionManager extends Application
                 }, latitude, longitude));
                 geoC.start();
                 geoC.join();
-                return strings;
-            } else {
-                strings[0] = addresses.get(0).getCountryName();
-                strings[1] = addresses.get(0).getAdminArea();
-                strings[2] = addresses.get(0).getSubAdminArea();
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -280,6 +275,7 @@ public class PositionManager extends Application
             strings[1] = REGION;
             strings[2] = SUB_REGION;
         }
+
         return strings;
     }
 

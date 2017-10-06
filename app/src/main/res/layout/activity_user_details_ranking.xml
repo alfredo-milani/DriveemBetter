@@ -16,6 +16,7 @@
         app:civ_border_color="#FFFFFF" />
 
     <LinearLayout
+        android:id="@+id/layout_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/user_picture"
@@ -111,5 +112,37 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <com.jjoe64.graphview.helper.GraphViewXML
+        android:id="@+id/graph_points"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layout_info"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        app:seriesColor="@color/colorPrimary"
+        app:seriesData="0=0"
+        app:seriesType="line" />
+
+    <TextView
+        android:id="@+id/unavailable_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/graph_points"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="100dp"
+        android:text="@string/data_unavailable"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/graph_points"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="100dp" />
 
 </RelativeLayout>

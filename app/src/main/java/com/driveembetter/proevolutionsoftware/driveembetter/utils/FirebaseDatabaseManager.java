@@ -148,6 +148,7 @@ public class FirebaseDatabaseManager
                     .child(user.getSubRegion())
                     .child(user.getUid());
 
+            user.getMtxUpdatePosition().lock();
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -191,12 +192,15 @@ public class FirebaseDatabaseManager
                                     .child(CHILD_AVAILABILITY)
                                     .setValue(user.getAvailability());
                         }
+
+                        user.getMtxUpdatePosition().unlock();
                     }
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                     Log.d(TAG, "The read failed: " + databaseError.getCode());
+                    user.getMtxUpdatePosition().unlock();
                 }
             });
         }
@@ -325,9 +329,6 @@ public class FirebaseDatabaseManager
 
                 dataSnapshot.getRef()
                         .child(CHILD_AVAILABILITY)
-                        .setValue(user.getAvailability());
-                dataSnapshot.getRef()
-                        .child(CHILD_AVAILABILITY)
                         .onDisconnect()
                         .setValue(UNAVAILABLE);
 
@@ -354,7 +355,8 @@ public class FirebaseDatabaseManager
 
             String[] position = PositionManager.getLocationFromCoordinates(
                     user.getLatitude(),
-                    user.getLongitude()
+                    user.getLongitude(),
+                    1
             );
             user.setCountry(position[0]);
             user.setRegion(position[1]);
@@ -364,6 +366,8 @@ public class FirebaseDatabaseManager
             // TODO forse sarebbe meglio mettere country/region/subRegion come attributo dell'entità users su DB
         }
     }
+
+
 
     public interface RetrieveVehiclesFromDB {
         void onUserVehiclesReceived(ArrayList<Vehicle> vehicles);

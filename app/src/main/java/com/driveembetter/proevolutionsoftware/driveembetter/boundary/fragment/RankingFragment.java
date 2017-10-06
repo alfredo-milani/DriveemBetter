@@ -146,6 +146,10 @@ public class RankingFragment extends Fragment
     }
 
     private void showToastFromResult(final ArrayList<Integer> result) {
+        if (this.getActivity() == null) {
+            return;
+        }
+
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

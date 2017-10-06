@@ -11,6 +11,7 @@ public class Vehicle {
     private int statusBattery;
     private String type;
     private String model;
+    private Boolean current_vehicle;
 
     // TODO decidere se creare classe a sè stante per i veicoli oppure metterli direttamente nell'entità SingletonUser
     private String otherStuff;

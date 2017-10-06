@@ -106,4 +106,8 @@
     <string name="level_not_traceable">Utenti non tracciabili</string>
     <string name="bad_system_clock">Orologio di sistema errato: aggiorna l\'ora per avere risultati più accurati</string>
     <string name="no_internet_connection">Connessione ad internet mancate!</string>
+    <string name="points">Punti</string>
+    <string name="days">Giorni</string>
+    <string name="user_points_title">Punti guadagnati</string>
+    <string name="data_unavailable">Dati non disponibili</string>
 </resources>

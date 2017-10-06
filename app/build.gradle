@@ -61,7 +61,9 @@ dependencies {
     //// Rounded ImageView
     compile 'de.hdodenhof:circleimageview:2.1.0'
     ////
-    //// Chart build
+    //// Chart build alf
+    compile 'com.jjoe64:graphview:4.2.1'
+    //// Chart build fab
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.3'
     compile 'com.fathzer:javaluator:3.0.1'
     ////

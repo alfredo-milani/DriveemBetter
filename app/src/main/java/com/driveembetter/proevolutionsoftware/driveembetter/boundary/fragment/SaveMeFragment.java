@@ -325,9 +325,6 @@ public class SaveMeFragment
         if (updatePosition != null) {
             updatePosition.cancel(true);
         }
-        if (this.myRef != null) {
-            myRef.onDisconnect();
-        }
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
         mMapView.onPause();
         super.onPause();
@@ -337,9 +334,6 @@ public class SaveMeFragment
     public void onDestroy() {
         if (updatePosition != null) {
             updatePosition.cancel(true);
-        }
-        if (this.myRef != null) {
-            myRef.onDisconnect();
         }
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
         mMapView.onDestroy();

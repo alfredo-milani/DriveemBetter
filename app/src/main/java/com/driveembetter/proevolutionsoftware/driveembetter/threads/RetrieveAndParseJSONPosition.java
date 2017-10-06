@@ -50,6 +50,12 @@ public class RetrieveAndParseJSONPosition implements Runnable {
     private final static String VALUE_TYPES_SUB_REGION = "administrative_area_level_2";
     private final static String VALUE_TYPES_LOCALITY = "locality";
 
+    // To discriminate google's API response
+    private final static int WAITING_TIME_TOO_MANY_QUERY = 1500; // milliseconds
+    private short attempts = 0;
+    private boolean success = false;
+    ////
+
     public interface CallbackRetrieveAndParseJSON {
         void onDataComputed(String[] position);
     }
@@ -81,51 +87,67 @@ public class RetrieveAndParseJSONPosition implements Runnable {
     private String[] getPositionFromJSON(double latitude, double longitude) {
         String[] position = new String[3];
         JSONObject jsonObjectResponse;
-        try {
-            // See example response from Google API below
-            jsonObjectResponse = new JSONObject(
-                    this.retrieveJSONFromCoordinates(latitude, longitude)
-            );
-            Log.d(TAG, "RES: " + jsonObjectResponse.getString(KEY_STATUS_RESPONSE));
+        while (!this.success && this.attempts < 3) {
+            try {
+                // See example response from Google API below
+                jsonObjectResponse = new JSONObject(
+                        this.retrieveJSONFromCoordinates(latitude, longitude)
+                );
+                Log.d(TAG, "RES: " + jsonObjectResponse.getString(KEY_STATUS_RESPONSE));
 
-            if (jsonObjectResponse.getString(KEY_STATUS_RESPONSE).equals(VALUE_STATUS_OK)) {
-                JSONArray jsonArrayResponse = jsonObjectResponse.getJSONArray(KEY_RESULT_OBJ);
+                if (jsonObjectResponse.getString(KEY_STATUS_RESPONSE).equals(VALUE_STATUS_OK)) {
+                    JSONArray jsonArrayResponse = jsonObjectResponse.getJSONArray(KEY_RESULT_OBJ);
 
-                // Check all result type until position array is filled
-                for (int i = 0; i < jsonObjectResponse.length() && !this.areItemsNotNull(position); ++i) {
-                    JSONObject jsonObjectPosition = jsonArrayResponse.getJSONObject(i);
-                    JSONArray jsonArrayAddress = jsonObjectPosition.getJSONArray(KEY_ADDRESS_OBJ);
+                    // Check all result type until position array is filled
+                    for (int i = 0; i < jsonObjectResponse.length() && !this.areItemsNotNull(position); ++i) {
+                        JSONObject jsonObjectPosition = jsonArrayResponse.getJSONObject(i);
+                        JSONArray jsonArrayAddress = jsonObjectPosition.getJSONArray(KEY_ADDRESS_OBJ);
 
-                    // In address component find country / region /sub region
-                    for (int j = 0; j < jsonArrayAddress.length(); ++j) {
-                        JSONObject keyPosition = jsonArrayAddress.getJSONObject(j);
-                        JSONArray jsonArrayType = keyPosition.getJSONArray(KEY_TYPES);
-                        // It the first position there should be the type of the component address
-                        String levelPosition = jsonArrayType.getString(0);
+                        // In address component find country / region /sub region
+                        for (int j = 0; j < jsonArrayAddress.length(); ++j) {
+                            JSONObject keyPosition = jsonArrayAddress.getJSONObject(j);
+                            JSONArray jsonArrayType = keyPosition.getJSONArray(KEY_TYPES);
+                            // It the first position there should be the type of the component address
+                            String levelPosition = jsonArrayType.getString(0);
 
-                        // Put the value in the array as Country / Region / Sub Region
-                        switch (levelPosition) {
-                            case VALUE_TYPES_COUNTRY:
-                                position[0] = keyPosition.getString(KEY_LONG_NAME);
-                                break;
+                            // Put the value in the array as Country / Region / Sub Region
+                            switch (levelPosition) {
+                                case VALUE_TYPES_COUNTRY:
+                                    position[0] = keyPosition.getString(KEY_LONG_NAME);
+                                    break;
 
-                            case VALUE_TYPES_REGION:
-                                position[1] = keyPosition.getString(KEY_LONG_NAME);
-                                break;
+                                case VALUE_TYPES_REGION:
+                                    position[1] = keyPosition.getString(KEY_LONG_NAME);
+                                    break;
 
-                            case VALUE_TYPES_LOCALITY:
-                            case VALUE_TYPES_SUB_REGION:
-                                position[2] = keyPosition.getString(KEY_LONG_NAME);
-                                break;
+                                case VALUE_TYPES_LOCALITY:
+                                case VALUE_TYPES_SUB_REGION:
+                                    position[2] = keyPosition.getString(KEY_LONG_NAME);
+                                    break;
+                            }
                         }
                     }
+
+                    this.success = true;
+                } else if (jsonObjectResponse.get(KEY_STATUS_RESPONSE).equals(VALUE_STATUS_TOO_MANY_QUERY)) {
+                    // Too many query to Google API
+                    // The GetStatus function parses the answer and returns the status code
+                    // This function is out of the scope of this example (you can use a SDK).
+                    try {
+                        Thread.sleep(RetrieveAndParseJSONPosition.WAITING_TIME_TOO_MANY_QUERY);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-            } else if (jsonObjectResponse.get(KEY_STATUS_RESPONSE).equals(VALUE_STATUS_TOO_MANY_QUERY)) {
-                // Too many query to Google API
-                return null;
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        }
+
+        if (this.attempts == 3) {
+            // Send an alert as this means that the daily limit has been reached
+            Log.d(TAG, "Raggiunto il limite di query giornaliere");
+            return null;
         }
 
         if (position[0] == null) {
@@ -142,6 +164,8 @@ public class RetrieveAndParseJSONPosition implements Runnable {
     }
 
     private String retrieveJSONFromCoordinates(double latitude, double longitude) {
+        ++this.attempts;
+
         HttpURLConnection connection = null;
         StringBuilder buffer = new StringBuilder();
         BufferedReader reader = null;

@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -13,6 +14,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.jjoe64.graphview.GraphView;
 
 /**
  * Created by alfredo on 02/09/17.
@@ -24,6 +26,9 @@ public class UserDetailsRankingActivity
 
     private final static String TAG = UserDetailsRankingActivity.class.getSimpleName();
 
+    // Constants
+    private final static int DAY_PER_MONTH = 30;
+
     // Resources
     private User user;
 
@@ -32,6 +37,9 @@ public class UserDetailsRankingActivity
     private TextView points;
     private ImageView imageView;
     private ImageView availability;
+    private GraphView graphView;
+    private TextView unavailableData;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +69,9 @@ public class UserDetailsRankingActivity
         this.points = findViewById(R.id.points);
         this.imageView = findViewById(R.id.user_picture);
         this.availability = findViewById(R.id.availability);
+        this.graphView = findViewById(R.id.graph_points);
+        this.unavailableData = findViewById(R.id.unavailable_data);
+        this.progressBar = findViewById(R.id.progress_bar);
 
         if (this.user.getUsername() != null) {
             this.username.setText(this.user.getUsername());
@@ -90,6 +101,39 @@ public class UserDetailsRankingActivity
         } else {
             this.availability.setImageResource(R.drawable.unavailable_shape);
         }
+
+        // Plot points graph
+        this.graphView.setTitle(getString(R.string.user_points_title));
+
+        // TODO query: download data from user node
+        // TODO parse data retrieved to array (of days)
+
+        /*
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
+                new DataPoint(0, 1),
+                new DataPoint(1, 5),
+                new DataPoint(2, 3),
+                new DataPoint(3, 2),
+                new DataPoint(4, 6),
+                new DataPoint(24, 15),
+                new DataPoint(12, 30)
+        });
+
+        // styling series
+        series.setColor(Color.GREEN);
+        series.setDrawDataPoints(true);
+        series.setDataPointsRadius(5);
+        series.setThickness(8);
+
+        // custom paint to make a dotted line
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        paint.setStrokeWidth(5);
+        paint.setPathEffect(new DashPathEffect(new float[]{8, 5}, 0));
+        series.setCustomPaint(paint);
+
+        this.graphView.addSeries(series);
+        */
     }
 
     @Override
