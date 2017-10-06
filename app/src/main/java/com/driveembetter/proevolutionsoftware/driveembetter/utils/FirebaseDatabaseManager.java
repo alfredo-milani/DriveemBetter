@@ -6,6 +6,9 @@ import android.util.Log;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.LevelMenuFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
@@ -18,6 +21,10 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+
 
 /**
  * Created by alfredo on 01/09/17.
@@ -55,15 +62,74 @@ public class FirebaseDatabaseManager
         }
     }
 
-    public static void manageUserAvailability(String availability) {
+    public static void manageUserInformations(String availability) {
         SingletonUser user = SingletonUser.getInstance();
         if (user != null && availability != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
-                    .child(user.getUid())
-                    .child(CHILD_AVAILABILITY);
+                    .child(user.getUid());
 
-            databaseReference.setValue(availability);
+            databaseReference
+                    .child(CHILD_AVAILABILITY)
+                    .setValue(availability);
+            databaseReference
+                    .child(ARG_STAT_WEEK)
+                    .setValue("VAAAAL");
+
+
+
+
+
+
+
+
+            MeanDay mean2 = MeanDay.getInstance();
+            Calendar calendar = Calendar.getInstance();
+            Date date = calendar.getTime();
+
+            MeanWeek mean3 = MeanWeek.getInstance();
+
+            int hour = date.getHours();
+            for (int i = 0; i <= 24; i ++) {
+
+
+                if (date.equals(mean2.getLocalDate())) { //stesso giorno
+
+
+                    if (mean2.getMap().get(hour) != null){
+                        Mean meanDay = mean2.getMap().get(hour);
+                        meanDay.setSampleSumAcceleration(1);  // modificare con il valore della velocità
+                        meanDay.setSampleSumVelocity(30);
+                        meanDay.setSampleSizeAcceleration();
+                        meanDay.setSampleSizeVelocity();
+                        mean2.getMap().put(hour, meanDay);
+                    } else{
+                        Mean meanDay = new Mean();
+                        meanDay.setSampleSumAcceleration(10); //modificare con il valore della velocità
+                        meanDay.setSampleSumVelocity(1);
+                        meanDay.setSampleSizeAcceleration();
+                        meanDay.setSampleSizeVelocity();
+                        mean2.getMap().put(hour, meanDay);
+                    }
+                }else {
+                    mean2.setLocalDate(date);
+                    mean2.getMap().clear();
+                    Mean meanDay = new Mean();
+                    meanDay.setSampleSumAcceleration(1); // modificare con il valore della velocità
+                    meanDay.setSampleSumVelocity(20);
+                    meanDay.setSampleSizeAcceleration();
+                    meanDay.setSampleSizeVelocity();
+                    mean2.getMap().put(hour, meanDay);
+                }
+
+                System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno" );
+                Log.e(TAG,"Programma per " + i + " eseguito in ora " + hour + " giorno");
+
+            }
+
+            databaseReference
+                    .child(ARG_STAT_DAY)
+                    .setValue(mean2);
         }
     }
 
@@ -325,12 +391,29 @@ public class FirebaseDatabaseManager
                     }
 
                     checkOldPositionData();
+
+                    // TODO stringa -> map
+                    if (dataSnapshot.child(ARG_STAT_DAY) != null &&
+                            dataSnapshot.child(ARG_STAT_DAY).getValue() != null) {
+                        // MeanDay.getInstance().getMap().put(i, new Mean(parsed, parsed));
+                    }
+                    if (dataSnapshot.child(ARG_STAT_WEEK) != null &&
+                            dataSnapshot.child(ARG_STAT_WEEK).getValue() != null) {
+                        // MeanWeek
+                    }
                 }
 
                 dataSnapshot.getRef()
                         .child(CHILD_AVAILABILITY)
                         .onDisconnect()
                         .setValue(UNAVAILABLE);
+                // TODO valori ottenuti fino ora
+                /*
+                dataSnapshot.getRef()
+                        .child(ARG_STAT_DAY)
+                        .onDisconnect()
+                        .setValue("VALUE STAT");
+                */
 
                 user.getMtxSyncData().unlock();
                 user.getMtxUpdatePosition().unlock();
@@ -707,5 +790,45 @@ public class FirebaseDatabaseManager
         }
 
         return new User(user.getKey(), username, email, image, points, availability);
+    }
+
+
+
+    public static void updateStatisticsDaily(MeanDay meanDay) {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            Log.d(TAG, "ddddddd...day");
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(user.getUid())
+                    .child(ARG_STAT_DAY);
+            HashMap<String, Mean> map = new HashMap<>();
+            for (int i=0; i < meanDay.getMap().size(); i++) {
+                map.put(String.valueOf(i),map.get(i));
+
+            }
+            // Set user's daily statistics
+            databaseReference
+                    .setValue(map);
+        }
+    }
+
+    public static void updateStatisticsWeekly(MeanWeek meanWeek) {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            Log.d(TAG, "ddddddd.....week");
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(user.getUid())
+                    .child(ARG_STAT_WEEK);
+            HashMap<String, Mean> map = new HashMap<>();
+            for (int i=0; i < meanWeek.getMap().size(); i++) {
+                map.put(String.valueOf(i),map.get(i));
+
+            }
+            // Set user's daily statistics
+            databaseReference
+                    .setValue(map);
+        }
     }
 }

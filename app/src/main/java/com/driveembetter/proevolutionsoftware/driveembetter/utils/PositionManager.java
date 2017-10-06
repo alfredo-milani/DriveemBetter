@@ -76,21 +76,27 @@ public class PositionManager extends Application
             if (date.equals(mean2.getLocalDate())) { //stesso giorno
                 if (mean2.getMap().get(hour) != null) {
                     Mean meanDay = mean2.getMap().get(hour);
-                    meanDay.setSampleSum((float) speed);  // modificare con il valore della velocità
-                    meanDay.setSampleSize();
+                    meanDay.setSampleSumVelocity((float) speed);  // modificare con il valore della velocità
+                    meanDay.setSampleSizeVelocity();
+                    meanDay.setSampleSumAcceleration((float) 10);
+                    meanDay.setSampleSizeAcceleration();
                     mean2.getMap().put(hour, meanDay);
                 } else {
                     Mean meanDay = new Mean();
-                    meanDay.setSampleSum((float) speed); //modificare con il valore della velocità
-                    meanDay.setSampleSize();
+                    meanDay.setSampleSumVelocity((float) speed); //modificare con il valore della velocità
+                    meanDay.setSampleSizeVelocity();
+                    meanDay.setSampleSumAcceleration((float) 10);
+                    meanDay.setSampleSizeAcceleration();
                     mean2.getMap().put(hour, meanDay);
                 }
             } else {
                 mean2.setLocalDate(date);
                 mean2.getMap().clear();
                 Mean meanDay = new Mean();
-                meanDay.setSampleSum((float) speed); // modificare con il valore della velocità
-                meanDay.setSampleSize();
+                meanDay.setSampleSumVelocity((float) speed); // modificare con il valore della velocità
+                meanDay.setSampleSizeVelocity();
+                meanDay.setSampleSumVelocity((float) 10);
+                meanDay.setSampleSizeAcceleration();
                 mean2.getMap().put(hour, meanDay);
             }
             Log.e("c", "Programma per " + i + " eseguito in ora " + hour + " giorno");

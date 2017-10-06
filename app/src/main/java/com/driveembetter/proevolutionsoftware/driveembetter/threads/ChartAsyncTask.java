@@ -2,12 +2,14 @@ package com.driveembetter.proevolutionsoftware.driveembetter.threads;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.statistics.SingletonScatterData;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -35,9 +37,10 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     @Override
     /* This method perform a computation on a background thread */
     protected ScatterData doInBackground(String... params) {
-
+        String value = params[0];
+        String valueTime = params[1];
         /* Make computation */
-        return this.calculate();
+        return this.calculate(value, valueTime);
     }
 
     @Override
@@ -86,7 +89,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     }
 
     /* Make computation */
-    public ScatterData calculate() {
+    public ScatterData calculate(String value, String valueTime) {
 
         SingletonScatterData sessionData = SingletonScatterData.getInstance();
         ScatterDataSet scatterDataSet;
@@ -133,26 +136,99 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         }*/
 
 
-        for (int i = 0; i <= Constants.HOURS; i++) {
-            if(MeanDay.getInstance().getMap().get(i) != null) {
+        if (value.equals(Constants.VELOCITY)) {
+            int tot;
+            if  (valueTime.equals(Constants.WEEK)){
+                tot = Constants.DAYS;
+                for (int i = 0; i < tot; i++) {
+                    if (MeanWeek.getInstance().getMap().get(i) != null) {
 
-                xVals.add(String.valueOf(i));
-                 /* Add entry with the mean of velocity */
-                sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSum();
-                sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSize();
-                mean = sampleSum / sampleSize;
-                Entry entry = new Entry(mean, i);
-                vals.add(entry);
-            }else{
-                xVals.add(String.valueOf(i));
-                vals.add(new Entry(0,i));
+                        xVals.add(String.valueOf(i));
+                        sampleSum = MeanWeek.getInstance().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) MeanWeek.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        mean = sampleSum / sampleSize;
+                        //mean = 10;
+                        Entry entry = new Entry(mean, i);
+                        vals.add(entry);
+                    } else {
+                        xVals.add(String.valueOf(i));
+                        vals.add(new Entry(0, i));
+                    }
+
+
+                }
+            } else{
+                tot = Constants.HOURS;
+                for (int i = 0; i < tot; i++) {
+                    if (MeanDay.getInstance().getMap().get(i) != null) {
+
+                        xVals.add(String.valueOf(i));
+                        sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        mean = sampleSum / sampleSize;
+                        //mean = 10;
+                        Entry entry = new Entry(mean, i);
+                        vals.add(entry);
+                    } else {
+                        xVals.add(String.valueOf(i));
+                        vals.add(new Entry(0, i));
+                    }
+
+
+                }
             }
+
+            Log.d("VELOCITY","Sono in velocity");
+
+        } else{
+
+            int tot;
+            if  (valueTime.equals(Constants.WEEK)){
+                tot = Constants.DAYS;
+                for (int i = 0; i < tot; i++) {
+                    if (MeanWeek.getInstance().getMap().get(i) != null) {
+
+                        xVals.add(String.valueOf(i));
+                        sampleSum = MeanWeek.getInstance().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) MeanWeek.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        mean = sampleSum / sampleSize;
+                        // mean = 10;
+                        Entry entry = new Entry(mean, i);
+                        vals.add(entry);
+                    } else {
+                        xVals.add(String.valueOf(i));
+                        vals.add(new Entry(0, i));
+                    }
+
+
+                }
+            } else{
+                tot = Constants.HOURS;
+                for (int i = 0; i < tot; i++) {
+                    if (MeanDay.getInstance().getMap().get(i) != null) {
+
+                        xVals.add(String.valueOf(i));
+                        sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        mean = sampleSum / sampleSize;
+                        // mean = 10;
+                        Entry entry = new Entry(mean, i);
+                        vals.add(entry);
+                    } else {
+                        xVals.add(String.valueOf(i));
+                        vals.add(new Entry(0, i));
+                    }
+
+
+                }
+            }
+
 
         }
 
         /* Create a new scatter data set and set properties */
 
-        scatterDataSet = new ScatterDataSet(vals, "func");
+        scatterDataSet = new ScatterDataSet(vals, "Statistics");
         scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
         scatterDataSet.setColor(Color.BLUE);
         scatterDataSet.setScatterShapeSize(6f);

@@ -34,17 +34,6 @@
             android:layout_marginRight="@dimen/fab_margin"
             android:src="@android:drawable/ic_input_add" />
 
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:gravity="center"
-            android:text="GARAGE"
-            android:textSize="50sp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
-
         <ListView
             android:id="@+id/listView"
             android:layout_width="match_parent"

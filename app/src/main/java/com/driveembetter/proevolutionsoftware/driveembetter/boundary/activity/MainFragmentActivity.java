@@ -146,11 +146,14 @@ public class MainFragmentActivity extends AppCompatActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         this.initResources();
 
         this.setContentView(R.layout.activity_main);
 
         this.initWidgets();
+
+        this.manageActionOnNavigationItemSelected(R.id.garage);
     }
 
     private void initResources() {
@@ -391,12 +394,8 @@ public class MainFragmentActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id) {
+    private void manageActionOnNavigationItemSelected(int action) {
+        switch (action) {
             case R.id.garage:
                 if (!FragmentState.isFragmentOpen(FragmentState.GARAGE_FRAGMENT)) {
                     this.fragmentState.replaceFragment(
@@ -532,6 +531,12 @@ public class MainFragmentActivity extends AppCompatActivity
                 this.logoutCurrentProviders();
                 break;
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        this.manageActionOnNavigationItemSelected(item.getItemId());
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -615,7 +620,7 @@ public class MainFragmentActivity extends AppCompatActivity
         Log.d(TAG, ":destroy");
 
         this.reauthenticationThread.interrupt();
-        FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
+        FirebaseDatabaseManager.manageUserInformations(UNAVAILABLE);
         FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
 

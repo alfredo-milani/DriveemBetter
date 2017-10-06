@@ -5,27 +5,52 @@ package com.driveembetter.proevolutionsoftware.driveembetter.entity;
  */
 
 public class Mean {
-    private float sampleSum;
-    private int sampleSize;
+    private float sampleSumVelocity, sampleSumAcceleration;
+    private int sampleSizeVelocity, sampleSizeAcceleration;
 
     public Mean() {
-        this.sampleSum = 0;
-        this.sampleSize = 0;
+        this.sampleSumVelocity = 0;
+        this.sampleSizeVelocity = 0;
+        this.sampleSizeAcceleration = 0;
+        this.sampleSumAcceleration = 0;
     }
 
-    public float getSampleSum() {
-        return sampleSum;
+    public Mean(float sampleSumAcceleration, float sampleSumVelocity, int sampleSizeVelocity, int sampleSizeAcceleration) {
+        this.sampleSumVelocity = sampleSumVelocity;
+        this.sampleSizeVelocity = sampleSizeVelocity;
+        this.sampleSizeAcceleration = sampleSizeAcceleration;
+        this.sampleSumAcceleration = sampleSumAcceleration;
     }
 
-    public void setSampleSum(float value) {
-        this.sampleSum = value + this.sampleSum;
+    public float getSampleSumVelocity() {
+        return sampleSumVelocity;
     }
 
-    public int getSampleSize() {
-        return sampleSize;
+    public void setSampleSumVelocity(float sampleSumVelocity) {
+        this.sampleSumVelocity = sampleSumVelocity + this.sampleSumVelocity;
     }
 
-    public void setSampleSize() {
-        this.sampleSize++;
+    public float getSampleSumAcceleration() {
+        return sampleSumAcceleration;
+    }
+
+    public void setSampleSumAcceleration(float sampleSumAcceleration) {
+        this.sampleSumAcceleration = sampleSumAcceleration + this.sampleSumAcceleration;
+    }
+
+    public int getSampleSizeVelocity() {
+        return sampleSizeVelocity;
+    }
+
+    public void setSampleSizeVelocity() {
+        this.sampleSizeVelocity = this.sampleSizeVelocity + 1;
+    }
+
+    public int getSampleSizeAcceleration() {
+        return sampleSizeAcceleration;
+    }
+
+    public void setSampleSizeAcceleration() {
+        this.sampleSizeAcceleration = sampleSizeAcceleration + 1;
     }
 }

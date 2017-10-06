@@ -15,9 +15,6 @@ public interface Constants {
     String FACEBOOK_PROVIDER = "facebook_provider";
     String TWITTER_PROVIDER = "twitter_provider";
 
-    // Statistics
-    int HOURS = 24;
-
     // PositionManager constants
     String OLD_COUNTRY = "oldCountry";
     String OLD_REGION = "oldRegion";
@@ -56,6 +53,17 @@ public interface Constants {
     String CHILD_EMAIL = "email";
     String CHILD_AVAILABILITY = "availability";
 
+    // Statistics
+    String ARG_STAT_DAY = "statisticsDaily";
+    String ARG_STAT_WEEK = "statisticsWeekly";
+
+    String VELOCITY = "Velocity";
+    String ACCELERATION = "Acceleration";
+    String WEEK = "Weekly";
+    String DAY = "Daily";
+
+    int HOURS = 24;
+    int DAYS = 7;
 
 
 

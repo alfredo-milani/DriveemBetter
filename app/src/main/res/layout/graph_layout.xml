@@ -15,10 +15,61 @@
 
     android:id="@+id/layout"
     tools:context="com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ChartActivity">
+    <RadioGroup android:id="@+id/radioGroupTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/radioGroupParameter"
+        android:layout_toEndOf="@+id/radioGroupParameter"
+        android:layout_marginLeft="46dp"
+        android:layout_marginStart="46dp" >
 
+        <RadioButton
+            android:id="@+id/radio_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/day"
+            android:onClick="onRadioButtonClickedTime"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/radio_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/week"
+            android:onClick="onRadioButtonClickedTime"/>
+    </RadioGroup>
     <com.github.mikephil.charting.charts.ScatterChart
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/view" />
+        android:id="@+id/view"
+        android:layout_below="@+id/radioGroupParameter"/>
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/radioGroupParameter"
+        android:weightSum="1"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" >
+
+
+        <RadioButton android:id="@+id/radio_velocity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/velocity"
+            android:onClick="onRadioButtonClicked"
+            android:checked="true" />
+
+        <RadioButton android:id="@+id/radio_accelerator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/acceleration"
+            android:onClick="onRadioButtonClicked"/>
+    </RadioGroup>
 
 </RelativeLayout>

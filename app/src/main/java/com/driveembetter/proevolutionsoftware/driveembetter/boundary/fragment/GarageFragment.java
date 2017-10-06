@@ -87,7 +87,6 @@ public class GarageFragment extends Fragment
 
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return init_view(inflater, container);
@@ -111,7 +110,6 @@ public class GarageFragment extends Fragment
 
         this.singletonUser.getVehicles(this);
     }
-
 
     @Override
     public void onStart() {
@@ -250,8 +248,6 @@ public class GarageFragment extends Fragment
         });
     }
 
-
-
     private void check_current_vehicle() {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference ref = database.getReference("users/" + SingletonFirebaseProvider
@@ -335,6 +331,9 @@ public class GarageFragment extends Fragment
         select.setVisibility(View.GONE);
         this.fab = (FloatingActionButton) view.findViewById(R.id.fab);
         this.mRelativeLayout = (RelativeLayout) view.findViewById(R.id.layout_garage);
+
+        // Set action bar title
+        this.getActivity().setTitle(R.string.garage);
         return view;
 
     }

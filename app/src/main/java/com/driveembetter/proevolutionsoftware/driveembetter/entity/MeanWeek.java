@@ -6,36 +6,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by FabianaRossi94 on 10/09/2017.
+ * Created by FabianaRossi94 on 03/10/2017.
  */
 
-public class MeanDay {
-
-    private static MeanDay instance = null;
-    private Map<Integer, Mean> meanOfDays;
+public class MeanWeek {
+    private static MeanWeek instance = null;
+    private Map<Integer, Mean> meanOfWeek;
     private Date localDate;
 
-    private MeanDay() {
-        this.meanOfDays = new HashMap<Integer,Mean>();
+    private MeanWeek() {
+        this.meanOfWeek = new HashMap<Integer,Mean>();
         this.localDate = Calendar.getInstance().getTime();
     }
 
-    public static final MeanDay getInstance() {
+    public static final MeanWeek getInstance() {
         if (instance == null) {
-            instance = new MeanDay();
+            instance = new MeanWeek();
         }
         return instance;
 
     }
 
-
-
     public Map<Integer,Mean> getMap() {
-        return this.meanOfDays;
+        return this.meanOfWeek;
     }
 
     public void clear() {
-        this.meanOfDays.clear();
+        this.meanOfWeek.clear();
     }
 
     public Date getLocalDate() {
