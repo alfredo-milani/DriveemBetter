@@ -416,54 +416,9 @@ public class MainFragmentActivity extends AppCompatActivity
                     FragmentState.setFragmentState(FragmentState.STATISTICS_FRAGMENT, true);
                 }
                 */
-                ChartFragment chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
+                this.startNewActivity(MainFragmentActivity.this, ChartActivity.class);
 
-                if (chartFragment == null) {
-                /* Launch a new activity */
 
-                    startNewActivity(MainFragmentActivity.this, ChartActivity.class);
-
-                } else {
-                /* Chart fragment is shown */
-
-                /* Find retained fragment by tag: return null if fragment is not found */
-                    FragmentManager fragmentManager = getFragmentManager();
-                    RetainedFragment retainedFragment = (RetainedFragment) fragmentManager
-                            .findFragmentByTag(getString(R.string.fragment_tag));
-
-                    if (retainedFragment == null) {
-                    /* First launch */
-
-                    /* Create a new retained fragment */
-                        retainedFragment = new RetainedFragment();
-                    /* Set fragment tag */
-                        fragmentManager.beginTransaction().add(retainedFragment, getString(R.string.fragment_tag)).commit();
-                    }
-
-                    /* Get chart fragment */
-                    chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
-
-                    /* Create and set a new progress dialog */
-                    progress = new ProgressDialog(MainFragmentActivity.this);
-                    progress.setMax(100);
-                    progress.setMessage(getString(R.string.strProgressDialogMessage));
-                    progress.setTitle(getString(R.string.strProgressDialogTitle));
-                    progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    progress.setCancelable(true);
-                    progress.setCanceledOnTouchOutside(false);
-                    progress.setOnKeyListener(new KeyListener());
-                    chartFragment.setProgressDialog(progress);
-                    retainedFragment.setProgressDialog(progress);
-
-                    /* Get chart from chart fragment */
-                    ScatterChart chart = chartFragment.getChart();
-                    retainedFragment.setChart(chart);
-
-                    /* Create a new async task */
-                    task = new ChartAsyncTask(retainedFragment);
-                    task.execute();
-                    retainedFragment.setTask(task);
-                }
                 break;
 
             case R.id.ranking:
