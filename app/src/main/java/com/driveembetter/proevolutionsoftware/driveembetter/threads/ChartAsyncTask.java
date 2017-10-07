@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonScatterData;
@@ -24,6 +25,9 @@ import java.util.Date;
 
 /* Chart Async Task Class */
 public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
+
+    private final static String TAG = ChartAsyncTask.class.getSimpleName();
+
     RetainedFragment fragment;
 
 
@@ -37,10 +41,9 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     @Override
     /* This method perform a computation on a background thread */
     protected ScatterData doInBackground(String... params) {
-        String value = params[0];
-        String valueTime = params[1];
+
         /* Make computation */
-        return this.calculate(value, valueTime);
+        return this.calculate();
     }
 
     @Override
@@ -89,7 +92,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     }
 
     /* Make computation */
-    public ScatterData calculate(String value, String valueTime) {
+    public ScatterData calculate() {
 
         SingletonScatterData sessionData = SingletonScatterData.getInstance();
         ScatterDataSet scatterDataSet;
@@ -104,131 +107,29 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         Date date = calendar.getTime();
 
         //TEST!!!
-       /*int hour = date.getHours();
-        for (int i = 0; i <= 24; i ++) {
+        // ChartAsyncTask.fillMeanTEST();
 
 
-            if (date.equals(mean2.getLocalDate())) { //stesso giorno
+        for (int i = 0; i <= Constants.HOURS; i++) {
+            if(MeanDay.getInstance().getMap().get(i) != null) {
 
-
-                if (mean2.getMap().get(hour) != null){
-                    Mean meanDay = mean2.getMap().get(hour);
-                    meanDay.setSampleSum(10);  // modificare con il valore della velocità
-                    meanDay.setSampleSize();
-                    mean2.getMap().put(hour, meanDay);
-                } else{
-                    Mean meanDay = new Mean();
-                    meanDay.setSampleSum(50); //modificare con il valore della velocità
-                    meanDay.setSampleSize();
-                    mean2.getMap().put(hour, meanDay);
-                }
-            }else {
-                mean2.getMap().clear();
-                mean2.setLocalDate(date);
-                Mean meanDay = new Mean();
-                meanDay.setSampleSum(50); // modificare con il valore della velocità
-                meanDay.setSampleSize();
-                mean2.getMap().put(hour, meanDay);
+                xVals.add(String.valueOf(i));
+                 /* Add entry with the mean of velocity */
+                sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumVelocity();
+                sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeVelocity();
+                mean = sampleSum / sampleSize;
+                Entry entry = new Entry(mean, i);
+                vals.add(entry);
+            }else{
+                xVals.add(String.valueOf(i));
+                vals.add(new Entry(0,i));
             }
-            System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno" );
-            Log.e("c","Programma per " + i + " eseguito in ora " + hour + " giorno");
-
-        }*/
-
-
-        if (value.equals(Constants.VELOCITY)) {
-            int tot;
-            if  (valueTime.equals(Constants.WEEK)){
-                tot = Constants.DAYS;
-                for (int i = 0; i < tot; i++) {
-                    if (MeanWeek.getInstance().getMap().get(i) != null) {
-
-                        xVals.add(String.valueOf(i));
-                        sampleSum = MeanWeek.getInstance().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) MeanWeek.getInstance().getMap().get(i).getSampleSizeAcceleration();
-                        mean = sampleSum / sampleSize;
-                        //mean = 10;
-                        Entry entry = new Entry(mean, i);
-                        vals.add(entry);
-                    } else {
-                        xVals.add(String.valueOf(i));
-                        vals.add(new Entry(0, i));
-                    }
-
-
-                }
-            } else{
-                tot = Constants.HOURS;
-                for (int i = 0; i < tot; i++) {
-                    if (MeanDay.getInstance().getMap().get(i) != null) {
-
-                        xVals.add(String.valueOf(i));
-                        sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeAcceleration();
-                        mean = sampleSum / sampleSize;
-                        //mean = 10;
-                        Entry entry = new Entry(mean, i);
-                        vals.add(entry);
-                    } else {
-                        xVals.add(String.valueOf(i));
-                        vals.add(new Entry(0, i));
-                    }
-
-
-                }
-            }
-
-            Log.d("VELOCITY","Sono in velocity");
-
-        } else{
-
-            int tot;
-            if  (valueTime.equals(Constants.WEEK)){
-                tot = Constants.DAYS;
-                for (int i = 0; i < tot; i++) {
-                    if (MeanWeek.getInstance().getMap().get(i) != null) {
-
-                        xVals.add(String.valueOf(i));
-                        sampleSum = MeanWeek.getInstance().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) MeanWeek.getInstance().getMap().get(i).getSampleSizeAcceleration();
-                        mean = sampleSum / sampleSize;
-                        // mean = 10;
-                        Entry entry = new Entry(mean, i);
-                        vals.add(entry);
-                    } else {
-                        xVals.add(String.valueOf(i));
-                        vals.add(new Entry(0, i));
-                    }
-
-
-                }
-            } else{
-                tot = Constants.HOURS;
-                for (int i = 0; i < tot; i++) {
-                    if (MeanDay.getInstance().getMap().get(i) != null) {
-
-                        xVals.add(String.valueOf(i));
-                        sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeAcceleration();
-                        mean = sampleSum / sampleSize;
-                        // mean = 10;
-                        Entry entry = new Entry(mean, i);
-                        vals.add(entry);
-                    } else {
-                        xVals.add(String.valueOf(i));
-                        vals.add(new Entry(0, i));
-                    }
-
-
-                }
-            }
-
 
         }
 
         /* Create a new scatter data set and set properties */
 
-        scatterDataSet = new ScatterDataSet(vals, "Statistics");
+        scatterDataSet = new ScatterDataSet(vals, "func");
         scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
         scatterDataSet.setColor(Color.BLUE);
         scatterDataSet.setScatterShapeSize(6f);
@@ -241,6 +142,55 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         dataSets.add(scatterDataSet);
 
         return new ScatterData(xVals, dataSets);
+    }
+
+    /**
+     * TODO DEBUG: DA ELIMINARE
+     */
+    public static void fillMeanTEST() {
+        MeanDay mean2 = MeanDay.getInstance();
+        Calendar calendar = Calendar.getInstance();
+        Date date = calendar.getTime();
+
+        MeanWeek mean3 = MeanWeek.getInstance();
+
+        int hour = date.getHours();
+        for (int i = 0; i <= 24; i ++) {
+
+
+            if (date.equals(mean2.getLocalDate())) { //stesso giorno
+
+
+                if (mean2.getMap().get(hour) != null){
+                    Mean meanDay = mean2.getMap().get(hour);
+                    meanDay.setSampleSumAcceleration(1);  // modificare con il valore della velocità
+                    meanDay.setSampleSumVelocity(30);
+                    meanDay.setSampleSizeAcceleration();
+                    meanDay.setSampleSizeVelocity();
+                    mean2.getMap().put(hour, meanDay);
+                } else{
+                    Mean meanDay = new Mean();
+                    meanDay.setSampleSumAcceleration(10); //modificare con il valore della velocità
+                    meanDay.setSampleSumVelocity(1);
+                    meanDay.setSampleSizeAcceleration();
+                    meanDay.setSampleSizeVelocity();
+                    mean2.getMap().put(hour, meanDay);
+                }
+            }else {
+                mean2.setLocalDate(date);
+                mean2.getMap().clear();
+                Mean meanDay = new Mean();
+                meanDay.setSampleSumAcceleration(1); // modificare con il valore della velocità
+                meanDay.setSampleSumVelocity(20);
+                meanDay.setSampleSizeAcceleration();
+                meanDay.setSampleSizeVelocity();
+                mean2.getMap().put(hour, meanDay);
+            }
+
+            System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno" );
+            Log.e(TAG, "Programma per " + i + " eseguito in ora " + hour + " giorno");
+
+        }
     }
 
     /* Plot function */
@@ -331,3 +281,4 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     }
 
 }
+

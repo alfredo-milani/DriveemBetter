@@ -21,8 +21,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 
 
@@ -72,64 +70,10 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .setValue(availability);
+
             databaseReference
                     .child(ARG_STAT_WEEK)
                     .setValue("VAAAAL");
-
-
-
-
-
-
-
-
-            MeanDay mean2 = MeanDay.getInstance();
-            Calendar calendar = Calendar.getInstance();
-            Date date = calendar.getTime();
-
-            MeanWeek mean3 = MeanWeek.getInstance();
-
-            int hour = date.getHours();
-            for (int i = 0; i <= 24; i ++) {
-
-
-                if (date.equals(mean2.getLocalDate())) { //stesso giorno
-
-
-                    if (mean2.getMap().get(hour) != null){
-                        Mean meanDay = mean2.getMap().get(hour);
-                        meanDay.setSampleSumAcceleration(1);  // modificare con il valore della velocità
-                        meanDay.setSampleSumVelocity(30);
-                        meanDay.setSampleSizeAcceleration();
-                        meanDay.setSampleSizeVelocity();
-                        mean2.getMap().put(hour, meanDay);
-                    } else{
-                        Mean meanDay = new Mean();
-                        meanDay.setSampleSumAcceleration(10); //modificare con il valore della velocità
-                        meanDay.setSampleSumVelocity(1);
-                        meanDay.setSampleSizeAcceleration();
-                        meanDay.setSampleSizeVelocity();
-                        mean2.getMap().put(hour, meanDay);
-                    }
-                }else {
-                    mean2.setLocalDate(date);
-                    mean2.getMap().clear();
-                    Mean meanDay = new Mean();
-                    meanDay.setSampleSumAcceleration(1); // modificare con il valore della velocità
-                    meanDay.setSampleSumVelocity(20);
-                    meanDay.setSampleSizeAcceleration();
-                    meanDay.setSampleSizeVelocity();
-                    mean2.getMap().put(hour, meanDay);
-                }
-
-                System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno" );
-                Log.e(TAG,"Programma per " + i + " eseguito in ora " + hour + " giorno");
-
-            }
-
-            databaseReference
-                    .child(ARG_STAT_DAY)
-                    .setValue(mean2);
         }
     }
 

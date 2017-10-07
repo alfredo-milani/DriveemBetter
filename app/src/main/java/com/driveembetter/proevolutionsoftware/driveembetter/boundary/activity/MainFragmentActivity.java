@@ -417,8 +417,6 @@ public class MainFragmentActivity extends AppCompatActivity
                 }
                 */
                 this.startNewActivity(MainFragmentActivity.this, ChartActivity.class);
-
-
                 break;
 
             case R.id.ranking:
