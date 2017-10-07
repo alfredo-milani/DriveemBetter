@@ -6,7 +6,7 @@
     android:fitsSystemWindows="true"
     android:background="@drawable/sign_in">
 
-    <fragment class="com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.ChartFragment"
+    <fragment class="com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment"
         android:id="@+id/chartFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

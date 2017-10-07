@@ -104,11 +104,13 @@
 
         <activity
             android:name=".boundary.activity.ChartActivity"
-            android:theme="@style/AppTheme">
-            <!--Default Intent Filter-->
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
+            android:theme="@style/AppTheme"
+            android:label="@string/strGraph"
+            android:parentActivityName=".boundary.activity.MainFragmentActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".boundary.activity.MainFragmentActivity" />
         </activity>
 
         <service

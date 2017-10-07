@@ -10,7 +10,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.Re
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
-import com.driveembetter.proevolutionsoftware.driveembetter.statistics.SingletonScatterData;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonScatterData;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;

@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.RadioButton;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.ChartFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
@@ -35,8 +35,6 @@ public class ChartActivity extends AppCompatActivity {
     String value;
     String valueTime;
 
-
-
     @Override
     /* Called when the activity is starting */
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +46,8 @@ public class ChartActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 */
         /* Set the activity content from layout resource */
+        // setContentView(R.layout.activity_graph);
         setContentView(R.layout.graph_layout);
-
-        this.initWidgets();
 
         /* Display home as an "up" affordance:
          user that selecting home will return one level up rather than to the top level of the app */
@@ -58,6 +55,9 @@ public class ChartActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        rbVelocity = (RadioButton) findViewById(R.id.radio_velocity);
+        rbTime = (RadioButton) findViewById(R.id.radio_week);
 
         /* Find retained fragment by tag: return null if fragment is not found */
         FragmentManager fragmentManager = getFragmentManager();
@@ -86,12 +86,7 @@ public class ChartActivity extends AppCompatActivity {
             progress.setCancelable(true);
             progress.setCanceledOnTouchOutside(false);
             progress.setOnKeyListener(new KeyListener());
-            /*
-            if (chartFragment != null) {
-                chartFragment.setProgressDialog(progress);
-            }
-            */
-            chartFragment = new ChartFragment();
+            chartFragment.setProgressDialog(progress);
             retainedFragment.setProgressDialog(progress);
 
             /* Get chart from chart fragment */
@@ -101,12 +96,12 @@ public class ChartActivity extends AppCompatActivity {
             /* Create a new async task */
             task = new ChartAsyncTask(retainedFragment);
 
-            if(rbVelocity.isSelected()) {
+            if(rbVelocity.isChecked()) {
                 value = Constants.VELOCITY;
             } else{
                 value = Constants.ACCELERATION;
             }
-            if (rbTime.isSelected()) {
+            if (rbTime.isChecked()) {
                 valueTime = Constants.WEEK;
             }else {
                 valueTime = Constants.DAY;
@@ -156,11 +151,6 @@ public class ChartActivity extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    private void initWidgets() {
-        this.rbVelocity = findViewById(R.id.radio_velocity);
-        this.rbTime = findViewById(R.id.radio_week);
     }
 
     /* Initialize function, startIndex and endIndex variables from intent extras */

@@ -41,9 +41,9 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.Singl
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.FactoryProviders;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonGoogleProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.AboutUsFragment;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.ChartFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.GarageFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
@@ -620,6 +620,7 @@ public class MainFragmentActivity extends AppCompatActivity
         Log.d(TAG, ":destroy");
 
         this.reauthenticationThread.interrupt();
+        // TODO: 07/10/17 ogni volta che viene cambiata activity viene chiamata...
         FirebaseDatabaseManager.manageUserInformations(UNAVAILABLE);
         FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());

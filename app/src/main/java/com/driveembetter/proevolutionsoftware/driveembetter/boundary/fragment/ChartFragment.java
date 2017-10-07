@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
+package com.driveembetter.proevolutionsoftware.driveembetter.boundary;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;

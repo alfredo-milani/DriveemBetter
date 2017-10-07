@@ -7,8 +7,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.AboutUsFragment;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.ChartFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.GarageFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.WrongResourceType;
@@ -39,7 +40,7 @@ public class FragmentState extends Application {
             SaveMeFragment.class.getSimpleName(),
             ChartFragment.class.getSimpleName(),
             RankingFragment.class.getSimpleName(),
-            "GarageFragment",
+            GarageFragment.class.getSimpleName(),
             AboutUsFragment.class.getSimpleName()
     };
 
