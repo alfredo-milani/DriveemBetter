@@ -410,7 +410,7 @@ public class GarageFragment extends Fragment
 
     private void populateListView() {
         this.vehicles = this.singletonUser.getVehicleArrayList();
-        if (this.vehicles == null) {
+        if (this.vehicles == null || this.vehicles.isEmpty()) {
             return;
         }
 

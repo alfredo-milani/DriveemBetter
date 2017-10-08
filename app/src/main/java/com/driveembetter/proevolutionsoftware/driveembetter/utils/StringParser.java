@@ -15,8 +15,8 @@ public class StringParser {
 
     private final static String TAG = StringParser.class.getSimpleName();
 
-    private final static String itemSeparator = ";";
-    private final static String subItemSeparator = "_";
+    public final static String itemSeparator = ";";
+    public final static String subItemSeparator = "_";
 
     public static String getStringFromCoordinates(double latitude, double longitude) {
         return Double.toString(latitude) + ";" + Double.toString(longitude);
@@ -54,7 +54,7 @@ public class StringParser {
             }
         }
 
-        return string;
+        return string.replace(',', '.');
     }
 
     public static void setMapFromString(String data) {

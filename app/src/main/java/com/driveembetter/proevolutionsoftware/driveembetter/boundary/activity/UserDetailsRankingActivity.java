@@ -3,6 +3,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,6 +19,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
@@ -172,35 +174,54 @@ public class UserDetailsRankingActivity
     public void onDataReceived(String data) {
         Log.d(TAG, "Data received");
         this.progressBar.setVisibility(View.GONE);
-        if (data == null) {
+        if (data == null || data.split(StringParser.itemSeparator).length == 0) {
             Log.d(TAG, "Data null");
             this.unavailableData.setVisibility(View.VISIBLE);
         } else {
             Log.d(TAG, "Data consistent");
-            String[] items = data.split(";");
+            String[] items = data.split(StringParser.itemSeparator);
             for (int i = 0; i < Constants.HOURS; ++i) {
-                String[] values = items[i].split("_");
+                String[] values = items[i].split(StringParser.subItemSeparator);
                 if (values.length < 5) {
-                    continue;
+                    this.velocitySeries.appendData(
+                            new DataPoint(i, 0),
+                            false,
+                            Constants.HOURS
+                    );
+                    this.accelerationSeries.appendData(
+                            new DataPoint(i, 0),
+                            false,
+                            Constants.HOURS
+                    );
+                } else {
+                    this.velocitySeries.appendData(
+                            new DataPoint(i, Double.valueOf(values[2])),
+                            false,
+                            Constants.HOURS
+                    );
+                    this.accelerationSeries.appendData(
+                            new DataPoint(i, Double.valueOf(values[4])),
+                            false,
+                            Constants.HOURS
+                    );
                 }
-
-                this.velocitySeries.appendData(
-                        new DataPoint(i, Double.valueOf(values[2])),
-                        false,
-                        Constants.HOURS
-                );
-                this.accelerationSeries.appendData(
-                        new DataPoint(i, Double.valueOf(values[4])),
-                        false,
-                        Constants.HOURS
-                );
             }
 
+            // Adding series to graph
             this.graphView.addSeries(this.velocitySeries);
             this.graphView.addSeries(this.accelerationSeries);
-            this.accelerationSeries.setColor(Color.argb(255, 255, 60, 60));
-            // legend
+            // Setting color series
+            this.velocitySeries.setColor(ContextCompat.getColor(this, R.color.blue_700));
+            this.accelerationSeries.setColor(ContextCompat.getColor(this, R.color.tw__composer_red));
+            //
+            this.velocitySeries.setDrawAsPath(true);
+            this.accelerationSeries.setDrawAsPath(true);
+            // Setting line spessor
+            this.velocitySeries.setThickness(3);
+            this.accelerationSeries.setThickness(3);
+            // Legend
             this.graphView.getLegendRenderer().setVisible(true);
+            this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));
             this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
         }
     }
