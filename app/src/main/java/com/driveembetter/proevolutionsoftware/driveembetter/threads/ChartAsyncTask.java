@@ -22,6 +22,7 @@ import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 /* Chart Async Task Class */
 public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
@@ -30,13 +31,12 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
     RetainedFragment fragment;
 
-
     public ChartAsyncTask(RetainedFragment fragment) {
         this.fragment = fragment;
         setGraphProperties();
-
-
     }
+
+
 
     @Override
     /* This method perform a computation on a background thread */
@@ -102,17 +102,8 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         ArrayList<String> xVals = new ArrayList<>();
         float sampleSum, sampleSize, mean;
 
-        MeanDay mean2 = MeanDay.getInstance();
-        Calendar calendar = Calendar.getInstance();
-        Date date = calendar.getTime();
-
-        //TEST!!!
-        // ChartAsyncTask.fillMeanTEST();
-
-
         for (int i = 0; i <= Constants.HOURS; i++) {
             if(MeanDay.getInstance().getMap().get(i) != null) {
-
                 xVals.add(String.valueOf(i));
                  /* Add entry with the mean of velocity */
                 sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumVelocity();
@@ -124,11 +115,9 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
                 xVals.add(String.valueOf(i));
                 vals.add(new Entry(0,i));
             }
-
         }
 
         /* Create a new scatter data set and set properties */
-
         scatterDataSet = new ScatterDataSet(vals, "func");
         scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
         scatterDataSet.setColor(Color.BLUE);
@@ -151,16 +140,11 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         MeanDay mean2 = MeanDay.getInstance();
         Calendar calendar = Calendar.getInstance();
         Date date = calendar.getTime();
-
         MeanWeek mean3 = MeanWeek.getInstance();
-
-        int hour = date.getHours();
+        // int hour = date.getHours();
         for (int i = 0; i <= 24; i ++) {
-
-
+            int hour = new Random().nextInt(22);
             if (date.equals(mean2.getLocalDate())) { //stesso giorno
-
-
                 if (mean2.getMap().get(hour) != null){
                     Mean meanDay = mean2.getMap().get(hour);
                     meanDay.setSampleSumAcceleration(1);  // modificare con il valore della velocità
@@ -176,7 +160,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
                     meanDay.setSampleSizeVelocity();
                     mean2.getMap().put(hour, meanDay);
                 }
-            }else {
+            } else {
                 mean2.setLocalDate(date);
                 mean2.getMap().clear();
                 Mean meanDay = new Mean();
@@ -189,7 +173,6 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
             System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno" );
             Log.e(TAG, "Programma per " + i + " eseguito in ora " + hour + " giorno");
-
         }
     }
 
@@ -279,6 +262,5 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         // Sets the position where the XAxis should appear
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
     }
-
 }
 

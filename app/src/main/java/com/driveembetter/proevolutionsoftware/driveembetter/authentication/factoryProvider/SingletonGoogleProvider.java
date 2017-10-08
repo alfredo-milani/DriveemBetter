@@ -198,22 +198,6 @@ public class SingletonGoogleProvider
         singletonFirebaseProvider.signOut();
     }
 
-    /**
-     * METODI DI DEBUG
-     */
-    public boolean diodio() {
-        return this.mGoogleApiClient.isConnected();
-    }
-    public void cancan() {
-        if (this.account != null) {
-            // Google Sign In was successful, authenticate with Firebase
-            Log.d(TAG, "Google auth: user: " + this.account.getEmail());
-        } else {
-            // Google Sign In failed, update UI appropriately
-            Log.d(TAG, "Google authentication failed: " + this.account);
-        }
-    }
-
     // To disconnect from current Google account
     public void revokeAccess() {
         this.signIn = false;

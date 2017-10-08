@@ -20,7 +20,7 @@ public class MeanDay {
         this.localDate = Calendar.getInstance().getTime();
     }
 
-    public static final MeanDay getInstance() {
+    public static MeanDay getInstance() {
         if (instance == null) {
             instance = new MeanDay();
         }

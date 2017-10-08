@@ -7,6 +7,7 @@ import android.util.Log;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.NonReentrantLock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ public class SingletonUser
 
     // Sync
     private final Lock mtxSyncData;
-    private final Lock mtxUpdatePosition;
+    private final NonReentrantLock mtxUpdatePosition;
 
     private static SingletonUser singletonInstance;
 
@@ -53,8 +54,10 @@ public class SingletonUser
         this.setCountry(COUNTRY);
         this.setRegion(REGION);
         this.setSubRegion(SUB_REGION);
+        // Lock rientrante perché i thread sono diversi
         this.mtxSyncData = new ReentrantLock(true);
-        this.mtxUpdatePosition = new ReentrantLock(true);
+        // Lock non rientrante perché lo stesso thread opera sulle risorse
+        this.mtxUpdatePosition = new NonReentrantLock();
     }
 
 
@@ -191,7 +194,7 @@ public class SingletonUser
         return this.mtxSyncData;
     }
 
-    public Lock getMtxUpdatePosition() {
+    public NonReentrantLock getMtxUpdatePosition() {
         return this.mtxUpdatePosition;
     }
 }

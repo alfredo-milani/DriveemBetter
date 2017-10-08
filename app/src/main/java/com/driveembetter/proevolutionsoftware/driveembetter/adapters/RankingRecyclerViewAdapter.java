@@ -113,7 +113,8 @@ public class RankingRecyclerViewAdapter
                     .into(holder.userPhoto);
         }
 
-        if (users.get(position).getUsername() != null) {
+        String username = users.get(position).getUsername();
+        if (username != null && !username.isEmpty()) {
             holder.name.setText(users.get(position).getUsername());
         } else {
             holder.name.setText(users.get(position).getUsernameFromUid());

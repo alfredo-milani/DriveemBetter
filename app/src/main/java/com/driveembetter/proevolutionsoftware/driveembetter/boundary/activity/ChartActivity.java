@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
 import com.github.mikephil.charting.charts.ScatterChart;
@@ -96,7 +97,7 @@ public class ChartActivity extends AppCompatActivity {
                 /* Task is running */
 
                 /* Get chart fragment */
-                com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment chartFragment = (com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
+                ChartFragment chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
 
                 /* Create and set a new progress dialog */
                 progress = new ProgressDialog(this);

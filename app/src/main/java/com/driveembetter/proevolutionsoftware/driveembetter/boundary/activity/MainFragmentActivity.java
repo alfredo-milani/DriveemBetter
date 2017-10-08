@@ -456,15 +456,13 @@ public class MainFragmentActivity extends AppCompatActivity
                     Log.d(TAG, "USER FIRE NULL");
                 }
 
-                Log.d(TAG, "CONNected: " + ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).diodio());
-
                 Log.d(TAG, "Firebase signIn: " + this.singletonFirebaseProvider.isFirebaseSignIn());
                 ////
                 break;
 
             case R.id.nav_send:
                 // DEBUG
-                ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER)).cancan();
+                ChartAsyncTask.fillMeanTEST();
                 ////
                 break;
 
@@ -573,8 +571,8 @@ public class MainFragmentActivity extends AppCompatActivity
         Log.d(TAG, ":destroy");
 
         this.reauthenticationThread.interrupt();
-        // TODO: 07/10/17 ogni volta che viene cambiata activity viene chiamata...
-        FirebaseDatabaseManager.manageUserInformations(UNAVAILABLE);
+        FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
+        FirebaseDatabaseManager.manageUserStatistics();
         FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
 

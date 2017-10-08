@@ -2,7 +2,6 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -41,7 +40,7 @@ import okhttp3.Response;
  * Created by matti on 28/08/2017.
  */
 
-public class PositionManager extends Application
+public class PositionManager
         implements Constants {
 
     private final static String TAG = PositionManager.class.getSimpleName();
@@ -62,11 +61,10 @@ public class PositionManager extends Application
     TextToSpeech tts;
 
 
-
     // Singleton
     private PositionManager(Context context) {
         this.context = context;
-        this.user = SingletonUser.getInstance();
+        user = SingletonUser.getInstance();
         this.lastPosition = "";
         PositionManager.geocoder = new Geocoder(context, Locale.ITALIAN);
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -77,6 +75,7 @@ public class PositionManager extends Application
         if (positionManager == null) {
             positionManager = new PositionManager(context);
         }
+
         return positionManager;
     }
 
@@ -174,7 +173,10 @@ public class PositionManager extends Application
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            if (user == null || user.getUid().isEmpty()) {
+            if (user.getMtxUpdatePosition().isLocked() ||
+                    user == null || user.getUid().isEmpty()) {
+                // Al posto di prendere lock appensantendo il workflow skip se è in corso il processo di aggiornameto dei dati della posizione
+                Log.d(TAG, "Aggiornamento ultima posizione nota da Firebase. Skipping onLocationChanged");;
                 return;
             }
 
@@ -184,15 +186,13 @@ public class PositionManager extends Application
                 e.printStackTrace();
             }
 
-            user.getMtxUpdatePosition().lock();
             String oldCountry = user.getCountry();
             String oldRegion = user.getRegion();
             String oldSubRegion = user.getSubRegion();
-            user.getMtxUpdatePosition().unlock();
+            Log.d(TAG, "PositionOLD: " + oldCountry + " / " + oldRegion + " / " + oldSubRegion);
 
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
-            // TODO: se è troppo dispendioso utilizza anche getLocationFromCoordinates(lat, long, 1)
             final String[] strings = getLocationFromCoordinates(latitude, longitude, 1);
 
             // Update SingletonUser state
@@ -201,11 +201,12 @@ public class PositionManager extends Application
             user.setCountry(strings[0]);
             user.setRegion(strings[1]);
             user.setSubRegion(strings[2]);
-            Log.d(TAG, "Position: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
+            Log.d(TAG, "PositionNEW: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
 
             if (!oldSubRegion.equals(user.getSubRegion()) ||
                     !oldRegion.equals(user.getRegion()) ||
                     !oldCountry.equals(user.getCountry())) {
+                Log.d(TAG, "Removig old position");
                 // Remove user from position node only if his position has changed
                 FirebaseDatabaseManager.removeOldPosition(new String[] {oldCountry, oldRegion, oldSubRegion});
                 // Create user in new position
@@ -308,6 +309,7 @@ public class PositionManager extends Application
                 }, latitude, longitude));
                 geoC.start();
                 geoC.join();
+                Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2]);
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

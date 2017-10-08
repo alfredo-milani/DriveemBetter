@@ -60,7 +60,24 @@ public class FirebaseDatabaseManager
         }
     }
 
-    public static void manageUserInformations(String availability) {
+    public static void manageUserStatistics() {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            Log.d(TAG, "Saving statistics");
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(user.getUid());
+
+            databaseReference
+                    .child(ARG_STAT_DAY)
+                    .setValue(StringParser.getStringFromHashMap(MeanDay.getInstance().getMap()));
+            databaseReference
+                    .child(ARG_STAT_WEEK)
+                    .setValue(StringParser.getStringFromHashMap(MeanWeek.getInstance().getMap()));
+        }
+    }
+
+    public static void manageUserAvailability(String availability) {
         SingletonUser user = SingletonUser.getInstance();
         if (user != null && availability != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
@@ -70,10 +87,6 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .setValue(availability);
-
-            databaseReference
-                    .child(ARG_STAT_WEEK)
-                    .setValue("VAAAAL");
         }
     }
 
@@ -158,7 +171,6 @@ public class FirebaseDatabaseManager
                     .child(user.getSubRegion())
                     .child(user.getUid());
 
-            user.getMtxUpdatePosition().lock();
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -202,8 +214,6 @@ public class FirebaseDatabaseManager
                                     .child(CHILD_AVAILABILITY)
                                     .setValue(user.getAvailability());
                         }
-
-                        user.getMtxUpdatePosition().unlock();
                     }
                 }
 
