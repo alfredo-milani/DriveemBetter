@@ -10,7 +10,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -21,11 +23,19 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSONPosition;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by matti on 28/08/2017.
@@ -47,12 +57,17 @@ public class PositionManager extends Application
     private double time;
     private int initialSpeed = -1; //Symbolic value just to check when "onLocationChanged" is called for the first time
     private double deltaT;
+    private Response response;
+    private String lastPosition;
+    TextToSpeech tts;
+
 
 
     // Singleton
     private PositionManager(Context context) {
         this.context = context;
         this.user = SingletonUser.getInstance();
+        this.lastPosition = "";
         PositionManager.geocoder = new Geocoder(context, Locale.ITALIAN);
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         this.updatePosition();
@@ -106,34 +121,50 @@ public class PositionManager extends Application
         //END TRY
     }
 
-    private void checkSpeedAndAcceleration(Location location) {
+
+    private void checkSpeedAndAcceleration(Location location) throws IOException {
+
+        String currentPosition = "";
+        List<Address> addresses = null;
+        addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
+        if(addresses != null && addresses.size() > 0 ){
+            Address address = addresses.get(0);
+            // Thoroughfare seems to be the street name without numbers
+            currentPosition = address.getThoroughfare();
+        }
+
         if (location.hasSpeed()) {
             if (initialSpeed == -1) {
                 //first time that velocity has been detected, I don't check acceleration
-                initialSpeed = (int) ((location.getSpeed()*3600)/1000);
+                initialSpeed = (int) ((location.getSpeed() * 3600) / 1000);
                 initialTime = System.currentTimeMillis();
                 Log.e("SPEED", "Speed: " + initialSpeed);
                 updateStatistics(initialSpeed);
-                //Toast.makeText(context, "Speed: " + initialSpeed, Toast.LENGTH_SHORT).show();
-                //Check speed limits through OpenStreetMap
-                //speedLimitManager.requestSpeedLimit("www.overpass-api.de/api/xapi?*[maxspeed=*][bbox=5.6283473,50.5348043,5.6285261,50.534884]\n");
                 //TODO
                 //check speed limits
+                SpeedLimitManager speedLimitManager = new SpeedLimitManager();
+                speedLimitManager.execute(String.valueOf(initialSpeed), String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
             } else {
-                speed = (int) ((location.getSpeed()*3600)/1000);
+                speed = (int) ((location.getSpeed() * 3600) / 1000);
                 time = System.currentTimeMillis();
-                deltaT = (time - initialTime)/1000;
+                deltaT = (time - initialTime) / 1000;
                 double acceleration = ((double) (speed - initialSpeed)) / deltaT;
-                //Toast.makeText(context, "Acceleration: " + acceleration, Toast.LENGTH_SHORT).show();
-                //Toast.makeText(context, "Speed: " + speed, Toast.LENGTH_SHORT).show();
                 Log.e("SPEED", "Speed: " + speed);
                 Log.e("ACCELERATION", "Acceleration: " + acceleration);
                 updateStatistics(speed);
-                //TODO
+                //TODO ??
                 //check speed limits or abrupt braking or acceleration
-                //speedLimitManager.requestSpeedLimit("www.overpass-api.de/api/xapi?*[maxspeed=*][bbox=5.6283473,50.5348043,5.6285261,50.534884]\n");
+                if (acceleration > 5)
+                    alertAcceleration(1);
+                if (acceleration < -8)
+                    alertAcceleration(-1);
+                if (!currentPosition.equals(lastPosition)) {
+                    SpeedLimitManager speedLimitManager = new SpeedLimitManager();
+                    speedLimitManager.execute(String.valueOf(speed), String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+                }
                 initialTime = time;
                 initialSpeed = speed;
+                lastPosition = currentPosition;
             }
         }
     }
@@ -147,7 +178,11 @@ public class PositionManager extends Application
                 return;
             }
 
-            checkSpeedAndAcceleration(location);
+            try {
+                checkSpeedAndAcceleration(location);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             user.getMtxUpdatePosition().lock();
             String oldCountry = user.getCountry();
@@ -313,4 +348,129 @@ public class PositionManager extends Application
         }
         return strings;
     }
+
+
+
+    //ADDED FROM PONZINO_THE_WOLF_94
+
+    private class SpeedLimitManager extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            OkHttpClient client = new OkHttpClient();
+            String latitude = strings[1];
+            String longitude = strings[2];
+            Log.e("DEBUG", latitude +  "   " + longitude);
+            String testLat = "41.850884";
+            String testLong = "12.603843";
+
+
+            //TEST
+
+
+
+            //ENDTEST
+
+            //TODO if I had to use google maps api to find speed limits, I would have to create the following url
+            //https://roads.googleapis.com/v1/speedLimits?placeId=ChIJX12duJAwGQ0Ra0d4Oi4jOGE&placeId=ChIJLQcticc0GQ0RoiNZJVa5GxU&placeId=ChIJJ4vQRudkJA0RpednU70A-5M&key=YOUR_API_KEY
+            //or
+            //https://roads.googleapis.com/v1/speedLimits?path=38.75807927603043,-9.03741754643809|38.6896537,-9.1770515|41.1399289,-8.6094075&key=YOUR_API_KEY
+            //API KEY AIzaSyC2TCyPFqoATPFy7pa7iKdefrpjPWqXJTc
+
+            Request request = new Request.Builder()
+                    //.url("http://www.overpass-api.de/api/xapi?*[bbox=5.6283473,50.5348043,5.6285261,50.534884][maxspeed=*]")
+                    .url("http://www.overpass-api.de/api/interpreter?data=[out:json];way (around:20, " + latitude + ", " + longitude + ")[\"maxspeed\"];(  ._;  node(w););out;")
+                    //["highway"];(  ._;  node(w););out;
+                    .build();
+            /*
+            Request request = new Request.Builder()
+                    .url("https://roads.googleapis.com/v1/speedLimits?path=" + latitude + "," + longitude + "&key=" + "AIzaSyC2TCyPFqoATPFy7pa7iKdefrpjPWqXJTc")
+                    .build();
+               */
+            try {
+                String maxSpeed = "";
+                response = client.newCall(request).execute();
+                String jsonData = response.body().string();
+
+                //TEST
+                Log.e("DEBUG", jsonData);
+
+                JSONObject Jobject = new JSONObject(jsonData);
+                JSONArray elements = Jobject.getJSONArray("elements");
+                //OPEN STREET MAP MAY NOT FIND MAX SPEED OF A GIVEN AREA
+                //MOREOVER, NODE 'elements' MAY BE EMPTY
+                for (int i = 0; i < elements.length(); i++) {
+                    JSONObject tempObj = elements.getJSONObject(i);
+                    if (tempObj.has("tags")) {
+                        JSONObject tags = tempObj.getJSONObject("tags");
+                        if (tags.has("maxspeed")) {
+                            maxSpeed = tags.getString("maxspeed");
+                            String currentSpeed = strings[0];
+                            Double speed = Double.parseDouble(currentSpeed);
+                            Double mSpeed = Double.parseDouble(maxSpeed);
+                            Log.e("DEBUG", "MAX SPEED: " + maxSpeed + " CURRENT SPEED: " + speed);
+                            //TODO
+                            if (speed > mSpeed) {
+                                //Alert driver
+                                alertSpeed(mSpeed);
+                            }
+                        }
+                    }
+
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+    }
+
+    private void alertSpeed(final Double maxSpeed) {
+        tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if(i != TextToSpeech.ERROR) {
+                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) || Locale.getDefault().getDisplayLanguage().equals(Locale.US)) {
+                        tts.setLanguage(Locale.UK);
+                        tts.speak("You're going too fast, the speed limit is " + maxSpeed + " kilometers per hour", TextToSpeech.QUEUE_ADD, null);
+                    }
+                    else {
+                        tts.setLanguage(Locale.ITALY);
+                        tts.speak("Stai correndo troppo, il limite di velocità è di " + maxSpeed + " chilometri orari", TextToSpeech.QUEUE_ADD, null);
+                    }
+                }
+            }
+
+        });
+    }
+
+    private void alertAcceleration(final int type) {
+        tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if(i != TextToSpeech.ERROR) {
+                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) || Locale.getDefault().getDisplayLanguage().equals(Locale.US)) {
+                        tts.setLanguage(Locale.UK);
+                        if (type == 1)
+                            tts.speak(ENGLISH_ACCELERATION_ALERT, TextToSpeech.QUEUE_ADD, null);
+                        else
+                            tts.speak(ENGLISH_BRAKING_ALERT, TextToSpeech.QUEUE_ADD, null);
+                    } else {
+                        tts.setLanguage(Locale.ITALY);
+                        if (type == 1)
+                            tts.speak(ITALIAN_ACCELERATION_ALERT, TextToSpeech.QUEUE_ADD, null);
+                        else
+                            tts.speak(ITALIAN_BRAKING_ALERT, TextToSpeech.QUEUE_ADD, null);
+                    }
+                }
+
+            }
+
+        });
+    }
+
+    //END ADDED STUFF FROM PONZINO_THE_WOLF_94
 }

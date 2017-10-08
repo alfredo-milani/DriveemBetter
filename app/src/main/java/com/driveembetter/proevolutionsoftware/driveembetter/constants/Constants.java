@@ -83,4 +83,12 @@ public interface Constants {
     String OWNER = "Owner, ";
     String YES = "Yes";
     String NO = "No";
+
+
+    //Speed and Acceleration limit
+    String ENGLISH_ACCELERATION_ALERT = "You're accelerating too much, try to slow down";
+    String ENGLISH_BRAKING_ALERT = "please, avoid making abrupt brakes";
+    String ITALIAN_ACCELERATION_ALERT = "Evita accelerazioni brusche";
+    String ITALIAN_BRAKING_ALERT = "Evita di frenare in maniera troppo energetica";
+
 }
