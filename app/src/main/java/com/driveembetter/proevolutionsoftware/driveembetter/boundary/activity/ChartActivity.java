@@ -10,15 +10,18 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.RadioButton;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
 import com.github.mikephil.charting.charts.ScatterChart;
 
 /**
- * Created by alfredo on 28/08/17.
+ * Created by Fabiana Rossi.
  */
 
 /* Chart Activity Class */
@@ -28,6 +31,9 @@ public class ChartActivity extends AppCompatActivity {
     private double startIndex, endIndex;
     private ChartAsyncTask task;
     private ProgressDialog progress;
+    private RadioButton rbVelocity, rbTime;
+    String value = Constants.VELOCITY;
+    String valueTime = Constants.STR_WEEK;
 
 
 
@@ -37,10 +43,7 @@ public class ChartActivity extends AppCompatActivity {
         /* Call through to the super class's implementation of this method */
         super.onCreate(savedInstanceState);
 
-        /*
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                */
+
         /* Set the activity content from layout resource */
         setContentView(R.layout.activity_graph);
 
@@ -87,7 +90,23 @@ public class ChartActivity extends AppCompatActivity {
 
             /* Create a new async task */
             task = new ChartAsyncTask(retainedFragment);
-            task.execute(function, String.valueOf(startIndex), String.valueOf(endIndex));
+
+            rbVelocity =  findViewById(R.id.radio_velocity);
+            rbTime = findViewById(R.id.radio_week);
+
+            if(rbVelocity.isChecked()) {
+                value = Constants.VELOCITY;
+            } else{
+                value = Constants.ACCELERATION;
+            }
+            if (rbTime.isChecked()) {
+                valueTime = Constants.STR_WEEK;
+            }else {
+                valueTime = Constants.STR_DAY;
+            }
+
+
+            task.execute(value, valueTime, String.valueOf(endIndex));
             retainedFragment.setTask(task);
         } else {
             /* Retained fragment already exists; activity has been recreated */
@@ -132,6 +151,55 @@ public class ChartActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.radio_velocity:
+                if (checked) {
+                    createGraph();
+                }
+                break;
+            case R.id.radio_acceleration:
+                if (checked)    {
+                    createGraph();
+                }
+                break;
+
+
+        }
+    }
+
+    public void onRadioButtonClickedTime(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.radio_week:
+                if (checked) {
+                    createGraph();
+                }
+                break;
+            case R.id.radio_day:
+                if (checked) {
+                    createGraph();
+                }
+                break;
+
+
+        }
+    }
+
+
+
+
+
 
     /* Initialize function, startIndex and endIndex variables from intent extras */
     private void initData() {
@@ -192,4 +260,66 @@ public class ChartActivity extends AppCompatActivity {
             return false;
         }
     }
+
+    private void createGraph() {
+        FragmentManager fragmentManager = getFragmentManager();
+        RetainedFragment retainedFragment = (RetainedFragment) fragmentManager.findFragmentByTag(getString(R.string.fragment_tag));
+
+         /* Get chart fragment */
+        com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment chartFragment = (com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
+
+        if (retainedFragment.getData() != null) {
+                    /* Get chart */
+            ScatterChart chart = chartFragment.getChart();
+            chart.clearValues();
+            chart.clear();
+        }
+
+        /* Create a new retained fragment */
+        retainedFragment = new RetainedFragment();
+        /* Set fragment tag */
+        fragmentManager.beginTransaction().add(retainedFragment, getString(R.string.fragment_tag)).commit();
+
+
+        /* Create and set a new progress dialog */
+        progress = new ProgressDialog(this);
+        progress.setMax(100);
+        progress.setMessage(getString(R.string.strProgressDialogMessage));
+        progress.setTitle(getString(R.string.strProgressDialogTitle));
+        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progress.setCancelable(true);
+        progress.setCanceledOnTouchOutside(false);
+        progress.setOnKeyListener(new KeyListener());
+        chartFragment.setProgressDialog(progress);
+        retainedFragment.setProgressDialog(progress);
+
+        /* Get chart from chart fragment */
+        ScatterChart chart = chartFragment.getChart();
+        retainedFragment.setChart(chart);
+
+        /* Create a new async task */
+        task = new ChartAsyncTask(retainedFragment);
+
+        rbVelocity =  findViewById(R.id.radio_velocity);
+        rbTime = findViewById(R.id.radio_week);
+
+        if(rbVelocity.isChecked()) {
+            value = Constants.VELOCITY;
+        } else{
+            value = Constants.ACCELERATION;
+        }
+
+        if (rbTime.isChecked()) {
+            valueTime = Constants.STR_WEEK;
+        }else {
+            valueTime = Constants.STR_DAY;
+        }
+
+        task.execute(value, valueTime, String.valueOf(endIndex));
+        retainedFragment.setTask(task);
+
+
+    }
+
+
 }

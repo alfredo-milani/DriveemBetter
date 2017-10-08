@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -14,7 +14,61 @@
 
     <com.github.mikephil.charting.charts.ScatterChart
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="406dp"
         android:id="@+id/view" />
 
-</LinearLayout>
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:id="@+id/radioGroupParameter"
+        android:layout_below="@+id/view">
+
+        <RadioButton
+            android:id="@+id/radio_velocity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/view"
+            android:layout_weight="1"
+            android:checked="true"
+            android:onClick="onRadioButtonClicked"
+            android:text="@string/velocity" />
+
+        <RadioButton
+            android:id="@+id/radio_acceleration"
+            android:onClick="onRadioButtonClicked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/acceleration" />
+    </RadioGroup>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view"
+        android:layout_toRightOf="@+id/radioGroupParameter"
+        android:layout_toEndOf="@+id/radioGroupParameter"
+        android:layout_marginLeft="46dp"
+        android:layout_marginStart="46dp">
+
+        <RadioButton
+            android:id="@+id/radio_week"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:onClick="onRadioButtonClickedTime"
+            android:text="@string/week" />
+
+        <RadioButton
+            android:id="@+id/radio_day"
+            android:onClick="onRadioButtonClickedTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/day" />
+    </RadioGroup>
+
+</RelativeLayout>

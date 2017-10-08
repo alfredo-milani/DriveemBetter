@@ -42,4 +42,8 @@ public class MeanWeek {
     public void setLocalDate(Date localDate) {
         this.localDate = localDate;
     }
+
+    public static void resetSession() {
+        MeanWeek.instance = null;
+    }
 }

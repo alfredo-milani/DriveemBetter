@@ -141,6 +141,8 @@ public class MainFragmentActivity extends AppCompatActivity
 
                     reauthenticationThread.interrupt();
                     SingletonUser.resetSession();
+                    MeanDay.resetSession();
+                    MeanWeek.resetSession();
                     startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
                     break;
 

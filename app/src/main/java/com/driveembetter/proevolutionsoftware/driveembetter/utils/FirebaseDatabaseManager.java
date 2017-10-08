@@ -62,6 +62,7 @@ public class FirebaseDatabaseManager
 
     public static void manageUserStatistics() {
         SingletonUser user = SingletonUser.getInstance();
+        Log.d(TAG, "USER: " + user);
         if (user != null) {
             Log.d(TAG, "Saving statistics");
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
@@ -389,6 +390,45 @@ public class FirebaseDatabaseManager
             Log.d(TAG, "DB POS PARSED: " + user.getCountry() + "/" + user.getRegion() + "/" + user.getSubRegion());
             // TODO forse sarebbe meglio mettere country/region/subRegion come attributo dell'entità users su DB
         }
+    }
+
+
+
+    public interface RetrieveDataDB {
+        void onDataReceived(String data);
+    }
+
+    public static void retrieveUserData(final RetrieveDataDB callback, String userId) {
+        if (callback == null) {
+            throw new CallbackNotInitialized(TAG);
+        } else if (userId == null) {
+            return;
+        }
+
+        final Query query = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(userId);
+
+        // Attach a listener to read the data at our posts reference
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String data = null;
+                if (dataSnapshot.exists()) {
+                    if (dataSnapshot.child(CHILD_DATA) != null &&
+                            dataSnapshot.child(CHILD_DATA).getValue() != null) {
+                        data = dataSnapshot.child(CHILD_DATA).getValue().toString();
+                    }
+                }
+
+                callback.onDataReceived(data);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "The read failed: " + databaseError.getCode());
+            }
+        });
     }
 
 

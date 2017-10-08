@@ -45,4 +45,8 @@ public class MeanDay {
     public void setLocalDate(Date localDate) {
         this.localDate = localDate;
     }
+
+    public static void resetSession() {
+        MeanDay.instance = null;
+    }
 }

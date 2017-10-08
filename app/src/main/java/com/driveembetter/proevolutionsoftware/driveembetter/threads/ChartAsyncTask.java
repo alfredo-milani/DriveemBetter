@@ -27,6 +27,8 @@ import java.util.Random;
 public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
     private final static String TAG = ChartAsyncTask.class.getSimpleName();
+    private final static int HOURS_IN_DAY = 24;
+    private final static int DAYS_IN_WEEK = 7;
 
     RetainedFragment fragment;
 
@@ -40,9 +42,10 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     @Override
     /* This method perform a computation on a background thread */
     protected ScatterData doInBackground(String... params) {
-
+        String value = params[0];
+        String valueTime = params[1];
         /* Make computation */
-        return this.calculate();
+        return this.calculate(value, valueTime);
     }
 
     @Override
@@ -91,7 +94,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     }
 
     /* Make computation */
-    public ScatterData calculate() {
+    public ScatterData calculate(String value, String valueTime) {
 
         SingletonScatterData sessionData = SingletonScatterData.getInstance();
         ScatterDataSet scatterDataSet;
@@ -101,10 +104,10 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         ArrayList<String> xVals = new ArrayList<>();
         float sampleSum, sampleSize, mean;
 
-        for (int i = 0; i <= Constants.HOURS; i++) {
+       /* for (int i = 0; i <= Constants.HOURS; i++) {
             if(MeanDay.getInstance().getMap().get(i) != null) {
                 xVals.add(String.valueOf(i));
-                 /* Add entry with the mean of velocity */
+
                 sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumVelocity();
                 sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeVelocity();
                 mean = sampleSum / sampleSize;
@@ -114,10 +117,99 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
                 xVals.add(String.valueOf(i));
                 vals.add(new Entry(0,i));
             }
+        }*/
+
+        if (value.equals(Constants.VELOCITY)) {
+
+            if  (valueTime.equals(Constants.STR_WEEK)){
+
+                for (int i = 0; i < DAYS_IN_WEEK; i++) {
+                    if (MeanWeek.getInstance().getMap().get(i) != null) {
+
+                        xVals.add(String.valueOf(i));
+                        sampleSum = MeanWeek.getInstance().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) MeanWeek.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        mean = sampleSum / sampleSize;
+                        Entry entry = new Entry(mean, i);
+                        vals.add(entry);
+                    } else {
+                        xVals.add(String.valueOf(i));
+                        vals.add(new Entry(0, i));
+                    }
+
+
+                }
+            } else{
+
+                for (int i = 0; i < HOURS_IN_DAY; i++) {
+                    if (MeanDay.getInstance().getMap().get(i) != null) {
+
+                        xVals.add(String.valueOf(i));
+                        sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        mean = sampleSum / sampleSize;
+                        Entry entry = new Entry(mean, i);
+                        vals.add(entry);
+                    } else {
+                        xVals.add(String.valueOf(i));
+                        vals.add(new Entry(0, i));
+                    }
+
+
+                }
+            }
+
+
+        } else{
+
+            if  (valueTime.equals(Constants.STR_WEEK)){
+
+                for (int i = 0; i < DAYS_IN_WEEK; i++) {
+
+                    if (MeanWeek.getInstance().getMap().get(i) != null) {
+
+                        xVals.add(String.valueOf(i));
+                        sampleSum = MeanWeek.getInstance().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) MeanWeek.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        mean = sampleSum / sampleSize;
+                        Entry entry = new Entry(mean, i);
+                        vals.add(entry);
+
+                    } else {
+
+                        xVals.add(String.valueOf(i));
+                        vals.add(new Entry(0, i));
+                    }
+
+
+                }
+            } else{
+
+                for (int i = 0; i < HOURS_IN_DAY; i++) {
+
+                    if (MeanDay.getInstance().getMap().get(i) != null) {
+
+                        xVals.add(String.valueOf(i));
+                        sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        mean = sampleSum / sampleSize;
+                        Entry entry = new Entry(mean, i);
+                        vals.add(entry);
+
+                    } else {
+
+                        xVals.add(String.valueOf(i));
+                        vals.add(new Entry(0, i));
+                    }
+
+
+                }
+            }
+
         }
 
         /* Create a new scatter data set and set properties */
-        scatterDataSet = new ScatterDataSet(vals, "func");
+        scatterDataSet = new ScatterDataSet(vals, "statistics");
         scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
         scatterDataSet.setColor(Color.BLUE);
         scatterDataSet.setScatterShapeSize(6f);

@@ -1,10 +1,13 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -14,7 +17,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.LegendRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 /**
  * Created by alfredo on 02/09/17.
@@ -22,15 +29,14 @@ import com.jjoe64.graphview.GraphView;
 
 public class UserDetailsRankingActivity
         extends AppCompatActivity
-        implements Constants {
+        implements Constants, FirebaseDatabaseManager.RetrieveDataDB {
 
     private final static String TAG = UserDetailsRankingActivity.class.getSimpleName();
 
-    // Constants
-    private final static int DAY_PER_MONTH = 30;
-
     // Resources
     private User user;
+    private LineGraphSeries<DataPoint> velocitySeries;
+    private LineGraphSeries<DataPoint> accelerationSeries;
 
     // Widgets
     private TextView username;
@@ -73,7 +79,7 @@ public class UserDetailsRankingActivity
         this.unavailableData = findViewById(R.id.unavailable_data);
         this.progressBar = findViewById(R.id.progress_bar);
 
-        if (this.user.getUsername() != null) {
+        if (this.user.getUsername() != null && !user.getUsername().isEmpty()) {
             this.username.setText(this.user.getUsername());
         } else {
             this.username.setText(this.user.getUsernameFromUid());
@@ -102,37 +108,47 @@ public class UserDetailsRankingActivity
             this.availability.setImageResource(R.drawable.unavailable_shape);
         }
 
-        // Plot points graph
-        this.graphView.setTitle(getString(R.string.user_points_title));
 
-        // TODO query: download data from user node
-        // TODO parse data retrieved to array (of days)
+        FirebaseDatabaseManager.retrieveUserData(this, user.getUid());
+        // Graph properties
+        this.velocitySeries = new LineGraphSeries<>();
+        this.accelerationSeries = new LineGraphSeries<>();
+        this.velocitySeries.setTitle("velocity");
+        this.accelerationSeries.setTitle("acceleration");
 
         /*
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
+        // Plot points graph
+        // this.graphView.setTitle(getString(R.string.user_points_title));
+
+        // first series
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
                 new DataPoint(0, 1),
                 new DataPoint(1, 5),
                 new DataPoint(2, 3),
                 new DataPoint(3, 2),
-                new DataPoint(4, 6),
-                new DataPoint(24, 15),
-                new DataPoint(12, 30)
+                new DataPoint(4, 6)
         });
-
-        // styling series
-        series.setColor(Color.GREEN);
-        series.setDrawDataPoints(true);
-        series.setDataPointsRadius(5);
-        series.setThickness(8);
-
-        // custom paint to make a dotted line
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setStrokeWidth(5);
-        paint.setPathEffect(new DashPathEffect(new float[]{8, 5}, 0));
-        series.setCustomPaint(paint);
-
+        series.setTitle("first line");
         this.graphView.addSeries(series);
+
+        // second series
+        LineGraphSeries<DataPoint> series2 = new LineGraphSeries<>(new DataPoint[] {
+                new DataPoint(0, 3),
+                new DataPoint(1, 3),
+                new DataPoint(2, 6),
+                new DataPoint(3, 2),
+                new DataPoint(4, 5)
+        });
+        series2.setTitle("speed");
+        series2.setDrawBackground(true);
+        series2.setColor(Color.argb(255, 255, 60, 60));
+        series2.setBackgroundColor(Color.argb(100, 204, 119, 119));
+        series2.setDrawDataPoints(true);
+        this.graphView.addSeries(series2);
+
+        // legend
+        this.graphView.getLegendRenderer().setVisible(true);
+        this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
         */
     }
 
@@ -150,5 +166,42 @@ public class UserDetailsRankingActivity
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    @Override
+    public void onDataReceived(String data) {
+        Log.d(TAG, "Data received");
+        this.progressBar.setVisibility(View.GONE);
+        if (data == null) {
+            Log.d(TAG, "Data null");
+            this.unavailableData.setVisibility(View.VISIBLE);
+        } else {
+            Log.d(TAG, "Data consistent");
+            String[] items = data.split(";");
+            for (int i = 0; i < Constants.HOURS; ++i) {
+                String[] values = items[i].split("_");
+                if (values.length < 5) {
+                    continue;
+                }
+
+                this.velocitySeries.appendData(
+                        new DataPoint(i, Double.valueOf(values[2])),
+                        false,
+                        Constants.HOURS
+                );
+                this.accelerationSeries.appendData(
+                        new DataPoint(i, Double.valueOf(values[4])),
+                        false,
+                        Constants.HOURS
+                );
+            }
+
+            this.graphView.addSeries(this.velocitySeries);
+            this.graphView.addSeries(this.accelerationSeries);
+            this.accelerationSeries.setColor(Color.argb(255, 255, 60, 60));
+            // legend
+            this.graphView.getLegendRenderer().setVisible(true);
+            this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        }
     }
 }

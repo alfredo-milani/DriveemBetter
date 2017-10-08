@@ -1,7 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
-import android.util.Log;
-
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
@@ -40,7 +38,6 @@ public class StringParser {
 
     private static String getStringFromHashMap(Map<Integer, Mean> map, int lenght) {
         String string = "";
-        // Al posto di Constants.HOURS ci andrebbe il numero massimo
         for (int i = 0; i < lenght; ++i) {
             Mean mean = map.get(i);
             if (mean != null) {
@@ -56,7 +53,6 @@ public class StringParser {
                 string = string.concat(itemSeparator);
             }
         }
-        Log.d(TAG, "STR - " + string);
 
         return string;
     }
@@ -64,40 +60,36 @@ public class StringParser {
     public static void setMapFromString(String data) {
         String[] items = data.split(StringParser.itemSeparator);
 
-        try {
-            MeanDay meanDay = MeanDay.getInstance();
-            for (int i = 0; i < Constants.HOURS; ++i) {
-                String[] values = items[i].split(StringParser.subItemSeparator);
-                if (values.length != 5) {
-                    continue;
-                }
-
-                Mean mean = new Mean(
-                        Float.valueOf(values[4]),
-                        Float.valueOf(values[2]),
-                        Integer.valueOf(values[1]),
-                        Integer.valueOf(values[3])
-                );
-                meanDay.getMap().put(Integer.valueOf(values[0]), mean);
+        MeanDay meanDay = MeanDay.getInstance();
+        for (int i = 0; i < Constants.HOURS; ++i) {
+            String[] values = items[i].split(StringParser.subItemSeparator);
+            if (values.length != 5) {
+                continue;
             }
 
-            MeanWeek meanWeek = MeanWeek.getInstance();
-            for (int i = 0; i < Constants.DAYS; ++i) {
-                String[] values = items[i].split(StringParser.subItemSeparator);
-                if (values.length != 5) {
-                    continue;
-                }
+            Mean mean = new Mean(
+                    Float.valueOf(values[4]),
+                    Float.valueOf(values[2]),
+                    Integer.valueOf(values[1]),
+                    Integer.valueOf(values[3])
+            );
+            meanDay.getMap().put(Integer.valueOf(values[0]), mean);
+        }
 
-                Mean mean = new Mean(
-                        Float.valueOf(values[4]),
-                        Float.valueOf(values[2]),
-                        Integer.valueOf(values[1]),
-                        Integer.valueOf(values[3])
-                );
-                meanWeek.getMap().put(Integer.valueOf(values[0]), mean);
+        MeanWeek meanWeek = MeanWeek.getInstance();
+        for (int i = 0; i < Constants.DAYS; ++i) {
+            String[] values = items[i].split(StringParser.subItemSeparator);
+            if (values.length != 5) {
+                continue;
             }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
+
+            Mean mean = new Mean(
+                    Float.valueOf(values[4]),
+                    Float.valueOf(values[2]),
+                    Integer.valueOf(values[1]),
+                    Integer.valueOf(values[3])
+            );
+            meanWeek.getMap().put(Integer.valueOf(values[0]), mean);
         }
     }
 }

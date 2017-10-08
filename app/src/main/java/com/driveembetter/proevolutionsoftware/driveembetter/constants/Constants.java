@@ -60,6 +60,8 @@ public interface Constants {
 
     String VELOCITY = "Velocity";
     String ACCELERATION = "Acceleration";
+    String STR_DAY = "day";
+    String STR_WEEK = "week";
     int HOURS = 24;
     int DAYS = 7;
 
