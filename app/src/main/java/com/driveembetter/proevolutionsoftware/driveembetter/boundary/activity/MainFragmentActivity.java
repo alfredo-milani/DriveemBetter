@@ -49,21 +49,27 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.Ra
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
 import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosureHandler;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ReauthenticateUserRunnable;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.SaveUserStatisticsRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.github.mikephil.charting.charts.ScatterChart;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -82,6 +88,7 @@ public class MainFragmentActivity extends AppCompatActivity
     private SingletonUser singletonUser;
     private PositionManager positionManager;
     private Thread reauthenticationThread;
+    private Thread saveUserDataThread;
 
     // Fragments
     private FragmentState fragmentState;
@@ -170,6 +177,10 @@ public class MainFragmentActivity extends AppCompatActivity
         // Start reauthentication thread
         this.reauthenticationThread = new Thread(new ReauthenticateUserRunnable(this));
         this.reauthenticationThread.start();
+
+        // Start thread to save user data
+        this.saveUserDataThread = new Thread(new SaveUserStatisticsRunnable(this));
+        this.saveUserDataThread.start();
 
         // Init user
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
@@ -357,17 +368,36 @@ public class MainFragmentActivity extends AppCompatActivity
         // java.lang.Thread.State can be NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED
         // thread.getState() --> stato thread; thread.isAlive --> true sse il thread è in esecuzione
         switch (this.reauthenticationThread.getState()) {
-            case BLOCKED: Log.d(TAG, "thread:blocked");
-            case TERMINATED: Log.d(TAG, "thread:terminated");
+            case BLOCKED: Log.d(TAG, "thread REAUTH:blocked");
+            case TERMINATED: Log.d(TAG, "thread REAUTH:terminated");
                 this.reauthenticationThread.interrupt();
                 this.reauthenticationThread = new Thread(new ReauthenticateUserRunnable(this));
                 this.reauthenticationThread.start();
                 break;
 
-            case NEW: Log.d(TAG, "thread:new");
-            case RUNNABLE: Log.d(TAG, "thread:runnable");
-            case TIMED_WAITING: Log.d(TAG, "thread:timed_waiting");
-            case WAITING: Log.d(TAG, "thread:waiting");
+            case NEW: Log.d(TAG, "thread REAUTH:new");
+            case RUNNABLE: Log.d(TAG, "thread REAUTH:runnable");
+            case TIMED_WAITING: Log.d(TAG, "thread REAUTH:timed_waiting");
+            case WAITING: Log.d(TAG, "thread REAUTH:waiting");
+                break;
+        }
+    }
+
+    private void manageSaveUserDataThreadStatus() {
+        // java.lang.Thread.State can be NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED
+        // thread.getState() --> stato thread; thread.isAlive --> true sse il thread è in esecuzione
+        switch (this.reauthenticationThread.getState()) {
+            case BLOCKED: Log.d(TAG, "thread SAVE_DATA:blocked");
+            case TERMINATED: Log.d(TAG, "thread SAVE_DATA:terminated");
+                this.saveUserDataThread.interrupt();
+                this.saveUserDataThread = new Thread(new SaveUserStatisticsRunnable(this));
+                this.saveUserDataThread.start();
+                break;
+
+            case NEW: Log.d(TAG, "thread SAVE_DATA:new");
+            case RUNNABLE: Log.d(TAG, "thread SAVE_DATA:runnable");
+            case TIMED_WAITING: Log.d(TAG, "thread SAVE_DATA:timed_waiting");
+            case WAITING: Log.d(TAG, "thread SAVE_DATA:waiting");
                 break;
         }
     }
@@ -441,28 +471,34 @@ public class MainFragmentActivity extends AppCompatActivity
 
             case R.id.nav_share:
                 // DEBUG
-                SingletonGoogleProvider singletonGoogleProvider = ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER));
-                if (singletonGoogleProvider != null) {
-                    Log.d(TAG, "SIGN IN GOOGLE: " + singletonGoogleProvider.isSignIn());
-                } else {
-                    Log.d(TAG, "SING GOOGLE NULL");
+                Map<Integer, Mean> map = MeanDay.getInstance().getMap();
+                String TAGG = StringParser.class.getSimpleName();
+                Log.d(TAGG, "DAY - SIZE: " + MeanDay.getInstance().getMap().size());
+                for (int i = 0; i < Constants.HOURS; ++i) {
+                    Mean mean = map.get(i);
+                    if (mean != null) {
+                        Log.d(TAGG, "EL(" + i + "): " + mean.getSampleSizeVelocity() + " / " + mean.getSampleSumVelocity());
+                    } else {
+                        Log.d(TAGG, "EL(" + i + "): " + null);
+                    }
                 }
 
-                Log.d(TAG, "Singleton user: " + singletonUser.getEmail() + " / " + singletonUser.getUsername());
-
-                if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
-                    Log.d(TAG, "USER FIRE: " + this.singletonFirebaseProvider.getFirebaseUser().getEmail() + " / " + this.singletonFirebaseProvider.getFirebaseUser().getUid());
-                } else {
-                    Log.d(TAG, "USER FIRE NULL");
+                Log.d(TAGG, "WEEK - SIZE: " + MeanWeek.getInstance().getMap().size());
+                map = MeanWeek.getInstance().getMap();
+                for (int i = 0; i < Constants.DAYS; ++i) {
+                    Mean mean = map.get(i);
+                    if (mean != null) {
+                        Log.d(TAGG, "EL(" + i + "): " + mean.getSampleSizeVelocity() + " / " + mean.getSampleSumVelocity());
+                    } else {
+                        Log.d(TAGG, "EL(" + i + "): " + null);
+                    }
                 }
-
-                Log.d(TAG, "Firebase signIn: " + this.singletonFirebaseProvider.isFirebaseSignIn());
                 ////
                 break;
 
             case R.id.nav_send:
                 // DEBUG
-                ChartAsyncTask.fillMeanTEST();
+                ChartAsyncTask.fillMeanWeekDay(24, 7, 1);
                 ////
                 break;
 
@@ -544,6 +580,7 @@ public class MainFragmentActivity extends AppCompatActivity
         super.onResume();
 
         this.manageReathenticationThreadStatus();
+        this.manageSaveUserDataThreadStatus();
         Log.d(TAG, ":resume");
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
@@ -571,6 +608,7 @@ public class MainFragmentActivity extends AppCompatActivity
         Log.d(TAG, ":destroy");
 
         this.reauthenticationThread.interrupt();
+        this.saveUserDataThread.interrupt();
         FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
         FirebaseDatabaseManager.manageUserStatistics();
         FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);

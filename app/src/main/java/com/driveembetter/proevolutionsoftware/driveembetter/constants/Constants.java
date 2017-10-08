@@ -54,14 +54,12 @@ public interface Constants {
     String CHILD_AVAILABILITY = "availability";
 
     // Statistics
-    String ARG_STAT_DAY = "statisticsDaily";
-    String ARG_STAT_WEEK = "statisticsWeekly";
+    String ARG_STAT_DAY = "dataDaily";
+    String ARG_STAT_WEEK = "dataWeekly";
+    String CHILD_DATA = "userData";
 
     String VELOCITY = "Velocity";
     String ACCELERATION = "Acceleration";
-    String WEEK = "Weekly";
-    String DAY = "Daily";
-
     int HOURS = 24;
     int DAYS = 7;
 

@@ -69,11 +69,8 @@ public class FirebaseDatabaseManager
                     .child(user.getUid());
 
             databaseReference
-                    .child(ARG_STAT_DAY)
-                    .setValue(StringParser.getStringFromHashMap(MeanDay.getInstance().getMap()));
-            databaseReference
-                    .child(ARG_STAT_WEEK)
-                    .setValue(StringParser.getStringFromHashMap(MeanWeek.getInstance().getMap()));
+                    .child(CHILD_DATA)
+                    .setValue(StringParser.getStringFromUserData());
         }
     }
 
@@ -346,14 +343,11 @@ public class FirebaseDatabaseManager
 
                     checkOldPositionData();
 
-                    // TODO stringa -> map
-                    if (dataSnapshot.child(ARG_STAT_DAY) != null &&
-                            dataSnapshot.child(ARG_STAT_DAY).getValue() != null) {
-                        // MeanDay.getInstance().getMap().put(i, new Mean(parsed, parsed));
-                    }
-                    if (dataSnapshot.child(ARG_STAT_WEEK) != null &&
-                            dataSnapshot.child(ARG_STAT_WEEK).getValue() != null) {
-                        // MeanWeek
+                    if (dataSnapshot.child(CHILD_DATA) != null &&
+                            dataSnapshot.child(CHILD_DATA).getValue() != null) {
+                        StringParser.setMapFromString(
+                                dataSnapshot.child(CHILD_DATA).getValue().toString()
+                        );
                     }
                 }
 
@@ -361,13 +355,6 @@ public class FirebaseDatabaseManager
                         .child(CHILD_AVAILABILITY)
                         .onDisconnect()
                         .setValue(UNAVAILABLE);
-                // TODO valori ottenuti fino ora
-                /*
-                dataSnapshot.getRef()
-                        .child(ARG_STAT_DAY)
-                        .onDisconnect()
-                        .setValue("VALUE STAT");
-                */
 
                 user.getMtxSyncData().unlock();
                 user.getMtxUpdatePosition().unlock();

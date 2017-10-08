@@ -351,7 +351,9 @@ public class PositionManager
         return strings;
     }
 
-
+    public int getInitialSpeed() {
+        return this.initialSpeed;
+    }
 
     //ADDED FROM PONZINO_THE_WOLF_94
 

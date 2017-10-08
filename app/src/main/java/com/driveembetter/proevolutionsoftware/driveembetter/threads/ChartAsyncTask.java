@@ -2,7 +2,6 @@ package com.driveembetter.proevolutionsoftware.driveembetter.threads;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
@@ -133,6 +132,53 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         return new ScatterData(xVals, dataSets);
     }
 
+    public static void fillMeanWeekDay(int ore, int giorniSettimana, int type) {
+        MeanDay mean2 = MeanDay.getInstance();
+        MeanWeek mean3 = MeanWeek.getInstance();
+
+        switch (type) {
+            case 0:
+                for (int i = 0; i < ore; ++i) {
+                    Mean meanDay = new Mean();
+                    meanDay.setSampleSumAcceleration(new Random().nextInt(40)); // modificare con il valore della velocità
+                    meanDay.setSampleSumVelocity(new Random().nextInt(50));
+                    meanDay.setSampleSizeAcceleration();
+                    meanDay.setSampleSizeVelocity();
+                    mean2.getMap().put(i, meanDay);
+                }
+
+                for (int i = 0; i < giorniSettimana; ++i) {
+                    Mean meanWeek = new Mean();
+                    meanWeek.setSampleSumAcceleration(new Random().nextInt(40)); // modificare con il valore della velocità
+                    meanWeek.setSampleSumVelocity(new Random().nextInt(50));
+                    meanWeek.setSampleSizeAcceleration();
+                    meanWeek.setSampleSizeVelocity();
+                    mean3.getMap().put(i, meanWeek);
+                }
+                break;
+
+            case 1:
+                for (int i = 0; i < ore; i+=3) {
+                    Mean meanDay = new Mean();
+                    meanDay.setSampleSumAcceleration(new Random().nextInt(40)); // modificare con il valore della velocità
+                    meanDay.setSampleSumVelocity(new Random().nextInt(50));
+                    meanDay.setSampleSizeAcceleration();
+                    meanDay.setSampleSizeVelocity();
+                    mean2.getMap().put(i, meanDay);
+                }
+
+                for (int i = 0; i < giorniSettimana; i+=2) {
+                    Mean meanWeek = new Mean();
+                    meanWeek.setSampleSumAcceleration(new Random().nextInt(40)); // modificare con il valore della velocità
+                    meanWeek.setSampleSumVelocity(new Random().nextInt(50));
+                    meanWeek.setSampleSizeAcceleration();
+                    meanWeek.setSampleSizeVelocity();
+                    mean3.getMap().put(i, meanWeek);
+                }
+                break;
+        }
+    }
+
     /**
      * TODO DEBUG: DA ELIMINARE
      */
@@ -141,9 +187,8 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         Calendar calendar = Calendar.getInstance();
         Date date = calendar.getTime();
         MeanWeek mean3 = MeanWeek.getInstance();
-        // int hour = date.getHours();
+        int hour = date.getHours();
         for (int i = 0; i <= 24; i ++) {
-            int hour = new Random().nextInt(22);
             if (date.equals(mean2.getLocalDate())) { //stesso giorno
                 if (mean2.getMap().get(hour) != null){
                     Mean meanDay = mean2.getMap().get(hour);
@@ -170,9 +215,6 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
                 meanDay.setSampleSizeVelocity();
                 mean2.getMap().put(hour, meanDay);
             }
-
-            System.out.println("Programma per " + i + " eseguito in ora " + hour + " giorno" );
-            Log.e(TAG, "Programma per " + i + " eseguito in ora " + hour + " giorno");
         }
     }
 

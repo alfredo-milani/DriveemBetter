@@ -2,7 +2,10 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 import android.util.Log;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 
 import java.util.Map;
 
@@ -11,6 +14,11 @@ import java.util.Map;
  */
 
 public class StringParser {
+
+    private final static String TAG = StringParser.class.getSimpleName();
+
+    private final static String itemSeparator = ";";
+    private final static String subItemSeparator = "_";
 
     public static String getStringFromCoordinates(double latitude, double longitude) {
         return Double.toString(latitude) + ";" + Double.toString(longitude);
@@ -24,31 +32,72 @@ public class StringParser {
         return input.replaceAll("\\s", "");
     }
 
-    public static String getStringFromHashMap(Map<Integer, Mean> map) {
-        Log.d("DIO", "SIZE: " + map.size());
+    public static String getStringFromUserData() {
+        String dataDaily = StringParser.getStringFromHashMap(MeanDay.getInstance().getMap(), Constants.HOURS);
+        String dataWeekly = StringParser.getStringFromHashMap(MeanWeek.getInstance().getMap(), Constants.DAYS);
+        return dataDaily.concat(dataWeekly);
+    }
+
+    private static String getStringFromHashMap(Map<Integer, Mean> map, int lenght) {
         String string = "";
-        for (int i = 0; i < map.size(); ++i) {
+        // Al posto di Constants.HOURS ci andrebbe il numero massimo
+        for (int i = 0; i < lenght; ++i) {
             Mean mean = map.get(i);
             if (mean != null) {
                 string = string.concat(String.format(
-                        "%d_%.3f_%d_%.3f;",
+                        "%d" + subItemSeparator + "%d" + subItemSeparator + "%.1f" + subItemSeparator + "%d" + subItemSeparator + "%.1f" + itemSeparator,
+                        i,
                         mean.getSampleSizeVelocity(),
                         mean.getSampleSumVelocity(),
                         mean.getSampleSizeAcceleration(),
                         mean.getSampleSumAcceleration()
                 ));
             } else {
-                string.concat(";");
+                string = string.concat(itemSeparator);
             }
         }
-        Log.d("DIO", "STR: " + string);
+        Log.d(TAG, "STR - " + string);
 
         return string;
     }
 
-    /*
-    public static Map<Integer, Mean> getMapFromString(String data) {
-        Map<Integer, Mean> map = new Map
+    public static void setMapFromString(String data) {
+        String[] items = data.split(StringParser.itemSeparator);
+
+        try {
+            MeanDay meanDay = MeanDay.getInstance();
+            for (int i = 0; i < Constants.HOURS; ++i) {
+                String[] values = items[i].split(StringParser.subItemSeparator);
+                if (values.length != 5) {
+                    continue;
+                }
+
+                Mean mean = new Mean(
+                        Float.valueOf(values[4]),
+                        Float.valueOf(values[2]),
+                        Integer.valueOf(values[1]),
+                        Integer.valueOf(values[3])
+                );
+                meanDay.getMap().put(Integer.valueOf(values[0]), mean);
+            }
+
+            MeanWeek meanWeek = MeanWeek.getInstance();
+            for (int i = 0; i < Constants.DAYS; ++i) {
+                String[] values = items[i].split(StringParser.subItemSeparator);
+                if (values.length != 5) {
+                    continue;
+                }
+
+                Mean mean = new Mean(
+                        Float.valueOf(values[4]),
+                        Float.valueOf(values[2]),
+                        Integer.valueOf(values[1]),
+                        Integer.valueOf(values[3])
+                );
+                meanWeek.getMap().put(Integer.valueOf(values[0]), mean);
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
     }
-    */
 }
