@@ -355,7 +355,7 @@ public class PositionManager
         return this.initialSpeed;
     }
 
-    //ADDED FROM PONZINO_THE_WOLF_94
+    //ADDED BY PONZINO_THE_WOLF_94
 
     private class SpeedLimitManager extends AsyncTask<String, String, String> {
 
@@ -476,5 +476,5 @@ public class PositionManager
         });
     }
 
-    //END ADDED STUFF FROM PONZINO_THE_WOLF_94
+    //END ADDED BY FROM PONZINO_THE_WOLF_94
 }

@@ -28,6 +28,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Ad
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Modify_vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.VehiclesAdapter;
 import com.google.firebase.database.DataSnapshot;
@@ -317,6 +318,7 @@ public class GarageFragment extends Fragment
             ref.child(vehicles.get(selected_item).getNumberPlate())
                     .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner());
         }
+        SingletonUser.getInstance().setCurrentVehicle(vehicles.get(selected_item));
     }
 
     private View init_view(LayoutInflater inflater, ViewGroup container) {

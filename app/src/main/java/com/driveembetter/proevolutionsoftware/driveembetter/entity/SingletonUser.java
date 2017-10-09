@@ -35,6 +35,8 @@ public class SingletonUser
     private double longitude;
     private String country, region, subRegion;
     private ArrayList<Vehicle> vehicleArrayList;
+    private Double feedback;
+    private List<Double> historicalFeedback;
 
     // Miscellaneous user data
     private Vehicle currentVehicle;
@@ -113,6 +115,21 @@ public class SingletonUser
         this.providerData = providerData;
     }
 
+    public Double getFeedback() {
+        double sum = 0.0;
+        if (historicalFeedback != null) {
+            for (int i = 0; i < historicalFeedback.size(); i++) {
+                sum += historicalFeedback.get(i);
+            }
+            return sum / historicalFeedback.size();
+        }
+        return sum;
+    }
+
+    public void updateHistoricalFeedback(Double currentFeedback) {
+        historicalFeedback.add(currentFeedback);
+    }
+
     public ArrayList<Vehicle> getVehicleArrayList() {
         synchronized (this) {
             return this.vehicleArrayList;
@@ -127,6 +144,7 @@ public class SingletonUser
         }
 
         FirebaseDatabaseManager.getVehiclesDB(this, userDataCallback);
+        FirebaseDatabaseManager.getCurrentVehicle(this, userDataCallback);
     }
 
     @Override
