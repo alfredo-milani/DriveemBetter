@@ -37,7 +37,6 @@
             android:id="@+id/driverPositionContent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/space"
             android:layout_alignStart="@+id/driverFeedback"
             android:layout_below="@+id/driverUsernameContent"
             android:maxLines="3"

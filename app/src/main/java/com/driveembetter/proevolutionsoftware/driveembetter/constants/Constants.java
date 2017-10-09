@@ -52,6 +52,7 @@ public interface Constants {
     String CHILD_CURRENT_POSITION = "currentUserPosition";
     String CHILD_EMAIL = "email";
     String CHILD_AVAILABILITY = "availability";
+    String CHILD_CURRENT_VEHICLE = "current_vehicle";
 
     // Statistics
     String ARG_STAT_DAY = "statisticsDaily";

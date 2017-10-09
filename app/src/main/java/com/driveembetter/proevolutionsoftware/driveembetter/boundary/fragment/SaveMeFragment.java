@@ -4,14 +4,20 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
@@ -20,6 +26,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -29,6 +36,7 @@ import android.widget.Toast;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ChatActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.design.RoundedImageView;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
@@ -51,6 +59,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -79,7 +89,8 @@ public class SaveMeFragment
     private LayoutInflater layoutInflater;
     private RelativeLayout relativeLayout;
     private TextView driverUsername, driverLocation, driverFeedback;
-    private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken;
+    private ImageView driverPic;
+    private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken, userSelectedPic;
     private UpdatePosition updatePosition;
 
     private int progressToMeters(int progress) {
@@ -224,6 +235,32 @@ public class SaveMeFragment
                                 SingletonUser.getInstance().getRegion() + ", " +
                                 SingletonUser.getInstance().getCountry();
 
+                        //GET THE SELECTED USER PHOTO URL
+                        if (!userSelectedUid.equals("USERNAME_TEST")) {
+                            DatabaseReference positionRef = database.getReference()
+                                    .child(NODE_POSITION)
+                                    .child(SingletonUser.getInstance().getCountry())
+                                    .child(SingletonUser.getInstance().getRegion())
+                                    .child(SingletonUser.getInstance().getSubRegion())
+                                    .child(userSelectedUid);
+
+                            positionRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.hasChild(CHILD_IMAGE)) {
+                                        userSelectedPic = dataSnapshot.child(CHILD_IMAGE).getValue().toString();
+                                        Log.e("DEBUGG", userSelectedPic);
+                                        DownloadImageTask downloadImageTask = new DownloadImageTask(driverPic);
+                                        downloadImageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, userSelectedPic);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
 
                         relativeLayout = (RelativeLayout) rootView.findViewById(R.id.relative);
                         layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -233,6 +270,7 @@ public class SaveMeFragment
                         driverUsername = (TextView) container.findViewById(R.id.driverUsernameContent);
                         driverLocation = (TextView) container.findViewById(R.id.driverPositionContent);
                         driverFeedback = (TextView) container.findViewById(R.id.driverFeedbackContent);
+                        driverPic = (ImageView) container.findViewById(R.id.thumbnail);
                         driverLocation.setMovementMethod(new ScrollingMovementMethod());
                         driverUsername.setText(marker.getTitle());
                         driverLocation.setText(userSelectedLocation);
@@ -485,7 +523,6 @@ public class SaveMeFragment
                 if (updatePosition.isCancelled())
                     return;
                 Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
-
                 if (data != null && data.keySet().size() != 0) {
                     for (String user : data.keySet()) {
                         if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
@@ -501,6 +538,7 @@ public class SaveMeFragment
                             } else {
                                 //Map<String, Object> coordinates = data.get(user);
                                 String coordinates = (String) data.get(user).get(CHILD_CURRENT_POSITION);
+                                String vehicleType = (String) data.get(user).get(CHILD_CURRENT_VEHICLE);
                                 String[] latLon = StringParser.getCoordinates(coordinates);
                                 if (latLon == null) {
                                     return;
@@ -514,12 +552,27 @@ public class SaveMeFragment
                                     String markerTitle = "user@drivembetter.com";
                                     if (data.get(user).get(CHILD_EMAIL) != null)
                                         markerTitle = (String) data.get(user).get(CHILD_EMAIL);
-
-                                    Marker userMarker = googleMap.addMarker(new MarkerOptions()
-                                            .draggable(true)
-                                            .position(userPos)
-                                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_car))
-                                            .title(markerTitle));
+                                    Marker userMarker;
+                                    if (vehicleType == null) {
+                                        userMarker = googleMap.addMarker(new MarkerOptions()
+                                                .draggable(true)
+                                                .position(userPos)
+                                                .icon(BitmapDescriptorFactory.fromResource(R.mipmap.car))
+                                                .title(markerTitle));
+                                    } else {
+                                        int mipMapRef = R.mipmap.car;
+                                        if (data.get(user).get(CHILD_CURRENT_VEHICLE).equals("Car"))
+                                            mipMapRef = R.mipmap.car;
+                                        if (data.get(user).get(CHILD_CURRENT_VEHICLE).equals("Moto"))
+                                            mipMapRef = R.mipmap.moto;
+                                        if (data.get(user).get(CHILD_CURRENT_VEHICLE).equals("Van"))
+                                            mipMapRef = R.mipmap.van;
+                                        userMarker = googleMap.addMarker(new MarkerOptions()
+                                        .draggable(true)
+                                        .position(userPos)
+                                        .icon(BitmapDescriptorFactory.fromResource(mipMapRef))
+                                        .title(markerTitle));
+                                    }
                                     markerPool.put(user, userMarker);
                                     Log.e("DEBUG", "NON ESISTE");
                                 }
@@ -534,5 +587,38 @@ public class SaveMeFragment
 
             }
         });
+    }
+
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            Log.e("DEBUG", "I'M EXECUTING?");
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            Resources res = getResources();
+            RoundedBitmapDrawable dr =
+                    RoundedBitmapDrawableFactory.create(res, result);
+            dr.setCornerRadius(Math.max(result.getWidth(), result.getHeight()) / 2.0f);
+            driverPic.setImageDrawable(dr);
+        }
     }
 }

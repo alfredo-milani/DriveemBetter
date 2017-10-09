@@ -127,6 +127,7 @@ public class SingletonUser
         }
 
         FirebaseDatabaseManager.getVehiclesDB(this, userDataCallback);
+        FirebaseDatabaseManager.getCurrentVehicle(this, userDataCallback);
     }
 
     @Override

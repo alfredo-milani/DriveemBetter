@@ -20,8 +20,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -148,6 +150,12 @@ public class FirebaseDatabaseManager
                         .child(CHILD_IMAGE)
                         .setValue(user.getPhotoUrl().toString());
             }
+            //MODIFIED
+            if (user.getCurrentVehicle() != null) {
+                databaseReference
+                        .child(CHILD_CURRENT_VEHICLE)
+                        .setValue(user.getCurrentVehicle().getType());
+            }
             databaseReference
                     .child(CHILD_POINTS)
                     .setValue(user.getPoints());
@@ -194,6 +202,13 @@ public class FirebaseDatabaseManager
                             dataSnapshot.getRef()
                                     .child(CHILD_IMAGE)
                                     .setValue(user.getPhotoUrl().toString());
+                        }
+                        //MODIFIED
+                        if (!dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE) &&
+                                user.getCurrentVehicle() != null) {
+                            dataSnapshot.getRef()
+                                    .child(CHILD_CURRENT_VEHICLE)
+                                    .setValue(user.getCurrentVehicle().getType());
                         }
                         if (!dataSnapshot.hasChild(CHILD_POINTS)) {
                             dataSnapshot.getRef()
@@ -248,6 +263,7 @@ public class FirebaseDatabaseManager
         }
     }
 
+
     /**
      * Update DB with latitude and longitude of the user.
      * Here we are in positions node.
@@ -271,6 +287,11 @@ public class FirebaseDatabaseManager
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .setValue(user.getAvailability());
+            if (user.getCurrentVehicle() != null) {
+                databaseReference
+                        .child(CHILD_CURRENT_VEHICLE)
+                        .setValue(user.getCurrentVehicle().getType());
+            }
         }
     }
 
@@ -299,6 +320,13 @@ public class FirebaseDatabaseManager
                         query.getRef()
                                 .child(CHILD_POINTS)
                                 .setValue(user.getPoints());
+                    }
+
+                    if (user.getCurrentVehicle() != null &&
+                            !dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE)) {
+                        query.getRef()
+                                .child(CHILD_CURRENT_VEHICLE)
+                                .setValue(user.getCurrentVehicle().toString());
                     }
 
                     if (user.getPhotoUrl() != null &&
@@ -408,6 +436,37 @@ public class FirebaseDatabaseManager
 
     public interface RetrieveVehiclesFromDB {
         void onUserVehiclesReceived(ArrayList<Vehicle> vehicles);
+    }
+
+    public static void getCurrentVehicle(final RetrieveVehiclesFromDB retrieveVehiclesFromDB,
+                                          final SingletonUser.UserDataCallback userDataCallback)
+        throws CallbackNotInitialized {
+        if (retrieveVehiclesFromDB == null || userDataCallback == null) {
+            throw new CallbackNotInitialized(TAG);
+        }
+
+        final SingletonUser user = SingletonUser.getInstance();
+        //Create query
+        final Query query = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(user.getUid());
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE)) {
+                    String currentVehicle = dataSnapshot.child(CHILD_CURRENT_VEHICLE).getValue().toString();
+                    String[] temp1 = currentVehicle.split("=");
+                    String[] vehicleData = temp1[1].split(";");
+                    user.setCurrentVehicle(new Vehicle(vehicleData[0], vehicleData[1], vehicleData[2], vehicleData[3]));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public static void getVehiclesDB(final RetrieveVehiclesFromDB retrieveVehiclesFromDB,
