@@ -54,8 +54,11 @@ public interface Constants {
     String CHILD_AVAILABILITY = "availability";
 
     // Statistics
-    String ARG_STAT_DAY = "dataDaily";
-    String ARG_STAT_WEEK = "dataWeekly";
+    String CHILD_STATISTICS = "statistics";
+
+    String CHILD_STAT_DAY = "dataDaily";
+    String CHILD_STAT_WEEK = "dataWeekly";
+    String CHILD_DATE = "currentTime";
     String CHILD_DATA = "userData";
 
     String VELOCITY = "Velocity";
@@ -90,5 +93,4 @@ public interface Constants {
     String ENGLISH_BRAKING_ALERT = "please, avoid making abrupt brakes";
     String ITALIAN_ACCELERATION_ALERT = "Evita accelerazioni brusche";
     String ITALIAN_BRAKING_ALERT = "Evita di frenare in maniera troppo energetica";
-
 }

@@ -5,6 +5,13 @@ package com.driveembetter.proevolutionsoftware.driveembetter.entity;
  */
 
 public class Mean {
+
+    // TODO da implementare con Reflection
+    public final static String SUM_VELOCITY = "sampleSumVelocity";
+    public final static String SUM_ACCELERATION = "sampleSumAcceleration";
+    public final static String SIZE_SIZE_VELOCITY = "sampleSizeVelocity";
+    public final static String SIZE_ACCELERATION = "sampleSizeAcceleration";
+
     private float sampleSumVelocity, sampleSumAcceleration;
     private int sampleSizeVelocity, sampleSizeAcceleration;
 
@@ -21,6 +28,8 @@ public class Mean {
         this.sampleSizeAcceleration = sampleSizeAcceleration;
         this.sampleSumAcceleration = sampleSumAcceleration;
     }
+
+
 
     public float getSampleSumVelocity() {
         return sampleSumVelocity;

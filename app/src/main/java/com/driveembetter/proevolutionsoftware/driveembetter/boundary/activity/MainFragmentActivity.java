@@ -49,7 +49,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.Ra
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
@@ -64,12 +63,10 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnect
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.github.mikephil.charting.charts.ScatterChart;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by alfredo on 17/08/17.
@@ -473,28 +470,6 @@ public class MainFragmentActivity extends AppCompatActivity
 
             case R.id.nav_share:
                 // DEBUG
-                Map<Integer, Mean> map = MeanDay.getInstance().getMap();
-                String TAGG = StringParser.class.getSimpleName();
-                Log.d(TAGG, "DAY - SIZE: " + MeanDay.getInstance().getMap().size());
-                for (int i = 0; i < Constants.HOURS; ++i) {
-                    Mean mean = map.get(i);
-                    if (mean != null) {
-                        Log.d(TAGG, "EL(" + i + "): " + mean.getSampleSizeVelocity() + " / " + mean.getSampleSumVelocity());
-                    } else {
-                        Log.d(TAGG, "EL(" + i + "): " + null);
-                    }
-                }
-
-                Log.d(TAGG, "WEEK - SIZE: " + MeanWeek.getInstance().getMap().size());
-                map = MeanWeek.getInstance().getMap();
-                for (int i = 0; i < Constants.DAYS; ++i) {
-                    Mean mean = map.get(i);
-                    if (mean != null) {
-                        Log.d(TAGG, "EL(" + i + "): " + mean.getSampleSizeVelocity() + " / " + mean.getSampleSumVelocity());
-                    } else {
-                        Log.d(TAGG, "EL(" + i + "): " + null);
-                    }
-                }
                 ////
                 break;
 

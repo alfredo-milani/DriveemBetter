@@ -21,7 +21,9 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -60,18 +62,112 @@ public class FirebaseDatabaseManager
         }
     }
 
+    public static void restoreStatisticsState(DataSnapshot dataSnapshot) {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            if (dataSnapshot != null) {
+                if (dataSnapshot.child(CHILD_STAT_DAY) != null &&
+                        dataSnapshot.child(CHILD_STAT_DAY).getValue() != null) {
+                    DataSnapshot daily = dataSnapshot.child(CHILD_STAT_DAY);
+                    MeanDay meanDay = MeanDay.getInstance();
+
+                    meanDay.setLocalDate(new Date((long) daily.child(CHILD_DATE).getValue()));
+                    for (DataSnapshot value : daily.getChildren()) {
+                        if (!value.getKey().equals(CHILD_DATE)) {
+                            int velSize = 0, accSize = 0; float velSum = 0, accSum = 0;
+                            for (DataSnapshot attribute : value.getChildren()) {
+                                switch (attribute.getKey()) {
+                                    case Mean.SIZE_ACCELERATION:
+                                        accSize = Integer.valueOf(attribute.getValue().toString());
+                                        break;
+
+                                    case Mean.SIZE_SIZE_VELOCITY:
+                                        velSize = Integer.valueOf(attribute.getValue().toString());
+                                        break;
+
+                                    case Mean.SUM_ACCELERATION:
+                                        velSum = Float.valueOf(attribute.getValue().toString());
+                                        break;
+
+                                    case Mean.SUM_VELOCITY:
+                                        accSum = Float.valueOf(attribute.getValue().toString());
+                                        break;
+                                }
+                            }
+                            meanDay.getMap().put(Integer.valueOf(value.getKey()), new Mean(accSum, velSum, velSize, accSize));
+                        }
+                    }
+                }
+
+                if (dataSnapshot.child(CHILD_STAT_WEEK) != null &&
+                        dataSnapshot.child(CHILD_STAT_WEEK).getValue() != null) {
+                    DataSnapshot weekly = dataSnapshot.child(CHILD_STAT_WEEK);
+                    MeanWeek meanWeek = MeanWeek.getInstance();
+
+                    meanWeek.setLocalDate(new Date((long) weekly.child(CHILD_DATE).getValue()));
+                    for (DataSnapshot value : weekly.getChildren()) {
+                        if (!value.getKey().equals(CHILD_DATE)) {
+                            int velSize = 0, accSize = 0; float velSum = 0, accSum = 0;
+                            for (DataSnapshot attribute : value.getChildren()) {
+                                switch (attribute.getKey()) {
+                                    case Mean.SIZE_ACCELERATION:
+                                        accSize = Integer.valueOf(attribute.getValue().toString());
+                                        break;
+
+                                    case Mean.SIZE_SIZE_VELOCITY:
+                                        velSize = Integer.valueOf(attribute.getValue().toString());
+                                        break;
+
+                                    case Mean.SUM_ACCELERATION:
+                                        velSum = Float.valueOf(attribute.getValue().toString());
+                                        break;
+
+                                    case Mean.SUM_VELOCITY:
+                                        accSum = Float.valueOf(attribute.getValue().toString());
+                                        break;
+                                }
+                            }
+                            meanWeek.getMap().put(Integer.valueOf(value.getKey()), new Mean(accSum, velSum, velSize, accSize));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public static void manageUserStatistics() {
         SingletonUser user = SingletonUser.getInstance();
-        Log.d(TAG, "USER: " + user);
         if (user != null) {
             Log.d(TAG, "Saving statistics");
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
-                    .child(user.getUid());
+                    .child(user.getUid())
+                    .child(CHILD_STATISTICS);
 
-            databaseReference
-                    .child(CHILD_DATA)
-                    .setValue(StringParser.getStringFromUserData());
+            HashMap<String, Object> tmpParsedMean;
+            Map<Integer, Mean> tmpOriginalMean;
+
+            // Saving MeanDay
+            tmpParsedMean = new HashMap<>(MeanDay.getInstance().getMap().size() + 1);
+            tmpParsedMean.put(CHILD_DATE, MeanDay.getInstance().getLocalDate().getTime());
+            tmpOriginalMean = MeanDay.getInstance().getMap();
+            for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
+                tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
+                databaseReference
+                        .child(CHILD_STAT_DAY)
+                        .setValue(tmpParsedMean);
+            }
+
+            // Saving MeanWeek
+            tmpParsedMean = new HashMap<>(MeanWeek.getInstance().getMap().size() + 1);
+            tmpParsedMean.put(CHILD_DATE, MeanWeek.getInstance().getLocalDate().getTime());
+            tmpOriginalMean = MeanWeek.getInstance().getMap();
+            for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
+                tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
+                databaseReference
+                        .child(CHILD_STAT_WEEK)
+                        .setValue(tmpParsedMean);
+            }
         }
     }
 
@@ -344,11 +440,8 @@ public class FirebaseDatabaseManager
 
                     checkOldPositionData();
 
-                    if (dataSnapshot.child(CHILD_DATA) != null &&
-                            dataSnapshot.child(CHILD_DATA).getValue() != null) {
-                        StringParser.setMapFromString(
-                                dataSnapshot.child(CHILD_DATA).getValue().toString()
-                        );
+                    if (dataSnapshot.child(CHILD_STATISTICS) != null) {
+                        FirebaseDatabaseManager.restoreStatisticsState(dataSnapshot.child(CHILD_STATISTICS));
                     }
                 }
 
@@ -771,45 +864,5 @@ public class FirebaseDatabaseManager
         }
 
         return new User(user.getKey(), username, email, image, points, availability);
-    }
-
-
-
-    public static void updateStatisticsDaily(MeanDay meanDay) {
-        SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
-            Log.d(TAG, "ddddddd...day");
-            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
-                    .child(NODE_USERS)
-                    .child(user.getUid())
-                    .child(ARG_STAT_DAY);
-            HashMap<String, Mean> map = new HashMap<>();
-            for (int i=0; i < meanDay.getMap().size(); i++) {
-                map.put(String.valueOf(i),map.get(i));
-
-            }
-            // Set user's daily statistics
-            databaseReference
-                    .setValue(map);
-        }
-    }
-
-    public static void updateStatisticsWeekly(MeanWeek meanWeek) {
-        SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
-            Log.d(TAG, "ddddddd.....week");
-            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
-                    .child(NODE_USERS)
-                    .child(user.getUid())
-                    .child(ARG_STAT_WEEK);
-            HashMap<String, Mean> map = new HashMap<>();
-            for (int i=0; i < meanWeek.getMap().size(); i++) {
-                map.put(String.valueOf(i),map.get(i));
-
-            }
-            // Set user's daily statistics
-            databaseReference
-                    .setValue(map);
-        }
     }
 }
