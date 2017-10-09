@@ -53,6 +53,9 @@ public interface Constants {
     String CHILD_EMAIL = "email";
     String CHILD_AVAILABILITY = "availability";
     String CHILD_CURRENT_VEHICLE = "current_vehicle";
+    String CHILD_FEEDBACK = "feedback";
+    String CHILD_HISTORICAL_FEEDBACK = "historicalFeedback";
+    String CHILD_STATISTICS = "statistics";
 
     // Statistics
     String ARG_STAT_DAY = "statisticsDaily";
@@ -91,5 +94,9 @@ public interface Constants {
     String ENGLISH_BRAKING_ALERT = "please, avoid making abrupt brakes";
     String ITALIAN_ACCELERATION_ALERT = "Evita accelerazioni brusche";
     String ITALIAN_BRAKING_ALERT = "Evita di frenare in maniera troppo energetica";
+
+    //Feedback
+    String FEEDBACK_SENT_ITALIAN = "Il tuo feedback è stato inviato!";
+    String FEEDBACK_SENT_ENGLISH = "Your feedback has been sent!";
 
 }

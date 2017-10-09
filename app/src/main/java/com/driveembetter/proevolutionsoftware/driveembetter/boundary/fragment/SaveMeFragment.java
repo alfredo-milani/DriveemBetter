@@ -39,8 +39,10 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Ch
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.design.RoundedImageView;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.NumberManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -238,7 +240,24 @@ public class SaveMeFragment
                                 SingletonUser.getInstance().getRegion() + ", " +
                                 SingletonUser.getInstance().getCountry();
 
-                        //GET THE SELECTED USER PHOTO URL
+
+                        relativeLayout = (RelativeLayout) rootView.findViewById(R.id.relative);
+                        layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.driver_info, null);
+                        driverInfo = new PopupWindow(container, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
+                        driverInfo.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
+                        driverUsername = (TextView) container.findViewById(R.id.driverUsernameContent);
+                        driverLocation = (TextView) container.findViewById(R.id.driverPositionContent);
+                        driverPic = (ImageView) container.findViewById(R.id.thumbnail);
+                        ratingBar = (RatingBar) container.findViewById(R.id.ratingBar);
+                        ratingBar.setRating(2.0f);
+                        ratingButton = (Button) container.findViewById(R.id.ratingButton);
+                        driverLocation.setMovementMethod(new ScrollingMovementMethod());
+                        driverUsername.setText(marker.getTitle());
+                        driverLocation.setText(userSelectedLocation);
+                        Button message = container.findViewById(R.id.messageBtn);
+
+                        //GET THE SELECTED USER PHOTO URL AND FEEDBACK
                         if (!userSelectedUid.equals("USERNAME_TEST")) {
                             DatabaseReference positionRef = database.getReference()
                                     .child(NODE_POSITION)
@@ -256,6 +275,12 @@ public class SaveMeFragment
                                         DownloadImageTask downloadImageTask = new DownloadImageTask(driverPic);
                                         downloadImageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, userSelectedPic);
                                     }
+                                    if (dataSnapshot.hasChild(CHILD_FEEDBACK)) {
+                                        userSelectedFeedback = NumberManager.round(Double.parseDouble(dataSnapshot.child(CHILD_FEEDBACK).getValue().toString()),
+                                                2).toString();
+                                    }
+                                    driverFeedback = (TextView) container.findViewById(R.id.driverFeedbackContent);
+                                    driverFeedback.setText(userSelectedFeedback);
                                 }
 
                                 @Override
@@ -265,28 +290,18 @@ public class SaveMeFragment
                             });
                         }
 
-                        relativeLayout = (RelativeLayout) rootView.findViewById(R.id.relative);
-                        layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.driver_info, null);
-                        driverInfo = new PopupWindow(container, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
-                        driverInfo.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
-                        driverUsername = (TextView) container.findViewById(R.id.driverUsernameContent);
-                        driverLocation = (TextView) container.findViewById(R.id.driverPositionContent);
-                        driverFeedback = (TextView) container.findViewById(R.id.driverFeedbackContent);
-                        driverPic = (ImageView) container.findViewById(R.id.thumbnail);
-                        ratingBar = (RatingBar) container.findViewById(R.id.ratingBar);
-                        ratingBar.setRating(2.0f);
-                        ratingButton = (Button) container.findViewById(R.id.ratingButton);
-                        driverLocation.setMovementMethod(new ScrollingMovementMethod());
-                        driverUsername.setText(marker.getTitle());
-                        driverLocation.setText(userSelectedLocation);
-                        driverFeedback.setText(userSelectedFeedback);
-                        Button message = container.findViewById(R.id.messageBtn);
                         ratingButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 //TODO TEST
-                                Toast.makeText(context, String.valueOf(ratingBar.getRating()), Toast.LENGTH_SHORT).show();
+                                if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) ||
+                                        Locale.getDefault().getDisplayLanguage().equals(Locale.US))
+                                    Toast.makeText(context, FEEDBACK_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
+                                else
+                                    Toast.makeText(context, FEEDBACK_SENT_ITALIAN, Toast.LENGTH_SHORT).show();
+                                FirebaseDatabaseManager.updateUserFeedback(userSelectedUid, Double.parseDouble(String.valueOf(ratingBar.getRating())),
+                                        SingletonUser.getInstance().getCountry(), SingletonUser.getInstance().getRegion(),
+                                        SingletonUser.getInstance().getSubRegion());
                             }
                         });
                         message.setOnClickListener(new View.OnClickListener() {
@@ -336,7 +351,7 @@ public class SaveMeFragment
                                 return true;
                             }
                         });
-                        return false;
+                        return true;
                     }
                 };
 
