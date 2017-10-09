@@ -68,6 +68,29 @@
             android:textColor="#666"
             android:textSize="14dp" />
 
+        <android.support.v4.widget.Space
+            android:id="@+id/space"
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"
+            android:layout_alignBottom="@+id/messageBtn"/>
+
+        <RatingBar
+            android:layout_below="@+id/space"
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:numStars="5"
+            android:stepSize="1.0" />
+        <Button
+            android:layout_below="@+id/ratingBar"
+            android:id="@+id/ratingButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="RATE ME"
+            android:onClick="rateMe"/>
+
         <Button
             android:id="@+id/messageBtn"
             android:layout_width="50dp"

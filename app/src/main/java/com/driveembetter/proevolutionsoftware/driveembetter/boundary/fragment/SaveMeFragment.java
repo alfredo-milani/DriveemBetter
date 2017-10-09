@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -90,6 +91,8 @@ public class SaveMeFragment
     private RelativeLayout relativeLayout;
     private TextView driverUsername, driverLocation, driverFeedback;
     private ImageView driverPic;
+    private RatingBar ratingBar;
+    private Button ratingButton;
     private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken, userSelectedPic;
     private UpdatePosition updatePosition;
 
@@ -271,11 +274,21 @@ public class SaveMeFragment
                         driverLocation = (TextView) container.findViewById(R.id.driverPositionContent);
                         driverFeedback = (TextView) container.findViewById(R.id.driverFeedbackContent);
                         driverPic = (ImageView) container.findViewById(R.id.thumbnail);
+                        ratingBar = (RatingBar) container.findViewById(R.id.ratingBar);
+                        ratingBar.setRating(2.0f);
+                        ratingButton = (Button) container.findViewById(R.id.ratingButton);
                         driverLocation.setMovementMethod(new ScrollingMovementMethod());
                         driverUsername.setText(marker.getTitle());
                         driverLocation.setText(userSelectedLocation);
                         driverFeedback.setText(userSelectedFeedback);
                         Button message = container.findViewById(R.id.messageBtn);
+                        ratingButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                //TODO TEST
+                                Toast.makeText(context, String.valueOf(ratingBar.getRating()), Toast.LENGTH_SHORT).show();
+                            }
+                        });
                         message.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
