@@ -98,5 +98,7 @@ public interface Constants {
     //Feedback
     String FEEDBACK_SENT_ITALIAN = "Il tuo feedback è stato inviato!";
     String FEEDBACK_SENT_ENGLISH = "Your feedback has been sent!";
+    String FEEDBACK_SENT_BUTTON_ITALIAN = "FATTO!";
+    String FEEDBACK_SENT_BUTTON_ENGLISH = "DONE!";
 
 }

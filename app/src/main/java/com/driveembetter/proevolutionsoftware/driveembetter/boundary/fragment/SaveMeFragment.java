@@ -302,6 +302,13 @@ public class SaveMeFragment
                                 FirebaseDatabaseManager.updateUserFeedback(userSelectedUid, Double.parseDouble(String.valueOf(ratingBar.getRating())),
                                         SingletonUser.getInstance().getCountry(), SingletonUser.getInstance().getRegion(),
                                         SingletonUser.getInstance().getSubRegion());
+                                ratingButton.setClickable(false);
+                                ratingButton.setTextColor(Color.BLACK);
+                                if (Locale.getDefault().getDisplayLanguage().equals(Locale.US) ||
+                                        Locale.getDefault().getDisplayLanguage().equals(Locale.UK))
+                                    ratingButton.setText(FEEDBACK_SENT_BUTTON_ENGLISH);
+                                else
+                                    ratingButton.setText(FEEDBACK_SENT_BUTTON_ITALIAN);
                             }
                         });
                         message.setOnClickListener(new View.OnClickListener() {
