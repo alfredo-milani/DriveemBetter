@@ -3,6 +3,10 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/home"
+            android:icon="@drawable/ic_home"
+            android:title="@string/general" />
+        <item
             android:id="@+id/garage"
             android:icon="@mipmap/garage_icon"
             android:title="@string/garage" />

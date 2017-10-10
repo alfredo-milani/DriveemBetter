@@ -15,7 +15,9 @@ import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
@@ -59,6 +61,7 @@ public class PositionManager
     private Response response;
     private String lastPosition;
     TextToSpeech tts;
+    Speedometer speedometer;
 
 
     // Singleton
@@ -70,6 +73,11 @@ public class PositionManager
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         this.updatePosition();
     }
+
+    public void createSpeedometer(View view) {
+        speedometer = (Speedometer) view.findViewById(R.id.Speedometer);
+    }
+
 
     public static PositionManager getInstance(Context context) {
         if (positionManager == null) {
@@ -139,6 +147,8 @@ public class PositionManager
                 initialTime = System.currentTimeMillis();
                 Log.e("SPEED", "Speed: " + initialSpeed);
                 updateStatistics(initialSpeed);
+                if (speedometer != null)
+                    speedometer.onSpeedChanged(initialSpeed);
                 //TODO
                 //check speed limits
                 SpeedLimitManager speedLimitManager = new SpeedLimitManager();
@@ -151,6 +161,8 @@ public class PositionManager
                 Log.e("SPEED", "Speed: " + speed);
                 Log.e("ACCELERATION", "Acceleration: " + acceleration);
                 updateStatistics(speed);
+                if (speedometer != null)
+                    speedometer.onSpeedChanged(speed);
                 //TODO ??
                 //check speed limits or abrupt braking or acceleration
                 if (acceleration > 5)

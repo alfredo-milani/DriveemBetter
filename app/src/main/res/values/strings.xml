@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name ="general">General</string>
     <string name="logging_out">Signing out</string>
     <string name="garage">Garage</string>
     <string name="statistics">Statistics</string>
@@ -56,6 +57,9 @@
     <string name="battery">Battery status</string>
     <string name="add">Confirm</string>
     <string name="model">Model</string>
+    <string name="decrease">Decrease</string>
+    <string name="increase">Increase</string>
+
 
 
     <!-- TODO: Remove or change this placeholder text -->

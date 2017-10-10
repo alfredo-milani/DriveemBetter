@@ -416,9 +416,8 @@ public class FirebaseDatabaseManager
                                 .setValue(user.getPoints());
                     }
                         if (user.getFeedback() != null &&
-                                !dataSnapshot.child(CHILD_STATISTICS).hasChild(CHILD_FEEDBACK)) {
+                                !dataSnapshot.hasChild(CHILD_FEEDBACK)) {
                             query.getRef()
-                                    .child(CHILD_STATISTICS)
                                     .child(CHILD_FEEDBACK)
                                     .setValue(user.getFeedback().toString());
                         }
@@ -979,9 +978,15 @@ public class FirebaseDatabaseManager
                         Map<String, String> newFeedback = new HashMap<>();
                         newFeedback.put(String.valueOf(System.currentTimeMillis()), String.valueOf(feedback));
                         databaseReference.child(CHILD_STATISTICS).child(CHILD_HISTORICAL_FEEDBACK).setValue(newFeedback);
-                        databaseReference.child(CHILD_STATISTICS).child(CHILD_FEEDBACK).setValue(String.valueOf(feedback));
+                        databaseReference.child(CHILD_FEEDBACK).setValue(String.valueOf(feedback));
                         updatePositionFeedback(String.valueOf(feedback));
                     }
+                } else {
+                    Map<String, String> newFeedback = new HashMap<>();
+                    newFeedback.put(String.valueOf(System.currentTimeMillis()), String.valueOf(feedback));
+                    databaseReference.child(CHILD_STATISTICS).child(CHILD_HISTORICAL_FEEDBACK).setValue(newFeedback);
+                    databaseReference.child(CHILD_FEEDBACK).setValue(String.valueOf(feedback));
+                    updatePositionFeedback(String.valueOf(feedback));
                 }
             }
 
@@ -997,7 +1002,7 @@ public class FirebaseDatabaseManager
                     sum += Double.parseDouble(historicalFeedback.get(key));
                     size ++;
                 }
-                databaseReference.child(CHILD_STATISTICS).child(CHILD_FEEDBACK).setValue(String.valueOf(sum / size));
+                databaseReference.child(CHILD_FEEDBACK).setValue(String.valueOf(sum / size));
                 updatePositionFeedback(String.valueOf(sum/size));
             }
 

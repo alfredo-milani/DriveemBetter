@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name ="general">Generale</string>
     <string name="action_settings">Impostazioni</string>
     <string name="field_required">Campo richiesto.</string>
     <string name="invalid_provider_type">Tipo %d non valido.</string>
@@ -115,4 +116,7 @@
     <string name="velocity">Velocità</string>
     <string name="acceleration">Accelerazione</string>
     <string name="not_determinated">N.D.</string>
+    <string name="decrease">Diminuisci</string>
+    <string name="increase">Aumenta</string>
+
 </resources>

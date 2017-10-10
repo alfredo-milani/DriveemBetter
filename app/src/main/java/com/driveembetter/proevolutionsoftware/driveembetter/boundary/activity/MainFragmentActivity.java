@@ -45,6 +45,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragme
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.AboutUsFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.GarageFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.HomeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
@@ -91,6 +92,7 @@ public class MainFragmentActivity extends AppCompatActivity
     private Fragment ranking;
     private Fragment aboutUs;
     private Fragment garage;
+    private Fragment home;
     private Fragment statistics;
 
     // Widgets
@@ -155,7 +157,7 @@ public class MainFragmentActivity extends AppCompatActivity
 
         this.initWidgets();
 
-        this.manageActionOnNavigationItemSelected(R.id.garage);
+        this.manageActionOnNavigationItemSelected(R.id.home);
     }
 
     private void initResources() {
@@ -198,6 +200,7 @@ public class MainFragmentActivity extends AppCompatActivity
         this.ranking = new RankingFragment();
         this.aboutUs = new AboutUsFragment();
         this.garage = new GarageFragment();
+        this.home = new HomeFragment();
         // this.statistics = new StatisticsFragment();
 
         // Start service to manage task manager behaviour
@@ -421,6 +424,17 @@ public class MainFragmentActivity extends AppCompatActivity
 
     private void manageActionOnNavigationItemSelected(int action) {
         switch (action) {
+
+            case R.id.home:
+                if (!FragmentState.isFragmentOpen(FragmentState.HOME_FRAGMENT)) {
+                    this.fragmentState.replaceFragment(
+                            R.id.fragment_placeholder,
+                            this.home
+                    );
+                    FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, true);
+                }
+                break;
+
             case R.id.garage:
                 if (!FragmentState.isFragmentOpen(FragmentState.GARAGE_FRAGMENT)) {
                     this.fragmentState.replaceFragment(

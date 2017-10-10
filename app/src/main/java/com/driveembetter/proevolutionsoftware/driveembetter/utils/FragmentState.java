@@ -10,6 +10,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.AboutUsFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.GarageFragment;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.HomeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.WrongResourceType;
@@ -33,6 +34,7 @@ public class FragmentState extends Application {
     public final static short RANKING_FRAGMENT = 2;
     public final static short GARAGE_FRAGMENT = 3;
     public final static short ABOUT_US = 4;
+    public final static short HOME_FRAGMENT = 5;
 
     // State
     private static boolean[] fragmentState = new boolean[6];
@@ -41,7 +43,8 @@ public class FragmentState extends Application {
             ChartFragment.class.getSimpleName(),
             RankingFragment.class.getSimpleName(),
             GarageFragment.class.getSimpleName(),
-            AboutUsFragment.class.getSimpleName()
+            AboutUsFragment.class.getSimpleName(),
+            HomeFragment.class.getSimpleName()
     };
 
 
@@ -71,6 +74,8 @@ public class FragmentState extends Application {
 
             case ABOUT_US:
                 return FragmentState.fragmentState[ABOUT_US];
+            case HOME_FRAGMENT:
+                return FragmentState.fragmentState[HOME_FRAGMENT];
 
             default:
                 Log.w(TAG, "Error in isFragmentOpen:wrong fragment type: " + fragmentType);
@@ -105,6 +110,10 @@ public class FragmentState extends Application {
 
             case ABOUT_US:
                 FragmentState.fragmentState[ABOUT_US] = status;
+                break;
+
+            case HOME_FRAGMENT:
+                FragmentState.fragmentState[HOME_FRAGMENT] = status;
                 break;
 
             default:
