@@ -601,13 +601,13 @@ public class FirebaseDatabaseManager
                     String currentVehicle = dataSnapshot.child(CHILD_CURRENT_VEHICLE).getValue().toString();
                     String[] temp1 = currentVehicle.split("=");
                     String[] vehicleData = temp1[1].split(";");
-                    user.setCurrentVehicle(new Vehicle(vehicleData[0], vehicleData[1], vehicleData[2], vehicleData[3]));
+                    user.setCurrentVehicle(new Vehicle(vehicleData[0], vehicleData[1], vehicleData[2], vehicleData[3],vehicleData[4],vehicleData[5]));
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.d(TAG, "DB Error: " + databaseError.getMessage());
             }
         });
     }
@@ -639,13 +639,13 @@ public class FirebaseDatabaseManager
                     for (DataSnapshot vehicle : vehiclesList) {
                         if (vehicle.getValue() != null) {
                             String[] parts = vehicle.getValue().toString().split(";");
-                            vehicleArrayList.add(
-                                    new Vehicle(
-                                            parts[0],
-                                            parts[1],
-                                            parts[2],
-                                            parts[3]
-                                    )
+                            vehicleArrayList.add(new Vehicle(
+                                    parts[0],
+                                    parts[1],
+                                    parts[2],
+                                    parts[3],
+                                    parts[4],
+                                    parts[5])
                             );
                         } else {
                             Log.d(TAG, "Error while retrieve data from database");

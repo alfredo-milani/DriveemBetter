@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -28,27 +27,22 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Ad
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Modify_vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
-import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.VehiclesAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-import static com.driveembetter.proevolutionsoftware.driveembetter.R.id.user;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CAR;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CURRENT;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.INS_DATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MODEL;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MOTO;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NO;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NODE_USERS;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.OWNER;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE_LIST;
@@ -56,7 +50,6 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.TYPE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VAN;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.YES;
-import static java.sql.DriverManager.println;
 
 
 public class GarageFragment extends Fragment
@@ -264,7 +257,6 @@ public class GarageFragment extends Fragment
                 for(i=0;i<plates_list.size();i++){
                     System.out.println("LIIIIIISSSTTTTTT  " + i +" " + plates_list.get(i));
                 }
-                System.out.println("VEHICLE SIZE ON CLICK" + vehicles.size());
                 intent.putExtra(PLATE_LIST, plates_list);
                 startActivity(intent);
             }
@@ -427,18 +419,16 @@ public class GarageFragment extends Fragment
 
         this.plates_list.clear();
         this.vehicles = this.singletonUser.getVehicleArrayList();
-        if (this.vehicles == null) {
+        if (this.vehicles == null /* || this.vehicles.isEmpty() */) {
             return;
         }
 
-        int i,j;
+        int i;
         for(i=0; i<vehicles.size();i++){
             this.vehiclesName.add(i, vehicles.get(i).getModel());
             this.plates_list.add(i, vehicles.get(i).getNumberPlate());
-            System.out.println("plate + " + i + vehicles.get(i).getNumberPlate());
         }
 
-        System.out.println("VEHICLE SIZE POPULATE " + vehicles.size());
         listview.setAdapter(new VehiclesAdapter(getContext(), vehicles , current_vehicle));
     }
 

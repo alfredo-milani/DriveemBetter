@@ -13,12 +13,10 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
@@ -36,10 +34,7 @@ import java.util.Date;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CAR;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.EMPTY_FIELD;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MOTO;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.OWNER;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE_LIST;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.TYPE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VAN;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VEHICLE_EXISTS_YET;
 
@@ -298,7 +293,7 @@ public class AddVehicleActivity extends FragmentActivity {
             }
 
 
-            private void show_alert_message() {
+        private void show_alert_message() {
             final View popupView = getActivity().getLayoutInflater().inflate(R.layout.insurance_alert, null);
 
             final PopupWindow popupWindow = new PopupWindow(popupView,
