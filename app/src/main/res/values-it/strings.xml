@@ -93,7 +93,7 @@
     <string name="level_unavailable">Utenti non disponibili</string>
     <string name="level_available">Tutti gli utenti disponibili</string>
     <string name="level_all">Tutti gli utenti</string>
-    <string name="level_empty_list">Nessun utente trovato.</string>
+    <string name="level_empty_list">Nessun utente trovato</string>
     <string name="invalid_position">Posizione non valida.</string>
     <string name="position_not_found">Posizione non trovata</string>
     <string name="bad_query_unknown_position">Non è possibile determinare la tua posizione: il filtro è stato impostato su %s</string>
@@ -116,4 +116,8 @@
     <string name="acceleration">Accelerazione</string>
     <string name="not_determinated">N.D.</string>
     <string name="change_profile_picture">Cambia l\'immagine del profilo</string>
+    <string name="change_profile_data">Modifica le informazioni del profilo</string>
+    <string name="change_password">Modifica password</string>
+    <string name="new_username">Nuovo username</string>
+    <string name="identical_username">Username identico</string>
 </resources>

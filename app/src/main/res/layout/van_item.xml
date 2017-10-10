@@ -52,7 +52,7 @@ android:weightSum="1">
                 android:layout_height="match_parent"
                 android:layout_marginLeft="5dp"
                 android:gravity="center"
-                android:textAlignment="viewStart" />
+               />
         </TableRow>
 
     </TableLayout>
@@ -61,7 +61,7 @@ android:weightSum="1">
         android:id="@+id/current"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/fab"
+        android:layout_alignBottom="@+id/fab_start"
         android:layout_alignParentEnd="true"
         android:layout_marginLeft="2dp"
         android:layout_marginRight="30dp"

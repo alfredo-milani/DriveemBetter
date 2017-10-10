@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -45,7 +46,7 @@ public class SingletonEmailAndPasswordProvider
         private final static SingletonEmailAndPasswordProvider INSTANCE = new SingletonEmailAndPasswordProvider();
     }
 
-    static SingletonEmailAndPasswordProvider getInstance() {
+    public static SingletonEmailAndPasswordProvider getInstance() {
         return EmailAndPasswordProviderContainer.INSTANCE;
     }
 
@@ -162,6 +163,28 @@ public class SingletonEmailAndPasswordProvider
                 });
     }
 
+    public void editUsername(String username) {
+        Log.d(TAG, "editUsername");
+        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
+
+        if (username != null) {
+            builder.setDisplayName(username);
+            this.singletonFirebaseProvider
+                    .getFirebaseUser()
+                    .updateProfile(builder.build())
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "SingletonUser profile updated.");
+                            } else {
+                                Log.d(TAG, "SingletonUser profile NOT updated.");
+                            }
+                        }
+                    });
+        }
+    }
+
     public void setUsername(String username) {
         Log.d(TAG, "setUsername");
         UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
@@ -216,6 +239,25 @@ public class SingletonEmailAndPasswordProvider
                                 Log.d(TAG, "SingletonUser password updated.");
                             } else {
                                 Log.d(TAG, "SingletonUser password NOT updated.");
+                            }
+                        }
+                    });
+        }
+    }
+
+    public void setImageProfile(Uri imageProfile) {
+        if (imageProfile != null) {
+            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                    .setPhotoUri(imageProfile)
+                    .build();
+
+            this.singletonFirebaseProvider.getFirebaseUser()
+                    .updateProfile(profileUpdates)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "User profile updated.");
                             }
                         }
                     });

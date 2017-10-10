@@ -1,17 +1,16 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
@@ -24,15 +23,13 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
 public class SettingsActivity
         extends AppCompatActivity
         implements CompoundButton.OnCheckedChangeListener,
-        View.OnClickListener {
+                    View.OnClickListener {
 
     private final static String TAG = SettingsActivity.class.getSimpleName();
 
-    private final static int RC_GALLERY = 9;
-
     // Widgets
     private Switch aSwitch;
-    private TextView changeProfilePicture;
+    private TextView changeProfileData;
 
     // Resources
     private SensorHandler sensorHandler;
@@ -65,27 +62,22 @@ public class SettingsActivity
         this.aSwitch.setChecked(this.positionManager.isListenerSetted());
         this.aSwitch.setOnCheckedChangeListener(this);
 
-        this.changeProfilePicture = findViewById(R.id.changeProfilePicture);
-        this.changeProfilePicture.setOnClickListener(this);
+        this.changeProfileData = findViewById(R.id.changeDataProfile);
+        this.changeProfileData.setOnClickListener(this);
+    }
+
+    private void startNewActivity(Context context, Class newClass) {
+        Intent newIntent = new Intent(context, newClass);
+        this.startActivity(newIntent);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_GALLERY) {
-            switch (resultCode) {
-                case RESULT_OK:
-                    Log.d(TAG, "DATA: " + data.getData());
-                    break;
-
-                case RESULT_CANCELED:
-                    Toast.makeText(this, getString(R.string.canceled_action), Toast.LENGTH_SHORT).show();
-                    break;
-
-                default:
-                    Log.d(TAG, "activityResult RC: " + requestCode + " / " + resultCode);
-            }
+    public void onClick(View view) {
+        int id = view.getId();
+        switch (id) {
+            case R.id.changeDataProfile:
+                this.startNewActivity(SettingsActivity.this, EditProfileData.class);
+                break;
         }
     }
 
@@ -102,14 +94,6 @@ public class SettingsActivity
                 this.positionManager.removeLocationUpdates();
             }
         }
-    }
-
-    @Override
-    public void onClick(View view) {
-        this.startActivityForResult(new Intent(
-                Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI
-                ), SettingsActivity.RC_GALLERY);
     }
 
     @Override

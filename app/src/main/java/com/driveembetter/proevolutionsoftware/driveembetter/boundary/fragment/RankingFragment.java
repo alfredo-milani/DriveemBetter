@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
@@ -64,6 +65,7 @@ public class RankingFragment extends Fragment
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recycleView;
     private RecyclerView.LayoutManager layoutManager;
+    private RelativeLayout emptyListLayout;
 
 
 
@@ -117,6 +119,7 @@ public class RankingFragment extends Fragment
 
         this.hideProgress();
         if (arrayList != null && arrayList.size() > 0) {
+            this.emptyListLayout.setVisibility(View.GONE);
             int scrollPosition = this.getPositionCurrentUser(arrayList);
             if (scrollPosition >= 0) {
                 // To show current user on top of the list view
@@ -131,6 +134,7 @@ public class RankingFragment extends Fragment
             Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
+            this.emptyListLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -291,6 +295,8 @@ public class RankingFragment extends Fragment
                 ContextCompat.getColor(getContext(), R.color.blue_400)
         );
         this.swipeRefreshLayout.setOnRefreshListener(this);
+
+        this.emptyListLayout = this.rootView.findViewById(R.id.layout_empty_list);
     }
 
     @Override

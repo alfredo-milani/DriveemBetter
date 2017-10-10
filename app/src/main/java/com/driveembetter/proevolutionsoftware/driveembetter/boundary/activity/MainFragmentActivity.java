@@ -155,8 +155,7 @@ public class MainFragmentActivity extends AppCompatActivity
 
         this.initWidgets();
 
-        // TODO riabilita l'avvio automatico del garage una volta risolto il BUG
-        // this.manageActionOnNavigationItemSelected(R.id.garage);
+        this.manageActionOnNavigationItemSelected(R.id.garage);
     }
 
     private void initResources() {

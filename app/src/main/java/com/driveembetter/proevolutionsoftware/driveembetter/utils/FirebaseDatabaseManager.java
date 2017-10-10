@@ -645,8 +645,8 @@ public class FirebaseDatabaseManager
                                     parts[2],
                                     parts[3],
                                     parts[4],
-                                    parts[5])
-                            );
+                                    parts[5]
+                            ));
                         } else {
                             Log.d(TAG, "Error while retrieve data from database");
                             vehicleArrayList = null;

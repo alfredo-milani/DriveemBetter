@@ -7,11 +7,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
@@ -20,8 +23,11 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CAR;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CURRENT;
@@ -37,7 +43,7 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VAN;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VEHICLE_EXISTS_YET;
 
-public class Modify_vehicle  extends FragmentActivity {
+public class ModifyVehicleActivity extends FragmentActivity {
 
 
     private EditText newPlateNumber;
@@ -54,18 +60,23 @@ public class Modify_vehicle  extends FragmentActivity {
     private String current_plate;
     private static boolean fromInsurance;
     private DatabaseReference current_ref;
+    private static Button ok;
+    private static RelativeLayout alert;
+    private static int try_number;
+
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_vehicle);
-
         init_resources();
         Intent myIntent = getIntent();
         Bundle extras = myIntent.getExtras();
         getView(extras);
-
 
         insurance_date_plain.setOnClickListener(new View.OnClickListener() {
 
@@ -93,24 +104,17 @@ public class Modify_vehicle  extends FragmentActivity {
 
             @Override
             public void onClick(View view) {
-
                 if (isEmpty(newPlateNumber) || isEmpty(newOwner) || isEmpty(newModel) || isEmpty(insurance_date_plain) || isEmpty(revision_date_plain)) {
-
                     Toast.makeText(getApplicationContext(), EMPTY_FIELD, Toast.LENGTH_SHORT).show();
-
                 } else if (exists_yet(newPlateNumber.getText().toString())) {
-
                     Toast.makeText(getApplicationContext(), VEHICLE_EXISTS_YET, Toast.LENGTH_SHORT).show();
-
                 } else {
-
                     vehicle = new Vehicle(type,
                             newModel.getText().toString(),
                             newPlateNumber.getText().toString(),
                             newOwner.getText().toString(),
                             insurance_date_plain.getText().toString(),
                             revision_date_plain.getText().toString());
-
                     removeOldVehicleFromDb();
                     addModifiedVehicle();
                     Intent returnIntent = new Intent();
@@ -122,58 +126,54 @@ public class Modify_vehicle  extends FragmentActivity {
     }
 
     private void addModifiedVehicle() {
-         System.out.println("CURRENT PLATEEEEEEEE + "+ current_plate);
 
         this.database = FirebaseDatabase.getInstance();
         this.ref = database.getReference("users/" + SingletonFirebaseProvider
                 .getInstance()
                 .getFirebaseUser()
                 .getUid() + "/vehicles");
-
         if( type.equals(CAR)){
 
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
         }
-
         if( type.equals(MOTO)){
 
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
         }
-
         if( type.equals(VAN)){
 
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
         }
 
-        add_modified_current_vehicle();
+        if(current_plate.equals(plateNumber))
+            add_modified_current_vehicle();
     }
-
 
     private void add_modified_current_vehicle() {
 
-        if(current_ref.child(current_plate) == null){
+        if(current_ref==null|| current_plate==null)
             return;
 
-        } else if (current_plate.equals(current_ref.child(current_plate))) {
+        if(current_ref.child(current_plate) == null) {
+            return;
+
+        } else {
 
             current_ref.child(current_plate).removeValue();
+
             if( type.equals(CAR)){
 
                 current_ref.child(vehicle.getNumberPlate())
                         .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
             }
-
             if( type.equals(MOTO)){
-
                 current_ref.child(vehicle.getNumberPlate())
                         .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
             }
-
             if( type.equals(VAN)){
-
                 current_ref.child(vehicle.getNumberPlate())
                         .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
             }
@@ -188,7 +188,6 @@ public class Modify_vehicle  extends FragmentActivity {
                 .getFirebaseUser()
                 .getUid() + "/vehicles");
         ref.child(plateNumber).removeValue();
-
         this.current_ref = database.getReference("users/" + SingletonFirebaseProvider
                 .getInstance()
                 .getFirebaseUser()
@@ -226,6 +225,8 @@ public class Modify_vehicle  extends FragmentActivity {
         this.insurance_date_plain = (EditText)findViewById(R.id.insurance_date_plain);
         this.revision_date_plain = (EditText) findViewById(R.id.revision_date_plain);
         this.confirm = (Button) findViewById(R.id.confirm);
+        try_number = 1;
+        this.alert = (RelativeLayout)findViewById(R.id.modify_rel);
     }
 
     private boolean exists_yet(String plate) {
@@ -247,19 +248,19 @@ public class Modify_vehicle  extends FragmentActivity {
     }
 
     private boolean isEmpty(EditText etText) {
+
         if (etText.getText().toString().trim().length() > 0)
             return false;
-
         return true;
     }
 
     private void showTruitonDatePickerDialog(View v) {
-        DialogFragment newFragment = new Modify_vehicle.DatePickerFragment();
+
+        DialogFragment newFragment = new ModifyVehicleActivity.DatePickerFragment();
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 
-    public static class DatePickerFragment extends DialogFragment implements
-            DatePickerDialog.OnDateSetListener {
+    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -268,16 +269,62 @@ public class Modify_vehicle  extends FragmentActivity {
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
-
             return new DatePickerDialog(getActivity(), this, year, month, day);
         }
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
-            if (fromInsurance) {
-                insurance_date_plain.setText(day + "/" + (month + 1) + "/" + year);
+
+            Date current = new Date();
+            String myFormatString = "dd/MM/yy";
+            SimpleDateFormat df = new SimpleDateFormat(myFormatString);
+            Date givenDate = null;
+            try {
+                givenDate = df.parse(day + "/" + (month + 1) + "/" + year);
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
-            else
+            Long l = givenDate.getTime();
+            Date next = new Date(l);
+            if (fromInsurance) {
+                if (next.before(current)) {
+                    if (try_number <= 1) {
+                        Toast.makeText(getActivity().getApplicationContext(), "Please control insurance expiration date", Toast.LENGTH_LONG).show();
+                        try_number +=1;
+                        System.out.println(" TRY NUMBER <1");
+                    }else{
+                        if (try_number >1) {
+                            show_alert_message();
+                            insurance_date_plain.setText(day + "/" + (month + 1) + "/" + year);
+                        }
+                    }
+
+                }else{
+                    try_number = 1;
+                    insurance_date_plain.setText(day + "/" + (month + 1) + "/" + year);
+                    System.out.println(" SEEETTTT ");
+
+                }
+            } else
                 revision_date_plain.setText(day + "/" + (month + 1) + "/" + year);
+        }
+
+
+        private void show_alert_message() {
+            final View popupView = getActivity().getLayoutInflater().inflate(R.layout.insurance_alert, null);
+
+            final PopupWindow popupWindow = new PopupWindow(popupView,
+                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+
+            popupWindow.setFocusable(true);
+            ok = (Button) popupView.findViewById(R.id.ok);
+            ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    popupWindow.dismiss();
+                }
+            });
+
+            popupWindow.showAtLocation(alert, Gravity.CENTER,0,0);
         }
     }
 }

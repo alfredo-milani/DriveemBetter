@@ -30,7 +30,7 @@
     <string name="level_unavailable">Unavailable users</string>
     <string name="level_available">All available users</string>
     <string name="level_all">All users</string>
-    <string name="level_empty_list">No users found.</string>
+    <string name="level_empty_list">No users found</string>
     <string name="invalid_position">Invalid position.</string>
     <string name="position_not_found">Position not found</string>
     <string name="bad_query_unknown_position">Your position can not be determined: the filter was set to %s</string>
@@ -69,4 +69,8 @@
     <string name="last_update">Last update</string>
     <string name="not_determinated">N.D.</string>
     <string name="change_profile_picture">Change profile picture</string>
+    <string name="change_profile_data">Change profile data</string>
+    <string name="change_password">Change password</string>
+    <string name="new_username">New username</string>
+    <string name="identical_username">Identical usernmae</string>
 </resources>

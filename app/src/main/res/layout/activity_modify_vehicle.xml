@@ -8,6 +8,7 @@
 
 
     <RelativeLayout
+        android:id="@+id/modify_rel"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/gar"
@@ -76,11 +77,11 @@
             android:id="@+id/confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackground"
-            android:text="@string/add"
             android:layout_below="@+id/revision_date_plain"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="19dp" />
+            android:layout_marginTop="19dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/add" />
 
         <TextView
             android:id="@+id/textView9"

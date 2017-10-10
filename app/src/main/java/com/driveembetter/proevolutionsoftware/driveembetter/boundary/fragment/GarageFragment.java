@@ -24,7 +24,7 @@ import android.widget.TextView;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.AddVehicleActivity;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Modify_vehicle;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ModifyVehicleActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
@@ -103,7 +103,7 @@ public class GarageFragment extends Fragment
             @Override
             public void onClick (View v ) {
                 Intent intent = new Intent(getActivity(), AddVehicleActivity.class);
-                startActivityForResult(intent, 1);
+                startActivity(intent);
             }
 
 
@@ -126,7 +126,6 @@ public class GarageFragment extends Fragment
 
 
         this.vehicles = this.singletonUser.getVehicleArrayList();
-
         vehicles_exist();
         getCurrentVhicle();
 
@@ -146,7 +145,7 @@ public class GarageFragment extends Fragment
                     @Override
                     public void onClick(View view) {
 
-                        Intent intent = new Intent(getActivity(), Modify_vehicle.class);
+                        Intent intent = new Intent(getActivity(), ModifyVehicleActivity.class);
                         Bundle extras = new Bundle();
 
                         extras.putString(PLATE, vehicles.get(selected_item).getNumberPlate());
@@ -160,6 +159,7 @@ public class GarageFragment extends Fragment
                         intent.putExtras(extras);
                         startActivity(intent);
                         hideOptions();
+                        clik_event = false;
                         onStart();
 
                     }
@@ -201,6 +201,7 @@ public class GarageFragment extends Fragment
                                         plates_list.remove(selected_item);
                                         hideOptions();
                                         dialog.cancel();
+                                        clik_event = false;
                                         onStart();
                                     }
                                 });
@@ -234,6 +235,7 @@ public class GarageFragment extends Fragment
                     if (position==selected_item){
                         view.setBackgroundColor(Color.TRANSPARENT);
                         hideOptions();
+
                     }else{
 
                         listview.getChildAt(selected_item).setBackgroundColor(Color.TRANSPARENT);
@@ -254,9 +256,6 @@ public class GarageFragment extends Fragment
             public void onClick (View v ) {
                 Intent intent = new Intent(getActivity(), AddVehicleActivity.class);
                 int i;
-                for(i=0;i<plates_list.size();i++){
-                    System.out.println("LIIIIIISSSTTTTTT  " + i +" " + plates_list.get(i));
-                }
                 intent.putExtra(PLATE_LIST, plates_list);
                 startActivity(intent);
             }
@@ -268,10 +267,13 @@ public class GarageFragment extends Fragment
     private void vehicles_exist() {
 
         if (vehicles == null){
-            this.label.setText("Hello! Add a new vehicle");
+            this.label.setVisibility(View.VISIBLE);
+            this.label.setText("YOUR GARAGE IS EMPTY");
             listview.setVisibility(View.INVISIBLE);
+
         }else {
             listview.setVisibility(View.VISIBLE);
+            this.label.setVisibility(View.INVISIBLE);
         }
 
     }
@@ -326,8 +328,9 @@ public class GarageFragment extends Fragment
         modify.setVisibility(View.GONE);
         this.select = (ImageButton) view.findViewById(R.id.select);
         select.setVisibility(View.GONE);
-        this.fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        this.fab = (FloatingActionButton) view.findViewById(R.id.fab_start);
         this.mRelativeLayout = (RelativeLayout) view.findViewById(R.id.layout_garage);
+        this.label = (TextView)view.findViewById(R.id.label_garage);
         // Set action bar title
         this.getActivity().setTitle(R.string.garage);
         return view;
@@ -419,14 +422,15 @@ public class GarageFragment extends Fragment
 
         this.plates_list.clear();
         this.vehicles = this.singletonUser.getVehicleArrayList();
-        if (this.vehicles == null /* || this.vehicles.isEmpty() */) {
+        if (this.vehicles == null) {
             return;
         }
 
-        int i;
+        int i,j;
         for(i=0; i<vehicles.size();i++){
             this.vehiclesName.add(i, vehicles.get(i).getModel());
             this.plates_list.add(i, vehicles.get(i).getNumberPlate());
+            System.out.println("plate + " + i + vehicles.get(i).getNumberPlate());
         }
 
         listview.setAdapter(new VehiclesAdapter(getContext(), vehicles , current_vehicle));
