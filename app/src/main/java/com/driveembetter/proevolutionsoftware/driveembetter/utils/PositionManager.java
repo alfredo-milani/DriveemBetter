@@ -18,7 +18,6 @@ import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSONPosition;
 
@@ -51,13 +50,13 @@ public class PositionManager
     private LocationManager locationManager;
     private boolean listenerSetted = false;
     private Context context;
-    private int speed;
     private double initialTime;
     private double time;
-    private int initialSpeed = -1; //Symbolic value just to check when "onLocationChanged" is called for the first time
+    private float initialSpeed; //Symbolic value just to check when "onLocationChanged" is called for the first time
     private double deltaT;
     private Response response;
     private String lastPosition;
+    private static boolean statisticsToPush;
     TextToSpeech tts;
 
 
@@ -68,6 +67,8 @@ public class PositionManager
         this.lastPosition = "";
         PositionManager.geocoder = new Geocoder(context, Locale.ITALIAN);
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        this.statisticsToPush = false;
+        initialSpeed = -1;
         this.updatePosition();
     }
 
@@ -79,44 +80,46 @@ public class PositionManager
         return positionManager;
     }
 
-    private void updateStatistics(double speed) {
+    private void updateStatistics(double speed, double acceleration) {
+
+
+        PositionManager.setStatisticsToPush(true);
+
+        // TODO weekly updates
 
         //TRY
-        MeanDay mean2 = user.getMeanDay();
         Calendar calendar = Calendar.getInstance();
         Date date = calendar.getTime();
         int hour = date.getHours();
         for (int i = 0; i <= 24; i ++) {
-            if (date.equals(mean2.getLocalDate())) { //stesso giorno
-                if (mean2.getMap().get(hour) != null) {
-                    Mean meanDay = mean2.getMap().get(hour);
-                    meanDay.setSampleSumVelocity((float) speed);  // modificare con il valore della velocità
+            if (date.equals(user.getMeanDay().getLocalDate())) { //stesso giorno
+                if (user.getMeanDay().getMap().get(hour) != null) {
+                    Mean meanDay = user.getMeanDay().getMap().get(hour);
+                    meanDay.setSampleSumVelocity((float) speed);
                     meanDay.setSampleSizeVelocity();
-                    meanDay.setSampleSumAcceleration((float) 10);
+                    meanDay.setSampleSumAcceleration((float) acceleration);
                     meanDay.setSampleSizeAcceleration();
-                    mean2.getMap().put(hour, meanDay);
+                    user.getMeanDay().getMap().put(hour, meanDay);
                 } else {
                     Mean meanDay = new Mean();
-                    meanDay.setSampleSumVelocity((float) speed); //modificare con il valore della velocità
+                    meanDay.setSampleSumVelocity((float) speed);
                     meanDay.setSampleSizeVelocity();
-                    meanDay.setSampleSumAcceleration((float) 10);
+                    meanDay.setSampleSumAcceleration((float) acceleration);
                     meanDay.setSampleSizeAcceleration();
-                    mean2.getMap().put(hour, meanDay);
+                    user.getMeanDay().getMap().put(hour, meanDay);
                 }
             } else {
-                mean2.setLocalDate(date);
-                mean2.getMap().clear();
+                user.getMeanDay().setLocalDate(date);
+                user.getMeanDay().getMap().clear();
                 Mean meanDay = new Mean();
                 meanDay.setSampleSumVelocity((float) speed); // modificare con il valore della velocità
                 meanDay.setSampleSizeVelocity();
-                meanDay.setSampleSumVelocity((float) 10);
+                meanDay.setSampleSumVelocity((float) acceleration);
                 meanDay.setSampleSizeAcceleration();
-                mean2.getMap().put(hour, meanDay);
+                user.getMeanDay().getMap().put(hour, meanDay);
             }
-            Log.e("c", "Programma per " + i + " eseguito in ora " + hour + " giorno");
-
+            // Log.e("c", "Programma per " + i + " eseguito in ora " + hour + " giorno");
         }
-
         //END TRY
     }
 
@@ -124,7 +127,8 @@ public class PositionManager
     private void checkSpeedAndAcceleration(Location location) throws IOException {
 
         String currentPosition = "";
-        List<Address> addresses = null;
+        List<Address> addresses;
+        // TODO Utilizzare lo stato corrente di SingletonUser al posto di utilizzare il geocoder
         addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
         if(addresses != null && addresses.size() > 0 ){
             Address address = addresses.get(0);
@@ -138,26 +142,27 @@ public class PositionManager
                 initialSpeed = (int) ((location.getSpeed() * 3600) / 1000);
                 initialTime = System.currentTimeMillis();
                 Log.e("SPEED", "Speed: " + initialSpeed);
-                updateStatistics(initialSpeed);
+                updateStatistics(initialSpeed, 0);
                 //TODO
                 //check speed limits
                 SpeedLimitManager speedLimitManager = new SpeedLimitManager();
                 speedLimitManager.execute(String.valueOf(initialSpeed), String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
             } else {
-                speed = (int) ((location.getSpeed() * 3600) / 1000);
+                float speed = ((location.getSpeed() * 3600) / 1000);
                 time = System.currentTimeMillis();
                 deltaT = (time - initialTime) / 1000;
                 double acceleration = ((double) (speed - initialSpeed)) / deltaT;
-                Log.e("SPEED", "Speed: " + speed);
-                Log.e("ACCELERATION", "Acceleration: " + acceleration);
-                updateStatistics(speed);
+
+                updateStatistics(speed, acceleration);
+
                 //TODO ??
                 //check speed limits or abrupt braking or acceleration
                 if (acceleration > 5)
                     alertAcceleration(1);
                 if (acceleration < -8)
                     alertAcceleration(-1);
-                if (!currentPosition.equals(lastPosition)) {
+                if (currentPosition != null && lastPosition != null &&
+                        !currentPosition.equals(lastPosition)) {
                     SpeedLimitManager speedLimitManager = new SpeedLimitManager();
                     speedLimitManager.execute(String.valueOf(speed), String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
                 }
@@ -351,8 +356,16 @@ public class PositionManager
         return strings;
     }
 
-    public int getInitialSpeed() {
+    public float getInitialSpeed() {
         return this.initialSpeed;
+    }
+
+    public synchronized static boolean isStatisticsToPush() {
+        return PositionManager.statisticsToPush;
+    }
+
+    public synchronized static void setStatisticsToPush(boolean statisticsToPush) {
+        PositionManager.statisticsToPush = statisticsToPush;
     }
 
     //ADDED BY PONZINO_THE_WOLF_94

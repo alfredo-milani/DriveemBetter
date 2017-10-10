@@ -41,7 +41,7 @@ public class UserDetailsRankingActivity
 
     private final static String formatData = "dd-MM-yyyy HH:mm:ss";
     private final static int minValYAcceleration = 0;
-    private final static int maxValYAcceleration = 150;
+    private final static int maxValYAcceleration = 30;
 
     // Resources
     private User user;
@@ -124,19 +124,16 @@ public class UserDetailsRankingActivity
         if (this.user.getFeedback() != 0) {
             this.feedback.setText(String.format(
                     Locale.ENGLISH,
-                    "%f",
+                    "%.2f",
                     this.user.getFeedback()
             ));
-        } else {
-            this.feedback.setText(getString(R.string.not_determinated));
         }
-
 
         FirebaseDatabaseManager.retrieveDailyData(this, user.getUid());
         // Graph properties
         this.velocitySeries = new LineGraphSeries<>();
         this.accelerationSeries = new LineGraphSeries<>();
-        this.velocitySeries.setTitle(getString(R.string.velocity) + " (m/s)");
+        this.velocitySeries.setTitle(getString(R.string.velocity) + " (km/h)");
         this.accelerationSeries.setTitle(getString(R.string.acceleration) + " (m/s^2)");
     }
 
@@ -212,6 +209,7 @@ public class UserDetailsRankingActivity
                     getString(R.string.last_update),
                     simpleDateFormat.format(data.getLocalDate())
             ));
+
             // Adding axis titles
             // this.graphView.getGridLabelRenderer().setVerticalAxisTitle("m/s");
             // this.graphView.getGridLabelRenderer().setHorizontalAxisTitle("h");

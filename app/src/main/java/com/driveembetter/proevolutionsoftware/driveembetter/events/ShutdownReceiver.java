@@ -21,6 +21,7 @@ public class ShutdownReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Turning off smartphone");
         FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
+        FirebaseDatabaseManager.manageUserStatistics();
         FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
     }
 }

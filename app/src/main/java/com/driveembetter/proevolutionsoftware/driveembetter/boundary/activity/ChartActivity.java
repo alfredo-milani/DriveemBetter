@@ -268,9 +268,10 @@ public class ChartActivity extends AppCompatActivity {
          /* Get chart fragment */
         com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment chartFragment = (com.driveembetter.proevolutionsoftware.driveembetter.boundary.ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
 
-        if (retainedFragment.getData() != null) {
-                    /* Get chart */
-            ScatterChart chart = chartFragment.getChart();
+        /* Get chart */
+        ScatterChart chart = chartFragment.getChart();
+        if (retainedFragment.getData() != null &&
+                chart != null) {
             chart.clearValues();
             chart.clear();
         }
@@ -294,8 +295,10 @@ public class ChartActivity extends AppCompatActivity {
         retainedFragment.setProgressDialog(progress);
 
         /* Get chart from chart fragment */
-        ScatterChart chart = chartFragment.getChart();
-        retainedFragment.setChart(chart);
+        if (chart != null) {
+            chart = chartFragment.getChart();
+            retainedFragment.setChart(chart);
+        }
 
         /* Create a new async task */
         task = new ChartAsyncTask(retainedFragment);
@@ -317,8 +320,6 @@ public class ChartActivity extends AppCompatActivity {
 
         task.execute(value, valueTime, String.valueOf(endIndex));
         retainedFragment.setTask(task);
-
-
     }
 
 

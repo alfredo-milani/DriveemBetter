@@ -9,7 +9,7 @@ public class Mean {
     // TODO da implementare con Reflection
     public final static String SUM_VELOCITY = "sampleSumVelocity";
     public final static String SUM_ACCELERATION = "sampleSumAcceleration";
-    public final static String SIZE_SIZE_VELOCITY = "sampleSizeVelocity";
+    public final static String SIZE_VELOCITY = "sampleSizeVelocity";
     public final static String SIZE_ACCELERATION = "sampleSizeAcceleration";
 
     private float sampleSumVelocity, sampleSumAcceleration;
@@ -36,7 +36,7 @@ public class Mean {
     }
 
     public void setSampleSumVelocity(float sampleSumVelocity) {
-        this.sampleSumVelocity = sampleSumVelocity + this.sampleSumVelocity;
+        this.sampleSumVelocity += sampleSumVelocity;
     }
 
     public float getSampleSumAcceleration() {
@@ -44,7 +44,7 @@ public class Mean {
     }
 
     public void setSampleSumAcceleration(float sampleSumAcceleration) {
-        this.sampleSumAcceleration = sampleSumAcceleration + this.sampleSumAcceleration;
+        this.sampleSumAcceleration += sampleSumAcceleration;
     }
 
     public int getSampleSizeVelocity() {
@@ -52,7 +52,7 @@ public class Mean {
     }
 
     public void setSampleSizeVelocity() {
-        this.sampleSizeVelocity = this.sampleSizeVelocity + 1;
+        this.sampleSizeVelocity = ++this.sampleSizeVelocity;
     }
 
     public int getSampleSizeAcceleration() {
@@ -60,6 +60,6 @@ public class Mean {
     }
 
     public void setSampleSizeAcceleration() {
-        this.sampleSizeAcceleration = sampleSizeAcceleration + 1;
+        this.sampleSizeAcceleration = ++sampleSizeAcceleration;
     }
 }

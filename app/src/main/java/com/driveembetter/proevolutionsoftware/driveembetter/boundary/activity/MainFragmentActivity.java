@@ -155,7 +155,8 @@ public class MainFragmentActivity extends AppCompatActivity
 
         this.initWidgets();
 
-        this.manageActionOnNavigationItemSelected(R.id.garage);
+        // TODO riabilita l'avvio automatico del garage una volta risolto il BUG
+        // this.manageActionOnNavigationItemSelected(R.id.garage);
     }
 
     private void initResources() {
@@ -471,7 +472,6 @@ public class MainFragmentActivity extends AppCompatActivity
 
             case R.id.nav_send:
                 // DEBUG
-                ChartAsyncTask.fillMeanWeekDay(24, 7, 1, singletonUser.getMeanDay(), singletonUser.getMeanWeek());
                 ////
                 break;
 

@@ -81,16 +81,16 @@ public class FirebaseDatabaseManager
                                     accSize = Integer.valueOf(attribute.getValue().toString());
                                     break;
 
-                                case Mean.SIZE_SIZE_VELOCITY:
+                                case Mean.SIZE_VELOCITY:
                                     velSize = Integer.valueOf(attribute.getValue().toString());
                                     break;
 
                                 case Mean.SUM_ACCELERATION:
-                                    velSum = Float.valueOf(attribute.getValue().toString());
+                                    accSum = Float.valueOf(attribute.getValue().toString());
                                     break;
 
                                 case Mean.SUM_VELOCITY:
-                                    accSum = Float.valueOf(attribute.getValue().toString());
+                                    velSum = Float.valueOf(attribute.getValue().toString());
                                     break;
                             }
                         }
@@ -113,7 +113,7 @@ public class FirebaseDatabaseManager
                                     accSize = Integer.valueOf(attribute.getValue().toString());
                                     break;
 
-                                case Mean.SIZE_SIZE_VELOCITY:
+                                case Mean.SIZE_VELOCITY:
                                     velSize = Integer.valueOf(attribute.getValue().toString());
                                     break;
 
@@ -905,21 +905,6 @@ public class FirebaseDatabaseManager
         return arrayList;
     }
 
-    /**
-     * Check if first timestamp arg if older then minValidity
-     * @param timestamp: long value of timestamp received from server (in milliseconds)
-     * @param minValidity: max validity value accepted from timestamp in minutes
-     * @return true if timestamp is still valid, false otherwise
-     */
-    private static boolean checkTimeStamp(long timestamp, int minValidity) {
-        // From minutes to milliseconds
-        long validityTime = minValidity * 60 * 1000;
-        // TODO evitare di usare il tempo del device corrente: potrebbe esere sbagliato
-        long currentTime = System.currentTimeMillis();
-
-        return currentTime - timestamp <= validityTime;
-    }
-
     private static User getUserFromData(DataSnapshot user) {
         String username = null;
         String email = null;
@@ -952,6 +937,21 @@ public class FirebaseDatabaseManager
         }
 
         return new User(user.getKey(), username, email, image, points, availability, feedback);
+    }
+
+    /**
+     * Check if first timestamp arg if older then minValidity
+     * @param timestamp: long value of timestamp received from server (in milliseconds)
+     * @param minValidity: max validity value accepted from timestamp in minutes
+     * @return true if timestamp is still valid, false otherwise
+     */
+    private static boolean checkTimeStamp(long timestamp, int minValidity) {
+        // From minutes to milliseconds
+        long validityTime = minValidity * 60 * 1000;
+        // TODO evitare di usare il tempo del device corrente: potrebbe esere sbagliato
+        long currentTime = System.currentTimeMillis();
+
+        return currentTime - timestamp <= validityTime;
     }
 
 

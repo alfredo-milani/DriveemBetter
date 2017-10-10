@@ -22,8 +22,8 @@ public class SaveUserStatisticsRunnable
 
     public SaveUserStatisticsRunnable(Context context) {
         this.context = context;
-        // Default value 5 minutes
-        this.timeToSleep = 60 * 5;
+        // Default value 2 minutes
+        this.timeToSleep = 60 * 2;
     }
 
     public SaveUserStatisticsRunnable(Context context, int timeToSleep) {
@@ -36,16 +36,18 @@ public class SaveUserStatisticsRunnable
     @Override
     public void run() {
         do {
+            if (PositionManager.isStatisticsToPush() &&
+                    NetworkConnectionUtil.isConnectedToInternet(this.context) &&
+                    PositionManager.getInstance(this.context).getInitialSpeed() != -1) {
+                PositionManager.setStatisticsToPush(false);
+                FirebaseDatabaseManager.manageUserStatistics();
+            }
+
             try {
                 Thread.sleep(this.timeToSleep * 1000);
             } catch (InterruptedException e) {
                 Log.d(TAG, "Thread interrupted");
                 break;
-            }
-
-            if (NetworkConnectionUtil.isConnectedToInternet(this.context) &&
-                    PositionManager.getInstance(this.context).getInitialSpeed() != -1) {
-                FirebaseDatabaseManager.manageUserStatistics();
             }
         } while (!Thread.currentThread().isInterrupted());
     }
