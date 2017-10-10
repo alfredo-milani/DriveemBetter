@@ -526,6 +526,39 @@ public class FirebaseDatabaseManager
 
 
     /**
+     *  USER DETAILS
+     */
+    public static void updateUserUsername(String username) {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(user.getUid());
+
+            databaseReference
+                    .child(CHILD_USERNAME)
+                    .setValue(username);
+        }
+    }
+
+    public static void updatePositionUsername(String username) {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_POSITION)
+                    .child(user.getCountry())
+                    .child(user.getRegion())
+                    .child(user.getSubRegion())
+                    .child(user.getUid())
+                    .child(CHILD_USERNAME);
+
+            databaseReference.setValue(username);
+        }
+    }
+
+
+
+    /**
      *  STATISTICS DATA
      */
     public interface RetrieveDataDB {

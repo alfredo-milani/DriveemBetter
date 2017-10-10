@@ -120,4 +120,6 @@
     <string name="change_password">Modifica password</string>
     <string name="new_username">Nuovo username</string>
     <string name="identical_username">Username identico</string>
+    <string name="edit_profile">Modifica profilo</string>
+    <string name="username_updated">Username aggiornato</string>
 </resources>

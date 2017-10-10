@@ -426,11 +426,10 @@ public class GarageFragment extends Fragment
             return;
         }
 
-        int i,j;
+        int i;
         for(i=0; i<vehicles.size();i++){
             this.vehiclesName.add(i, vehicles.get(i).getModel());
             this.plates_list.add(i, vehicles.get(i).getNumberPlate());
-            System.out.println("plate + " + i + vehicles.get(i).getNumberPlate());
         }
 
         listview.setAdapter(new VehiclesAdapter(getContext(), vehicles , current_vehicle));

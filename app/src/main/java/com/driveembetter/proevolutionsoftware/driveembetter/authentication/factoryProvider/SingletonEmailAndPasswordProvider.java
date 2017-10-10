@@ -9,6 +9,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseP
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseNetworkException;
@@ -163,10 +165,19 @@ public class SingletonEmailAndPasswordProvider
                 });
     }
 
-    public void editUsername(String username) {
-        Log.d(TAG, "editUsername");
-        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
+    public interface EditProfileCallback {
+        int RESULT_POSITIVE = 1;
+        int RESULT_ERROR = -1;
 
+        void onProfileModified(int response);
+    }
+
+    public void editUsername(final EditProfileCallback callback, final String username) {
+        if (callback == null) {
+            throw new CallbackNotInitialized(TAG);
+        }
+        
+        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
         if (username != null) {
             builder.setDisplayName(username);
             this.singletonFirebaseProvider
@@ -177,8 +188,12 @@ public class SingletonEmailAndPasswordProvider
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "SingletonUser profile updated.");
+                                callback.onProfileModified(EditProfileCallback.RESULT_POSITIVE);
+                                FirebaseDatabaseManager.updateUserUsername(username);
+                                FirebaseDatabaseManager.updatePositionUsername(username);
                             } else {
                                 Log.d(TAG, "SingletonUser profile NOT updated.");
+                                callback.onProfileModified(EditProfileCallback.RESULT_ERROR);
                             }
                         }
                     });

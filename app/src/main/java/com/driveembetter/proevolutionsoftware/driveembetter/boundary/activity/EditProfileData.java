@@ -5,8 +5,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,7 +35,8 @@ import com.google.firebase.storage.UploadTask;
  */
 
 public class EditProfileData extends AppCompatActivity
-        implements View.OnClickListener {
+        implements View.OnClickListener,
+        SingletonEmailAndPasswordProvider.EditProfileCallback {
 
     private final static String TAG = EditProfileData.class.getSimpleName();
 
@@ -69,6 +73,13 @@ public class EditProfileData extends AppCompatActivity
     }
 
     private void initWidgets() {
+        // Set action bar title
+        this.setTitle(R.string.edit_profile);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         this.editUsernameLayout = findViewById(R.id.change_username_data);
         this.editUsernemButton = findViewById(R.id.modifyUsername);
         this.editTextUsername = findViewById(R.id.editTextUsername);
@@ -163,14 +174,15 @@ public class EditProfileData extends AppCompatActivity
 
             case R.id.confirmModifyUsername:
                 String tmp = this.editTextUsername.getText().toString();
-                if (!this.user.getUsername().equals(tmp)) {
+                if (TextUtils.isEmpty(tmp)) {
+                    this.editTextUsername.setError(getString(R.string.invalid_user));
+                } else if (tmp.equals(user.getUsername())) {
+                    this.editTextUsername.setError(getString(R.string.identical_username));
+                } else {
                     this.emailAndPasswordProvider.editUsername(
+                            this,
                             this.editTextUsername.getText().toString()
                     );
-                } else if (tmp.isEmpty()) {
-                    this.editTextUsername.setError(getString(R.string.invalid_user));
-                } else {
-                    this.editTextUsername.setError(getString(R.string.identical_username));
                 }
                 break;
 
@@ -185,5 +197,32 @@ public class EditProfileData extends AppCompatActivity
                 android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI
         ), EditProfileData.RC_GALLERY);
         */
+    }
+
+    @Override
+    public void onProfileModified(int response) {
+        switch (response) {
+            case EditProfileData.RESULT_POSITIVE:
+                Toast.makeText(this, getString(R.string.username_updated), Toast.LENGTH_SHORT).show();
+                this.switchViewVisibility(this.editUsernameLayout);
+                this.user.setUsername(this.emailAndPasswordProvider.getUserInformations().getUsername());
+                this.usernameTextView.setText(this.user.getUsername());
+                break;
+
+            case EditProfileData.RESULT_ERROR:
+                Toast.makeText(this, getString(R.string.username_updated), Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

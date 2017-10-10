@@ -72,5 +72,7 @@
     <string name="change_profile_data">Change profile data</string>
     <string name="change_password">Change password</string>
     <string name="new_username">New username</string>
-    <string name="identical_username">Identical usernmae</string>
+    <string name="identical_username">Identical username</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="username_updated">Username updated</string>
 </resources>

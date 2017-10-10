@@ -105,7 +105,6 @@
 
         <activity
             android:name=".boundary.activity.EditProfileData"
-            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait" >
             <!--Default Intent Filter-->
             <intent-filter>

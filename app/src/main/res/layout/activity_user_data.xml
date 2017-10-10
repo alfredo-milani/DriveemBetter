@@ -14,29 +14,18 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/back_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:contentDescription="@string/back"
-                android:tint="@color/red_600"
-                app:srcCompat="@drawable/ic_keyboard_arrow_left_white_48dp" />
-
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/user_picture"
                 android:layout_width="match_parent"
                 android:layout_height="75dp"
-                android:layout_marginBottom="25dp"
-                android:layout_marginTop="75dp"
+                android:layout_marginTop="50dp"
                 android:src="@mipmap/user_black_icon"
                 app:civ_border_color="#FFFFFF" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginLeft="25dp"
-                android:layout_marginRight="25dp"
+                android:layout_margin="20dp"
                 android:background="@color/colorSchemas"
                 android:orientation="horizontal" />
 
@@ -44,8 +33,6 @@
                 android:id="@+id/username_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
                 android:orientation="horizontal"
                 android:weightSum="1">
 
@@ -104,7 +91,8 @@
                         android:layout_weight="1"
                         android:ems="10"
                         android:inputType="textPersonName"
-                        android:textColor="@color/colorSchemas" />
+                        android:textColor="@color/colorSchemas"
+                        android:textColorHint="@color/colorSchemas" />
 
                 </LinearLayout>
 
@@ -115,19 +103,23 @@
 
                     <Button
                         android:id="@+id/backModifyUsername"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="25dp"
+                        android:layout_marginStart="25dp"
                         android:layout_weight="1"
-                        android:background="@android:color/transparent"
+                        android:background="@drawable/button_boarder"
                         android:text="@string/back"
                         android:textColor="@color/colorSchemas" />
 
                     <Button
                         android:id="@+id/confirmModifyUsername"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="25dp"
+                        android:layout_marginStart="25dp"
                         android:layout_weight="1"
-                        android:background="@android:color/transparent"
+                        android:background="@drawable/button_boarder"
                         android:text="@string/add"
                         android:textColor="@color/colorSchemas" />
                 </LinearLayout>
@@ -137,8 +129,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginLeft="25dp"
-                android:layout_marginRight="25dp"
+                android:layout_margin="20dp"
                 android:background="@color/colorSchemas"
                 android:orientation="horizontal" />
 
@@ -146,8 +137,6 @@
                 android:id="@+id/email_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
                 android:orientation="horizontal"
                 android:weightSum="1">
 

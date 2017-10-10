@@ -292,12 +292,10 @@ public class PositionManager
                 Emulator needs Google API in order to works correctly with Geocoder.
              */
             List<Address> addresses = PositionManager.geocoder.getFromLocation(latitude, longitude, maxResult);
-            strings[0] = addresses.get(0).getCountryName();
-            strings[1] = addresses.get(0).getAdminArea();
-            strings[2] = addresses.get(0).getSubAdminArea();
 
             Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2]);
-            if (strings[0] == null || strings[1] == null || strings[2] == null) {
+            if (addresses == null || strings[0] == null ||
+                    strings[1] == null || strings[2] == null) {
                 Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
                     @Override
                     public void onDataComputed(String[] position) {
@@ -315,6 +313,10 @@ public class PositionManager
                 geoC.start();
                 geoC.join();
                 Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2]);
+            } else {
+                strings[0] = addresses.get(0).getCountryName();
+                strings[1] = addresses.get(0).getAdminArea();
+                strings[2] = addresses.get(0).getSubAdminArea();
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
