@@ -47,7 +47,8 @@
     <string name="days">Days</string>
     <string name="user_points_title">Earned points</string>
     <string name="data_unavailable">Unavailable data</string>
-
+    <string name="message">ATTENTION!</string>
+    <string name="insurance_alert">Your insurance is exipired! Please update your insurance expiration date as soon as you renew it</string>
 
 
     <string name="plate_number">Plate number</string>

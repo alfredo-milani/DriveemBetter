@@ -8,6 +8,7 @@
     tools:context="com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.AddVehicleActivity">
 
     <RelativeLayout
+        android:id="@+id/alert"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/gar"
@@ -50,13 +51,6 @@
             android:layout_marginTop="10dp">
 
             <RadioButton
-                android:id="@+id/car"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Car" />
-
-            <RadioButton
                 android:id="@+id/moto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -64,11 +58,24 @@
                 android:text="Moto" />
 
             <RadioButton
+                android:id="@+id/car"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/radiotype"
+                android:layout_marginRight="5dp"
+                android:layout_toStartOf="@+id/radiotype"
+                android:layout_weight="1"
+                android:text="Car" />
+
+            <RadioButton
                 android:id="@+id/van"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_alignTop="@+id/radiotype"
+                android:layout_toEndOf="@+id/radiotype"
                 android:text="Van" />
+
+
         </RadioGroup>
 
         <EditText
@@ -108,11 +115,36 @@
             android:id="@+id/confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_below="@+id/rev"
+            android:layout_centerHorizontal="true"
             android:background="?android:attr/selectableItemBackground"
-            android:text="@string/add"
+            android:text="@string/add" />
+
+
+        <EditText
+            android:id="@+id/insurance_date_plain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/newmodel"
             android:layout_below="@+id/newmodel"
-            android:layout_centerHorizontal="true" />
+            android:layout_marginTop="5dp"
+            android:ems="10"
+            android:focusableInTouchMode="false"
+            android:hint="Insurance expiration"
+            android:inputType="date" />
+
+        <EditText
+            android:id="@+id/rev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/insurance_date_plain"
+            android:layout_below="@+id/insurance_date_plain"
+            android:layout_marginTop="5dp"
+            android:ems="10"
+            android:focusableInTouchMode="false"
+            android:hint="Last revision"
+            android:inputType="date" />
+
 
     </RelativeLayout>
 

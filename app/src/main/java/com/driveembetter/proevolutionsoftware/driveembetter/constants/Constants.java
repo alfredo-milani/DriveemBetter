@@ -54,6 +54,7 @@ public interface Constants {
     String NODE_POSITION = "position";
     String NODE_USERS = "users";
     String NODE_VEHICLES = "vehicles";
+    String NODE_CURRENT_VEHICLE = "current_vehicle";
 
     // Database's child for entity User
     String CHILD_USERNAME = "username";
@@ -95,6 +96,9 @@ public interface Constants {
     String VEHICLE_EXISTS_YET = "Plate exists yet";
     String PLATE = "Plate, ";
     String TYPE = "Type, ";
+    String INS_DATE = "Insurance date, ";
+    String REV_DATE = " Revision date, ";
+    String CURRENT = "Current";
     String MODEL = "Model, ";
     String OWNER = "Owner, ";
     String YES = "Yes";

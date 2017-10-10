@@ -148,6 +148,7 @@ public class SingletonUser
             throw new CallbackNotInitialized(TAG);
         }
 
+        FirebaseDatabaseManager.getCurrentVehicle(this, userDataCallback);
         FirebaseDatabaseManager.getVehiclesDB(this, userDataCallback);
         FirebaseDatabaseManager.getCurrentVehicle(this, userDataCallback);
     }
@@ -161,8 +162,9 @@ public class SingletonUser
         this.vehicleArrayList = vehicleArrayList;
     }
 
+
     public Vehicle getCurrentVehicle() {
-        return this.currentVehicle;
+        return currentVehicle;
     }
 
     public void setCurrentVehicle(Vehicle currentVehicle) {

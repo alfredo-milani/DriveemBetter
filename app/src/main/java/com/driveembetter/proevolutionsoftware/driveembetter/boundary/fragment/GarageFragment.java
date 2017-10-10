@@ -28,26 +28,35 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Ad
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Modify_vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
+import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.VehiclesAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.R.id.user;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CAR;
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CURRENT;
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.INS_DATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MODEL;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MOTO;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NO;
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NODE_USERS;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.OWNER;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE_LIST;
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.REV_DATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.TYPE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VAN;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.YES;
+import static java.sql.DriverManager.println;
 
 
 public class GarageFragment extends Fragment
@@ -56,12 +65,11 @@ public class GarageFragment extends Fragment
     private SingletonUser singletonUser;
     private SingletonFirebaseProvider singletonFirebaseProvider;
     private ListView listview;
+    private TextView label;
     private ArrayList<Vehicle> vehicles;
     private ArrayList<String> vehiclesName;
-    private ArrayAdapter<String> adapter;
     private ImageButton delete;
     private ImageButton modify;
-    private ImageButton info;
     private ImageButton select;
     private Button ok;
     private int selected_item;
@@ -71,13 +79,14 @@ public class GarageFragment extends Fragment
     private TextView model;
     private TextView plate;
     private TextView owner;
+    private TextView rev_date;
+    private TextView ins_date;
     private RelativeLayout mRelativeLayout;
     private FirebaseDatabase database;
     private DatabaseReference ref;
-    private Boolean show = false;
+    private DatabaseReference current_ref;
     private Boolean clik_event;
-    private String current_plate;
-
+    private String current_vehicle;
 
 
     @Override
@@ -120,17 +129,18 @@ public class GarageFragment extends Fragment
 
     @Override
     public void onVehiclesReceive() {
+
+
+
         this.vehicles = this.singletonUser.getVehicleArrayList();
 
-        // check_current_vehicle();
-        // setCurrentPlate(current_plate);
-        populateListView();
-
-
+        vehicles_exist();
+        getCurrentVhicle();
 
         listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
             public boolean onItemLongClick(AdapterView<?> arg0, View v, int index, long arg3) {
+
 
                 clik_event = true;
                 selected_item = index;
@@ -151,9 +161,13 @@ public class GarageFragment extends Fragment
                         extras.putString(OWNER, vehicles.get(selected_item).getOwner());
                         extras.putStringArrayList(PLATE_LIST, plates_list);
                         extras.putString(TYPE,vehicles.get(selected_item).getType());
-
+                        extras.putString(INS_DATE, vehicles.get(selected_item).getInsurance_date());
+                        extras.putString(REV_DATE, vehicles.get(selected_item).getRevision_date());
+                        extras.putString(CURRENT, current_vehicle);
                         intent.putExtras(extras);
                         startActivity(intent);
+                        hideOptions();
+                        onStart();
 
                     }
                 });
@@ -165,6 +179,10 @@ public class GarageFragment extends Fragment
 
                         remove_old_current_vehicle();
                         add_new_current_vehicle(selected_item);
+                        hideOptions();
+                        clik_event = false;
+                        onStart();
+
                     }
                 });
 
@@ -185,14 +203,12 @@ public class GarageFragment extends Fragment
                                     public void onClick(DialogInterface dialog, int id) {
 
                                         removeVehicleFromDb();
-
                                         vehicles.remove(selected_item);
                                         vehiclesName.remove(selected_item);
+                                        plates_list.remove(selected_item);
                                         hideOptions();
                                         dialog.cancel();
                                         onStart();
-
-
                                     }
                                 });
 
@@ -202,7 +218,6 @@ public class GarageFragment extends Fragment
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         dialog.cancel();
-                                        onStart();
                                     }
                                 });
 
@@ -223,9 +238,14 @@ public class GarageFragment extends Fragment
 
                 if (clik_event == true){
 
-                    view.setBackgroundColor(Color.TRANSPARENT);
-                    hideOptions();
-                    //listview.getChildAt(selected_item).setBackgroundColor(Color.TRANSPARENT);
+                    if (position==selected_item){
+                        view.setBackgroundColor(Color.TRANSPARENT);
+                        hideOptions();
+                    }else{
+
+                        listview.getChildAt(selected_item).setBackgroundColor(Color.TRANSPARENT);
+                        hideOptions();
+                    }
                     clik_event =false;
 
                 }else if (clik_event == false) {
@@ -240,6 +260,11 @@ public class GarageFragment extends Fragment
             @Override
             public void onClick (View v ) {
                 Intent intent = new Intent(getActivity(), AddVehicleActivity.class);
+                int i;
+                for(i=0;i<plates_list.size();i++){
+                    System.out.println("LIIIIIISSSTTTTTT  " + i +" " + plates_list.get(i));
+                }
+                System.out.println("VEHICLE SIZE ON CLICK" + vehicles.size());
                 intent.putExtra(PLATE_LIST, plates_list);
                 startActivity(intent);
             }
@@ -248,38 +273,15 @@ public class GarageFragment extends Fragment
         });
     }
 
-    private void check_current_vehicle() {
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference ref = database.getReference("users/" + SingletonFirebaseProvider
-                .getInstance()
-                .getFirebaseUser()
-                .getUid() + "/current_vehicle");
+    private void vehicles_exist() {
 
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+        if (vehicles == null){
+            this.label.setText("Hello! Add a new vehicle");
+            listview.setVisibility(View.INVISIBLE);
+        }else {
+            listview.setVisibility(View.VISIBLE);
+        }
 
-
-                String data = dataSnapshot.getValue().toString();
-
-
-                if (data == null)
-                    return;
-
-                else {
-
-                    String[] parts = data.split(";");
-                    current_plate = parts[2];
-                }
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     private void remove_old_current_vehicle() {
@@ -303,21 +305,23 @@ public class GarageFragment extends Fragment
         if( vehicles.get(selected_item).getType().equals(CAR)){
 
             ref.child(vehicles.get(selected_item).getNumberPlate())
-                    .setValue(vehicles.get(selected_item).getType()+ ";" +vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner());
+                    .setValue(vehicles.get(selected_item).getType()+ ";" +vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+
+                            ";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
         }
 
         if( vehicles.get(selected_item).getType().equals(MOTO)){
 
             ref.child(vehicles.get(selected_item).getNumberPlate())
-                    .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner());
+                    .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
         }
 
         if( vehicles.get(selected_item).getType().equals(VAN)){
 
             ref.child(vehicles.get(selected_item).getNumberPlate())
-                    .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner());
+                    .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
         }
-        SingletonUser.getInstance().setCurrentVehicle(vehicles.get(selected_item));
+
+        singletonUser.setCurrentVehicle(vehicles.get(selected_item));
     }
 
     private View init_view(LayoutInflater inflater, ViewGroup container) {
@@ -332,7 +336,6 @@ public class GarageFragment extends Fragment
         select.setVisibility(View.GONE);
         this.fab = (FloatingActionButton) view.findViewById(R.id.fab);
         this.mRelativeLayout = (RelativeLayout) view.findViewById(R.id.layout_garage);
-
         // Set action bar title
         this.getActivity().setTitle(R.string.garage);
         return view;
@@ -359,6 +362,15 @@ public class GarageFragment extends Fragment
                 .getFirebaseUser()
                 .getUid() + "/vehicles");
         ref.child(vehicles.get(selected_item).getNumberPlate()).removeValue();
+
+        if (vehicles.get(selected_item).getNumberPlate().equals(current_vehicle)){
+            this.database = FirebaseDatabase.getInstance();
+            this.current_ref = database.getReference("users/" + SingletonFirebaseProvider
+                    .getInstance()
+                    .getFirebaseUser()
+                    .getUid() + "/current_vehicle");
+            current_ref.child(current_vehicle).removeValue();
+        }
     }
 
     private void show_details(int position) {
@@ -374,6 +386,8 @@ public class GarageFragment extends Fragment
         this.type = (TextView) popupView.findViewById(R.id.typeview);
         this.owner = (TextView) popupView.findViewById(R.id.ownerview);
         this.plate = (TextView) popupView.findViewById(R.id.plateview);
+        this.ins_date = (TextView) popupView.findViewById(R.id.ins_date);
+        this.rev_date = (TextView)popupView.findViewById(R.id.rev_date);
         this.ok = (Button) popupView.findViewById(R.id.ok);
 
         ok.setOnClickListener(new View.OnClickListener() {
@@ -388,10 +402,10 @@ public class GarageFragment extends Fragment
         type.setText(TYPE + vehicles.get(position).getType());
         owner.setText(OWNER + vehicles.get(position).getOwner());
         plate.setText(PLATE + vehicles.get(position).getNumberPlate());
+        ins_date.setText(vehicles.get(position).getInsurance_date());
+        rev_date.setText(vehicles.get(position).getRevision_date());
 
         popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER,0,0);
-
-
     }
 
     private void showOptions() {
@@ -410,20 +424,22 @@ public class GarageFragment extends Fragment
     }
 
     private void populateListView() {
+
+        this.plates_list.clear();
         this.vehicles = this.singletonUser.getVehicleArrayList();
-        if (this.vehicles == null || this.vehicles.isEmpty()) {
+        if (this.vehicles == null) {
             return;
         }
 
-        int i;
+        int i,j;
         for(i=0; i<vehicles.size();i++){
-
             this.vehiclesName.add(i, vehicles.get(i).getModel());
             this.plates_list.add(i, vehicles.get(i).getNumberPlate());
+            System.out.println("plate + " + i + vehicles.get(i).getNumberPlate());
         }
 
-
-        listview.setAdapter(new VehiclesAdapter(getContext(), vehicles ,current_plate));
+        System.out.println("VEHICLE SIZE POPULATE " + vehicles.size());
+        listview.setAdapter(new VehiclesAdapter(getContext(), vehicles , current_vehicle));
     }
 
     private void initResources() {
@@ -433,12 +449,39 @@ public class GarageFragment extends Fragment
         this.vehiclesName = new ArrayList<String>();
         this.plates_list = new ArrayList<String>();
         this.clik_event = false;
-
-
     }
 
-    public void setCurrentPlate(String currentPlate) {
-        this.current_plate = currentPlate;
+    private void getCurrentVhicle() {
+
+        this.database = FirebaseDatabase.getInstance();
+        this.ref = database.getReference("users/" + SingletonFirebaseProvider
+                .getInstance()
+                .getFirebaseUser()
+                .getUid() + "/current_vehicle");
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.getValue() == null){
+                    populateListView();
+
+                }else {
+
+                    String[] temp1 = dataSnapshot.getValue().toString().split("=");
+                    String[] temp2 = temp1[1].split(";");
+                    current_vehicle = temp2[2];
+                    populateListView();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
     }
 
     @Override
