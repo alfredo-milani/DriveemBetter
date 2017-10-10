@@ -11,6 +11,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonScatterData;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -19,22 +20,23 @@ import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Random;
 
 /* Chart Async Task Class */
 public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
     private final static String TAG = ChartAsyncTask.class.getSimpleName();
+
     private final static int HOURS_IN_DAY = 24;
     private final static int DAYS_IN_WEEK = 7;
+    private final SingletonUser user;
 
     RetainedFragment fragment;
 
     public ChartAsyncTask(RetainedFragment fragment) {
         this.fragment = fragment;
         setGraphProperties();
+        user = SingletonUser.getInstance();
     }
 
 
@@ -124,11 +126,11 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
             if  (valueTime.equals(Constants.STR_WEEK)){
 
                 for (int i = 0; i < DAYS_IN_WEEK; i++) {
-                    if (MeanWeek.getInstance().getMap().get(i) != null) {
+                    if (user.getMeanWeek().getMap().get(i) != null) {
 
                         xVals.add(String.valueOf(i));
-                        sampleSum = MeanWeek.getInstance().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) MeanWeek.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        sampleSum = user.getMeanWeek().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) user.getMeanWeek().getMap().get(i).getSampleSizeAcceleration();
                         mean = sampleSum / sampleSize;
                         Entry entry = new Entry(mean, i);
                         vals.add(entry);
@@ -142,11 +144,11 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
             } else{
 
                 for (int i = 0; i < HOURS_IN_DAY; i++) {
-                    if (MeanDay.getInstance().getMap().get(i) != null) {
+                    if (user.getMeanDay().getMap().get(i) != null) {
 
                         xVals.add(String.valueOf(i));
-                        sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        sampleSum = user.getMeanDay().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) user.getMeanDay().getMap().get(i).getSampleSizeAcceleration();
                         mean = sampleSum / sampleSize;
                         Entry entry = new Entry(mean, i);
                         vals.add(entry);
@@ -166,11 +168,11 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
                 for (int i = 0; i < DAYS_IN_WEEK; i++) {
 
-                    if (MeanWeek.getInstance().getMap().get(i) != null) {
+                    if (user.getMeanWeek().getMap().get(i) != null) {
 
                         xVals.add(String.valueOf(i));
-                        sampleSum = MeanWeek.getInstance().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) MeanWeek.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        sampleSum = user.getMeanWeek().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) user.getMeanWeek().getMap().get(i).getSampleSizeAcceleration();
                         mean = sampleSum / sampleSize;
                         Entry entry = new Entry(mean, i);
                         vals.add(entry);
@@ -187,11 +189,11 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
                 for (int i = 0; i < HOURS_IN_DAY; i++) {
 
-                    if (MeanDay.getInstance().getMap().get(i) != null) {
+                    if (user.getMeanDay().getMap().get(i) != null) {
 
                         xVals.add(String.valueOf(i));
-                        sampleSum = MeanDay.getInstance().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) MeanDay.getInstance().getMap().get(i).getSampleSizeAcceleration();
+                        sampleSum = user.getMeanDay().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = (float) user.getMeanDay().getMap().get(i).getSampleSizeAcceleration();
                         mean = sampleSum / sampleSize;
                         Entry entry = new Entry(mean, i);
                         vals.add(entry);
@@ -224,10 +226,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         return new ScatterData(xVals, dataSets);
     }
 
-    public static void fillMeanWeekDay(int ore, int giorniSettimana, int type) {
-        MeanDay mean2 = MeanDay.getInstance();
-        MeanWeek mean3 = MeanWeek.getInstance();
-
+    public static void fillMeanWeekDay(int ore, int giorniSettimana, int type, MeanDay mean2, MeanWeek mean3) {
         switch (type) {
             case 0:
                 for (int i = 0; i < ore; ++i) {
@@ -268,45 +267,6 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
                     mean3.getMap().put(i, meanWeek);
                 }
                 break;
-        }
-    }
-
-    /**
-     * TODO DEBUG: DA ELIMINARE
-     */
-    public static void fillMeanTEST() {
-        MeanDay mean2 = MeanDay.getInstance();
-        Calendar calendar = Calendar.getInstance();
-        Date date = calendar.getTime();
-        MeanWeek mean3 = MeanWeek.getInstance();
-        int hour = date.getHours();
-        for (int i = 0; i <= 24; i ++) {
-            if (date.equals(mean2.getLocalDate())) { //stesso giorno
-                if (mean2.getMap().get(hour) != null){
-                    Mean meanDay = mean2.getMap().get(hour);
-                    meanDay.setSampleSumAcceleration(1);  // modificare con il valore della velocità
-                    meanDay.setSampleSumVelocity(30);
-                    meanDay.setSampleSizeAcceleration();
-                    meanDay.setSampleSizeVelocity();
-                    mean2.getMap().put(hour, meanDay);
-                } else{
-                    Mean meanDay = new Mean();
-                    meanDay.setSampleSumAcceleration(10); //modificare con il valore della velocità
-                    meanDay.setSampleSumVelocity(1);
-                    meanDay.setSampleSizeAcceleration();
-                    meanDay.setSampleSizeVelocity();
-                    mean2.getMap().put(hour, meanDay);
-                }
-            } else {
-                mean2.setLocalDate(date);
-                mean2.getMap().clear();
-                Mean meanDay = new Mean();
-                meanDay.setSampleSumAcceleration(1); // modificare con il valore della velocità
-                meanDay.setSampleSumVelocity(20);
-                meanDay.setSampleSizeAcceleration();
-                meanDay.setSampleSizeVelocity();
-                mean2.getMap().put(hour, meanDay);
-            }
         }
     }
 

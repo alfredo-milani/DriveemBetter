@@ -11,21 +11,12 @@ import java.util.Map;
 
 public class MeanDay {
 
-    private static MeanDay instance = null;
     private Map<Integer, Mean> meanOfDays;
     private Date localDate;
 
-    private MeanDay() {
+    public MeanDay() {
         this.meanOfDays = new HashMap<Integer,Mean>();
         this.localDate = Calendar.getInstance().getTime();
-    }
-
-    public static MeanDay getInstance() {
-        if (instance == null) {
-            instance = new MeanDay();
-        }
-        return instance;
-
     }
 
 
@@ -44,9 +35,5 @@ public class MeanDay {
 
     public void setLocalDate(Date localDate) {
         this.localDate = localDate;
-    }
-
-    public static void resetSession() {
-        MeanDay.instance = null;
     }
 }

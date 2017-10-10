@@ -82,7 +82,7 @@ public class PositionManager
     private void updateStatistics(double speed) {
 
         //TRY
-        MeanDay mean2 = MeanDay.getInstance();
+        MeanDay mean2 = user.getMeanDay();
         Calendar calendar = Calendar.getInstance();
         Date date = calendar.getTime();
         int hour = date.getHours();

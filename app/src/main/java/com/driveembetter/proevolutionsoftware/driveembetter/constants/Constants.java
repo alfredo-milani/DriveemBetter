@@ -9,11 +9,15 @@ public interface Constants {
     String USER = "user_info";
     String PROVIDER_TYPE = "provider_type";
 
+
+
     // Authentication providers
     String FIREBASE_PROVIDER = "firebase_provider";
     String GOOGLE_PROVIDER = "google_provider";
     String FACEBOOK_PROVIDER = "facebook_provider";
     String TWITTER_PROVIDER = "twitter_provider";
+
+
 
     // PositionManager constants
     String OLD_COUNTRY = "oldCountry";
@@ -23,9 +27,13 @@ public interface Constants {
     String REGION = "region";
     String SUB_REGION = "subRegion";
 
+
+
     //SaveMeFragment constants
     String AVAILABLE = "Available";
     String UNAVAILABLE = "Unavailable";
+
+
 
     // chat constants
     String ARG_USERS = "users";
@@ -35,6 +43,8 @@ public interface Constants {
     String ARG_FIREBASE_TOKEN = "firebaseToken";
     String ARG_FRIENDS = "friends";
     String ARG_UID = "uid";
+
+
 
     // Database timestamp
     String CHILD_TIMESTAMP = "timestamp";
@@ -52,6 +62,9 @@ public interface Constants {
     String CHILD_CURRENT_POSITION = "currentUserPosition";
     String CHILD_EMAIL = "email";
     String CHILD_AVAILABILITY = "availability";
+    String CHILD_CURRENT_VEHICLE = "current_vehicle";
+    String CHILD_FEEDBACK = "feedback";
+    String CHILD_HISTORICAL_FEEDBACK = "historicalFeedback";
 
     // Statistics
     String CHILD_STATISTICS = "statistics";
@@ -93,4 +106,10 @@ public interface Constants {
     String ENGLISH_BRAKING_ALERT = "please, avoid making abrupt brakes";
     String ITALIAN_ACCELERATION_ALERT = "Evita accelerazioni brusche";
     String ITALIAN_BRAKING_ALERT = "Evita di frenare in maniera troppo energetica";
+
+    //Feedback
+    String FEEDBACK_SENT_ITALIAN = "Il tuo feedback è stato inviato!";
+    String FEEDBACK_SENT_ENGLISH = "Your feedback has been sent!";
+    String FEEDBACK_SENT_BUTTON_ITALIAN = "FATTO!";
+    String FEEDBACK_SENT_BUTTON_ENGLISH = "DONE!";
 }

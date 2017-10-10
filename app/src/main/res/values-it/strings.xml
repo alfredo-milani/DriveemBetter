@@ -110,4 +110,9 @@
     <string name="days">Giorni</string>
     <string name="user_points_title">Punti guadagnati</string>
     <string name="data_unavailable">Dati non disponibili</string>
+    <string name="feedback">Feedback</string>
+    <string name="last_update">Ultimo aggiornamento</string>
+    <string name="velocity">Velocità</string>
+    <string name="acceleration">Accelerazione</string>
+    <string name="not_determinated">N.D.</string>
 </resources>

@@ -64,4 +64,7 @@
     <string name="week">Week</string>
     <string name="acceleration">Acceleration</string>
     <string name="velocity">Velocity</string>
+    <string name="feedback">Feedback</string>
+    <string name="last_update">Last update</string>
+    <string name="not_determinated">N.D.</string>
 </resources>

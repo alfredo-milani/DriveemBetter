@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -11,7 +12,7 @@
         android:layout_height="75dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="25dp"
         android:src="@mipmap/user_black_icon"
         app:civ_border_color="#FFFFFF" />
 
@@ -43,7 +44,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -75,7 +75,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -108,17 +107,68 @@
                 android:layout_weight="1"
                 android:contentDescription="@string/availability"
                 app:srcCompat="@drawable/unavailable_shape" />
+        </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:background="@color/colorSchemas"
+            android:orientation="horizontal" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/driverFeedback"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/feedback" />
+
+            <TextView
+                android:id="@+id/driverFeedbackContent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center" />
         </LinearLayout>
 
     </LinearLayout>
 
-    <com.jjoe64.graphview.GraphView
-        android:id="@+id/graph_points"
+
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardSecondScaleGraph"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/layout_info"
-        app:seriesType="line" />
+        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardElevation="2sp"
+        card_view:cardUseCompatPadding="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="2dp">
+
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/graph_points"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:seriesType="line" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+
 
     <TextView
         android:id="@+id/unavailable_data"
@@ -135,10 +185,10 @@
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/graph_points"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_below="@+id/layout_info"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="100dp" />
+        android:layout_marginTop="50dp" />
 
 </RelativeLayout>

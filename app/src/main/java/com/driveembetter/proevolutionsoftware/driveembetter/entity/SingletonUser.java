@@ -35,8 +35,11 @@ public class SingletonUser
     private double longitude;
     private String country, region, subRegion;
     private ArrayList<Vehicle> vehicleArrayList;
-    private Double feedback;
     private List<Double> historicalFeedback;
+
+    // Statistics
+    private MeanDay meanDay;
+    private MeanWeek meanWeek;
 
     // Miscellaneous user data
     private Vehicle currentVehicle;
@@ -48,7 +51,7 @@ public class SingletonUser
     private static SingletonUser singletonInstance;
 
     private SingletonUser(String username, String email, Uri photoUrl, String uid, boolean emailVerified, String providerId, List providerData) {
-        super(uid, username, email, photoUrl, 0, null);
+        super(uid, username, email, photoUrl, 0, null, 0.0);
         this.setEmailVerified(emailVerified);
         this.setProviderId(providerId);
         this.setProviderData(providerData);
@@ -56,6 +59,8 @@ public class SingletonUser
         this.setCountry(COUNTRY);
         this.setRegion(REGION);
         this.setSubRegion(SUB_REGION);
+        this.meanDay = new MeanDay();
+        this.meanWeek = new MeanWeek();
         // Lock rientrante perché i thread sono diversi
         this.mtxSyncData = new ReentrantLock(true);
         // Lock non rientrante perché lo stesso thread opera sulle risorse
@@ -214,5 +219,21 @@ public class SingletonUser
 
     public NonReentrantLock getMtxUpdatePosition() {
         return this.mtxUpdatePosition;
+    }
+
+    public MeanDay getMeanDay() {
+        return this.meanDay;
+    }
+
+    public void setMeanDay(MeanDay meanDay) {
+        this.meanDay = meanDay;
+    }
+
+    public MeanWeek getMeanWeek() {
+        return this.meanWeek;
+    }
+
+    public void setMeanWeek(MeanWeek meanWeek) {
+        this.meanWeek = meanWeek;
     }
 }

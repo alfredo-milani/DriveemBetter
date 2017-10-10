@@ -10,22 +10,16 @@ import java.util.Map;
  */
 
 public class MeanWeek {
-    private static MeanWeek instance = null;
+
     private Map<Integer, Mean> meanOfWeek;
     private Date localDate;
 
-    private MeanWeek() {
+    public MeanWeek() {
         this.meanOfWeek = new HashMap<Integer,Mean>();
         this.localDate = Calendar.getInstance().getTime();
     }
 
-    public static final MeanWeek getInstance() {
-        if (instance == null) {
-            instance = new MeanWeek();
-        }
-        return instance;
 
-    }
 
     public Map<Integer,Mean> getMap() {
         return this.meanOfWeek;
@@ -41,9 +35,5 @@ public class MeanWeek {
 
     public void setLocalDate(Date localDate) {
         this.localDate = localDate;
-    }
-
-    public static void resetSession() {
-        MeanWeek.instance = null;
     }
 }

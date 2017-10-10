@@ -43,7 +43,9 @@ public class FirebaseDatabaseManager
             .getReference();
 
 
-
+    /**
+     *  MISCELLANEOUS METHODS
+     */
     public static DatabaseReference getDatabaseReference() {
         return FirebaseDatabaseManager.databaseReference;
     }
@@ -62,73 +64,69 @@ public class FirebaseDatabaseManager
         }
     }
 
-    public static void restoreStatisticsState(DataSnapshot dataSnapshot) {
+    public static void restoreStatisticsState(DataSnapshot dataSnapshot, MeanDay meanDay, MeanWeek meanWeek) {
         SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
-            if (dataSnapshot != null) {
-                if (dataSnapshot.child(CHILD_STAT_DAY) != null &&
-                        dataSnapshot.child(CHILD_STAT_DAY).getValue() != null) {
-                    DataSnapshot daily = dataSnapshot.child(CHILD_STAT_DAY);
-                    MeanDay meanDay = MeanDay.getInstance();
+        if (user != null && dataSnapshot != null) {
+            if (meanDay != null && dataSnapshot.child(CHILD_STAT_DAY) != null &&
+                    dataSnapshot.child(CHILD_STAT_DAY).getValue() != null) {
+                DataSnapshot daily = dataSnapshot.child(CHILD_STAT_DAY);
 
-                    meanDay.setLocalDate(new Date((long) daily.child(CHILD_DATE).getValue()));
-                    for (DataSnapshot value : daily.getChildren()) {
-                        if (!value.getKey().equals(CHILD_DATE)) {
-                            int velSize = 0, accSize = 0; float velSum = 0, accSum = 0;
-                            for (DataSnapshot attribute : value.getChildren()) {
-                                switch (attribute.getKey()) {
-                                    case Mean.SIZE_ACCELERATION:
-                                        accSize = Integer.valueOf(attribute.getValue().toString());
-                                        break;
+                meanDay.setLocalDate(new Date((long) daily.child(CHILD_DATE).getValue()));
+                for (DataSnapshot value : daily.getChildren()) {
+                    if (!value.getKey().equals(CHILD_DATE)) {
+                        int velSize = 0, accSize = 0; float velSum = 0, accSum = 0;
+                        for (DataSnapshot attribute : value.getChildren()) {
+                            switch (attribute.getKey()) {
+                                case Mean.SIZE_ACCELERATION:
+                                    accSize = Integer.valueOf(attribute.getValue().toString());
+                                    break;
 
-                                    case Mean.SIZE_SIZE_VELOCITY:
-                                        velSize = Integer.valueOf(attribute.getValue().toString());
-                                        break;
+                                case Mean.SIZE_SIZE_VELOCITY:
+                                    velSize = Integer.valueOf(attribute.getValue().toString());
+                                    break;
 
-                                    case Mean.SUM_ACCELERATION:
-                                        velSum = Float.valueOf(attribute.getValue().toString());
-                                        break;
+                                case Mean.SUM_ACCELERATION:
+                                    velSum = Float.valueOf(attribute.getValue().toString());
+                                    break;
 
-                                    case Mean.SUM_VELOCITY:
-                                        accSum = Float.valueOf(attribute.getValue().toString());
-                                        break;
-                                }
+                                case Mean.SUM_VELOCITY:
+                                    accSum = Float.valueOf(attribute.getValue().toString());
+                                    break;
                             }
-                            meanDay.getMap().put(Integer.valueOf(value.getKey()), new Mean(accSum, velSum, velSize, accSize));
                         }
+                        meanDay.getMap().put(Integer.valueOf(value.getKey()), new Mean(accSum, velSum, velSize, accSize));
                     }
                 }
+            }
 
-                if (dataSnapshot.child(CHILD_STAT_WEEK) != null &&
-                        dataSnapshot.child(CHILD_STAT_WEEK).getValue() != null) {
-                    DataSnapshot weekly = dataSnapshot.child(CHILD_STAT_WEEK);
-                    MeanWeek meanWeek = MeanWeek.getInstance();
+            if (meanWeek != null && dataSnapshot.child(CHILD_STAT_WEEK) != null &&
+                    dataSnapshot.child(CHILD_STAT_WEEK).getValue() != null) {
+                DataSnapshot weekly = dataSnapshot.child(CHILD_STAT_WEEK);
 
-                    meanWeek.setLocalDate(new Date((long) weekly.child(CHILD_DATE).getValue()));
-                    for (DataSnapshot value : weekly.getChildren()) {
-                        if (!value.getKey().equals(CHILD_DATE)) {
-                            int velSize = 0, accSize = 0; float velSum = 0, accSum = 0;
-                            for (DataSnapshot attribute : value.getChildren()) {
-                                switch (attribute.getKey()) {
-                                    case Mean.SIZE_ACCELERATION:
-                                        accSize = Integer.valueOf(attribute.getValue().toString());
-                                        break;
+                meanWeek.setLocalDate(new Date((long) weekly.child(CHILD_DATE).getValue()));
+                for (DataSnapshot value : weekly.getChildren()) {
+                    if (!value.getKey().equals(CHILD_DATE)) {
+                        int velSize = 0, accSize = 0; float velSum = 0, accSum = 0;
+                        for (DataSnapshot attribute : value.getChildren()) {
+                            switch (attribute.getKey()) {
+                                case Mean.SIZE_ACCELERATION:
+                                    accSize = Integer.valueOf(attribute.getValue().toString());
+                                    break;
 
-                                    case Mean.SIZE_SIZE_VELOCITY:
-                                        velSize = Integer.valueOf(attribute.getValue().toString());
-                                        break;
+                                case Mean.SIZE_SIZE_VELOCITY:
+                                    velSize = Integer.valueOf(attribute.getValue().toString());
+                                    break;
 
-                                    case Mean.SUM_ACCELERATION:
-                                        velSum = Float.valueOf(attribute.getValue().toString());
-                                        break;
+                                case Mean.SUM_ACCELERATION:
+                                    velSum = Float.valueOf(attribute.getValue().toString());
+                                    break;
 
-                                    case Mean.SUM_VELOCITY:
-                                        accSum = Float.valueOf(attribute.getValue().toString());
-                                        break;
-                                }
+                                case Mean.SUM_VELOCITY:
+                                    accSum = Float.valueOf(attribute.getValue().toString());
+                                    break;
                             }
-                            meanWeek.getMap().put(Integer.valueOf(value.getKey()), new Mean(accSum, velSum, velSize, accSize));
                         }
+                        meanWeek.getMap().put(Integer.valueOf(value.getKey()), new Mean(accSum, velSum, velSize, accSize));
                     }
                 }
             }
@@ -148,9 +146,9 @@ public class FirebaseDatabaseManager
             Map<Integer, Mean> tmpOriginalMean;
 
             // Saving MeanDay
-            tmpParsedMean = new HashMap<>(MeanDay.getInstance().getMap().size() + 1);
-            tmpParsedMean.put(CHILD_DATE, MeanDay.getInstance().getLocalDate().getTime());
-            tmpOriginalMean = MeanDay.getInstance().getMap();
+            tmpParsedMean = new HashMap<>(user.getMeanDay().getMap().size() + 1);
+            tmpParsedMean.put(CHILD_DATE, user.getMeanDay().getLocalDate().getTime());
+            tmpOriginalMean = user.getMeanDay().getMap();
             for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
                 tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
                 databaseReference
@@ -159,9 +157,9 @@ public class FirebaseDatabaseManager
             }
 
             // Saving MeanWeek
-            tmpParsedMean = new HashMap<>(MeanWeek.getInstance().getMap().size() + 1);
-            tmpParsedMean.put(CHILD_DATE, MeanWeek.getInstance().getLocalDate().getTime());
-            tmpOriginalMean = MeanWeek.getInstance().getMap();
+            tmpParsedMean = new HashMap<>(user.getMeanWeek().getMap().size() + 1);
+            tmpParsedMean.put(CHILD_DATE, user.getMeanWeek().getLocalDate().getTime());
+            tmpOriginalMean = user.getMeanWeek().getMap();
             for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
                 tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
                 databaseReference
@@ -242,6 +240,17 @@ public class FirebaseDatabaseManager
                         .child(CHILD_IMAGE)
                         .setValue(user.getPhotoUrl().toString());
             }
+            if (user.getFeedback() != null) {
+                databaseReference
+                        .child(CHILD_STATISTICS)
+                        .child(CHILD_FEEDBACK)
+                        .setValue(user.getFeedback().toString());
+            }
+            if (user.getCurrentVehicle() != null) {
+                databaseReference
+                        .child(CHILD_CURRENT_VEHICLE)
+                        .setValue(user.getCurrentVehicle().getType());
+            }
             databaseReference
                     .child(CHILD_POINTS)
                     .setValue(user.getPoints());
@@ -288,6 +297,21 @@ public class FirebaseDatabaseManager
                             dataSnapshot.getRef()
                                     .child(CHILD_IMAGE)
                                     .setValue(user.getPhotoUrl().toString());
+                        }
+                        if (!dataSnapshot.hasChild(CHILD_STATISTICS)) {
+                            if (!dataSnapshot.child(CHILD_STATISTICS).hasChild(CHILD_FEEDBACK) &&
+                                    user.getFeedback() != null) {
+                                dataSnapshot.getRef()
+                                        .child(CHILD_STATISTICS)
+                                        .child(CHILD_FEEDBACK)
+                                        .setValue(user.getFeedback().toString());
+                            }
+                        }
+                        if (!dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE) &&
+                                user.getCurrentVehicle() != null) {
+                            dataSnapshot.getRef()
+                                    .child(CHILD_CURRENT_VEHICLE)
+                                    .setValue(user.getCurrentVehicle().getType());
                         }
                         if (!dataSnapshot.hasChild(CHILD_POINTS)) {
                             dataSnapshot.getRef()
@@ -388,11 +412,25 @@ public class FirebaseDatabaseManager
                 // user == null --> user non ha almeno un figlio?
                 if (!dataSnapshot.exists() || dataSnapshot.getChildren() == null ||
                         dataSnapshot.getChildrenCount() < 6) {
-                    Log.d(TAG, "User data integrity check");
+                    Log.d(TAG, "Create new user / User data integrity check");
                     if (!dataSnapshot.hasChild(CHILD_POINTS)) {
                         query.getRef()
                                 .child(CHILD_POINTS)
                                 .setValue(user.getPoints());
+                    }
+
+                    if (user.getFeedback() != null &&
+                            !dataSnapshot.hasChild(CHILD_FEEDBACK)) {
+                        query.getRef()
+                                .child(CHILD_FEEDBACK)
+                                .setValue(user.getFeedback().toString());
+                    }
+
+                    if (user.getCurrentVehicle() != null &&
+                            !dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE)) {
+                        query.getRef()
+                                .child(CHILD_CURRENT_VEHICLE)
+                                .setValue(user.getCurrentVehicle().toString());
                     }
 
                     if (user.getPhotoUrl() != null &&
@@ -441,7 +479,11 @@ public class FirebaseDatabaseManager
                     checkOldPositionData();
 
                     if (dataSnapshot.child(CHILD_STATISTICS) != null) {
-                        FirebaseDatabaseManager.restoreStatisticsState(dataSnapshot.child(CHILD_STATISTICS));
+                        FirebaseDatabaseManager.restoreStatisticsState(
+                                dataSnapshot.child(CHILD_STATISTICS),
+                                user.getMeanDay(),
+                                user.getMeanWeek()
+                        );
                     }
                 }
 
@@ -486,12 +528,15 @@ public class FirebaseDatabaseManager
     }
 
 
-
+    /**
+     *  STATISTICS DATA
+     */
     public interface RetrieveDataDB {
-        void onDataReceived(String data);
+        void onDailyDataReceived(MeanDay meanDay);
+        void onWeeklyDataReceived(MeanWeek meanWeek);
     }
 
-    public static void retrieveUserData(final RetrieveDataDB callback, String userId) {
+    public static void retrieveDailyData(final RetrieveDataDB callback, String userId) {
         if (callback == null) {
             throw new CallbackNotInitialized(TAG);
         } else if (userId == null) {
@@ -506,15 +551,22 @@ public class FirebaseDatabaseManager
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String data = null;
+                MeanDay meanDay = new MeanDay();
                 if (dataSnapshot.exists()) {
-                    if (dataSnapshot.child(CHILD_DATA) != null &&
-                            dataSnapshot.child(CHILD_DATA).getValue() != null) {
-                        data = dataSnapshot.child(CHILD_DATA).getValue().toString();
+                    if (dataSnapshot.child(CHILD_STATISTICS) != null) {
+                        FirebaseDatabaseManager.restoreStatisticsState(
+                                dataSnapshot.child(CHILD_STATISTICS),
+                                meanDay,
+                                null
+                        );
+                    } else {
+                        meanDay = null;
                     }
+                } else {
+                    meanDay = null;
                 }
 
-                callback.onDataReceived(data);
+                callback.onDailyDataReceived(meanDay);
             }
 
             @Override
@@ -525,9 +577,42 @@ public class FirebaseDatabaseManager
     }
 
 
-
+    /**
+     *  GARAGE DATA
+     */
     public interface RetrieveVehiclesFromDB {
         void onUserVehiclesReceived(ArrayList<Vehicle> vehicles);
+    }
+
+    public static void getCurrentVehicle(final RetrieveVehiclesFromDB retrieveVehiclesFromDB,
+                                         final SingletonUser.UserDataCallback userDataCallback)
+            throws CallbackNotInitialized {
+        if (retrieveVehiclesFromDB == null || userDataCallback == null) {
+            throw new CallbackNotInitialized(TAG);
+        }
+
+        final SingletonUser user = SingletonUser.getInstance();
+        //Create query
+        final Query query = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(user.getUid());
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE)) {
+                    String currentVehicle = dataSnapshot.child(CHILD_CURRENT_VEHICLE).getValue().toString();
+                    String[] temp1 = currentVehicle.split("=");
+                    String[] vehicleData = temp1[1].split(";");
+                    user.setCurrentVehicle(new Vehicle(vehicleData[0], vehicleData[1], vehicleData[2], vehicleData[3]));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public static void getVehiclesDB(final RetrieveVehiclesFromDB retrieveVehiclesFromDB,
@@ -584,7 +669,9 @@ public class FirebaseDatabaseManager
     }
 
 
-
+    /**
+     *  RANKING DATA
+     */
     public interface RetrieveRankFromDB {
         // Result code
         int NOT_ALLOWED = -1;
@@ -716,7 +803,7 @@ public class FirebaseDatabaseManager
                                     for (DataSnapshot region : regions) {
                                         Iterable<DataSnapshot> districts = region.getChildren();
                                         for (DataSnapshot district : districts) {
-                                            arrayList.addAll(FirebaseDatabaseManager.getUsersAvailableList(district));
+                                            arrayList.addAll(this.getUsersAvailableList(district));
                                         }
                                     }
                                 }
@@ -728,6 +815,25 @@ public class FirebaseDatabaseManager
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                         Log.d(TAG, "The read failed: " + databaseError.getCode());
+                    }
+
+                    private ArrayList<User> getUsersAvailableList(DataSnapshot dataSnapshot) {
+                        ArrayList<User> arrayList;
+                        Iterable<DataSnapshot> users;
+                        if (dataSnapshot.exists() && (users = dataSnapshot.getChildren()) != null) {
+                            arrayList = new ArrayList<>();
+                            for (DataSnapshot user : users) {
+                                if (user.hasChild(CHILD_AVAILABILITY) &&
+                                        user.child(CHILD_AVAILABILITY).getValue() != null &&
+                                        user.child(CHILD_AVAILABILITY).getValue().equals(AVAILABLE)) {
+                                    arrayList.add(FirebaseDatabaseManager.getUserFromData(user));
+                                }
+                            }
+                        } else {
+                            arrayList = null;
+                        }
+
+                        return arrayList;
                     }
                 });
                 break;
@@ -802,25 +908,6 @@ public class FirebaseDatabaseManager
         return arrayList;
     }
 
-    private static ArrayList<User> getUsersAvailableList(DataSnapshot dataSnapshot) {
-        ArrayList<User> arrayList;
-        Iterable<DataSnapshot> users;
-        if (dataSnapshot.exists() && (users = dataSnapshot.getChildren()) != null) {
-            arrayList = new ArrayList<>();
-            for (DataSnapshot user : users) {
-                if (user.hasChild(CHILD_AVAILABILITY) &&
-                        user.child(CHILD_AVAILABILITY).getValue() != null &&
-                        user.child(CHILD_AVAILABILITY).getValue().equals(AVAILABLE)) {
-                    arrayList.add(FirebaseDatabaseManager.getUserFromData(user));
-                }
-            }
-        } else {
-            arrayList = null;
-        }
-
-        return arrayList;
-    }
-
     /**
      * Check if first timestamp arg if older then minValidity
      * @param timestamp: long value of timestamp received from server (in milliseconds)
@@ -842,6 +929,7 @@ public class FirebaseDatabaseManager
         Uri image = null;
         long points = 0;
         String availability = UNAVAILABLE;
+        double feedback = 0;
 
         if (user.hasChild(CHILD_USERNAME) &&
                 user.child(CHILD_USERNAME).getValue() != null) {
@@ -862,7 +950,71 @@ public class FirebaseDatabaseManager
                 user.child(CHILD_AVAILABILITY).getValue().toString().equals(AVAILABLE)) {
             availability = AVAILABLE;
         }
+        if (user.hasChild(CHILD_FEEDBACK)) {
+            feedback = Double.valueOf(user.child(CHILD_FEEDBACK).getValue().toString());
+        }
 
-        return new User(user.getKey(), username, email, image, points, availability);
+        return new User(user.getKey(), username, email, image, points, availability, feedback);
+    }
+
+
+
+    /**
+     *  FEEDBACK DATA
+     */
+    public static void updateUserFeedback(final String uid, final Double feedback, final String country, final String region,
+                                          final String subRegion) {
+        final DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(uid);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(CHILD_HISTORICAL_FEEDBACK)) {
+                    Map<String, String> historicalFeedback = (Map<String, String>) dataSnapshot.child(CHILD_HISTORICAL_FEEDBACK).getValue();
+
+
+
+                    historicalFeedback.put(String.valueOf(System.currentTimeMillis()), String.valueOf(feedback));
+                    databaseReference.child(CHILD_HISTORICAL_FEEDBACK).setValue(historicalFeedback);
+                    updateMeanFeedback(historicalFeedback, databaseReference);
+                }
+                else {
+                    Map<String, String> newFeedback = new HashMap<>();
+                    newFeedback.put(String.valueOf(System.currentTimeMillis()), String.valueOf(feedback));
+                    databaseReference.child(CHILD_HISTORICAL_FEEDBACK).setValue(newFeedback);
+                    databaseReference.child(CHILD_STATISTICS).child(CHILD_FEEDBACK).setValue(String.valueOf(feedback));
+                    updatePositionFeedback(String.valueOf(feedback));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+            private void updateMeanFeedback(Map<String, String> historicalFeedback, DatabaseReference databaseReference) {
+                Double sum = 0.0;
+                int size = 0;
+                for (String key : historicalFeedback.keySet()) {
+                    sum += Double.parseDouble(historicalFeedback.get(key));
+                    size ++;
+                }
+                databaseReference.child(CHILD_STATISTICS).child(CHILD_FEEDBACK).setValue(String.valueOf(sum / size));
+                updatePositionFeedback(String.valueOf(sum/size));
+            }
+
+            private void updatePositionFeedback(String feedback) {
+                DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference;
+                databaseReference.child(NODE_POSITION)
+                        .child(country)
+                        .child(region)
+                        .child(subRegion)
+                        .child(uid)
+                        .child(CHILD_FEEDBACK)
+                        .setValue(feedback);
+
+            }
+        });
     }
 }

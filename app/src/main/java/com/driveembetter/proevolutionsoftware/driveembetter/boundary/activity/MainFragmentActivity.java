@@ -49,8 +49,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.Ra
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
 import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosureHandler;
@@ -138,8 +136,6 @@ public class MainFragmentActivity extends AppCompatActivity
 
                     reauthenticationThread.interrupt();
                     SingletonUser.resetSession();
-                    MeanDay.resetSession();
-                    MeanWeek.resetSession();
                     startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
@@ -475,7 +471,7 @@ public class MainFragmentActivity extends AppCompatActivity
 
             case R.id.nav_send:
                 // DEBUG
-                ChartAsyncTask.fillMeanWeekDay(24, 7, 1);
+                ChartAsyncTask.fillMeanWeekDay(24, 7, 1, singletonUser.getMeanDay(), singletonUser.getMeanWeek());
                 ////
                 break;
 

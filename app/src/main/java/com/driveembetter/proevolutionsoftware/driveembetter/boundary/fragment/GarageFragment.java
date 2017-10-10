@@ -28,7 +28,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Ad
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Modify_vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.VehiclesAdapter;
 import com.google.firebase.database.DataSnapshot;
