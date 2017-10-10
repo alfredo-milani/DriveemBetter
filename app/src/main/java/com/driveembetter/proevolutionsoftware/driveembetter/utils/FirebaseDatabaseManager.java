@@ -456,6 +456,40 @@ public class FirebaseDatabaseManager
         void onUserVehiclesReceived(ArrayList<Vehicle> vehicles);
     }
 
+
+    public static void getCurrentVehicle(final RetrieveVehiclesFromDB retrieveVehiclesFromDB,
+                                         final SingletonUser.UserDataCallback userDataCallback)
+            throws CallbackNotInitialized {
+        if (retrieveVehiclesFromDB == null || userDataCallback == null) {
+            throw new CallbackNotInitialized(TAG);
+        }
+
+        final SingletonUser user = SingletonUser.getInstance();
+        //Create query
+        final Query query = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(user.getUid());
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.hasChild((NODE_CURRENT_VEHICLE))){
+                    String currentVehicle = dataSnapshot.child(NODE_CURRENT_VEHICLE).getValue().toString();
+                    String[] temp1 = currentVehicle.split("=");
+                    String[] vehicleData = temp1[1].split(";");
+                    user.setCurrentVehicle(new Vehicle(vehicleData[0], vehicleData[1], vehicleData[2], vehicleData[3],vehicleData[4],vehicleData[5]));
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public static void getVehiclesDB(final RetrieveVehiclesFromDB retrieveVehiclesFromDB,
                                      final SingletonUser.UserDataCallback userDataCallback)
             throws CallbackNotInitialized {
@@ -474,6 +508,10 @@ public class FirebaseDatabaseManager
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                System.out.println("DOPPPPPOOOOOOOO");
+
                 Iterable<DataSnapshot> vehiclesList = dataSnapshot.getChildren();
                 ArrayList<Vehicle> vehicleArrayList;
                 if (!dataSnapshot.exists() || vehiclesList == null) {
@@ -488,8 +526,9 @@ public class FirebaseDatabaseManager
                                             parts[0],
                                             parts[1],
                                             parts[2],
-                                            parts[3]
-                                    )
+                                            parts[3],
+                                            parts[4],
+                                            parts[5])
                             );
                         } else {
                             Log.d(TAG, "Error while retrieve data from database");
@@ -498,8 +537,10 @@ public class FirebaseDatabaseManager
                         }
                     }
                 }
+
                 retrieveVehiclesFromDB.onUserVehiclesReceived(vehicleArrayList);
                 userDataCallback.onVehiclesReceive();
+
             }
 
             @Override
@@ -508,7 +549,6 @@ public class FirebaseDatabaseManager
             }
         });
     }
-
 
 
     public interface RetrieveRankFromDB {

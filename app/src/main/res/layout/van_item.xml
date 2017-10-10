@@ -16,12 +16,13 @@ android:weightSum="1">
         android:layout_width="85dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
         app:srcCompat="@mipmap/van" />
 
     <TableLayout
-        android:layout_width="165dp"
+        android:layout_width="144dp"
         android:layout_height="match_parent"
-        android:layout_marginLeft="30dp">
+        android:layout_marginLeft="5dp">
 
         <TableRow
             android:layout_width="match_parent"
@@ -51,8 +52,7 @@ android:weightSum="1">
                 android:layout_height="match_parent"
                 android:layout_marginLeft="5dp"
                 android:gravity="center"
-                android:text="TextView"
-                android:textAlignment="center" />
+                android:textAlignment="viewStart" />
         </TableRow>
 
     </TableLayout>
@@ -64,12 +64,13 @@ android:weightSum="1">
         android:layout_alignBottom="@+id/fab"
         android:layout_alignParentEnd="true"
         android:layout_marginLeft="2dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="20dp"
         android:adjustViewBounds="true"
         android:background="?android:attr/selectableItemBackground"
         android:padding="10dp"
         android:scaleType="fitCenter"
-        app:srcCompat="@mipmap/steeringwheel" />
+        app:srcCompat="@mipmap/steeringwheel_black" />
 
     </LinearLayout>
 </LinearLayout>

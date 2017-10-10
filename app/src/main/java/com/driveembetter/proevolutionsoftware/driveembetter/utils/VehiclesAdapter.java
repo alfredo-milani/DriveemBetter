@@ -10,7 +10,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -30,12 +36,12 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
 
 
 
-    public VehiclesAdapter(Context context, ArrayList<Vehicle> data, String current_plate) {
+    public VehiclesAdapter(Context context, ArrayList<Vehicle> data, String current_vehicle) {
 
         super(context,0, data);
         this.context = context;
         this.vehicles = data;
-        this.current_plate = current_plate;
+        this.current_plate = current_vehicle;
     }
 
 
@@ -61,8 +67,10 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         View row = convertView;
         ViewHolder holder = null;
+
         int listViewItemType = getItemViewType(position);
 
 
@@ -92,22 +100,26 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
 
         Vehicle vehicle = vehicles.get(position);
 
-        holder.textView1.setText(vehicle.getModel());
-        holder.textView2.setText(vehicle.getNumberPlate());
-
-
-        //System.out.println("NUMBERRRRR PLATEEEEE + " + vehicle.getNumberPlate() + " "+  current_plate);
-
-        //if (current_plate.equals(vehicle.getNumberPlate())){
-          // holder.imageview.setVisibility(View.VISIBLE);
-        //}else if (!current_plate.equals(vehicle.getNumberPlate())){
+        if (current_plate == null){
+            holder.textView1.setText(vehicle.getModel());
+            holder.textView2.setText(vehicle.getNumberPlate());
             holder.imageview.setVisibility(View.INVISIBLE);
-        //}
 
+
+        } else{
+
+            holder.textView1.setText(vehicle.getModel());
+            holder.textView2.setText(vehicle.getNumberPlate());
+
+            if (current_plate.equals(vehicle.getNumberPlate())){
+                System.out.println("current + " + current_plate + " " +vehicle.getNumberPlate());
+                holder.imageview.setVisibility(View.VISIBLE);
+            }else if (!current_plate.equals(vehicle.getNumberPlate())){
+                System.out.println("current + " + current_plate + " " +vehicle.getNumberPlate());
+                holder.imageview.setVisibility(View.INVISIBLE);
+            }
+        }
         return row;
     }
-
-
-
 
 }

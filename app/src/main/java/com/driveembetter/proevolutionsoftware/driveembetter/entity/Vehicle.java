@@ -1,5 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.entity;
 
+import java.util.Date;
+
 /**
  * Created by alfredo on 17/08/17.
  */
@@ -12,15 +14,44 @@ public class Vehicle {
     private String type;
     private String model;
     private Boolean current_vehicle;
+    private String insurance_date;
+    private String revision_date;
 
     // TODO decidere se creare classe a sè stante per i veicoli oppure metterli direttamente nell'entità SingletonUser
     private String otherStuff;
 
-    public Vehicle(String type, String model, String numberPlate, String owner) {
+    public Vehicle(String type, String model, String numberPlate, String owner, String insurance_date, String revision_date) {
+
         this.type = type;
         this.model = model;
         this.numberPlate = numberPlate;
         this.owner = owner;
+        this.insurance_date = insurance_date;
+        this.revision_date = revision_date;
+    }
+
+    public int getStatusTires() {
+        return statusTires;
+    }
+
+    public void setStatusTires(int statusTires) {
+        this.statusTires = statusTires;
+    }
+
+    public String getInsurance_date() {
+        return insurance_date;
+    }
+
+    public void setInsurance_date(String insurance_date) {
+        this.insurance_date = insurance_date;
+    }
+
+    public String getRevision_date() {
+        return revision_date;
+    }
+
+    public void setRevision_date(String revision_date) {
+        this.revision_date = revision_date;
     }
 
     public String getNumberPlate() {
