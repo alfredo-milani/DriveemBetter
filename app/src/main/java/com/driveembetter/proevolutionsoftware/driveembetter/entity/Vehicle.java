@@ -1,7 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.entity;
 
-import java.util.Date;
-
 /**
  * Created by alfredo on 17/08/17.
  */

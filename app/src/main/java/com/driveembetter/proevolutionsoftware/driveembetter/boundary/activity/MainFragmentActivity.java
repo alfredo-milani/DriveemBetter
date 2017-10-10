@@ -28,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -73,7 +74,7 @@ import java.util.ArrayList;
 public class MainFragmentActivity extends AppCompatActivity
         implements Constants, TypeMessages,
         NavigationView.OnNavigationItemSelectedListener,
-        TaskProgressInterface {
+        TaskProgressInterface, View.OnClickListener {
 
     private final static String TAG = MainFragmentActivity.class.getSimpleName();
 
@@ -99,6 +100,7 @@ public class MainFragmentActivity extends AppCompatActivity
     private TextView emailTextView;
     private ImageView userPicture;
     private View headerView;
+    private ImageButton settingsImageButton;
 
     private ProgressDialog progress;
     private ChartAsyncTask task;
@@ -232,6 +234,7 @@ public class MainFragmentActivity extends AppCompatActivity
         this.usernameTextView = this.headerView.findViewById(R.id.username_text_view);
         this.emailTextView = this.headerView.findViewById(R.id.email_text_view);
         this.userPicture = this.headerView.findViewById(R.id.user_picture);
+        this.settingsImageButton = this.headerView.findViewById(R.id.imageViewSettings);
         if (this.singletonUser != null) {
             Log.d(TAG, "USER: " + this.singletonUser.getEmail() + " / " + this.singletonUser.getUsername());
 
@@ -258,6 +261,7 @@ public class MainFragmentActivity extends AppCompatActivity
             Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
             this.startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
         }
+        this.settingsImageButton.setOnClickListener(this);
 
 
 
@@ -327,6 +331,16 @@ public class MainFragmentActivity extends AppCompatActivity
     private void startNewActivity(Context context, Class newClass) {
         Intent newIntent = new Intent(context, newClass);
         this.startActivity(newIntent);
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+        switch (id) {
+            case R.id.imageViewSettings:
+                this.startNewActivity(MainFragmentActivity.this, EditProfileData.class);
+                break;
+        }
     }
 
     @Override
