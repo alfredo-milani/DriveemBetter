@@ -242,7 +242,6 @@ public class FirebaseDatabaseManager
             }
             if (user.getFeedback() != null) {
                 databaseReference
-                        .child(CHILD_STATISTICS)
                         .child(CHILD_FEEDBACK)
                         .setValue(user.getFeedback().toString());
             }
@@ -298,15 +297,13 @@ public class FirebaseDatabaseManager
                                     .child(CHILD_IMAGE)
                                     .setValue(user.getPhotoUrl().toString());
                         }
-                        if (!dataSnapshot.hasChild(CHILD_STATISTICS)) {
-                            if (!dataSnapshot.child(CHILD_STATISTICS).hasChild(CHILD_FEEDBACK) &&
+                            if (!dataSnapshot.hasChild(CHILD_FEEDBACK) &&
                                     user.getFeedback() != null) {
                                 dataSnapshot.getRef()
-                                        .child(CHILD_STATISTICS)
                                         .child(CHILD_FEEDBACK)
                                         .setValue(user.getFeedback().toString());
                             }
-                        }
+
                         if (!dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE) &&
                                 user.getCurrentVehicle() != null) {
                             dataSnapshot.getRef()
@@ -418,13 +415,13 @@ public class FirebaseDatabaseManager
                                 .child(CHILD_POINTS)
                                 .setValue(user.getPoints());
                     }
-
-                    if (user.getFeedback() != null &&
-                            !dataSnapshot.hasChild(CHILD_FEEDBACK)) {
-                        query.getRef()
-                                .child(CHILD_FEEDBACK)
-                                .setValue(user.getFeedback().toString());
-                    }
+                        if (user.getFeedback() != null &&
+                                !dataSnapshot.child(CHILD_STATISTICS).hasChild(CHILD_FEEDBACK)) {
+                            query.getRef()
+                                    .child(CHILD_STATISTICS)
+                                    .child(CHILD_FEEDBACK)
+                                    .setValue(user.getFeedback().toString());
+                        }
 
                     if (user.getCurrentVehicle() != null &&
                             !dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE)) {
@@ -970,21 +967,21 @@ public class FirebaseDatabaseManager
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(CHILD_HISTORICAL_FEEDBACK)) {
-                    Map<String, String> historicalFeedback = (Map<String, String>) dataSnapshot.child(CHILD_HISTORICAL_FEEDBACK).getValue();
+                if (dataSnapshot.hasChild(CHILD_STATISTICS)) {
+                    if (dataSnapshot.child(CHILD_STATISTICS).hasChild(CHILD_HISTORICAL_FEEDBACK)) {
+                        Map<String, String> historicalFeedback = (Map<String, String>) dataSnapshot.child(CHILD_STATISTICS).child(CHILD_HISTORICAL_FEEDBACK).getValue();
 
 
-
-                    historicalFeedback.put(String.valueOf(System.currentTimeMillis()), String.valueOf(feedback));
-                    databaseReference.child(CHILD_HISTORICAL_FEEDBACK).setValue(historicalFeedback);
-                    updateMeanFeedback(historicalFeedback, databaseReference);
-                }
-                else {
-                    Map<String, String> newFeedback = new HashMap<>();
-                    newFeedback.put(String.valueOf(System.currentTimeMillis()), String.valueOf(feedback));
-                    databaseReference.child(CHILD_HISTORICAL_FEEDBACK).setValue(newFeedback);
-                    databaseReference.child(CHILD_STATISTICS).child(CHILD_FEEDBACK).setValue(String.valueOf(feedback));
-                    updatePositionFeedback(String.valueOf(feedback));
+                        historicalFeedback.put(String.valueOf(System.currentTimeMillis()), String.valueOf(feedback));
+                        databaseReference.child(CHILD_STATISTICS).child(CHILD_HISTORICAL_FEEDBACK).setValue(historicalFeedback);
+                        updateMeanFeedback(historicalFeedback, databaseReference);
+                    } else {
+                        Map<String, String> newFeedback = new HashMap<>();
+                        newFeedback.put(String.valueOf(System.currentTimeMillis()), String.valueOf(feedback));
+                        databaseReference.child(CHILD_STATISTICS).child(CHILD_HISTORICAL_FEEDBACK).setValue(newFeedback);
+                        databaseReference.child(CHILD_STATISTICS).child(CHILD_FEEDBACK).setValue(String.valueOf(feedback));
+                        updatePositionFeedback(String.valueOf(feedback));
+                    }
                 }
             }
 
