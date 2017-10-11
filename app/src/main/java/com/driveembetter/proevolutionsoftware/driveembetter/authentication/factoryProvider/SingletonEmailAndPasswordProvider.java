@@ -8,6 +8,7 @@ import android.util.Log;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
@@ -170,6 +171,8 @@ public class SingletonEmailAndPasswordProvider
         int UP_USERNAME_FAILURE = -1;
         int UP_PICTURE_SUCCESS = 2;
         int UP_PICTURE_FAILURE = -2;
+        int UP_PASSWORD_SUCCESS = 3;
+        int UP_PASSWORD_FAILURE = -3;
 
         void onProfileModified(int response);
     }
@@ -191,8 +194,8 @@ public class SingletonEmailAndPasswordProvider
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "SingletonUser profile updated.");
                                 callback.onProfileModified(EditProfileCallback.UP_USERNAME_SUCCESS);
-                                FirebaseDatabaseManager.updateUserUsername(username);
-                                FirebaseDatabaseManager.updatePositionUsername(username);
+                                FirebaseDatabaseManager.updateUserData(Constants.CHILD_USERNAME, username);
+                                FirebaseDatabaseManager.updatePositionData(Constants.CHILD_USERNAME, username);
                             } else {
                                 Log.d(TAG, "SingletonUser profile NOT updated.");
                                 callback.onProfileModified(EditProfileCallback.UP_USERNAME_FAILURE);
@@ -244,7 +247,17 @@ public class SingletonEmailAndPasswordProvider
         }
     }
 
-    public void setPassword(String password) {
+    /**
+     * If there is only Google account, with this method will be created a Firebase account with given password (Google account will not be modified)
+     * else the password of Firebase account will be modified as well
+     * @param callback which method notify on  result
+     * @param password data to modify
+     */
+    public void setPassword(final EditProfileCallback callback, String password) {
+        if (callback == null) {
+            throw new CallbackNotInitialized(TAG);
+        }
+
         if (password != null) {
             this.singletonFirebaseProvider
                     .getFirebaseUser()
@@ -254,8 +267,10 @@ public class SingletonEmailAndPasswordProvider
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "SingletonUser password updated.");
+                                callback.onProfileModified(EditProfileCallback.UP_PASSWORD_SUCCESS);
                             } else {
                                 Log.d(TAG, "SingletonUser password NOT updated.");
+                                callback.onProfileModified(EditProfileCallback.UP_PASSWORD_FAILURE);
                             }
                         }
                     });
@@ -278,10 +293,8 @@ public class SingletonEmailAndPasswordProvider
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Log.d(TAG, "User profile picture updated");
+                                Log.d(TAG, "User profile picture updated: " + singletonFirebaseProvider.getFirebaseUser().getPhotoUrl().toString());
                                 callback.onProfileModified(EditProfileCallback.UP_PICTURE_SUCCESS);
-                                FirebaseDatabaseManager.updateUserProfilePicture(imageProfile.toString());
-                                FirebaseDatabaseManager.updatePositionProfilePicture(imageProfile.toString());
                             } else {
                                 Log.d(TAG, "User profile picture not updated");
                                 callback.onProfileModified(EditProfileCallback.UP_PICTURE_FAILURE);

@@ -19,6 +19,11 @@ public interface Constants {
 
 
 
+    // Storage
+    String CHILD_STORAGE_IMAGES = "images";
+
+
+
     // PositionManager constants
     String OLD_COUNTRY = "oldCountry";
     String OLD_REGION = "oldRegion";

@@ -43,6 +43,7 @@ public class FirebaseDatabaseManager
             .getReference();
 
 
+
     /**
      *  MISCELLANEOUS METHODS
      */
@@ -528,20 +529,21 @@ public class FirebaseDatabaseManager
     /**
      *  USER DETAILS
      */
-    public static void updateUserUsername(String username) {
+    public static void updateUserData(String child, String newData) {
         SingletonUser user = SingletonUser.getInstance();
         if (user != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_USERS)
                     .child(user.getUid());
 
-            databaseReference
-                    .child(CHILD_USERNAME)
-                    .setValue(username);
+            Map<String, Object> childUpdates = new HashMap<>();
+            childUpdates.put(child, newData);
+
+            databaseReference.updateChildren(childUpdates);
         }
     }
 
-    public static void updatePositionUsername(String username) {
+    public static void updatePositionData(String child, String newData) {
         SingletonUser user = SingletonUser.getInstance();
         if (user != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
@@ -549,38 +551,12 @@ public class FirebaseDatabaseManager
                     .child(user.getCountry())
                     .child(user.getRegion())
                     .child(user.getSubRegion())
-                    .child(user.getUid())
-                    .child(CHILD_USERNAME);
-
-            databaseReference.setValue(username);
-        }
-    }
-
-    public static void updateUserProfilePicture(String image) {
-        SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
-            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
-                    .child(NODE_USERS)
                     .child(user.getUid());
 
-            databaseReference
-                    .child(CHILD_IMAGE)
-                    .setValue(image);
-        }
-    }
+            Map<String, Object> childUpdates = new HashMap<>();
+            childUpdates.put(child, newData);
 
-    public static void updatePositionProfilePicture(String image) {
-        SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
-            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
-                    .child(NODE_POSITION)
-                    .child(user.getCountry())
-                    .child(user.getRegion())
-                    .child(user.getSubRegion())
-                    .child(user.getUid())
-                    .child(CHILD_IMAGE);
-
-            databaseReference.setValue(image);
+            databaseReference.updateChildren(childUpdates);
         }
     }
 

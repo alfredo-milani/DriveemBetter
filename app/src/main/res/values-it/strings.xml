@@ -125,4 +125,12 @@
     <string name="choose_new_profile_picture">Scegli la nuova immagine del profilo</string>
     <string name="profile_picture_updated">Immagine di profilo aggiornata</string>
     <string name="profile_picture_not_updated">Errore durante l\'aggiornamento dell\'immagine del profilo</string>
+    <string name="old_password">Vecchia password</string>
+    <string name="new_password">Nuova password</string>
+    <string name="new_password_2">Ripeti la nuova password</string>
+    <string name="bad_old_psw">La vecchia password è sbagliata</string>
+    <string name="bad_new_psw">Le nuove password non corrispondono</string>
+    <string name="psw_updated">Password aggiornata</string>
+    <string name="psw_not_updated">Password non aggiornata</string>
+    <string name="bad_psw_change_must_logout">Puoi cambiare password solo dell\'account associato a questa app!</string>
 </resources>

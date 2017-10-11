@@ -22,6 +22,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonEmailAndPasswordProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseStorageManager;
 
 /**
  * Created by alfredo on 10/10/17.
@@ -45,6 +46,12 @@ public class EditProfileData extends AppCompatActivity
     private ImageView userPicture;
     private TextView emailTextView;
     private ImageButton editProfilePictureButton;
+    private ImageView editPasswordButton;
+    private LinearLayout editPasswordLayout;
+    private EditText editTextNewPsd;
+    private EditText editTextNewPsd2;
+    private Button backEditPassword;
+    private Button confirmEditPassword;
 
     // Resources
     private SingletonUser user;
@@ -83,11 +90,20 @@ public class EditProfileData extends AppCompatActivity
         this.userPicture = findViewById(R.id.user_picture);
         this.emailTextView = findViewById(R.id.email);
         this.editProfilePictureButton = findViewById(R.id.editProfilePictureButton);
+        this.editPasswordButton = findViewById(R.id.imageView3);
+        this.editPasswordLayout = findViewById(R.id.change_password_data);
+        this.editTextNewPsd = findViewById(R.id.editTextPasswordNew);
+        this.editTextNewPsd2 = findViewById(R.id.editTextPasswordNew2);
+        this.confirmEditPassword = findViewById(R.id.confirmModifyPassword);
+        this.backEditPassword = findViewById(R.id.backModifyPassword);
 
         this.editUsernemButton.setOnClickListener(this);
         this.confirmEditUsername.setOnClickListener(this);
         this.backEditUsername.setOnClickListener(this);
         this.editProfilePictureButton.setOnClickListener(this);
+        this.editPasswordButton.setOnClickListener(this);
+        this.backEditPassword.setOnClickListener(this);
+        this.confirmEditPassword.setOnClickListener(this);
 
         if (this.user.getEmail() != null) {
             this.emailTextView.setText(this.user.getEmail());
@@ -114,6 +130,7 @@ public class EditProfileData extends AppCompatActivity
             switch (resultCode) {
                 case RESULT_OK:
                     this.emailAndPasswordProvider.setImageProfile(this, data.getData());
+                    FirebaseStorageManager.uploadProfileImage(data.getData());
                     break;
 
                 case RESULT_CANCELED:
@@ -140,7 +157,6 @@ public class EditProfileData extends AppCompatActivity
         switch (id) {
             case R.id.modifyUsername:
                 this.switchViewVisibility(this.editUsernameLayout);
-
                 break;
 
             case R.id.backModifyUsername:
@@ -167,6 +183,33 @@ public class EditProfileData extends AppCompatActivity
                         Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI
                 ), EditProfileData.RC_GALLERY);
+                break;
+
+            case R.id.imageView3:
+                this.switchViewVisibility(this.editPasswordLayout);
+                break;
+
+            case R.id.backModifyPassword:
+                this.switchViewVisibility(this.editPasswordLayout);
+                break;
+
+            case R.id.confirmModifyPassword:
+                String newPsw = this.editTextNewPsd.getText().toString();
+                String newPsw2 = this.editTextNewPsd2.getText().toString();
+
+                if (TextUtils.isEmpty(newPsw)) {
+                    this.editTextNewPsd.setError(getString(R.string.strEmptyField));
+                    break;
+                } else if (TextUtils.isEmpty(newPsw2)) {
+                    this.editTextNewPsd2.setError(getString(R.string.strEmptyField));
+                    break;
+                } else if (!newPsw.equals(newPsw2)) {
+                    this.editTextNewPsd.setError(getString(R.string.bad_new_psw));
+                    this.editTextNewPsd2.setError(getString(R.string.bad_new_psw));
+                    break;
+                }
+
+                this.emailAndPasswordProvider.setPassword(this, newPsw2);
                 break;
 
             case R.id.modifyEmail:
@@ -196,10 +239,15 @@ public class EditProfileData extends AppCompatActivity
             case EditProfileData.UP_PICTURE_FAILURE:
                 Toast.makeText(this, getString(R.string.profile_picture_not_updated), Toast.LENGTH_LONG).show();
                 break;
-        }
 
-        finish();
-        startActivity(getIntent());
+            case EditProfileData.UP_PASSWORD_SUCCESS:
+                Toast.makeText(this, getString(R.string.psw_updated), Toast.LENGTH_LONG).show();
+                break;
+
+            case EditProfileData.UP_PASSWORD_FAILURE:
+                Toast.makeText(this, getString(R.string.psw_not_updated), Toast.LENGTH_LONG).show();
+                break;
+        }
     }
 
     @Override

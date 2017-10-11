@@ -101,6 +101,7 @@ public class MainFragmentActivity extends AppCompatActivity
     private ImageView userPicture;
     private View headerView;
     private ImageButton settingsImageButton;
+    private DrawerLayout drawerLayout;
 
     private ProgressDialog progress;
     private ChartAsyncTask task;
@@ -220,10 +221,10 @@ public class MainFragmentActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         this.setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        this.drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, this.drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        this.drawerLayout.setDrawerListener(toggle);
         toggle.syncState();
 
         final NavigationView navigationView = findViewById(R.id.nav_view);
@@ -485,6 +486,7 @@ public class MainFragmentActivity extends AppCompatActivity
 
             case R.id.nav_send:
                 // DEBUG
+                FirebaseDatabaseManager.manageUserStatistics();
                 ////
                 break;
 
