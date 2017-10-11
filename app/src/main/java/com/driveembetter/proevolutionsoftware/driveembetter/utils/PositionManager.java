@@ -16,17 +16,25 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.HomeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSONPosition;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.YahooWeatherParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -62,6 +70,9 @@ public class PositionManager
     private String lastPosition;
     TextToSpeech tts;
     Speedometer speedometer;
+    ImageView speedLimitSign, weatherIcon;
+    TextView speedLimitText;
+    private String city;
 
 
     // Singleton
@@ -74,8 +85,11 @@ public class PositionManager
         this.updatePosition();
     }
 
-    public void createSpeedometer(View view) {
+    public void createTools(View view) {
         speedometer = (Speedometer) view.findViewById(R.id.Speedometer);
+        speedLimitSign = (ImageView) view.findViewById(R.id.speed_limit);
+        speedLimitText = (TextView) view.findViewById(R.id.speed_limit_text);
+        weatherIcon = (ImageView) view.findViewById(R.id.weather_icon);
     }
 
 
@@ -85,6 +99,10 @@ public class PositionManager
         }
 
         return positionManager;
+    }
+
+    public static void resetCity() {
+        user.setCity(CITY);
     }
 
     private void updateStatistics(double speed) {
@@ -198,6 +216,7 @@ public class PositionManager
                 e.printStackTrace();
             }
 
+            String oldCity = user.getCity();
             String oldCountry = user.getCountry();
             String oldRegion = user.getRegion();
             String oldSubRegion = user.getSubRegion();
@@ -205,6 +224,7 @@ public class PositionManager
 
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
+
             final String[] strings = getLocationFromCoordinates(latitude, longitude, 1);
 
             // Update SingletonUser state
@@ -213,7 +233,13 @@ public class PositionManager
             user.setCountry(strings[0]);
             user.setRegion(strings[1]);
             user.setSubRegion(strings[2]);
+            user.setCity(strings[3]);
             Log.d(TAG, "PositionNEW: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
+
+            if (!oldCity.equals(user.getCity())) {
+                //if driver change city
+                new YahooWeatherParser(weatherIcon).execute(user.getCity(), user.getCountry());
+            }
 
             if (!oldSubRegion.equals(user.getSubRegion()) ||
                     !oldRegion.equals(user.getRegion()) ||
@@ -292,7 +318,7 @@ public class PositionManager
      * @return string[0] --> Nation; string[1] --> Region; string[2] --> District
      */
     public static String[] getLocationFromCoordinates(double latitude, double longitude, int maxResult) {
-        final String[] strings = new String[3];
+        final String[] strings = new String[4];
         try {
             /*
                 The issue is Geocoder backend service is not available in emulator.
@@ -302,9 +328,10 @@ public class PositionManager
             strings[0] = addresses.get(0).getCountryName();
             strings[1] = addresses.get(0).getAdminArea();
             strings[2] = addresses.get(0).getSubAdminArea();
+            strings[3] = addresses.get(0).getLocality();
 
-            Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2]);
-            if (strings[0] == null || strings[1] == null || strings[2] == null) {
+            Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2] + " City: " + strings[3]);
+            if (strings[0] == null || strings[1] == null || strings[2] == null || strings[3] == null) {
                 Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
                     @Override
                     public void onDataComputed(String[] position) {
@@ -312,16 +339,18 @@ public class PositionManager
                             strings[0] = position[0];
                             strings[1] = position[1];
                             strings[2] = position[2];
+                            strings[3] = position[3];
                         } else {
                             strings[0] = user.getCountry();
                             strings[1] = user.getRegion();
                             strings[2] = user.getSubRegion();
+                            strings[3] = user.getCity();
                         }
                     }
                 }, latitude, longitude));
                 geoC.start();
                 geoC.join();
-                Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2]);
+                Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2] + " City: " + strings[3]);
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -329,6 +358,7 @@ public class PositionManager
             strings[0] = COUNTRY;
             strings[1] = REGION;
             strings[2] = SUB_REGION;
+            strings[3] = CITY;
         }
 
         return strings;
@@ -404,7 +434,7 @@ public class PositionManager
                     .build();
                */
             try {
-                String maxSpeed = "";
+                String maxSpeed = "N/A";
                 response = client.newCall(request).execute();
                 String jsonData = response.body().string();
 
@@ -425,15 +455,20 @@ public class PositionManager
                             Double speed = Double.parseDouble(currentSpeed);
                             Double mSpeed = Double.parseDouble(maxSpeed);
                             Log.e("DEBUG", "MAX SPEED: " + maxSpeed + " CURRENT SPEED: " + speed);
+                            publishProgress(maxSpeed);
                             //TODO
                             if (speed > mSpeed) {
                                 //Alert driver
                                 alertSpeed(mSpeed);
+                                if (speedLimitText != null) {
+                                    publishProgress("design");
+                                }
                             }
                         }
                     }
 
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -441,6 +476,21 @@ public class PositionManager
             }
 
             return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            if (!values[0].equals("design"))
+                speedLimitText.setText(values[0]);
+            else {
+                AlphaAnimation blinkanimation= new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
+                blinkanimation.setDuration(1000); // duration - half a second
+                blinkanimation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
+                blinkanimation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
+                blinkanimation.setRepeatMode(Animation.REVERSE);
+                speedLimitSign.startAnimation(blinkanimation);
+            }
         }
     }
 

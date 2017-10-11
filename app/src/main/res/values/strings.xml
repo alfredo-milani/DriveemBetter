@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name ="general">General</string>
+    <string name ="NA">N/A</string>
     <string name="logging_out">Signing out</string>
     <string name="garage">Garage</string>
     <string name="statistics">Statistics</string>

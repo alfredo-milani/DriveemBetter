@@ -73,6 +73,7 @@ public class Speedometer extends View implements SpeedChangeListener {
 		onMarkPaint.setStyle(Paint.Style.STROKE);
 		onMarkPaint.setColor(ON_COLOR);
 		onMarkPaint.setStrokeWidth(35f);
+		//onMarkPaint.setStrokeWidth(10f);
 		onMarkPaint.setShadowLayer(5f, 0f, 0f, ON_COLOR);
 		onMarkPaint.setAntiAlias(true);
 		

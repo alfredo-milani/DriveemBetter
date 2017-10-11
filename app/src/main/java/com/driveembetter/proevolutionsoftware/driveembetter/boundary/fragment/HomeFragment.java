@@ -1,23 +1,26 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-
+import android.widget.ImageView;
+import android.widget.TextView;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.Speedometer;
 
-import java.util.ArrayList;
+import java.io.IOException;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import retrofit2.Call;
+import retrofit2.Retrofit;
 
 /**
  * Created by Mattia on 10/10/2017.
@@ -26,6 +29,11 @@ import java.util.ArrayList;
 public class HomeFragment extends Fragment {
 
     private Speedometer speedometer;
+    private ImageView speedLimitSign;
+    private TextView speedLimitText;
+    private double latitude;
+    private double longitude;
+    private ImageView weatherIcon;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,8 +55,10 @@ public class HomeFragment extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_home, container, false);
         speedometer = (Speedometer) view.findViewById(R.id.Speedometer);
-        PositionManager.getInstance(getContext()).createSpeedometer(view);
-
+        speedLimitSign = (ImageView) view.findViewById(R.id.speed_limit);
+        speedLimitText = (TextView) view.findViewById(R.id.speed_limit_text);
+        weatherIcon = (ImageView) view.findViewById(R.id.weather_icon);
+        PositionManager.getInstance(getContext()).createTools(view);
         // Set action bar title
         this.getActivity().setTitle(R.string.general);
         return view;
@@ -58,8 +68,8 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
         FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, true);
+        PositionManager.getInstance(getContext()).resetCity();
     }
 
     @Override
@@ -75,4 +85,5 @@ public class HomeFragment extends Fragment {
 
         FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, false);
     }
+
 }
