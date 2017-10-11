@@ -166,8 +166,10 @@ public class SingletonEmailAndPasswordProvider
     }
 
     public interface EditProfileCallback {
-        int RESULT_POSITIVE = 1;
-        int RESULT_ERROR = -1;
+        int UP_USERNAME_SUCCESS = 1;
+        int UP_USERNAME_FAILURE = -1;
+        int UP_PICTURE_SUCCESS = 2;
+        int UP_PICTURE_FAILURE = -2;
 
         void onProfileModified(int response);
     }
@@ -188,12 +190,12 @@ public class SingletonEmailAndPasswordProvider
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "SingletonUser profile updated.");
-                                callback.onProfileModified(EditProfileCallback.RESULT_POSITIVE);
+                                callback.onProfileModified(EditProfileCallback.UP_USERNAME_SUCCESS);
                                 FirebaseDatabaseManager.updateUserUsername(username);
                                 FirebaseDatabaseManager.updatePositionUsername(username);
                             } else {
                                 Log.d(TAG, "SingletonUser profile NOT updated.");
-                                callback.onProfileModified(EditProfileCallback.RESULT_ERROR);
+                                callback.onProfileModified(EditProfileCallback.UP_USERNAME_FAILURE);
                             }
                         }
                     });
@@ -260,7 +262,11 @@ public class SingletonEmailAndPasswordProvider
         }
     }
 
-    public void setImageProfile(Uri imageProfile) {
+    public void setImageProfile(final EditProfileCallback callback, final Uri imageProfile) {
+        if (callback == null) {
+            throw new CallbackNotInitialized(TAG);
+        }
+
         if (imageProfile != null) {
             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                     .setPhotoUri(imageProfile)
@@ -272,7 +278,13 @@ public class SingletonEmailAndPasswordProvider
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Log.d(TAG, "User profile updated.");
+                                Log.d(TAG, "User profile picture updated");
+                                callback.onProfileModified(EditProfileCallback.UP_PICTURE_SUCCESS);
+                                FirebaseDatabaseManager.updateUserProfilePicture(imageProfile.toString());
+                                FirebaseDatabaseManager.updatePositionProfilePicture(imageProfile.toString());
+                            } else {
+                                Log.d(TAG, "User profile picture not updated");
+                                callback.onProfileModified(EditProfileCallback.UP_PICTURE_FAILURE);
                             }
                         }
                     });

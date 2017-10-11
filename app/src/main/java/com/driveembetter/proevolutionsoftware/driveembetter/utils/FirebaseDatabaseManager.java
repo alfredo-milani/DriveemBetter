@@ -146,26 +146,26 @@ public class FirebaseDatabaseManager
             Map<Integer, Mean> tmpOriginalMean;
 
             // Saving MeanDay
+            tmpOriginalMean = user.getMeanDay().getMap();
             tmpParsedMean = new HashMap<>(user.getMeanDay().getMap().size() + 1);
             tmpParsedMean.put(CHILD_DATE, user.getMeanDay().getLocalDate().getTime());
-            tmpOriginalMean = user.getMeanDay().getMap();
             for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
                 tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
-                databaseReference
-                        .child(CHILD_STAT_DAY)
-                        .setValue(tmpParsedMean);
             }
+            databaseReference
+                    .child(CHILD_STAT_DAY)
+                    .setValue(tmpParsedMean);
 
             // Saving MeanWeek
+            tmpOriginalMean = user.getMeanWeek().getMap();
             tmpParsedMean = new HashMap<>(user.getMeanWeek().getMap().size() + 1);
             tmpParsedMean.put(CHILD_DATE, user.getMeanWeek().getLocalDate().getTime());
-            tmpOriginalMean = user.getMeanWeek().getMap();
             for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
                 tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
-                databaseReference
-                        .child(CHILD_STAT_WEEK)
-                        .setValue(tmpParsedMean);
             }
+            databaseReference
+                    .child(CHILD_STAT_WEEK)
+                    .setValue(tmpParsedMean);
         }
     }
 
@@ -553,6 +553,34 @@ public class FirebaseDatabaseManager
                     .child(CHILD_USERNAME);
 
             databaseReference.setValue(username);
+        }
+    }
+
+    public static void updateUserProfilePicture(String image) {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(user.getUid());
+
+            databaseReference
+                    .child(CHILD_IMAGE)
+                    .setValue(image);
+        }
+    }
+
+    public static void updatePositionProfilePicture(String image) {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_POSITION)
+                    .child(user.getCountry())
+                    .child(user.getRegion())
+                    .child(user.getSubRegion())
+                    .child(user.getUid())
+                    .child(CHILD_IMAGE);
+
+            databaseReference.setValue(image);
         }
     }
 

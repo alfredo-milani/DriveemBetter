@@ -75,4 +75,7 @@
     <string name="identical_username">Identical username</string>
     <string name="edit_profile">Edit profile</string>
     <string name="username_updated">Username updated</string>
+    <string name="choose_new_profile_picture">Choose new image picture</string>
+    <string name="profile_picture_updated">Profile picture updated</string>
+    <string name="profile_picture_not_updated">Error while updating profile picture</string>
 </resources>

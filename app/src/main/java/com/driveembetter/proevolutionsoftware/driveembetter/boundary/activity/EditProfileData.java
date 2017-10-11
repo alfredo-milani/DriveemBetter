@@ -1,9 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,11 +22,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonEmailAndPasswordProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 /**
  * Created by alfredo on 10/10/17.
@@ -51,6 +44,7 @@ public class EditProfileData extends AppCompatActivity
     private Button confirmEditUsername;
     private ImageView userPicture;
     private TextView emailTextView;
+    private ImageButton editProfilePictureButton;
 
     // Resources
     private SingletonUser user;
@@ -88,10 +82,12 @@ public class EditProfileData extends AppCompatActivity
         this.confirmEditUsername = findViewById(R.id.confirmModifyUsername);
         this.userPicture = findViewById(R.id.user_picture);
         this.emailTextView = findViewById(R.id.email);
+        this.editProfilePictureButton = findViewById(R.id.editProfilePictureButton);
 
         this.editUsernemButton.setOnClickListener(this);
         this.confirmEditUsername.setOnClickListener(this);
         this.backEditUsername.setOnClickListener(this);
+        this.editProfilePictureButton.setOnClickListener(this);
 
         if (this.user.getEmail() != null) {
             this.emailTextView.setText(this.user.getEmail());
@@ -117,28 +113,7 @@ public class EditProfileData extends AppCompatActivity
         if (requestCode == RC_GALLERY) {
             switch (resultCode) {
                 case RESULT_OK:
-                    Log.d(TAG, "DATA: " + data.getData());
-
-                    FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageRef = storage.getReference();
-                    StorageReference riversRef = storageRef.child("images/"+data.getData().getLastPathSegment());
-                    UploadTask uploadTask = riversRef.putFile(data.getData());
-
-// Register observers to listen for when the download is done or if it fails
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Handle unsuccessful uploads
-                            Log.d(TAG, "Unsuccess upload");
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                            Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                            Log.d(TAG, "Success upload");
-                        }
-                    });
+                    this.emailAndPasswordProvider.setImageProfile(this, data.getData());
                     break;
 
                 case RESULT_CANCELED:
@@ -186,33 +161,45 @@ public class EditProfileData extends AppCompatActivity
                 }
                 break;
 
+            case R.id.editProfilePictureButton:
+                Toast.makeText(this, getString(R.string.choose_new_profile_picture), Toast.LENGTH_LONG).show();
+                this.startActivityForResult(new Intent(
+                        Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI
+                ), EditProfileData.RC_GALLERY);
+                break;
+
             case R.id.modifyEmail:
                 // TODO: 10/10/17
                 break;
         }
-
-        /*
-        this.startActivityForResult(new Intent(
-                Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI
-        ), EditProfileData.RC_GALLERY);
-        */
     }
 
     @Override
     public void onProfileModified(int response) {
         switch (response) {
-            case EditProfileData.RESULT_POSITIVE:
+            case EditProfileData.UP_USERNAME_SUCCESS:
                 Toast.makeText(this, getString(R.string.username_updated), Toast.LENGTH_SHORT).show();
                 this.switchViewVisibility(this.editUsernameLayout);
                 this.user.setUsername(this.emailAndPasswordProvider.getUserInformations().getUsername());
                 this.usernameTextView.setText(this.user.getUsername());
                 break;
 
-            case EditProfileData.RESULT_ERROR:
+            case EditProfileData.UP_USERNAME_FAILURE:
                 Toast.makeText(this, getString(R.string.username_updated), Toast.LENGTH_LONG).show();
                 break;
+
+            case EditProfileData.UP_PICTURE_SUCCESS:
+                Toast.makeText(this, getString(R.string.profile_picture_updated), Toast.LENGTH_SHORT).show();
+                break;
+
+            case EditProfileData.UP_PICTURE_FAILURE:
+                Toast.makeText(this, getString(R.string.profile_picture_not_updated), Toast.LENGTH_LONG).show();
+                break;
         }
+
+        finish();
+        startActivity(getIntent());
     }
 
     @Override

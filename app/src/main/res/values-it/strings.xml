@@ -122,4 +122,7 @@
     <string name="identical_username">Username identico</string>
     <string name="edit_profile">Modifica profilo</string>
     <string name="username_updated">Username aggiornato</string>
+    <string name="choose_new_profile_picture">Scegli la nuova immagine del profilo</string>
+    <string name="profile_picture_updated">Immagine di profilo aggiornata</string>
+    <string name="profile_picture_not_updated">Errore durante l\'aggiornamento dell\'immagine del profilo</string>
 </resources>

@@ -67,7 +67,7 @@ public class PositionManager
         this.lastPosition = "";
         PositionManager.geocoder = new Geocoder(context, Locale.ITALIAN);
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        this.statisticsToPush = false;
+        PositionManager.statisticsToPush = false;
         initialSpeed = -1;
         this.updatePosition();
     }
@@ -82,7 +82,6 @@ public class PositionManager
 
     private void updateStatistics(double speed, double acceleration) {
 
-
         PositionManager.setStatisticsToPush(true);
 
         // TODO weekly updates
@@ -91,7 +90,7 @@ public class PositionManager
         Calendar calendar = Calendar.getInstance();
         Date date = calendar.getTime();
         int hour = date.getHours();
-        for (int i = 0; i <= 24; i ++) {
+        for (int i = 0; i < 24; i ++) {
             if (date.equals(user.getMeanDay().getLocalDate())) { //stesso giorno
                 if (user.getMeanDay().getMap().get(hour) != null) {
                     Mean meanDay = user.getMeanDay().getMap().get(hour);

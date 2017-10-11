@@ -10,8 +10,6 @@ import android.util.Log;
 
 import java.util.List;
 
-import static android.hardware.SensorManager.getAltitude;
-
 /**
  * Created by matti on 31/08/2017.
  */
@@ -54,6 +52,7 @@ public class SensorHandler extends Application implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        /*
         if (event.sensor.getType()==Sensor.TYPE_PRESSURE) {
             pressure = event.values[0];
             altitude = getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure);
@@ -61,6 +60,7 @@ public class SensorHandler extends Application implements SensorEventListener {
             //send altitude to RabbitMQ
             Log.d("ALTITUDE", "Altitude: " + altitude);
         }
+        */
     }
 
     @Override
