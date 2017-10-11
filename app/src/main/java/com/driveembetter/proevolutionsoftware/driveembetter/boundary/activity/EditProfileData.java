@@ -224,8 +224,6 @@ public class EditProfileData extends AppCompatActivity
             case EditProfileData.UP_USERNAME_SUCCESS:
                 Toast.makeText(this, getString(R.string.username_updated), Toast.LENGTH_SHORT).show();
                 this.switchViewVisibility(this.editUsernameLayout);
-                this.user.setUsername(this.emailAndPasswordProvider.getUserInformations().getUsername());
-                this.usernameTextView.setText(this.user.getUsername());
                 break;
 
             case EditProfileData.UP_USERNAME_FAILURE:
@@ -242,6 +240,7 @@ public class EditProfileData extends AppCompatActivity
 
             case EditProfileData.UP_PASSWORD_SUCCESS:
                 Toast.makeText(this, getString(R.string.psw_updated), Toast.LENGTH_LONG).show();
+                this.switchViewVisibility(this.editPasswordLayout);
                 break;
 
             case EditProfileData.UP_PASSWORD_FAILURE:

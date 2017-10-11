@@ -46,7 +46,6 @@ public class PositionManager
 
     private static PositionManager positionManager;
     private static Geocoder geocoder;
-    private static SingletonUser user;
     private LocationManager locationManager;
     private boolean listenerSetted = false;
     private Context context;
@@ -63,7 +62,6 @@ public class PositionManager
     // Singleton
     private PositionManager(Context context) {
         this.context = context;
-        user = SingletonUser.getInstance();
         this.lastPosition = "";
         PositionManager.geocoder = new Geocoder(context, Locale.ITALIAN);
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -91,6 +89,11 @@ public class PositionManager
         Date date = calendar.getTime();
         int hour = date.getHours();
         for (int i = 0; i < 24; i ++) {
+            SingletonUser user = SingletonUser.getInstance();
+            if (user == null) {
+                Log.e(TAG, "user NULL: no updated statistics");
+                return;
+            }
             if (date.equals(user.getMeanDay().getLocalDate())) { //stesso giorno
                 if (user.getMeanDay().getMap().get(hour) != null) {
                     Mean meanDay = user.getMeanDay().getMap().get(hour);
@@ -177,8 +180,9 @@ public class PositionManager
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
+            SingletonUser user = SingletonUser.getInstance();
             if (user.getMtxUpdatePosition().isLocked() ||
-                    user == null || user.getUid().isEmpty()) {
+                    user.getUid().isEmpty()) {
                 // Al posto di prendere lock appensantendo il workflow skip se è in corso il processo di aggiornameto dei dati della posizione
                 Log.d(TAG, "Aggiornamento ultima posizione nota da Firebase. Skipping onLocationChanged");;
                 return;
@@ -303,9 +307,9 @@ public class PositionManager
                             strings[1] = position[1];
                             strings[2] = position[2];
                         } else {
-                            strings[0] = user.getCountry();
-                            strings[1] = user.getRegion();
-                            strings[2] = user.getSubRegion();
+                            strings[0] = SingletonUser.getInstance().getCountry();
+                            strings[1] = SingletonUser.getInstance().getRegion();
+                            strings[2] = SingletonUser.getInstance().getSubRegion();
                         }
                     }
                 }, latitude, longitude));
@@ -339,9 +343,9 @@ public class PositionManager
                         strings[1] = position[1];
                         strings[2] = position[2];
                     } else {
-                        strings[0] = user.getCountry();
-                        strings[1] = user.getRegion();
-                        strings[2] = user.getSubRegion();
+                        strings[0] = SingletonUser.getInstance().getCountry();
+                        strings[1] = SingletonUser.getInstance().getRegion();
+                        strings[2] = SingletonUser.getInstance().getSubRegion();
                     }
                 }
             }, latitude, longitude));
@@ -370,7 +374,6 @@ public class PositionManager
     }
 
     //ADDED BY PONZINO_THE_WOLF_94
-
     private class SpeedLimitManager extends AsyncTask<String, String, String> {
 
         @Override
@@ -489,6 +492,5 @@ public class PositionManager
 
         });
     }
-
     //END ADDED BY FROM PONZINO_THE_WOLF_94
 }
