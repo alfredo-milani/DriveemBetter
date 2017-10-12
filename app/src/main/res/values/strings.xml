@@ -49,6 +49,7 @@
     <string name="days">Days</string>
     <string name="user_points_title">Earned points</string>
     <string name="data_unavailable">Unavailable data</string>
+    <string name="loading_location">Loading your position...</string>
 
 
 

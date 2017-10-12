@@ -6,54 +6,171 @@
     tools:context="com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.HomeFragment" >
 
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <ImageView android:alpha="0.5"
-        android:id="@+id/speed_limit"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_margin="@dimen/padding_avg"
-        android:background="@drawable/speed_limit_shape"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+        <ImageView
+            android:id="@+id/speed_limit"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/margin_avg"
+            android:layout_marginLeft="@dimen/padding_avg"
+            android:layout_marginRight="@dimen/padding_avg"
+            android:src="@mipmap/ic_speed_limit" />
+
+        <ImageView
+            android:id="@+id/position_marker"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/weather_icon"
+            android:layout_marginTop="15dp"
+            android:src="@mipmap/ic_location" />
+
+        <TextView
+            android:id="@+id/position_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/temperature"
+            android:layout_alignTop="@+id/position_marker"
+            android:layout_toEndOf="@+id/position_marker"
+            android:gravity="center"
+            android:text="@string/loading_location"
+            android:textAppearance="?android:attr/textAppearanceInverse"
+            android:textColor="@color/grey_700" />
+
+        <TextView
+            android:id="@+id/temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/wind_direction_icon"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/position_marker"
+            android:layout_marginEnd="@dimen/margin_avg"
+            android:gravity="center"
+            android:text="°C"
+            android:textAppearance="?android:attr/textAppearanceLargeInverse"
+            android:textColor="@color/black"
+            android:textSize="@dimen/user_icon_width" />
 
 
-    <ImageView
-        android:id="@+id/weather_icon"
-        android:layout_margin="@dimen/padding_avg"
-        android:src="@mipmap/ic_weather_unknown"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        <ImageView
+            android:id="@+id/weather_icon"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_below="@+id/position_marker"
+            android:layout_marginLeft="@dimen/padding_avg"
+            android:layout_marginRight="@dimen/padding_avg"
+            android:src="@mipmap/ic_weather_unknown" />
 
-    <TextView
-        android:id="@+id/speed_limit_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/speed_limit"
-        android:layout_alignTop="@+id/speed_limit"
-        android:layout_alignEnd="@+id/speed_limit"
-        android:layout_alignBottom="@+id/speed_limit"
-        android:layout_margin="1dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:gravity="center"
-        android:text="@string/NA"
-        android:textColor="#FFFFFF" />
+        <ImageView
+            android:id="@+id/wind_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/weather_icon"
+            android:layout_marginEnd="@dimen/padding_small"
+            android:layout_marginStart="@dimen/padding_avg"
+            android:src="@mipmap/ic_wind" />
 
-    <com.driveembetter.proevolutionsoftware.driveembetter.utils.Speedometer
-        android:id="@+id/Speedometer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        <TextView
+            android:id="@+id/wind_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/wind_icon"
+            android:layout_marginStart="@dimen/padding_small"
+            android:layout_toEndOf="@id/wind_icon"
+            android:text="N/A"
+            android:textAppearance="?android:attr/textAppearanceInverse"
+            android:textColor="@color/blue_300" />
 
-        custom:currentSpeed="0"
-        custom:maxSpeed="300" />
+        <ImageView
+            android:id="@+id/wind_direction_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@+id/wind_direction_text"
+            android:layout_alignStart="@+id/speed_limit"
+            android:layout_marginLeft="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin_small"
+            android:src="@mipmap/ic_wind_direction" />
 
+        <TextView
+            android:id="@+id/wind_direction_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/wind_text"
+            android:layout_alignBottom="@+id/wind_text"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_toEndOf="@+id/wind_direction_icon"
+            android:text="N/A"
+            android:textAppearance="?android:attr/textAppearanceInverse"
+            android:textColor="@color/blue_700" />
 
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/humidity_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@+id/wind_direction_icon"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:layout_toStartOf="@+id/humidity_text"
+            android:src="@mipmap/ic_humidity" />
+
+        <TextView
+            android:id="@+id/humidity_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/humidity_icon"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/margin_avg"
+            android:layout_marginStart="@dimen/margin_small"
+            android:text="@string/NA"
+            android:textAppearance="?android:attr/textAppearanceInverse"
+            android:textColor="@color/blue_300" />
+
+        <TextView
+            android:id="@+id/speed_limit_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/speed_limit"
+            android:layout_alignEnd="@+id/speed_limit"
+            android:layout_alignStart="@+id/speed_limit"
+            android:layout_alignTop="@+id/speed_limit"
+            android:gravity="center"
+            android:text="@string/NA"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="#000000" />
+
+        <com.driveembetter.proevolutionsoftware.driveembetter.utils.Speedometer
+            android:id="@+id/Speedometer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            custom:currentSpeed="0"
+            custom:maxSpeed="300" />
+
+        <ImageView
+            android:id="@+id/visibility_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@mipmap/ic_visibility"
+            android:layout_marginBottom="@dimen/margin_avg"
+            android:layout_above="@+id/speed_limit"
+            android:layout_alignStart="@+id/speed_limit" />
+
+        <TextView
+            android:id="@+id/visibility_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/NA"
+            android:textAppearance="?android:attr/textAppearanceInverse"
+            android:textColor="@color/grey_500"
+            android:gravity="center"
+            android:layout_alignBottom="@+id/visibility_icon"
+            android:layout_alignStart="@+id/wind_direction_text"
+            android:layout_alignTop="@+id/visibility_icon" />
+
+    </RelativeLayout>
 </FrameLayout>

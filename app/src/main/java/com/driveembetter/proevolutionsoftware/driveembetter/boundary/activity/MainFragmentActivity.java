@@ -705,4 +705,5 @@ public class MainFragmentActivity extends AppCompatActivity
             }
         }
     };
+
 }

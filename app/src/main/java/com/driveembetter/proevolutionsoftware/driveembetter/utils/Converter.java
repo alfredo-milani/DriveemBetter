@@ -1,10 +1,18 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 /**
- * Created by matti on 11/10/2017.
+ * Created by Mattia on 11/10/2017.
  */
 
 public class Converter {
+
+    public static Double convertMilesToKm(Double miles) {
+        return miles * 1.609344;
+    }
+
+    public static Double convertKmToMiles(Double km) {
+        return km / 1.609344;
+    }
 
     public static Double convertMphToKmh(Double Mph) {
         return Mph / 0.6214;

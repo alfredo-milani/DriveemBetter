@@ -118,5 +118,5 @@
     <string name="not_determinated">N.D.</string>
     <string name="decrease">Diminuisci</string>
     <string name="increase">Aumenta</string>
-
+    <string name="loading_location">Sto caricando la tua posizione...</string>
 </resources>

@@ -14,6 +14,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.Speedometer;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 
 import okhttp3.OkHttpClient;
@@ -30,10 +32,10 @@ public class HomeFragment extends Fragment {
 
     private Speedometer speedometer;
     private ImageView speedLimitSign;
-    private TextView speedLimitText;
     private double latitude;
     private double longitude;
     private ImageView weatherIcon;
+    private TextView positionText, windText, temperatureText, humidityText, visibilityText, speedLimitText, windDirectionText;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,12 @@ public class HomeFragment extends Fragment {
         speedLimitSign = (ImageView) view.findViewById(R.id.speed_limit);
         speedLimitText = (TextView) view.findViewById(R.id.speed_limit_text);
         weatherIcon = (ImageView) view.findViewById(R.id.weather_icon);
+        windText = (TextView) view.findViewById(R.id.wind_text);
+        windDirectionText = (TextView) view.findViewById(R.id.wind_direction_text);
+        positionText = (TextView) view.findViewById(R.id.position_text);
+        temperatureText = (TextView) view.findViewById(R.id.temperature);
+        humidityText = (TextView) view.findViewById(R.id.humidity_text);
+        visibilityText = (TextView) view.findViewById(R.id.visibility_text);
         PositionManager.getInstance(getContext()).createTools(view);
         // Set action bar title
         this.getActivity().setTitle(R.string.general);
@@ -84,6 +92,39 @@ public class HomeFragment extends Fragment {
         super.onStop();
 
         FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, false);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            //RESTORE TEXT VIEW STATE
+            positionText.setText(savedInstanceState.getString("POSITION_TEXT"));
+            windText.setText(savedInstanceState.getString("WIND_TEXT"));
+            temperatureText.setText(savedInstanceState.getString("TEMP_TEXT"));
+            humidityText.setText(savedInstanceState.getString("HUMIDITY_TEXT"));
+            visibilityText.setText(savedInstanceState.getString("VISIBILITY_TEXT"));
+            speedLimitText.setText(savedInstanceState.getString("SPEED_LIMIT_TEXT"));
+            windDirectionText.setText(savedInstanceState.getString("WIND_DIRECTION_TEXT"));
+        }
+    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //SAVE TEXT VIEW STATE
+
+        //    private TextView positionText, windText, temperatureText, humidityText, visibilityText, speedLimitText, windDirectionText;
+
+        outState.putString("POSITION_TEXT", positionText.getText().toString());
+        outState.putString("WIND_TEXT", windText.getText().toString());
+        outState.putString("TEMP_TEXT", temperatureText.getText().toString());
+        outState.putString("HUMIDITY_TEXT", humidityText.getText().toString());
+        outState.putString("VISIBILITY_TEXT", visibilityText.getText().toString());
+        outState.putString("SPEED_LIMIT_TEXT", speedLimitText.getText().toString());
+        outState.putString("WIND_DIRECTION_TEXT", windDirectionText.getText().toString());
+
+
     }
 
 }

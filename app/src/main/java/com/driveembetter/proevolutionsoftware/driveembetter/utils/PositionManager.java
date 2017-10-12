@@ -54,7 +54,6 @@ public class PositionManager
         implements Constants {
 
     private final static String TAG = PositionManager.class.getSimpleName();
-
     private static PositionManager positionManager;
     private static Geocoder geocoder;
     private static SingletonUser user;
@@ -71,8 +70,9 @@ public class PositionManager
     TextToSpeech tts;
     Speedometer speedometer;
     ImageView speedLimitSign, weatherIcon;
-    TextView speedLimitText;
+    TextView speedLimitText, windText, windDirectionText, positionText, temperatureText, humidityText, visibilityText;
     private String city;
+    private String oldAddress = "NONE";
 
 
     // Singleton
@@ -90,6 +90,12 @@ public class PositionManager
         speedLimitSign = (ImageView) view.findViewById(R.id.speed_limit);
         speedLimitText = (TextView) view.findViewById(R.id.speed_limit_text);
         weatherIcon = (ImageView) view.findViewById(R.id.weather_icon);
+        windText = (TextView) view.findViewById(R.id.wind_text);
+        windDirectionText = (TextView) view.findViewById(R.id.wind_direction_text);
+        positionText = (TextView) view.findViewById(R.id.position_text);
+        temperatureText = (TextView) view.findViewById(R.id.temperature);
+        humidityText = (TextView) view.findViewById(R.id.humidity_text);
+        visibilityText = (TextView) view.findViewById(R.id.visibility_text);
     }
 
 
@@ -236,9 +242,17 @@ public class PositionManager
             user.setCity(strings[3]);
             Log.d(TAG, "PositionNEW: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
 
+            if (!oldAddress.equals(strings[4]) && positionText != null) {
+                positionText.setText(strings[4]);
+                oldAddress = strings[4];
+            }
+
             if (!oldCity.equals(user.getCity())) {
                 //if driver change city
-                new YahooWeatherParser(weatherIcon).execute(user.getCity(), user.getCountry());
+                    //positionText.setText(user.getCity() + ", " + user.getSubRegion() + ", " +
+                    //user.getRegion() + ", " + user.getCountry());
+
+                new YahooWeatherParser(weatherIcon, windText, windDirectionText, temperatureText, humidityText, visibilityText).execute(user.getCity(), user.getCountry());
             }
 
             if (!oldSubRegion.equals(user.getSubRegion()) ||
@@ -318,7 +332,7 @@ public class PositionManager
      * @return string[0] --> Nation; string[1] --> Region; string[2] --> District
      */
     public static String[] getLocationFromCoordinates(double latitude, double longitude, int maxResult) {
-        final String[] strings = new String[4];
+        final String[] strings = new String[5];
         try {
             /*
                 The issue is Geocoder backend service is not available in emulator.
@@ -329,6 +343,7 @@ public class PositionManager
             strings[1] = addresses.get(0).getAdminArea();
             strings[2] = addresses.get(0).getSubAdminArea();
             strings[3] = addresses.get(0).getLocality();
+            strings[4] = addresses.get(0).getAddressLine(0);
 
             Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2] + " City: " + strings[3]);
             if (strings[0] == null || strings[1] == null || strings[2] == null || strings[3] == null) {
@@ -359,6 +374,7 @@ public class PositionManager
             strings[1] = REGION;
             strings[2] = SUB_REGION;
             strings[3] = CITY;
+            strings[4] = ADDRESS;
         }
 
         return strings;

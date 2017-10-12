@@ -28,6 +28,7 @@ public interface Constants {
     String SUB_REGION = "subRegion";
     String OLD_CITY = "oldCity";
     String CITY = "city";
+    String ADDRESS = "address";
 
 
 

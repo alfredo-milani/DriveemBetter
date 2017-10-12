@@ -4,11 +4,15 @@ import android.os.AsyncTask;
 import android.renderscript.Allocation;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.Converter;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.NumberManager;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 
@@ -23,9 +27,16 @@ import okhttp3.Response;
 public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
 
     private ImageView weatherIcon;
+    private TextView windText, windDirectionText, temperatureText, humidityText, visibilityText;
 
-    public YahooWeatherParser(ImageView weatherIcon) {
+    public YahooWeatherParser(ImageView weatherIcon, TextView windText, TextView windDirectionText,
+                              TextView temperatureText, TextView humidityText, TextView visibilityText) {
         this.weatherIcon = weatherIcon;
+        this.windText = windText;
+        this.windDirectionText = windDirectionText;
+        this.temperatureText = temperatureText;
+        this.humidityText = humidityText;
+        this.visibilityText = visibilityText;
     }
 
     @Override
@@ -53,6 +64,7 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
             Double windSpeedMph = wind.getDouble("speed");
             int windDirectionInDegrees = wind.getInt("direction");
             Double temperatureFahrenheit = condition.getDouble("temp");
+            Double visibilityInMiles = atmosphere.getDouble("visibility"); //m
 
 
             //WIND DATA
@@ -61,7 +73,7 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
 
             //ATMOSPHERE DATA
             int humidity = atmosphere.getInt("humidity");
-            Double visibility = atmosphere.getDouble("visibility"); //m
+            Double visibilityInKm = NumberManager.round(Converter.convertMilesToKm(visibilityInMiles), 3);
 
             //CONDITION DATA
             Double temperatureCelsius = Converter.convertFahrenheitToCelsius(temperatureFahrenheit);
@@ -70,12 +82,12 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
             weatherData[0] = String.valueOf(windSpeedKmh);
             weatherData[1] = windDirectionCardinal;
             weatherData[2] = String.valueOf(humidity);
-            weatherData[3] = String.valueOf(visibility);
+            weatherData[3] = String.valueOf(visibilityInKm);
             weatherData[4] = String.valueOf(temperatureCelsius);
             weatherData[5] = String.valueOf(weather);
 
             Log.e("YAHOO WEATHER", "wind speed and direction: " + windSpeedKmh + "  " + windDirectionCardinal + "  " +
-            "humidity: " + humidity + " visibility: " + visibility + " temperature: " + temperatureCelsius + "  weather: " + weather);
+            "humidity: " + humidity + " visibility: " + visibilityInKm + " temperature: " + temperatureCelsius + "  weather: " + weather);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -91,6 +103,12 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
         super.onPostExecute(s);
         if (s != null) {
             setWeatherIcon(s[5]);
+            windText.setText((int) Double.parseDouble(s[0]) + " km/h");
+            windDirectionText.setText(s[1]);
+            Double temperature = NumberManager.round(Double.parseDouble(s[4]), 1);
+            temperatureText.setText(temperature.toString() + " °C");
+            humidityText.setText(s[2] + " %");
+            visibilityText.setText(s[3] + " km");
         }
     }
 
