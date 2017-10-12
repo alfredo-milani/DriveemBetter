@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.CycleInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -278,20 +281,26 @@ public class AddVehicleActivity extends FragmentActivity {
                         }else{
                             if (try_number >1) {
                                 show_alert_message();
+                                insurance_date.setTextColor(Color.RED);
                                 insurance_date.setText(day + "/" + (month + 1) + "/" + year);
+                                insurance_date.startAnimation(shakeError());
                             }
                         }
 
                     }else{
                         try_number = 1;
                         insurance_date.setText(day + "/" + (month + 1) + "/" + year);
-                        System.out.println(" SEEETTTT ");
-
                     }
                 } else
                     revision_date.setText(day + "/" + (month + 1) + "/" + year);
             }
 
+        private TranslateAnimation shakeError() {
+            TranslateAnimation shake = new TranslateAnimation(0, 10, 0, 0);
+            shake.setDuration(700);
+            shake.setInterpolator(new CycleInterpolator(7));
+            return shake;
+        }
 
         private void show_alert_message() {
             final View popupView = getActivity().getLayoutInflater().inflate(R.layout.insurance_alert, null);

@@ -12,4 +12,5 @@ class ViewHolder {
     public TextView textView1;
     public TextView textView2;
     public ImageView imageview;
+    public TextView textView3;
 }

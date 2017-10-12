@@ -12,6 +12,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.CycleInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -35,7 +37,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CAR;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CURRENT;
@@ -63,11 +68,11 @@ public class GarageFragment extends Fragment
     private ArrayList<String> vehiclesName;
     private ImageButton delete;
     private ImageButton modify;
-    private ImageButton select;
-    private Button ok;
+    private ImageButton select, modify_from_options;
+    private Button ok, ok_alert;
     private int selected_item;
     private FloatingActionButton fab;
-    private ArrayList<String> plates_list;
+    private ArrayList<String> plates_list, insurance_date_list, revision_date_list;
     private TextView type;
     private TextView model;
     private TextView plate;
@@ -128,6 +133,8 @@ public class GarageFragment extends Fragment
         this.vehicles = this.singletonUser.getVehicleArrayList();
         vehicles_exist();
         getCurrentVhicle();
+        control_insurance_expiration();
+
 
         listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
@@ -159,8 +166,8 @@ public class GarageFragment extends Fragment
                         intent.putExtras(extras);
                         startActivity(intent);
                         hideOptions();
-                        clik_event = false;
                         onStart();
+                        clik_event = false;
 
                     }
                 });
@@ -199,6 +206,8 @@ public class GarageFragment extends Fragment
                                         vehicles.remove(selected_item);
                                         vehiclesName.remove(selected_item);
                                         plates_list.remove(selected_item);
+                                        insurance_date_list.remove(selected_item);
+                                        revision_date_list.remove(selected_item);
                                         hideOptions();
                                         dialog.cancel();
                                         clik_event = false;
@@ -264,8 +273,44 @@ public class GarageFragment extends Fragment
         });
     }
 
+    private void control_insurance_expiration() {
+
+        if (insurance_date_list == null || insurance_date_list.size()==0){
+            return;
+        }else{
+            int i;
+            for (i=0;i<insurance_date_list.size();i++){
+                System.out.println("INSURANCEEEEEEEEEE * " + insurance_date_list.size());
+                if (insurance_is_expired(i)){
+                    show_alert_message();
+                    return;
+                }
+            }
+        }
+    }
+
+    private void show_alert_message() {
+        final View popupView = getActivity().getLayoutInflater().inflate(R.layout.generale_alert, null);
+
+        final PopupWindow popupWindow = new PopupWindow(popupView,
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+
+        popupWindow.setFocusable(true);
+        ok_alert = (Button) popupView.findViewById(R.id.ok_general);
+        ok_alert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+            }
+        });
+
+        popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER,0,0);
+    }
+
     private void vehicles_exist() {
 
+        this.insurance_date_list.clear();
+        this.revision_date_list.clear();
         if (vehicles == null){
             this.label.setVisibility(View.VISIBLE);
             this.label.setText("YOUR GARAGE IS EMPTY");
@@ -368,7 +413,7 @@ public class GarageFragment extends Fragment
         }
     }
 
-    private void show_details(int position) {
+    private void show_details(final int position) {
 
         final View popupView = getActivity().getLayoutInflater().inflate(R.layout.vehicle_informations, null);
 
@@ -381,6 +426,7 @@ public class GarageFragment extends Fragment
         this.type = (TextView) popupView.findViewById(R.id.typeview);
         this.owner = (TextView) popupView.findViewById(R.id.ownerview);
         this.plate = (TextView) popupView.findViewById(R.id.plateview);
+        this.modify_from_options = (ImageButton)popupView.findViewById(R.id.modify_from_options);
         this.ins_date = (TextView) popupView.findViewById(R.id.ins_date);
         this.rev_date = (TextView)popupView.findViewById(R.id.rev_date);
         this.ok = (Button) popupView.findViewById(R.id.ok);
@@ -392,12 +438,44 @@ public class GarageFragment extends Fragment
             }
         });
 
+        modify_from_options.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(getActivity(), ModifyVehicleActivity.class);
+                Bundle extras = new Bundle();
+
+                extras.putString(PLATE, vehicles.get(position).getNumberPlate());
+                extras.putString(MODEL, vehicles.get(position).getModel());
+                extras.putString(OWNER, vehicles.get(position).getOwner());
+                extras.putStringArrayList(PLATE_LIST, plates_list);
+                extras.putString(TYPE,vehicles.get(position).getType());
+                extras.putString(INS_DATE, vehicles.get(position).getInsurance_date());
+                extras.putString(REV_DATE, vehicles.get(position).getRevision_date());
+                extras.putString(CURRENT, current_vehicle);
+                intent.putExtras(extras);
+                startActivity(intent);
+                popupWindow.dismiss();
+                hideOptions();
+                clik_event = false;
+                onStart();
+
+            }
+        });
+
 
         model.setText(vehicles.get(position).getModel());
-        type.setText(TYPE + vehicles.get(position).getType());
-        owner.setText(OWNER + vehicles.get(position).getOwner());
-        plate.setText(PLATE + vehicles.get(position).getNumberPlate());
-        ins_date.setText(vehicles.get(position).getInsurance_date());
+        type.setText(vehicles.get(position).getType());
+        owner.setText(vehicles.get(position).getOwner());
+        plate.setText(vehicles.get(position).getNumberPlate());
+        if (insurance_is_expired(position)) {
+            ins_date.setTextColor(Color.RED);
+            ins_date.setText(vehicles.get(position).getInsurance_date());
+            ins_date.startAnimation(shakeError());
+        }
+        else
+            ins_date.setText(vehicles.get(position).getInsurance_date());
         rev_date.setText(vehicles.get(position).getRevision_date());
 
         popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER,0,0);
@@ -428,11 +506,19 @@ public class GarageFragment extends Fragment
 
         int i;
         for(i=0; i<vehicles.size();i++){
+            System.out.println("VEHICLEEEEESSSS * " + vehicles.size());
+
             this.vehiclesName.add(i, vehicles.get(i).getModel());
             this.plates_list.add(i, vehicles.get(i).getNumberPlate());
+            this.insurance_date_list.add(i, vehicles.get(i).getInsurance_date());
+            this.revision_date_list.add(i, vehicles.get(i).getRevision_date());
+            System.out.println("INSURANCEEEEEEEEEE222222222222222 * " + insurance_date_list.size());
+
+
         }
 
-        listview.setAdapter(new VehiclesAdapter(getContext(), vehicles , current_vehicle));
+        listview.setAdapter(new VehiclesAdapter(getContext(), vehicles , current_vehicle, revision_date_list, insurance_date_list));
+
     }
 
     private void initResources() {
@@ -441,6 +527,8 @@ public class GarageFragment extends Fragment
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
         this.vehiclesName = new ArrayList<String>();
         this.plates_list = new ArrayList<String>();
+        this.revision_date_list = new ArrayList<String>();
+        this.insurance_date_list = new ArrayList<String>();
         this.clik_event = false;
     }
 
@@ -475,6 +563,32 @@ public class GarageFragment extends Fragment
         });
 
 
+    }
+
+    private boolean insurance_is_expired(int position) {
+
+        System.out.println("VEHHIIIICLLEESSSS  " +vehicles.size());
+        String current_date = vehicles.get(position).getInsurance_date();
+        Date today = new Date();
+        String myFormatString = "dd/MM/yy";
+        SimpleDateFormat df = new SimpleDateFormat(myFormatString);
+        Date givenDate = null;
+        try {
+            givenDate = df.parse(current_date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if(givenDate.before(today))
+            return true;
+        return false;
+    }
+
+    public TranslateAnimation shakeError() {
+        TranslateAnimation shake = new TranslateAnimation(0, 10, 0, 0);
+        shake.setDuration(700);
+        shake.setInterpolator(new CycleInterpolator(7));
+        return shake;
     }
 
     @Override
