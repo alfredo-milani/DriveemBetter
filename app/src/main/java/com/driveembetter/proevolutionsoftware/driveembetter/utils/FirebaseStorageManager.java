@@ -4,8 +4,10 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonEmailAndPasswordProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -32,7 +34,11 @@ public class FirebaseStorageManager
         return FirebaseStorageManager.storageReference;
     }
 
-    public static void uploadProfileImage(Uri data) {
+    public static void uploadProfileImage(final SingletonEmailAndPasswordProvider.EditProfileCallback callback, Uri data) {
+        if (callback == null) {
+            throw new CallbackNotInitialized(TAG);
+        }
+
         SingletonUser user = SingletonUser.getInstance();
         if (user != null) {
             StorageReference fileReference = FirebaseStorageManager.storageReference
@@ -47,12 +53,17 @@ public class FirebaseStorageManager
                 public void onFailure(@NonNull Exception exception) {
                     // Handle unsuccessful uploads
                     Log.d(TAG, "Unsuccess upload");
+                    callback.onProfileModified(SingletonEmailAndPasswordProvider.EditProfileCallback.UP_PICTURE_FAILURE_STORAGE);
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    if (SingletonUser.getInstance() != null) {
+                        SingletonUser.getInstance().setPhotoUrl(downloadUrl);
+                    }
+                    callback.onProfileModified(SingletonEmailAndPasswordProvider.EditProfileCallback.UP_PICTURE_SUCCESS_STORAGE);
                     FirebaseDatabaseManager.updateUserData(Constants.CHILD_IMAGE, downloadUrl.toString());
                     FirebaseDatabaseManager.updatePositionData(Constants.CHILD_IMAGE, downloadUrl.toString());
                 }

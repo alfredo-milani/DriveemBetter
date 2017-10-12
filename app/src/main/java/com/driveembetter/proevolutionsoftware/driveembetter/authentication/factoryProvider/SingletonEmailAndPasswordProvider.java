@@ -169,10 +169,15 @@ public class SingletonEmailAndPasswordProvider
     public interface EditProfileCallback {
         int UP_USERNAME_SUCCESS = 1;
         int UP_USERNAME_FAILURE = -1;
-        int UP_PICTURE_SUCCESS = 2;
-        int UP_PICTURE_FAILURE = -2;
+        int UP_PICTURE_SUCCESS_STORAGE = 2;
+        int UP_PICTURE_FAILURE_STORAGE = -2;
+        int UP_PICTURE_SUCCESS_AUTH = 5;
+        int UP_PICTURE_FAILURE_AUTH = -5;
         int UP_PASSWORD_SUCCESS = 3;
         int UP_PASSWORD_FAILURE = -3;
+        int UP_EMAIL_SUCCESS = 4;
+        int UP_EMAIL_FAILURE = -4;
+
 
         void onProfileModified(int response);
     }
@@ -229,7 +234,11 @@ public class SingletonEmailAndPasswordProvider
         }
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final EditProfileCallback callback, final String email) {
+        if (callback == null) {
+            throw new CallbackNotInitialized(TAG);
+        }
+
         if (email != null) {
             this.singletonFirebaseProvider
                     .getFirebaseUser()
@@ -238,9 +247,11 @@ public class SingletonEmailAndPasswordProvider
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Log.d(TAG, "SingletonUser email address updated.");
+                                Log.d(TAG, "SingletonUser email address updated");
+                                callback.onProfileModified(EditProfileCallback.UP_EMAIL_SUCCESS);
                             } else {
-                                Log.d(TAG, "SingletonUser email address NOT updated.");
+                                Log.d(TAG, "SingletonUser email address NOT updated");
+                                callback.onProfileModified(EditProfileCallback.UP_EMAIL_FAILURE);
                             }
                         }
                     });
@@ -294,10 +305,10 @@ public class SingletonEmailAndPasswordProvider
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "User profile picture updated: " + singletonFirebaseProvider.getFirebaseUser().getPhotoUrl().toString());
-                                callback.onProfileModified(EditProfileCallback.UP_PICTURE_SUCCESS);
+                                callback.onProfileModified(EditProfileCallback.UP_PICTURE_SUCCESS_AUTH);
                             } else {
                                 Log.d(TAG, "User profile picture not updated");
-                                callback.onProfileModified(EditProfileCallback.UP_PICTURE_FAILURE);
+                                callback.onProfileModified(EditProfileCallback.UP_PICTURE_FAILURE_AUTH);
                             }
                         }
                     });

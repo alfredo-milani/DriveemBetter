@@ -4,8 +4,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.exceptions;
  * Created by alfredo on 17/08/17.
  */
 
-public class ResourcesNotInitialized
-        extends RuntimeException {
+public class ResourcesNotInitialized extends RuntimeException {
 
     public ResourcesNotInitialized() {
 

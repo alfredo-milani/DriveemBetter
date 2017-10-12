@@ -155,7 +155,7 @@ public class FirebaseDatabaseManager
             }
             databaseReference
                     .child(CHILD_STAT_DAY)
-                    .setValue(tmpParsedMean);
+                    .updateChildren(tmpParsedMean);
 
             // Saving MeanWeek
             tmpOriginalMean = user.getMeanWeek().getMap();
@@ -166,7 +166,7 @@ public class FirebaseDatabaseManager
             }
             databaseReference
                     .child(CHILD_STAT_WEEK)
-                    .setValue(tmpParsedMean);
+                    .updateChildren(tmpParsedMean);
         }
     }
 
@@ -230,37 +230,26 @@ public class FirebaseDatabaseManager
                     .child(user.getSubRegion())
                     .child(user.getUid());
 
-            databaseReference
-                    .child(CHILD_USERNAME)
-                    .setValue(user.getUsername());
-            databaseReference
-                    .child(CHILD_EMAIL)
-                    .setValue(user.getEmail());
+            Map<String, Object> newUser = new HashMap<>();
+            newUser.put(CHILD_USERNAME, user.getUsername());
+            newUser.put(CHILD_EMAIL, user.getEmail());
+            newUser.put(CHILD_POINTS, String.valueOf(user.getPoints()));
+            newUser.put(CHILD_AVAILABILITY, user.getAvailability());
             if (user.getPhotoUrl() != null) {
-                databaseReference
-                        .child(CHILD_IMAGE)
-                        .setValue(user.getPhotoUrl().toString());
+                newUser.put(CHILD_IMAGE, user.getPhotoUrl().toString());
             }
             if (user.getFeedback() != null) {
-                databaseReference
-                        .child(CHILD_FEEDBACK)
-                        .setValue(user.getFeedback().toString());
+                newUser.put(CHILD_FEEDBACK, user.getFeedback().toString());
             }
             if (user.getCurrentVehicle() != null) {
-                databaseReference
-                        .child(CHILD_CURRENT_VEHICLE)
-                        .setValue(user.getCurrentVehicle().getType());
+                newUser.put(CHILD_CURRENT_VEHICLE, user.getCurrentVehicle().getType());
             }
-            databaseReference
-                    .child(CHILD_POINTS)
-                    .setValue(user.getPoints());
-            databaseReference
-                    .child(CHILD_AVAILABILITY)
-                    .setValue(user.getAvailability());
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .onDisconnect()
                     .setValue(UNAVAILABLE);
+
+            databaseReference.updateChildren(newUser);
         }
     }
 
@@ -298,13 +287,12 @@ public class FirebaseDatabaseManager
                                     .child(CHILD_IMAGE)
                                     .setValue(user.getPhotoUrl().toString());
                         }
-                            if (!dataSnapshot.hasChild(CHILD_FEEDBACK) &&
-                                    user.getFeedback() != null) {
-                                dataSnapshot.getRef()
-                                        .child(CHILD_FEEDBACK)
-                                        .setValue(user.getFeedback().toString());
-                            }
-
+                        if (!dataSnapshot.hasChild(CHILD_FEEDBACK) &&
+                                user.getFeedback() != null) {
+                            dataSnapshot.getRef()
+                                    .child(CHILD_FEEDBACK)
+                                    .setValue(user.getFeedback().toString());
+                        }
                         if (!dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE) &&
                                 user.getCurrentVehicle() != null) {
                             dataSnapshot.getRef()
@@ -353,14 +341,22 @@ public class FirebaseDatabaseManager
                     .child(NODE_USERS)
                     .child(user.getUid());
 
-            databaseReference
-                    .child(CHILD_CURRENT_POSITION)
-                    .setValue(StringParser.getStringFromCoordinates(
+            Map<String, Object> newPosition = new HashMap<>();
+            newPosition.put(
+                    CHILD_CURRENT_POSITION,
+                    StringParser.getStringFromCoordinates(
                             user.getLatitude(), user.getLongitude()
-                    ));
-            databaseReference
-                    .child(CHILD_AVAILABILITY)
-                    .setValue(user.getAvailability());
+                    )
+            );
+            newPosition.put(
+                    CHILD_ZONA,
+                    StringParser.fromArrayToString(
+                            new String[] {user.getCountry(), user.getRegion(), user.getSubRegion()}
+                    )
+            );
+            newPosition.put(CHILD_AVAILABILITY, user.getAvailability());
+
+            databaseReference.updateChildren(newPosition);
         }
     }
 
@@ -379,14 +375,16 @@ public class FirebaseDatabaseManager
                     .child(user.getSubRegion())
                     .child(user.getUid());
 
-            databaseReference
-                    .child(CHILD_CURRENT_POSITION)
-                    .setValue(StringParser.getStringFromCoordinates(
+            Map<String, Object> newPosition = new HashMap<>();
+            newPosition.put(
+                    CHILD_CURRENT_POSITION,
+                    StringParser.getStringFromCoordinates(
                             user.getLatitude(), user.getLongitude()
-                    ));
-            databaseReference
-                    .child(CHILD_AVAILABILITY)
-                    .setValue(user.getAvailability());
+                    )
+            );
+            newPosition.put(CHILD_AVAILABILITY, user.getAvailability());
+
+            databaseReference.updateChildren(newPosition);
         }
     }
 
@@ -416,13 +414,13 @@ public class FirebaseDatabaseManager
                                 .child(CHILD_POINTS)
                                 .setValue(user.getPoints());
                     }
-                        if (user.getFeedback() != null &&
-                                !dataSnapshot.child(CHILD_STATISTICS).hasChild(CHILD_FEEDBACK)) {
-                            query.getRef()
-                                    .child(CHILD_STATISTICS)
-                                    .child(CHILD_FEEDBACK)
-                                    .setValue(user.getFeedback().toString());
-                        }
+                    if (user.getFeedback() != null &&
+                            !dataSnapshot.child(CHILD_STATISTICS).hasChild(CHILD_FEEDBACK)) {
+                        query.getRef()
+                                .child(CHILD_STATISTICS)
+                                .child(CHILD_FEEDBACK)
+                                .setValue(user.getFeedback().toString());
+                    }
 
                     if (user.getCurrentVehicle() != null &&
                             !dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE)) {
@@ -456,11 +454,15 @@ public class FirebaseDatabaseManager
 
                     if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
                             dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        updateCurrentUserPositionIfNecessary(
+                        updateCurrentUserPosition(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
                     } else {
                         createNewUserPosition();
+                    }
+                    if (dataSnapshot.hasChild(CHILD_ZONA) &&
+                            dataSnapshot.child(CHILD_ZONA).getValue() != null) {
+                        updateCurrentUserZona(dataSnapshot.child(CHILD_ZONA).getValue().toString());
                     }
                 } else {
                     Log.d(TAG, "Update SingletonUser class data");
@@ -468,10 +470,15 @@ public class FirebaseDatabaseManager
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
                     );
 
-                    if (dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        updateCurrentUserPositionIfNecessary(
+                    if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
+                            dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
+                        updateCurrentUserPosition(
                                 dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
                         );
+                    }
+                    if (dataSnapshot.hasChild(CHILD_ZONA) &&
+                            dataSnapshot.child(CHILD_ZONA).getValue() != null) {
+                        updateCurrentUserZona(dataSnapshot.child(CHILD_ZONA).getValue().toString());
                     }
 
                     checkOldPositionData();
@@ -503,7 +510,21 @@ public class FirebaseDatabaseManager
         });
     }
 
-    private static void updateCurrentUserPositionIfNecessary(String location) {
+    private static void updateCurrentUserZona(String zona) {
+        String[] coordinates = StringParser.getCoordinates(zona);
+        SingletonUser user = SingletonUser.getInstance();
+
+        if (user != null && coordinates != null &&
+                coordinates.length == 3) {
+            user.setCountry(coordinates[0]);
+            user.setRegion(coordinates[1]);
+            user.setSubRegion(coordinates[2]);
+
+            Log.d(TAG, "DB POS PARSED: " + user.getCountry() + "/" + user.getRegion() + "/" + user.getSubRegion());
+        }
+    }
+
+    private static void updateCurrentUserPosition(String location) {
         String[] coordinates = StringParser.getCoordinates(location);
         SingletonUser user = SingletonUser.getInstance();
 
@@ -511,6 +532,7 @@ public class FirebaseDatabaseManager
             user.setLatitude(Double.parseDouble(coordinates[0]));
             user.setLongitude(Double.parseDouble(coordinates[1]));
 
+            /*
             String[] position = PositionManager.getLocationFromCoordinates(
                     user.getLatitude(),
                     user.getLongitude(),
@@ -521,7 +543,7 @@ public class FirebaseDatabaseManager
             user.setSubRegion(position[2]);
 
             Log.d(TAG, "DB POS PARSED: " + user.getCountry() + "/" + user.getRegion() + "/" + user.getSubRegion());
-            // TODO forse sarebbe meglio mettere country/region/subRegion come attributo dell'entità users su DB
+            */
         }
     }
 
@@ -963,7 +985,7 @@ public class FirebaseDatabaseManager
             image = Uri.parse(user.child(CHILD_IMAGE).getValue().toString());
         }
         if (user.hasChild(CHILD_POINTS)) {
-            points = (long) user.child(CHILD_POINTS).getValue();
+            points = Long.valueOf(user.child(CHILD_POINTS).getValue().toString());
         }
         if (user.hasChild(CHILD_AVAILABILITY) &&
                 user.child(CHILD_AVAILABILITY).getValue().toString().equals(AVAILABLE)) {

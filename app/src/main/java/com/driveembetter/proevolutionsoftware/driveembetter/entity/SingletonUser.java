@@ -18,8 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by alfredo on 10/08/17.
  */
 
-public class SingletonUser
-        extends User
+public class SingletonUser extends User
         implements Constants,
         FirebaseDatabaseManager.RetrieveVehiclesFromDB {
 

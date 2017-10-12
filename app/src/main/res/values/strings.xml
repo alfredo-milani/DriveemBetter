@@ -48,6 +48,8 @@
     <string name="user_points_title">Earned points</string>
     <string name="data_unavailable">Unavailable data</string>
     <string name="message">ATTENTION!</string>
+
+
     <string name="insurance_alert">Your insurance is exipired! Please update your insurance expiration date as soon as you renew it</string>
     <string name="general_alert">Check marking vehicles with red exclamation mark may have the insurance expired, please check the vehicle!</string>
 
@@ -77,4 +79,19 @@
     <string name="identical_username">Identical username</string>
     <string name="edit_profile">Edit profile</string>
     <string name="username_updated">Username updated</string>
+    <string name="choose_new_profile_picture">Choose new image picture</string>
+    <string name="profile_picture_updated">Profile picture updated</string>
+    <string name="profile_picture_not_updated">Error while updating profile picture</string>
+    <string name="old_password">Old password</string>
+    <string name="new_password">New password</string>
+    <string name="new_password_2">Repeat new password</string>
+    <string name="bad_old_psw">Old password is wrong</string>
+    <string name="bad_new_psw">The new password not correspond</string>
+    <string name="psw_updated">Password aggiornata</string>
+    <string name="psw_not_updated">Password not updated</string>
+    <string name="bad_psw_change_must_logout">You could only change passwor associated with this app!</string>
+    <string name="new_email">New email address</string>
+    <string name="email_not_updated">Error while updating email address</string>
+    <string name="email_updated">Email address updated</string>
+    <string name="internal_firebase_error_login">Sorry! Internal Firebase error login ocurred!</string>
 </resources>

@@ -22,4 +22,15 @@ public class StringParser {
     public static String trimString(String input) {
         return input.replaceAll("\\s", "");
     }
+
+    public static String fromArrayToString(String[] array) {
+        String string = "";
+        if (array != null) {
+            for (String s : array) {
+                string = string.concat(s + StringParser.itemSeparator);
+            }
+        }
+
+        return string;
+    }
 }

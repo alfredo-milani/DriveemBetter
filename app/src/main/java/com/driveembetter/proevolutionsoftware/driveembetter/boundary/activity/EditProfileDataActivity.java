@@ -17,44 +17,57 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.authentication.TypeMessages;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonEmailAndPasswordProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseStorageManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 
 /**
  * Created by alfredo on 10/10/17.
  */
 
-public class EditProfileData extends AppCompatActivity
+public class EditProfileDataActivity extends AppCompatActivity
         implements View.OnClickListener,
         SingletonEmailAndPasswordProvider.EditProfileCallback {
 
-    private final static String TAG = EditProfileData.class.getSimpleName();
+    private final static String TAG = EditProfileDataActivity.class.getSimpleName();
 
     private final static int RC_GALLERY = 9;
 
     // Widgets
-    private ImageButton editUsernemButton;
+    private ImageButton editUsernameButton;
     private LinearLayout editUsernameLayout;
     private EditText editTextUsername;
     private TextView usernameTextView;
     private Button backEditUsername;
     private Button confirmEditUsername;
+
     private ImageView userPicture;
-    private TextView emailTextView;
     private ImageButton editProfilePictureButton;
+
     private ImageView editPasswordButton;
+
     private LinearLayout editPasswordLayout;
     private EditText editTextNewPsd;
     private EditText editTextNewPsd2;
     private Button backEditPassword;
     private Button confirmEditPassword;
 
+    private TextView editEmailTextView;
+    private Button editEmailButtonConfirm;
+    private Button editEmailButtonCancel;
+    private LinearLayout editEmailLayout;
+    private ImageButton editEmailButton;
+    private EditText editTextEmail;
+    ////
+
     // Resources
     private SingletonUser user;
+    private SingletonFirebaseProvider singletonFirebaseProvider;
     private SingletonEmailAndPasswordProvider emailAndPasswordProvider;
 
 
@@ -70,6 +83,7 @@ public class EditProfileData extends AppCompatActivity
 
     private void initResources() {
         this.user = SingletonUser.getInstance();
+        this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.emailAndPasswordProvider = SingletonEmailAndPasswordProvider.getInstance();
     }
 
@@ -82,13 +96,12 @@ public class EditProfileData extends AppCompatActivity
         }
 
         this.editUsernameLayout = findViewById(R.id.change_username_data);
-        this.editUsernemButton = findViewById(R.id.modifyUsername);
+        this.editUsernameButton = findViewById(R.id.modifyUsername);
         this.editTextUsername = findViewById(R.id.editTextUsername);
         this.usernameTextView = findViewById(R.id.user);
         this.backEditUsername = findViewById(R.id.backModifyUsername);
         this.confirmEditUsername = findViewById(R.id.confirmModifyUsername);
         this.userPicture = findViewById(R.id.user_picture);
-        this.emailTextView = findViewById(R.id.email);
         this.editProfilePictureButton = findViewById(R.id.editProfilePictureButton);
         this.editPasswordButton = findViewById(R.id.imageView3);
         this.editPasswordLayout = findViewById(R.id.change_password_data);
@@ -96,30 +109,36 @@ public class EditProfileData extends AppCompatActivity
         this.editTextNewPsd2 = findViewById(R.id.editTextPasswordNew2);
         this.confirmEditPassword = findViewById(R.id.confirmModifyPassword);
         this.backEditPassword = findViewById(R.id.backModifyPassword);
+        this.editEmailTextView = findViewById(R.id.email);
+        this.editEmailLayout = findViewById(R.id.change_email_data);
+        this.editEmailButtonCancel = findViewById(R.id.backModifyEmail);
+        this.editEmailButtonConfirm = findViewById(R.id.confirmModifyEmail);
+        this.editTextEmail = findViewById(R.id.editTextEmail);
+        this.editEmailButton = findViewById(R.id.modifyEmailLayout);
 
-        this.editUsernemButton.setOnClickListener(this);
+        this.editUsernameButton.setOnClickListener(this);
         this.confirmEditUsername.setOnClickListener(this);
         this.backEditUsername.setOnClickListener(this);
         this.editProfilePictureButton.setOnClickListener(this);
         this.editPasswordButton.setOnClickListener(this);
         this.backEditPassword.setOnClickListener(this);
         this.confirmEditPassword.setOnClickListener(this);
+        this.editEmailButtonConfirm.setOnClickListener(this);
+        this.editEmailButtonCancel.setOnClickListener(this);
+        this.editEmailButton.setOnClickListener(this);
 
         if (this.user.getEmail() != null) {
-            this.emailTextView.setText(this.user.getEmail());
+            this.editEmailTextView.setText(this.user.getEmail());
         }
         if (this.user.getUsername() != null) {
             this.usernameTextView.setText(this.user.getUsername());
         }
-        if (this.user.getPhotoUrl() != null) {
-            Glide.with(this)
-                    .load(this.user.getPhotoUrl().toString())
-                    .dontTransform()
-                    .thumbnail(0.5f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(this.userPicture);
-        }
+        GlideImageLoader.loadImage(
+                this,
+                this.userPicture,
+                this.user.getPhotoUrl(),
+                R.mipmap.user_icon,
+                R.mipmap.user_icon);
     }
 
     @Override
@@ -129,8 +148,7 @@ public class EditProfileData extends AppCompatActivity
         if (requestCode == RC_GALLERY) {
             switch (resultCode) {
                 case RESULT_OK:
-                    this.emailAndPasswordProvider.setImageProfile(this, data.getData());
-                    FirebaseStorageManager.uploadProfileImage(data.getData());
+                    FirebaseStorageManager.uploadProfileImage(this, data.getData());
                     break;
 
                 case RESULT_CANCELED:
@@ -182,7 +200,7 @@ public class EditProfileData extends AppCompatActivity
                 this.startActivityForResult(new Intent(
                         Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI
-                ), EditProfileData.RC_GALLERY);
+                ), EditProfileDataActivity.RC_GALLERY);
                 break;
 
             case R.id.imageView3:
@@ -212,39 +230,99 @@ public class EditProfileData extends AppCompatActivity
                 this.emailAndPasswordProvider.setPassword(this, newPsw2);
                 break;
 
-            case R.id.modifyEmail:
-                // TODO: 10/10/17
+            case R.id.modifyEmailLayout:
+                this.switchViewVisibility(this.editEmailLayout);
+                break;
+
+            case R.id.backModifyEmail:
+                this.switchViewVisibility(this.editEmailLayout);
+                break;
+
+            case R.id.confirmModifyEmail:
+                String tmpEmail = this.editTextEmail.getText().toString();
+                if (TextUtils.isEmpty(tmpEmail)) {
+                    this.editTextEmail.setError(getString(R.string.strEmptyField));
+                    break;
+                }
+
+                this.emailAndPasswordProvider.setEmail(
+                        this,
+                        StringParser.trimString(tmpEmail)
+                );
                 break;
         }
+    }
+
+    private void syncUserData() {
+        SingletonUser.resetSession();
+        this.user = SingletonUser.getInstance(
+                this.singletonFirebaseProvider.getFirebaseUser().getDisplayName(),
+                this.singletonFirebaseProvider.getFirebaseUser().getEmail(),
+                this.singletonFirebaseProvider.getFirebaseUser().getPhotoUrl(),
+                this.singletonFirebaseProvider.getFirebaseUser().getUid(),
+                this.singletonFirebaseProvider.getFirebaseUser().isEmailVerified(),
+                null,
+                null
+        );
+        this.singletonFirebaseProvider.sendMessageToUI(TypeMessages.USER_SYNC_REQUEST);
     }
 
     @Override
     public void onProfileModified(int response) {
         switch (response) {
-            case EditProfileData.UP_USERNAME_SUCCESS:
+            case EditProfileDataActivity.UP_USERNAME_SUCCESS:
                 Toast.makeText(this, getString(R.string.username_updated), Toast.LENGTH_SHORT).show();
                 this.switchViewVisibility(this.editUsernameLayout);
+                this.syncUserData();
+                this.usernameTextView.setText(this.user.getUsername());
                 break;
 
-            case EditProfileData.UP_USERNAME_FAILURE:
+            case EditProfileDataActivity.UP_USERNAME_FAILURE:
                 Toast.makeText(this, getString(R.string.username_updated), Toast.LENGTH_LONG).show();
                 break;
 
-            case EditProfileData.UP_PICTURE_SUCCESS:
-                Toast.makeText(this, getString(R.string.profile_picture_updated), Toast.LENGTH_SHORT).show();
+            case EditProfileDataActivity.UP_PICTURE_SUCCESS_STORAGE:
+                this.emailAndPasswordProvider.setImageProfile(this, this.user.getPhotoUrl());
                 break;
 
-            case EditProfileData.UP_PICTURE_FAILURE:
+            case EditProfileDataActivity.UP_PICTURE_FAILURE_STORAGE:
                 Toast.makeText(this, getString(R.string.profile_picture_not_updated), Toast.LENGTH_LONG).show();
                 break;
 
-            case EditProfileData.UP_PASSWORD_SUCCESS:
+            case EditProfileDataActivity.UP_PICTURE_SUCCESS_AUTH:
+                this.syncUserData();
+                GlideImageLoader.loadImage(
+                        this,
+                        this.userPicture,
+                        this.user.getPhotoUrl(),
+                        R.mipmap.user_icon,
+                        R.mipmap.user_icon
+                );
+                Toast.makeText(this, getString(R.string.profile_picture_updated), Toast.LENGTH_SHORT).show();
+                break;
+
+            case EditProfileDataActivity.UP_PICTURE_FAILURE_AUTH:
+                Toast.makeText(this, getString(R.string.profile_picture_not_updated), Toast.LENGTH_LONG).show();
+                break;
+
+            case EditProfileDataActivity.UP_PASSWORD_SUCCESS:
                 Toast.makeText(this, getString(R.string.psw_updated), Toast.LENGTH_LONG).show();
                 this.switchViewVisibility(this.editPasswordLayout);
                 break;
 
-            case EditProfileData.UP_PASSWORD_FAILURE:
+            case EditProfileDataActivity.UP_PASSWORD_FAILURE:
                 Toast.makeText(this, getString(R.string.psw_not_updated), Toast.LENGTH_LONG).show();
+                break;
+
+            case EditProfileDataActivity.UP_EMAIL_SUCCESS:
+                this.syncUserData();
+                Toast.makeText(this, getString(R.string.email_updated), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.verification_email_success), Toast.LENGTH_SHORT).show();
+                this.editEmailTextView.setText(this.user.getEmail());
+                break;
+
+            case EditProfileDataActivity.UP_EMAIL_FAILURE:
+                Toast.makeText(this, getString(R.string.email_not_updated), Toast.LENGTH_LONG).show();
                 break;
         }
     }

@@ -34,8 +34,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.BaseProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
@@ -58,6 +56,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.threads.Reauthentica
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.SaveUserStatisticsRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
@@ -137,9 +136,23 @@ public class MainFragmentActivity extends AppCompatActivity
                 case USER_LOGOUT:
                     Log.d(TAG, "Log out");
 
+                    positionManager.removeLocationUpdates();
                     reauthenticationThread.interrupt();
                     SingletonUser.resetSession();
                     startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
+                    break;
+
+                case USER_SYNC_REQUEST:
+                    Log.d(TAG, "User resync request");
+
+                    userSync();
+                    break;
+
+                case INTERNAL_FIREBASE_ERROR_LOGIN:
+                    Log.d(TAG, "Internal firebase error login");
+                    Toast
+                            .makeText(MainFragmentActivity.this, getString(R.string.internal_firebase_error_login), Toast.LENGTH_LONG)
+                            .show();
                     break;
 
                 default:
@@ -187,7 +200,8 @@ public class MainFragmentActivity extends AppCompatActivity
         FirebaseUtility firebaseUtility = new FirebaseUtility();
         firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
         // Sync SingletonUser with DB data
-        if (this.singletonUser.getUid() != null && !this.singletonUser.getUid().isEmpty()) {
+        if (this.singletonUser.getUid() != null &&
+                !this.singletonUser.getUid().isEmpty()) {
             Log.d(TAG, "Sync user data");
             FirebaseDatabaseManager.syncCurrentUser();
         }
@@ -217,6 +231,27 @@ public class MainFragmentActivity extends AppCompatActivity
         }
     }
 
+    private void userSync() {
+        this.singletonUser = SingletonUser.getInstance();
+        if (this.singletonUser != null) {
+            if (this.singletonUser.getEmail() != null) {
+                this.emailTextView.setText(this.singletonUser.getEmail());
+            }
+            if (this.singletonUser.getUsername() != null) {
+                this.usernameTextView.setText(this.singletonUser.getUsername());
+            }
+            GlideImageLoader.loadImage(
+                    this,
+                    this.userPicture,
+                    this.singletonUser.getPhotoUrl(),
+                    R.mipmap.user_icon,
+                    R.mipmap.user_icon);
+        } else {
+            Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+            this.startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
+        }
+    }
+
     private void initWidgets() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         this.setSupportActionBar(toolbar);
@@ -236,32 +271,7 @@ public class MainFragmentActivity extends AppCompatActivity
         this.emailTextView = this.headerView.findViewById(R.id.email_text_view);
         this.userPicture = this.headerView.findViewById(R.id.user_picture);
         this.settingsImageButton = this.headerView.findViewById(R.id.imageViewSettings);
-        if (this.singletonUser != null) {
-            Log.d(TAG, "USER: " + this.singletonUser.getEmail() + " / " + this.singletonUser.getUsername());
-
-            if (this.singletonUser.getEmail() != null) {
-                this.emailTextView.setText(this.singletonUser.getEmail());
-            }
-            if (this.singletonUser.getUsername() != null) {
-                this.usernameTextView.setText(this.singletonUser.getUsername());
-            }
-            if (this.singletonUser.getPhotoUrl() != null) {
-                Glide.with(this)
-                        .load(
-                                this.singletonUser
-                                        .getPhotoUrl()
-                                        .toString()
-                        )
-                        .dontTransform()
-                        .thumbnail(0.5f)
-                        .crossFade()
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(this.userPicture);
-            }
-        } else {
-            Toast.makeText(MainFragmentActivity.this, getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
-            this.startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
-        }
+        this.userSync();
         this.settingsImageButton.setOnClickListener(this);
 
 
@@ -339,7 +349,7 @@ public class MainFragmentActivity extends AppCompatActivity
         int id = view.getId();
         switch (id) {
             case R.id.imageViewSettings:
-                this.startNewActivity(MainFragmentActivity.this, EditProfileData.class);
+                this.startNewActivity(MainFragmentActivity.this, EditProfileDataActivity.class);
                 break;
         }
     }

@@ -12,6 +12,8 @@ public interface TypeMessages {
 
     int NETWORK_ERROR = 24;
 
+    int USER_SYNC_REQUEST = 31;
+
     int USER_LOGIN = 22;
     int USER_LOGIN_EMAIL_PSW = 3;
     int USER_LOGIN_GOOGLE = 12;

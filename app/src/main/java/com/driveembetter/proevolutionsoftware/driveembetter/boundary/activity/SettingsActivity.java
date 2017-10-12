@@ -76,7 +76,7 @@ public class SettingsActivity
         int id = view.getId();
         switch (id) {
             case R.id.changeDataProfile:
-                this.startNewActivity(SettingsActivity.this, EditProfileData.class);
+                this.startNewActivity(SettingsActivity.this, EditProfileDataActivity.class);
                 break;
         }
     }

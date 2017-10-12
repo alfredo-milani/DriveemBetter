@@ -9,18 +9,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
@@ -35,13 +35,14 @@ import java.util.Locale;
 
 public class UserDetailsRankingActivity
         extends AppCompatActivity
-        implements Constants, FirebaseDatabaseManager.RetrieveDataDB {
+        implements Constants, FirebaseDatabaseManager.RetrieveDataDB,
+            View.OnClickListener {
 
     private final static String TAG = UserDetailsRankingActivity.class.getSimpleName();
 
     private final static String formatData = "dd-MM-yyyy HH:mm:ss";
     private final static int minValYAcceleration = 0;
-    private final static int maxValYAcceleration = 30;
+    private final static int maxValYAcceleration = 3;
 
     // Resources
     private User user;
@@ -57,6 +58,7 @@ public class UserDetailsRankingActivity
     private TextView unavailableData;
     private ProgressBar progressBar;
     private TextView feedback;
+    private ImageButton fullscreen;
 
 
 
@@ -92,6 +94,8 @@ public class UserDetailsRankingActivity
         this.unavailableData = findViewById(R.id.unavailable_data);
         this.progressBar = findViewById(R.id.progress_bar);
         this.feedback = findViewById(R.id.driverFeedbackContent);
+        this.fullscreen = findViewById(R.id.fullscreeImageButton);
+        this.fullscreen.setOnClickListener(this);
 
         if (this.user.getUsername() != null && !user.getUsername().isEmpty()) {
             this.username.setText(this.user.getUsername());
@@ -99,23 +103,12 @@ public class UserDetailsRankingActivity
             this.username.setText(this.user.getUsernameFromUid());
         }
         this.points.setText(String.valueOf(this.user.getPoints()));
-        if (this.user.getPhotoUrl() != null) {
-            Glide.with(this)
-                    .load(this.user.getPhotoUrl())
-                    .dontTransform()
-                    .thumbnail(0.5f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(this.imageView);
-        } else {
-            Glide.with(this)
-                    .load(R.mipmap.user_black_icon)
-                    .dontTransform()
-                    .thumbnail(0.5f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(this.imageView);
-        }
+        GlideImageLoader.loadImage(
+                this,
+                this.imageView,
+                this.user.getPhotoUrl(),
+                R.mipmap.user_icon,
+                R.mipmap.user_icon);
         if (this.user.getAvailability().equals(AVAILABLE)) {
             this.availability.setImageResource(R.drawable.available_shape);
         } else {
@@ -135,6 +128,16 @@ public class UserDetailsRankingActivity
         this.accelerationSeries = new LineGraphSeries<>();
         this.velocitySeries.setTitle(getString(R.string.velocity) + " (km/h)");
         this.accelerationSeries.setTitle(getString(R.string.acceleration) + " (m/s^2)");
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+        switch (id) {
+            case R.id.fullscreeImageButton:
+
+                break;
+        }
     }
 
     @Override

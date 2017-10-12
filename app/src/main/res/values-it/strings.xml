@@ -133,4 +133,8 @@
     <string name="psw_updated">Password aggiornata</string>
     <string name="psw_not_updated">Password non aggiornata</string>
     <string name="bad_psw_change_must_logout">Puoi cambiare password solo dell\'account associato a questa app!</string>
+    <string name="new_email">Nuovo indirizzo email</string>
+    <string name="email_not_updated">Errore durante l\'aggiornamento dell\'indirizzo email</string>
+    <string name="email_updated">Indirizzo email aggiornato</string>
+    <string name="internal_firebase_error_login">Spiacenti! Errore interno di Firebase durante la fase di autenticazione!</string>
 </resources>

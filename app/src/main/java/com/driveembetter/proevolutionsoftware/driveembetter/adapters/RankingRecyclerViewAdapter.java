@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,20 +9,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 
 import java.util.List;
 
 /**
  * Created by alfredo on 31/08/17.
  */
-public class RankingRecyclerViewAdapter
-        extends RecyclerView
-        .Adapter<RankingRecyclerViewAdapter.UserViewHolder> {
+public class RankingRecyclerViewAdapter extends RecyclerView.Adapter<RankingRecyclerViewAdapter.UserViewHolder> {
 
     private final static String TAG = RankingRecyclerViewAdapter.class.getSimpleName();
 
@@ -90,28 +88,12 @@ public class RankingRecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(UserViewHolder holder, int position) {
-        if (this.users.get(position).getPhotoUrl() != null) {
-            Glide.with(this.context)
-                    .load(
-                            this.users
-                                    .get(position)
-                                    .getPhotoUrl()
-                                    .toString()
-                    )
-                    .dontTransform()
-                    .thumbnail(0.5f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.userPhoto);
-        } else {
-            Glide.with(this.context)
-                    .load(R.mipmap.user_black_icon)
-                    .dontTransform()
-                    .thumbnail(0.5f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.userPhoto);
-        }
+        GlideImageLoader.loadImage(
+                (Activity) this.context,
+                holder.userPhoto,
+                this.users.get(position).getPhotoUrl(),
+                R.mipmap.user_icon,
+                R.mipmap.user_icon);
 
         String username = users.get(position).getUsername();
         if (username != null && !username.isEmpty()) {

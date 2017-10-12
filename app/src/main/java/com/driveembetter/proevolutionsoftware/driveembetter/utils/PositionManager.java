@@ -181,8 +181,8 @@ public class PositionManager
         @Override
         public void onLocationChanged(Location location) {
             SingletonUser user = SingletonUser.getInstance();
-            if (user.getMtxUpdatePosition().isLocked() ||
-                    user.getUid().isEmpty()) {
+            if (user != null && (user.getMtxUpdatePosition().isLocked() ||
+                    user.getUid().isEmpty())) {
                 // Al posto di prendere lock appensantendo il workflow skip se è in corso il processo di aggiornameto dei dati della posizione
                 Log.d(TAG, "Aggiornamento ultima posizione nota da Firebase. Skipping onLocationChanged");;
                 return;
@@ -206,27 +206,31 @@ public class PositionManager
             // Update SingletonUser state
             user.setLatitude(latitude);
             user.setLongitude(longitude);
-            user.setCountry(strings[0]);
-            user.setRegion(strings[1]);
-            user.setSubRegion(strings[2]);
-            Log.d(TAG, "PositionNEW: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
 
-            if (!oldSubRegion.equals(user.getSubRegion()) ||
-                    !oldRegion.equals(user.getRegion()) ||
-                    !oldCountry.equals(user.getCountry())) {
-                Log.d(TAG, "Removig old position");
-                // Remove user from position node only if his position has changed
-                FirebaseDatabaseManager.removeOldPosition(new String[] {oldCountry, oldRegion, oldSubRegion});
-                // Create user in new position
-                FirebaseDatabaseManager.createNewUserPosition();
-            }
+            // Update zona only if all three areas are not null
+            if (strings[0] != null && strings[1] != null && strings[2] != null) {
+                user.setCountry(strings[0]);
+                user.setRegion(strings[1]);
+                user.setSubRegion(strings[2]);
+                Log.d(TAG, "PositionNEW: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
 
-            if (user.getSubRegion().equals(SUB_REGION) ||
-                    user.getRegion().equals(REGION) ||
-                    user.getCountry().equals(COUNTRY)) {
-                user.setAvailability(UNAVAILABLE);
-            } else {
-                user.setAvailability(AVAILABLE);
+                if (!oldSubRegion.equals(user.getSubRegion()) ||
+                        !oldRegion.equals(user.getRegion()) ||
+                        !oldCountry.equals(user.getCountry())) {
+                    Log.d(TAG, "Removing old position");
+                    // Remove user from position node only if his position has changed
+                    FirebaseDatabaseManager.removeOldPosition(new String[] {oldCountry, oldRegion, oldSubRegion});
+                    // Create user in new position
+                    FirebaseDatabaseManager.createNewUserPosition();
+                }
+
+                if (user.getSubRegion().equals(SUB_REGION) ||
+                        user.getRegion().equals(REGION) ||
+                        user.getCountry().equals(COUNTRY)) {
+                    user.setAvailability(UNAVAILABLE);
+                } else {
+                    user.setAvailability(AVAILABLE);
+                }
             }
 
             // Update position node

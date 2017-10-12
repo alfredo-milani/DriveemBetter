@@ -16,6 +16,15 @@
         android:src="@mipmap/user_black_icon"
         app:civ_border_color="#FFFFFF" />
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/user_vehicle"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@mipmap/ic_car"
+        app:civ_border_color="#000000"
+        android:layout_above="@+id/layout_info"
+        android:layout_alignEnd="@+id/progress_bar" />
+
     <LinearLayout
         android:id="@+id/layout_info"
         android:layout_width="match_parent"
@@ -157,19 +166,37 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="2dp">
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:id="@+id/fullscreeImageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/textView19"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="25dp"
+                android:background="@null"
+                app:srcCompat="@drawable/ic_fullscreen" />
+
+            <TextView
+                android:id="@+id/textView19"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:layout_marginEnd="133dp"
+                android:layout_alignParentBottom="true"
+                android:layout_toStartOf="@+id/fullscreeImageButton"
+                android:layout_marginBottom="11dp" />
 
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/graph_points"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="200dp"
                 app:seriesType="line" />
 
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
-
 
 
     <TextView
@@ -192,15 +219,5 @@
         android:layout_below="@+id/layout_info"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp" />
-
-    <ImageView
-        android:id="@+id/imageView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        app:srcCompat="@mipmap/ic_car"
-        android:layout_alignTop="@+id/user_picture"
-        android:layout_alignStart="@+id/progress_bar"
-        android:layout_marginTop="44dp" />
 
 </RelativeLayout>

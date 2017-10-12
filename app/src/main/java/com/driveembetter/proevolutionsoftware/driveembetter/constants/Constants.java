@@ -71,6 +71,7 @@ public interface Constants {
     String CHILD_CURRENT_VEHICLE = "current_vehicle";
     String CHILD_FEEDBACK = "feedback";
     String CHILD_HISTORICAL_FEEDBACK = "historicalFeedback";
+    String CHILD_ZONA = "zona";
 
     // Statistics
     String CHILD_STATISTICS = "statistics";

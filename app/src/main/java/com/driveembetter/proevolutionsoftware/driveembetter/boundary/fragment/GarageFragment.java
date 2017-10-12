@@ -535,6 +535,10 @@ public class GarageFragment extends Fragment
     private void getCurrentVhicle() {
 
         this.database = FirebaseDatabase.getInstance();
+        if (SingletonFirebaseProvider.getInstance().getFirebaseUser() == null) {
+            return;
+        }
+
         this.ref = database.getReference("users/" + SingletonFirebaseProvider
                 .getInstance()
                 .getFirebaseUser()
