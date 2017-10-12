@@ -114,10 +114,12 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
 
     private void setWeatherIcon(String weather) {
         weatherIcon.setImageResource(0);
+        weatherIcon.setTag(0);
         Integer code = Integer.parseInt(weather);
         switch (code) {
             case 0:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_tornado);
+                weatherIcon.setTag(R.mipmap.ic_weather_tornado);
                 break;
             case 1:
             case 2:
@@ -129,12 +131,14 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
             case 45:
             case 47:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_thunderstorms);
+                weatherIcon.setTag(R.mipmap.ic_weather_thunderstorms);
                 break;
             case 5:
             case 6:
             case 7:
             case 18:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_sleet);
+                weatherIcon.setTag(R.mipmap.ic_weather_sleet);
                 break;
             case 8:
             case 9:
@@ -143,6 +147,7 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
             case 12:
             case 17:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_rain);
+                weatherIcon.setTag(R.mipmap.ic_weather_rain);
                 break;
             case 13:
             case 14:
@@ -152,37 +157,46 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
             case 43:
             case 46:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_snow);
+                weatherIcon.setTag(R.mipmap.ic_weather_snow);
                 break;
             case 19:
             case 20:
             case 21:
             case 22:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_fog);
+                weatherIcon.setTag(R.mipmap.ic_weather_fog);
                 break;
             case 27:
             case 29:
             case 44:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_cloudy_night);
+                weatherIcon.setTag(R.mipmap.ic_weather_cloudy_night);
                 break;
             case 26:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_cloudy);
+                weatherIcon.setTag(R.mipmap.ic_weather_cloudy);
                 break;
             case 28:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_scattered_clouds);
+                weatherIcon.setTag(R.mipmap.ic_weather_scattered_clouds);
                 break;
             case 30:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_partly_sunny);
+                weatherIcon.setTag(R.mipmap.ic_weather_partly_sunny);
                 break;
             case 31:
             case 33:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_clear_night);
+                weatherIcon.setTag(R.mipmap.ic_weather_clear_night);
                 break;
             case 32:
             case 34:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_clear);
+                weatherIcon.setTag(R.mipmap.ic_weather_clear);
                 break;
             default:
                 weatherIcon.setImageResource(R.mipmap.ic_weather_unknown);
+                weatherIcon.setTag(R.mipmap.ic_weather_unknown);
 
         }
     }

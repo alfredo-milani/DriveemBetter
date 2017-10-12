@@ -940,7 +940,7 @@ public class FirebaseDatabaseManager
             image = Uri.parse(user.child(CHILD_IMAGE).getValue().toString());
         }
         if (user.hasChild(CHILD_POINTS)) {
-            points = (long) user.child(CHILD_POINTS).getValue();
+            points = Long.valueOf(user.child(CHILD_POINTS).getValue().toString());
         }
         if (user.hasChild(CHILD_AVAILABILITY) &&
                 user.child(CHILD_AVAILABILITY).getValue().toString().equals(AVAILABLE)) {

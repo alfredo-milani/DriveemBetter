@@ -17,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -201,6 +202,7 @@ public class MainFragmentActivity extends AppCompatActivity
         this.aboutUs = new AboutUsFragment();
         this.garage = new GarageFragment();
         this.home = new HomeFragment();
+
         // this.statistics = new StatisticsFragment();
 
         // Start service to manage task manager behaviour
@@ -431,6 +433,7 @@ public class MainFragmentActivity extends AppCompatActivity
                             R.id.fragment_placeholder,
                             this.home
                     );
+
                     FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, true);
                 }
                 break;

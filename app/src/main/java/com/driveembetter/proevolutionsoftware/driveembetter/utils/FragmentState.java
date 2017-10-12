@@ -74,6 +74,7 @@ public class FragmentState extends Application {
 
             case ABOUT_US:
                 return FragmentState.fragmentState[ABOUT_US];
+
             case HOME_FRAGMENT:
                 return FragmentState.fragmentState[HOME_FRAGMENT];
 
@@ -142,7 +143,7 @@ public class FragmentState extends Application {
         fragmentTransaction
                 .replace(placeholder, fragment, fragment.getClass().getSimpleName())
                 // to override backButton behavior
-                // .addToBackStack(null)
+                //.addToBackStack(null)
                 .commit();
     }
 

@@ -32,8 +32,9 @@ public class Speedometer extends View implements SpeedChangeListener {
 	final RectF oval = new RectF();
 	
 	// Drawing colors
-	//private int ON_COLOR = Color.argb(0,0,0,0);
-	private int ON_COLOR = Color.argb(255, 0xff, 0xA5, 0x00);
+	private int ON_COLOR = Color.argb(255,250,72,7);
+	//private int ON_COLOR = Color.argb(255, 0xff, 0xA5, 0x00);
+	//250,72,7+
 	private int OFF_COLOR = Color.argb(255,0x3e,0x3e,0x3e);
 	//private int SCALE_COLOR = Color.argb(255, 255, 255, 255);
 	private int SCALE_COLOR = Color.argb(150, 0, 0, 0);
