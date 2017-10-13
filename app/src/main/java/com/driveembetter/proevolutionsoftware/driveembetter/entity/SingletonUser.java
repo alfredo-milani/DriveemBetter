@@ -32,7 +32,7 @@ public class SingletonUser extends User
     // SingletonUser data to store in Firebase DB
     private double latitude;
     private double longitude;
-    private String country, region, subRegion;
+    private String country, region, subRegion, city;
     private ArrayList<Vehicle> vehicleArrayList;
     private List<Double> historicalFeedback;
 
@@ -58,6 +58,7 @@ public class SingletonUser extends User
         this.setCountry(COUNTRY);
         this.setRegion(REGION);
         this.setSubRegion(SUB_REGION);
+        this.setCity(CITY);
         this.meanDay = new MeanDay();
         this.meanWeek = new MeanWeek();
         // Lock rientrante perché i thread sono diversi
@@ -197,6 +198,10 @@ public class SingletonUser extends User
     public String getRegion() {
         return region;
     }
+
+    public String getCity() { return city; }
+
+    public void setCity(String city) { this.city = city; }
 
     public void setRegion(String region) {
         this.region = region;

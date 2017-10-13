@@ -31,6 +31,9 @@ public interface Constants {
     String COUNTRY = "country";
     String REGION = "region";
     String SUB_REGION = "subRegion";
+    String OLD_CITY = "oldCity";
+    String CITY = "city";
+    String ADDRESS = "address";
 
 
 
