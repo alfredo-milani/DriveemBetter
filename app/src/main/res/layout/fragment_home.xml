@@ -138,6 +138,7 @@
             android:layout_alignEnd="@+id/speed_limit"
             android:layout_alignStart="@+id/speed_limit"
             android:layout_alignTop="@+id/speed_limit"
+            android:text="@string/NA"
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#000000" />
@@ -170,6 +171,14 @@
             android:layout_alignBottom="@+id/visibility_icon"
             android:layout_alignStart="@+id/wind_direction_text"
             android:layout_alignTop="@+id/visibility_icon" />
+
+        <ProgressBar
+            android:id="@+id/yahoo_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/position_text"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true" />
 
     </RelativeLayout>
 </FrameLayout>

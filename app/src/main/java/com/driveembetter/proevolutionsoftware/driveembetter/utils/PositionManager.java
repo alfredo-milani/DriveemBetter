@@ -4,6 +4,8 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -20,6 +22,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
@@ -71,7 +74,8 @@ public class PositionManager
     Speedometer speedometer;
     ImageView speedLimitSign, weatherIcon;
     TextView speedLimitText, windText, windDirectionText, positionText, temperatureText, humidityText, visibilityText;
-    private String city;
+    ProgressBar yahooProgressBar;
+    private String oldCity = "NONE";
     private String oldAddress = "NONE";
 
 
@@ -96,6 +100,7 @@ public class PositionManager
         temperatureText = (TextView) view.findViewById(R.id.temperature);
         humidityText = (TextView) view.findViewById(R.id.humidity_text);
         visibilityText = (TextView) view.findViewById(R.id.visibility_text);
+        yahooProgressBar = (ProgressBar) view.findViewById(R.id.yahoo_progress_bar);
     }
 
 
@@ -222,7 +227,6 @@ public class PositionManager
                 e.printStackTrace();
             }
 
-            String oldCity = user.getCity();
             String oldCountry = user.getCountry();
             String oldRegion = user.getRegion();
             String oldSubRegion = user.getSubRegion();
@@ -239,7 +243,6 @@ public class PositionManager
             user.setCountry(strings[0]);
             user.setRegion(strings[1]);
             user.setSubRegion(strings[2]);
-            user.setCity(strings[3]);
             Log.d(TAG, "PositionNEW: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
 
             if (!oldAddress.equals(strings[4]) && positionText != null) {
@@ -247,13 +250,20 @@ public class PositionManager
                 oldAddress = strings[4];
             }
 
-            if (!oldCity.equals(user.getCity())) {
+            if (!oldCity.equals(strings[3])) {
                 //if driver change city
                     //positionText.setText(user.getCity() + ", " + user.getSubRegion() + ", " +
                     //user.getRegion() + ", " + user.getCountry());
 
-                new YahooWeatherParser(weatherIcon, windText, windDirectionText, temperatureText, humidityText, visibilityText).execute(user.getCity(), user.getCountry());
+                oldCity = strings[3];
+
+                yahooProgressBar.setVisibility(View.VISIBLE);
+                yahooProgressBar.getIndeterminateDrawable().setColorFilter(Color.BLUE,android.graphics.PorterDuff.Mode.MULTIPLY);
+
+                new YahooWeatherParser(weatherIcon, windText, windDirectionText, temperatureText, humidityText, visibilityText,
+                         yahooProgressBar).execute(strings[3], user.getCountry());
             }
+
 
             if (!oldSubRegion.equals(user.getSubRegion()) ||
                     !oldRegion.equals(user.getRegion()) ||
@@ -346,7 +356,7 @@ public class PositionManager
             strings[4] = addresses.get(0).getAddressLine(0);
 
             Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2] + " City: " + strings[3]);
-            if (strings[0] == null || strings[1] == null || strings[2] == null || strings[3] == null) {
+            if (strings[0] == null || strings[1] == null || strings[2] == null) {
                 Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
                     @Override
                     public void onDataComputed(String[] position) {
@@ -354,12 +364,10 @@ public class PositionManager
                             strings[0] = position[0];
                             strings[1] = position[1];
                             strings[2] = position[2];
-                            strings[3] = position[3];
                         } else {
                             strings[0] = user.getCountry();
                             strings[1] = user.getRegion();
                             strings[2] = user.getSubRegion();
-                            strings[3] = user.getCity();
                         }
                     }
                 }, latitude, longitude));
@@ -449,8 +457,9 @@ public class PositionManager
                     .url("https://roads.googleapis.com/v1/speedLimits?path=" + latitude + "," + longitude + "&key=" + "AIzaSyC2TCyPFqoATPFy7pa7iKdefrpjPWqXJTc")
                     .build();
                */
+            String maxSpeed = "N/A";
+
             try {
-                String maxSpeed = "N/A";
                 response = client.newCall(request).execute();
                 String jsonData = response.body().string();
 
@@ -469,17 +478,27 @@ public class PositionManager
                             maxSpeed = tags.getString("maxspeed");
                             String currentSpeed = strings[0];
                             Double speed = Double.parseDouble(currentSpeed);
-                            Double mSpeed = Double.parseDouble(maxSpeed);
-                            Log.e("DEBUG", "MAX SPEED: " + maxSpeed + " CURRENT SPEED: " + speed);
-                            publishProgress(maxSpeed);
-                            //TODO
-                            if (speed > mSpeed) {
-                                //Alert driver
-                                alertSpeed(mSpeed);
-                                if (speedLimitText != null) {
-                                    publishProgress("design");
+                            try
+                            {
+                                Double mSpeed = Double.parseDouble(maxSpeed);
+                                Log.e("DEBUG", "MAX SPEED: " + maxSpeed + " CURRENT SPEED: " + speed);
+                                //TODO
+                                if (speed > mSpeed) {
+                                    //Alert driver
+                                    alertSpeed(mSpeed);
+                                    if (speedLimitText != null) {
+                                        publishProgress("design");
+                                    }
+                                } else {
+                                    publishProgress("designStatic");
                                 }
                             }
+                            catch(NumberFormatException e)
+                            {
+                                e.printStackTrace();
+                                maxSpeed = "N/A";
+                            }
+
                         }
                     }
 
@@ -490,6 +509,9 @@ public class PositionManager
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            if (maxSpeed.equals("N/A"))
+                publishProgress("designStatic");
+            publishProgress(maxSpeed);
 
             return null;
         }
@@ -497,15 +519,19 @@ public class PositionManager
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-            if (!values[0].equals("design"))
+            if (!values[0].equals("design") && !values[0].equals("designStatic")) {
                 speedLimitText.setText(values[0]);
-            else {
+            } else if (values[0].equals("design")){
                 AlphaAnimation blinkanimation= new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
                 blinkanimation.setDuration(1000); // duration - half a second
                 blinkanimation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
                 blinkanimation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
                 blinkanimation.setRepeatMode(Animation.REVERSE);
                 speedLimitSign.startAnimation(blinkanimation);
+            } else if (values[0].equals("designStatic")){
+                Log.e("DEBUG", "QUIVI?");
+                if (speedLimitSign.getAnimation() != null)
+                    speedLimitSign.clearAnimation();
             }
         }
     }
@@ -515,13 +541,15 @@ public class PositionManager
             @Override
             public void onInit(int i) {
                 if(i != TextToSpeech.ERROR) {
-                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) || Locale.getDefault().getDisplayLanguage().equals(Locale.US)) {
+                    double speed = maxSpeed;
+                    int spd = (int) speed;
+                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH)) {
                         tts.setLanguage(Locale.UK);
-                        tts.speak("You're going too fast, the speed limit is " + maxSpeed + " kilometers per hour", TextToSpeech.QUEUE_ADD, null);
+                        tts.speak("You're going too fast, the speed limit is " + spd + " kilometers per hour", TextToSpeech.QUEUE_ADD, null);
                     }
                     else {
                         tts.setLanguage(Locale.ITALY);
-                        tts.speak("Stai correndo troppo, il limite di velocità è di " + maxSpeed + " chilometri orari", TextToSpeech.QUEUE_ADD, null);
+                        tts.speak("Stai correndo troppo, il limite di velocità è di " + spd + " chilometri orari", TextToSpeech.QUEUE_ADD, null);
                     }
                 }
             }
@@ -534,14 +562,14 @@ public class PositionManager
             @Override
             public void onInit(int i) {
                 if(i != TextToSpeech.ERROR) {
-                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) || Locale.getDefault().getDisplayLanguage().equals(Locale.US)) {
+                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH)) {
                         tts.setLanguage(Locale.UK);
                         if (type == 1)
                             tts.speak(ENGLISH_ACCELERATION_ALERT, TextToSpeech.QUEUE_ADD, null);
                         else
                             tts.speak(ENGLISH_BRAKING_ALERT, TextToSpeech.QUEUE_ADD, null);
                     } else {
-                        tts.setLanguage(Locale.ITALY);
+                        tts.setLanguage(Locale.ITALIAN);
                         if (type == 1)
                             tts.speak(ITALIAN_ACCELERATION_ALERT, TextToSpeech.QUEUE_ADD, null);
                         else

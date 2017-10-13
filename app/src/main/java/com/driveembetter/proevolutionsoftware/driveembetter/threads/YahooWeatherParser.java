@@ -3,7 +3,9 @@ package com.driveembetter.proevolutionsoftware.driveembetter.threads;
 import android.os.AsyncTask;
 import android.renderscript.Allocation;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
@@ -28,15 +30,17 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
 
     private ImageView weatherIcon;
     private TextView windText, windDirectionText, temperatureText, humidityText, visibilityText;
+    private ProgressBar yahooProgressBar;
 
     public YahooWeatherParser(ImageView weatherIcon, TextView windText, TextView windDirectionText,
-                              TextView temperatureText, TextView humidityText, TextView visibilityText) {
+                              TextView temperatureText, TextView humidityText, TextView visibilityText, ProgressBar yahooProgressBar) {
         this.weatherIcon = weatherIcon;
         this.windText = windText;
         this.windDirectionText = windDirectionText;
         this.temperatureText = temperatureText;
         this.humidityText = humidityText;
         this.visibilityText = visibilityText;
+        this.yahooProgressBar = yahooProgressBar;
     }
 
     @Override
@@ -46,11 +50,19 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
                 .url("https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22" + strings[0] + "%2C%20" + strings[1] + "%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys")
                 .build();
 
+        Log.e("A", strings[0]);
+        Log.e("B", strings[1]);
+
         Response response = null;
         String[] weatherData = new String[6];
+        for (int i = 0; i < 6; i++)
+            weatherData[i] = "N/A";
         try {
             response = client.newCall(request).execute();
             String jsonData = response.body().string();
+
+            Log.e("YAHOO_JSON", jsonData);
+
             JSONObject jsonResult = new JSONObject(jsonData);
             JSONObject channel = jsonResult.getJSONObject("query")
                     .getJSONObject("results")
@@ -93,22 +105,43 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
             e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
-            return null;
+            return weatherData;
         }
         return weatherData;
     }
 
     @Override
     protected void onPostExecute(String[] s) {
+        yahooProgressBar.setVisibility(View.GONE);
         super.onPostExecute(s);
         if (s != null) {
-            setWeatherIcon(s[5]);
-            windText.setText((int) Double.parseDouble(s[0]) + " km/h");
+            for (int i = 0; i < s.length; i++) {
+                System.out.println("############" + s[i]);
+            }
+
+                if (s[5].equals("N/A"))
+                setWeatherIcon("99");
+            else
+                setWeatherIcon(s[5]);
+            if (s[5].equals("N/A"))
+                windText.setText("N/A");
+            else
+                windText.setText((int) Double.parseDouble(s[0]) + " km/h");
             windDirectionText.setText(s[1]);
-            Double temperature = NumberManager.round(Double.parseDouble(s[4]), 1);
-            temperatureText.setText(temperature.toString() + " °C");
-            humidityText.setText(s[2] + " %");
-            visibilityText.setText(s[3] + " km");
+            if (s[4].equals("N/A"))
+                temperatureText.setText("N/A");
+            else {
+                Double temperature = NumberManager.round(Double.parseDouble(s[4]), 1);
+                temperatureText.setText(temperature.toString() + " °C");
+            }
+            if (s[2].equals("N/A"))
+                humidityText.setText("N/A");
+            else
+                humidityText.setText(s[2] + " %");
+            if (s[3].equals("N/A"))
+                visibilityText.setText("N/A");
+            else
+                visibilityText.setText(s[3] + " km");
         }
     }
 
