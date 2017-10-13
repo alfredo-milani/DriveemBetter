@@ -496,7 +496,6 @@ public class MainFragmentActivity extends AppCompatActivity
 
             case R.id.nav_send:
                 // DEBUG
-                FirebaseDatabaseManager.manageUserStatistics();
                 ////
                 break;
 

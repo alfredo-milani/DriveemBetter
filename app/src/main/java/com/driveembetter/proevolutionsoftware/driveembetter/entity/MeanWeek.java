@@ -12,10 +12,12 @@ import java.util.Map;
 public class MeanWeek {
 
     private Map<Integer, Mean> meanOfWeek;
+    private boolean clearWeek;
     private Date localDate;
 
     public MeanWeek() {
         this.meanOfWeek = new HashMap<Integer,Mean>();
+        this.clearWeek = false;
         this.localDate = Calendar.getInstance().getTime();
     }
 
@@ -35,5 +37,13 @@ public class MeanWeek {
 
     public void setLocalDate(Date localDate) {
         this.localDate = localDate;
+    }
+
+    public boolean isClearWeek() {
+        return this.clearWeek;
+    }
+
+    public void setClearWeek(boolean clearWeek) {
+        this.clearWeek = clearWeek;
     }
 }

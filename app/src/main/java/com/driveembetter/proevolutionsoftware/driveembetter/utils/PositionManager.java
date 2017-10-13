@@ -18,6 +18,7 @@ import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSONPosition;
 
@@ -56,7 +57,8 @@ public class PositionManager
     private Response response;
     private String lastPosition;
     private static boolean statisticsToPush;
-    TextToSpeech tts;
+    private TextToSpeech tts;
+
 
 
     // Singleton
@@ -78,61 +80,97 @@ public class PositionManager
         return positionManager;
     }
 
+
+
     private void updateStatistics(double speed, double acceleration) {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user == null) {
+            Log.e(TAG, "user NULL: no updated statistics");
+            return;
+        }
 
         PositionManager.setStatisticsToPush(true);
 
-        // TODO weekly updates
-
-        //TRY
         Calendar calendar = Calendar.getInstance();
         Date date = calendar.getTime();
         int hour = date.getHours();
-        for (int i = 0; i < 24; i ++) {
-            SingletonUser user = SingletonUser.getInstance();
-            if (user == null) {
-                Log.e(TAG, "user NULL: no updated statistics");
-                return;
-            }
-            if (date.equals(user.getMeanDay().getLocalDate())) { //stesso giorno
-                if (user.getMeanDay().getMap().get(hour) != null) {
-                    Mean meanDay = user.getMeanDay().getMap().get(hour);
-                    meanDay.setSampleSumVelocity((float) speed);
-                    meanDay.setSampleSizeVelocity();
-                    meanDay.setSampleSumAcceleration((float) acceleration);
-                    meanDay.setSampleSizeAcceleration();
-                    user.getMeanDay().getMap().put(hour, meanDay);
-                } else {
-                    Mean meanDay = new Mean();
-                    meanDay.setSampleSumVelocity((float) speed);
-                    meanDay.setSampleSizeVelocity();
-                    meanDay.setSampleSumAcceleration((float) acceleration);
-                    meanDay.setSampleSizeAcceleration();
-                    user.getMeanDay().getMap().put(hour, meanDay);
-                }
-            } else {
-                user.getMeanDay().setLocalDate(date);
-                user.getMeanDay().getMap().clear();
-                Mean meanDay = new Mean();
-                meanDay.setSampleSumVelocity((float) speed); // modificare con il valore della velocità
+
+        // Daily update
+        if (date.equals(user.getMeanDay().getLocalDate())) { //stesso giorno
+            if (user.getMeanDay().getMap().get(hour) != null) {
+                Mean meanDay = user.getMeanDay().getMap().get(hour);
+                meanDay.setSampleSumVelocity((float) speed);
                 meanDay.setSampleSizeVelocity();
-                meanDay.setSampleSumVelocity((float) acceleration);
+                meanDay.setSampleSumAcceleration((float) acceleration);
+                meanDay.setSampleSizeAcceleration();
+                user.getMeanDay().getMap().put(hour, meanDay);
+            } else {
+                Mean meanDay = new Mean();
+                meanDay.setSampleSumVelocity((float) speed);
+                meanDay.setSampleSizeVelocity();
+                meanDay.setSampleSumAcceleration((float) acceleration);
                 meanDay.setSampleSizeAcceleration();
                 user.getMeanDay().getMap().put(hour, meanDay);
             }
-            // Log.e("c", "Programma per " + i + " eseguito in ora " + hour + " giorno");
+        } else {
+            user.getMeanDay().setLocalDate(date);
+            user.getMeanDay().clear();
+            user.getMeanDay().setClearDay(true);
+            Mean meanDay = new Mean();
+            meanDay.setSampleSumVelocity((float) speed); // modificare con il valore della velocità
+            meanDay.setSampleSizeVelocity();
+            meanDay.setSampleSumVelocity((float) acceleration);
+            meanDay.setSampleSizeAcceleration();
+            user.getMeanDay().getMap().put(hour, meanDay);
         }
-        //END TRY
+
+        //Weekly update
+        calendar.setTime(date);
+        int currentDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        int currentWeekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
+
+        MeanWeek meanWeek2 = user.getMeanWeek();
+        calendar.setTime(meanWeek2.getLocalDate());
+        int weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
+
+        if (weekOfMonth == currentWeekOfMonth) {
+
+            if (meanWeek2.getMap().get(currentDayOfWeek) != null) {
+
+                Mean meanDay = meanWeek2.getMap().get(currentDayOfWeek);
+                meanDay.setSampleSumVelocity((float) speed);  // velocity
+                meanDay.setSampleSizeVelocity();
+                meanDay.setSampleSumAcceleration((float) acceleration); // acceleration
+                meanDay.setSampleSizeAcceleration();
+
+            } else {
+
+                Mean meanDay = new Mean();
+                meanDay.setSampleSumVelocity((float) speed); // velocity
+                meanDay.setSampleSizeVelocity();
+                meanDay.setSampleSumAcceleration((float) acceleration); // acceleration
+                meanDay.setSampleSizeAcceleration();
+                meanWeek2.getMap().put(currentDayOfWeek, meanDay);
+            }
+        } else {
+
+            meanWeek2.setLocalDate(date);
+            meanWeek2.clear();
+            meanWeek2.setClearWeek(true);
+            Mean meanDay = new Mean();
+            meanDay.setSampleSumVelocity((float) speed); // velocity
+            meanDay.setSampleSizeVelocity();
+            meanDay.setSampleSumVelocity((float) acceleration); // acceleration
+            meanDay.setSampleSizeAcceleration();
+            meanWeek2.getMap().put(currentDayOfWeek, meanDay);
+        }
     }
 
-
     private void checkSpeedAndAcceleration(Location location) throws IOException {
-
         String currentPosition = "";
         List<Address> addresses;
-        // TODO Utilizzare lo stato corrente di SingletonUser al posto di utilizzare il geocoder
         addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
-        if(addresses != null && addresses.size() > 0 ){
+        if(addresses != null && addresses.size() > 0 ) {
             Address address = addresses.get(0);
             // Thoroughfare seems to be the street name without numbers
             currentPosition = address.getThoroughfare();

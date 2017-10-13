@@ -87,11 +87,12 @@
     <string name="new_password_2">Repeat new password</string>
     <string name="bad_old_psw">Old password is wrong</string>
     <string name="bad_new_psw">The new password not correspond</string>
-    <string name="psw_updated">Password aggiornata</string>
+    <string name="psw_updated">Password updated</string>
     <string name="psw_not_updated">Password not updated</string>
-    <string name="bad_psw_change_must_logout">You could only change passwor associated with this app!</string>
+    <string name="bad_psw_change_must_logout">You could only change password associated with this app!</string>
     <string name="new_email">New email address</string>
     <string name="email_not_updated">Error while updating email address</string>
     <string name="email_updated">Email address updated</string>
     <string name="internal_firebase_error_login">Sorry! Internal Firebase error login ocurred!</string>
+    <string name="repeat_password">Repeat password</string>
 </resources>

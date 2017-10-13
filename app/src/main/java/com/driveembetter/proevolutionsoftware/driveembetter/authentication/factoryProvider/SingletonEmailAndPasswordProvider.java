@@ -56,14 +56,6 @@ public class SingletonEmailAndPasswordProvider
 
     @Override
     public void signIn(String email, String password) {
-        if (TextUtils.isEmpty(email)) {
-            this.singletonFirebaseProvider.sendMessageToUI(EMAIL_REQUIRED);
-            return;
-        } else if (TextUtils.isEmpty(password)) {
-            this.singletonFirebaseProvider.sendMessageToUI(PASSWORD_REQUIRED);
-            return;
-        }
-
         SingletonFirebaseProvider
                 .getAuth()
                 .signInWithEmailAndPassword(email, password)
@@ -119,14 +111,6 @@ public class SingletonEmailAndPasswordProvider
     }
 
     public void signUp(String email, String password, final String username) {
-        if (TextUtils.isEmpty(email)) {
-            this.singletonFirebaseProvider.sendMessageToUI(EMAIL_REQUIRED);
-            return;
-        } else if (TextUtils.isEmpty(password)) {
-            this.singletonFirebaseProvider.sendMessageToUI(PASSWORD_REQUIRED);
-            return;
-        }
-
         SingletonFirebaseProvider
                 .getAuth()
                 .createUserWithEmailAndPassword(email, password)

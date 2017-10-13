@@ -47,6 +47,20 @@
         android:textColor="@color/colorAccent"
         android:textColorHint="#ffffff" />
 
+    <EditText
+        android:id="@+id/password_field2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/password_field"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="15dp"
+        android:ems="10"
+        android:hint="@string/repeat_password"
+        android:inputType="textPassword"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="#ffffff" />
+
     <TextView
         android:id="@+id/textView3"
         style="@style/Base.AlertDialog.AppCompat.Light"

@@ -10,6 +10,7 @@ import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -245,6 +246,14 @@ public class SignInActivity
                 // Code strength
                 this.checkEmailBeforeLogIn = true;
                 ////
+                if (TextUtils.isEmpty(this.emailField.getText().toString())) {
+                    this.emailField.setError(getString(R.string.field_required));
+                    break;
+                } else if (TextUtils.isEmpty(this.passwordField.getText().toString())) {
+                    this.passwordField.setError(getString(R.string.field_required));
+                    break;
+                }
+
                 this.showProgress();
                 this.baseProviderArrayList
                         .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)

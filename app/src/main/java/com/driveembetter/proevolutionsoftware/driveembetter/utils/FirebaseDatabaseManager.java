@@ -153,9 +153,17 @@ public class FirebaseDatabaseManager
             for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
                 tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
             }
-            databaseReference
-                    .child(CHILD_STAT_DAY)
-                    .updateChildren(tmpParsedMean);
+            if (user.getMeanDay().isClearDay()) {
+                user.getMeanDay().setClearDay(false);
+                databaseReference
+                        .child(CHILD_STAT_DAY)
+                        .setValue(tmpParsedMean);
+            } else {
+                databaseReference
+                        .child(CHILD_STAT_DAY)
+                        .updateChildren(tmpParsedMean);
+            }
+
 
             // Saving MeanWeek
             tmpOriginalMean = user.getMeanWeek().getMap();
@@ -164,9 +172,16 @@ public class FirebaseDatabaseManager
             for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
                 tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
             }
-            databaseReference
-                    .child(CHILD_STAT_WEEK)
-                    .updateChildren(tmpParsedMean);
+            if (user.getMeanWeek().isClearWeek()) {
+                user.getMeanWeek().setClearWeek(false);
+                databaseReference
+                        .child(CHILD_STAT_WEEK)
+                        .setValue(tmpParsedMean);
+            } else {
+                databaseReference
+                        .child(CHILD_STAT_WEEK)
+                        .updateChildren(tmpParsedMean);
+            }
         }
     }
 

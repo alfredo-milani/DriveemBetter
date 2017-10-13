@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -45,6 +46,7 @@ public class SignUpActivity
     private EditText usernameField;
     private EditText emailField;
     private EditText passwordField;
+    private EditText passwordField2;
     private ProgressBar progressBar;
     private ImageButton backButton;
     private Button resendVerificationEmail;
@@ -197,6 +199,7 @@ public class SignUpActivity
         this.usernameField = findViewById(R.id.username_field);
         this.emailField = findViewById(R.id.email_field);
         this.passwordField = findViewById(R.id.password_field);
+        this.passwordField2 = findViewById(R.id.password_field2);
         this.progressBar = findViewById(R.id.progress_bar);
         this.backButton = findViewById(R.id.back_button);
         this.resendVerificationEmail = findViewById(R.id.resend_email);
@@ -212,12 +215,28 @@ public class SignUpActivity
             case R.id.sign_up_button:
                 Log.d(TAG, "onClick:signUp");
 
+                String psw = this.passwordField.getText().toString();
+                String psw2 = this.passwordField2.getText().toString();
+                String email = this.emailField.getText().toString();
+                if (TextUtils.isEmpty(email)) {
+                    this.emailField.setError(getString(R.string.field_required));
+                    break;
+                } else if (TextUtils.isEmpty(psw)) {
+                    this.passwordField.setError(getString(R.string.strEmptyField));
+                    break;
+                } else if (TextUtils.isEmpty(psw2)) {
+                    this.passwordField2.setError(getString(R.string.strEmptyField));
+                    break;
+                } else if (!psw.equals(psw2)) {
+                    this.passwordField.setError(getString(R.string.bad_new_psw));
+                    this.passwordField2.setError(getString(R.string.bad_new_psw));
+                    break;
+                }
+
                 this.showProgress();
                 this.singletonEmailAndPasswordProvider.signUp(
-                        StringParser.trimString(
-                                this.emailField.getText().toString()
-                        ),
-                        this.passwordField.getText().toString(),
+                        StringParser.trimString(email),
+                        psw2,
                         this.usernameField.getText().toString()
                 );
                 break;

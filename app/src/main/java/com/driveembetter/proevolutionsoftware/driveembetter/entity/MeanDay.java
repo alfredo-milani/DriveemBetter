@@ -12,10 +12,12 @@ import java.util.Map;
 public class MeanDay {
 
     private Map<Integer, Mean> meanOfDays;
+    private boolean clearDay;
     private Date localDate;
 
     public MeanDay() {
         this.meanOfDays = new HashMap<Integer,Mean>();
+        this.clearDay = false;
         this.localDate = Calendar.getInstance().getTime();
     }
 
@@ -35,5 +37,13 @@ public class MeanDay {
 
     public void setLocalDate(Date localDate) {
         this.localDate = localDate;
+    }
+
+    public boolean isClearDay() {
+        return this.clearDay;
+    }
+
+    public void setClearDay(boolean clearDay) {
+        this.clearDay = clearDay;
     }
 }
