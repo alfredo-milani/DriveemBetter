@@ -1,7 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.threads;
 
 import android.os.AsyncTask;
-import android.renderscript.Allocation;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,7 +13,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.NumberManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 

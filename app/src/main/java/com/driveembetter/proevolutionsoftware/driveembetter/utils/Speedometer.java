@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.icu.text.DisplayContext;
 import android.util.AttributeSet;
 import android.view.View;
 

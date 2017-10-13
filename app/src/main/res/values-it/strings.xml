@@ -44,7 +44,7 @@
     <string name="strLeftEnd">Inserire estremo sinistro:</string>
     <string name="strRightEnd">Inserire estremo destro:</string>
     <string name="strEmptyField">Devi completare questo campo.</string>
-    <string name="strProgressDialogTitle">Loading...</string>
+    <string name="strProgressDialogTitle">Loading…</string>
     <string name="strProgressDialogMessage">Attendere prego.</string>
     <string name="strAreYouSure">Sei sicuro?</string>
     <string name="strFunctionNotValid">Funzione non valida</string>
@@ -72,10 +72,10 @@
     <string name="user_item">Utente</string>
     <string name="rank_item">Posizione</string>
     <string name="point_item">Punteggio</string>
-    <string name="please_wait">Attendere prego...</string>
-    <string name="loading">Caricamento...</string>
+    <string name="please_wait">Attendere prego…</string>
+    <string name="loading">Caricamento…</string>
     <string name="title_activity_save_me">Salvami!</string>
-    <string name="type_a_message">Scrivi un messaggio...</string>
+    <string name="type_a_message">Scrivi un messaggio…</string>
     <string name="canceled_action">Azione cancellata</string>
     <string name="twitter_auth_fail">Errore durante l\'accesso con Twitter.</string>
     <string name="level_selection">Seleziona livello</string>
@@ -137,4 +137,22 @@
     <string name="email_not_updated">Errore durante l\'aggiornamento dell\'indirizzo email</string>
     <string name="email_updated">Indirizzo email aggiornato</string>
     <string name="internal_firebase_error_login">Spiacenti! Errore interno di Firebase durante la fase di autenticazione!</string>
+    <string name ="general">Generale</string>
+    <string name="decrease">Diminuisci</string>
+    <string name="increase">Aumenta</string>
+    <string name="loading_location">Sto caricando la tua posizione…</string>
+    <string name="NA">N.D.</string>
+    <string name="add">CONFERMA</string>
+    <string name="battery">Stato della batteria</string>
+    <string name="day">Giorno</string>
+    <string name="general_alert"></string>
+    <string name="message">ATTENZIONE!</string>
+    <string name="model">Modello</string>
+    <string name="ok">OK</string>
+    <string name="owner">Proprietario</string>
+    <string name="plate_number">Targa</string>
+    <string name="repeat_password">Ripeti password</string>
+    <string name="revision_date">Data revisione</string>
+    <string name="tires_cond">Stato gomme</string>
+    <string name="week">Settimana</string>
 </resources>

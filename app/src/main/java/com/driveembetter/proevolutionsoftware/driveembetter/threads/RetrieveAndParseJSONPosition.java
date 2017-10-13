@@ -85,7 +85,7 @@ public class RetrieveAndParseJSONPosition implements Runnable {
     }
 
     private String[] getPositionFromJSON(double latitude, double longitude) {
-        String[] position = new String[3];
+        String[] position = new String[5];
         JSONObject jsonObjectResponse;
         while (!this.success && this.attempts < 3) {
             try {

@@ -535,7 +535,7 @@ public class FirebaseDatabaseManager
             user.setRegion(coordinates[1]);
             user.setSubRegion(coordinates[2]);
 
-            Log.d(TAG, "DB POS PARSED: " + user.getCountry() + "/" + user.getRegion() + "/" + user.getSubRegion());
+            Log.d(TAG, "DB POS: " + user.getCountry() + "/" + user.getRegion() + "/" + user.getSubRegion());
         }
     }
 
@@ -546,19 +546,6 @@ public class FirebaseDatabaseManager
         if (user != null && coordinates.length == 2) {
             user.setLatitude(Double.parseDouble(coordinates[0]));
             user.setLongitude(Double.parseDouble(coordinates[1]));
-
-            /*
-            String[] position = PositionManager.getLocationFromCoordinates(
-                    user.getLatitude(),
-                    user.getLongitude(),
-                    1
-            );
-            user.setCountry(position[0]);
-            user.setRegion(position[1]);
-            user.setSubRegion(position[2]);
-
-            Log.d(TAG, "DB POS PARSED: " + user.getCountry() + "/" + user.getRegion() + "/" + user.getSubRegion());
-            */
         }
     }
 

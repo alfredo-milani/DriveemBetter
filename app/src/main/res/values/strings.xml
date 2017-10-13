@@ -20,7 +20,7 @@
     <string name="empty_user">There are no user.</string>
     <string name="refresh_complete">Updated list.</string>
     <string name="dialogue_level_menu">Select the search area.</string>
-    <string name="ok" translatable="false">Ok</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="level_nation">Nation</string>
     <string name="level_region">Region</string>
@@ -93,6 +93,11 @@
     <string name="new_email">New email address</string>
     <string name="email_not_updated">Error while updating email address</string>
     <string name="email_updated">Email address updated</string>
-    <string name="internal_firebase_error_login">Sorry! Internal Firebase error login ocurred!</string>
+    <string name="internal_firebase_error_login">Sorry! Internal Firebase error login occurred!</string>
     <string name="repeat_password">Repeat password</string>
+    <string name ="general">General</string>
+    <string name ="NA">N.D.</string>
+    <string name="loading_location">Loading your position…</string>
+    <string name="decrease">Decrease</string>
+    <string name="increase">Increase</string>
 </resources>

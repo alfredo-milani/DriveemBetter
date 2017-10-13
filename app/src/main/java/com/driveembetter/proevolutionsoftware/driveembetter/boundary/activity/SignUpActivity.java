@@ -246,6 +246,16 @@ public class SignUpActivity
                 break;
 
             case R.id.resend_email:
+                String pswResend = this.passwordField.getText().toString();
+                String emailResend = this.emailField.getText().toString();
+                if (TextUtils.isEmpty(emailResend)) {
+                    this.emailField.setError(getString(R.string.field_required));
+                    break;
+                } else if (TextUtils.isEmpty(pswResend)) {
+                    this.passwordField.setError(getString(R.string.strEmptyField));
+                    break;
+                }
+
                 this.showProgress();
                 this.singletonEmailAndPasswordProvider.resendVerificationEmail(
                         StringParser.trimString(

@@ -4,6 +4,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -15,12 +16,21 @@ import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Mean;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveAndParseJSONPosition;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.YahooWeatherParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,13 +61,15 @@ public class PositionManager
     private boolean listenerSetted = false;
     private Context context;
     private double initialTime;
-    private double time;
     private float initialSpeed; //Symbolic value just to check when "onLocationChanged" is called for the first time
-    private double deltaT;
-    private Response response;
     private String lastPosition;
+    private Response response;
     private static boolean statisticsToPush;
     private TextToSpeech tts;
+    private Speedometer speedometer;
+    private ImageView speedLimitSign, weatherIcon;
+    private TextView speedLimitText, windText, windDirectionText, positionText, temperatureText, humidityText, visibilityText;
+    private ProgressBar yahooProgressBar;
 
 
 
@@ -81,6 +93,24 @@ public class PositionManager
     }
 
 
+
+    public void createTools(View view) {
+        speedometer = view.findViewById(R.id.Speedometer);
+        speedLimitSign = view.findViewById(R.id.speed_limit);
+        speedLimitText = view.findViewById(R.id.speed_limit_text);
+        weatherIcon = view.findViewById(R.id.weather_icon);
+        windText = view.findViewById(R.id.wind_text);
+        windDirectionText = view.findViewById(R.id.wind_direction_text);
+        positionText = view.findViewById(R.id.position_text);
+        temperatureText = view.findViewById(R.id.temperature);
+        humidityText = view.findViewById(R.id.humidity_text);
+        visibilityText = view.findViewById(R.id.visibility_text);
+        yahooProgressBar = view.findViewById(R.id.yahoo_progress_bar);
+    }
+
+    public static void resetCity() {
+        SingletonUser.getInstance().setCity(CITY);
+    }
 
     private void updateStatistics(double speed, double acceleration) {
         SingletonUser user = SingletonUser.getInstance();
@@ -169,6 +199,7 @@ public class PositionManager
     private void checkSpeedAndAcceleration(Location location) throws IOException {
         String currentPosition = "";
         List<Address> addresses;
+        // TODO: 13/10/17 ELIMINARE IL GEOCODER
         addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
         if(addresses != null && addresses.size() > 0 ) {
             Address address = addresses.get(0);
@@ -183,14 +214,16 @@ public class PositionManager
                 initialTime = System.currentTimeMillis();
                 Log.e("SPEED", "Speed: " + initialSpeed);
                 updateStatistics(initialSpeed, 0);
+                if (speedometer != null)
+                    speedometer.onSpeedChanged(initialSpeed);
                 //TODO
                 //check speed limits
                 SpeedLimitManager speedLimitManager = new SpeedLimitManager();
                 speedLimitManager.execute(String.valueOf(initialSpeed), String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
             } else {
                 float speed = ((location.getSpeed() * 3600) / 1000);
-                time = System.currentTimeMillis();
-                deltaT = (time - initialTime) / 1000;
+                double time = System.currentTimeMillis();
+                double deltaT = (time - initialTime) / 1000;
                 double acceleration = ((double) (speed - initialSpeed)) / deltaT;
 
                 updateStatistics(speed, acceleration);
@@ -204,7 +237,11 @@ public class PositionManager
                 if (currentPosition != null && lastPosition != null &&
                         !currentPosition.equals(lastPosition)) {
                     SpeedLimitManager speedLimitManager = new SpeedLimitManager();
-                    speedLimitManager.execute(String.valueOf(speed), String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+                    speedLimitManager.execute(
+                            String.valueOf(speed),
+                            String.valueOf(location.getLatitude()),
+                            String.valueOf(location.getLongitude())
+                    );
                 }
                 initialTime = time;
                 initialSpeed = speed;
@@ -235,7 +272,9 @@ public class PositionManager
             String oldCountry = user.getCountry();
             String oldRegion = user.getRegion();
             String oldSubRegion = user.getSubRegion();
-            Log.d(TAG, "PositionOLD: " + oldCountry + " / " + oldRegion + " / " + oldSubRegion);
+            String oldCity = user.getCity();
+            String oldAddress = user.getAddress();
+            Log.d(TAG, "PositionOLD: " + oldCountry + " / " + oldRegion + " / " + oldSubRegion + " / " + oldCity + " / " + oldAddress);
 
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
@@ -246,11 +285,45 @@ public class PositionManager
             user.setLongitude(longitude);
 
             // Update zona only if all three areas are not null
-            if (strings[0] != null && strings[1] != null && strings[2] != null) {
+            if (strings[0] != null && strings[1] != null && strings[2] != null &&
+                    strings[3] != null && strings[4] != null) {
                 user.setCountry(strings[0]);
                 user.setRegion(strings[1]);
                 user.setSubRegion(strings[2]);
-                Log.d(TAG, "PositionNEW: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion());
+                user.setCity(strings[3]);
+                user.setAddress(strings[4]);
+                Log.d(TAG, "PositionNEW: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion() + " / " + user.getCity() + " / " + user.getAddress());
+
+
+
+                if (!oldCity.equals(strings[3])) {
+                    // if driver change city
+                    // positionText.setText(user.getCity() + ", " + user.getSubRegion() + ", " +
+                    // user.getRegion() + ", " + user.getCountry());
+                    user.setCity(strings[3]);
+
+                    yahooProgressBar.setVisibility(View.VISIBLE);
+                    yahooProgressBar.getIndeterminateDrawable().setColorFilter(
+                            Color.BLUE,
+                            android.graphics.PorterDuff.Mode.MULTIPLY
+                    );
+
+                    new YahooWeatherParser(
+                            weatherIcon,
+                            windText,
+                            windDirectionText,
+                            temperatureText,
+                            humidityText,
+                            visibilityText,
+                            yahooProgressBar
+                    ).execute(strings[3], user.getCountry());
+                }
+                if (!oldAddress.equals(strings[4]) && positionText != null) {
+                    positionText.setText(strings[4]);
+                    user.setAddress(strings[4]);
+                }
+
+
 
                 if (!oldSubRegion.equals(user.getSubRegion()) ||
                         !oldRegion.equals(user.getRegion()) ||
@@ -330,52 +403,46 @@ public class PositionManager
      * @return string[0] --> Nation; string[1] --> Region; string[2] --> District
      */
     public static String[] getLocationFromCoordinates(double latitude, double longitude, int maxResult) {
-        final String[] strings = new String[3];
+        String[] strings = new String[5];
         try {
             /*
                 The issue is Geocoder backend service is not available in emulator.
                 Emulator needs Google API in order to works correctly with Geocoder.
              */
             List<Address> addresses = PositionManager.geocoder.getFromLocation(latitude, longitude, maxResult);
-
-            Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2]);
-            if (addresses == null || strings[0] == null ||
-                    strings[1] == null || strings[2] == null) {
-                Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
-                    @Override
-                    public void onDataComputed(String[] position) {
-                        if (position != null) {
-                            strings[0] = position[0];
-                            strings[1] = position[1];
-                            strings[2] = position[2];
-                        } else {
-                            strings[0] = SingletonUser.getInstance().getCountry();
-                            strings[1] = SingletonUser.getInstance().getRegion();
-                            strings[2] = SingletonUser.getInstance().getSubRegion();
-                        }
-                    }
-                }, latitude, longitude));
-                geoC.start();
-                geoC.join();
-                Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2]);
+            if (addresses == null) {
+                strings = PositionManager.startGeocoderJSON(latitude, longitude);
             } else {
                 strings[0] = addresses.get(0).getCountryName();
                 strings[1] = addresses.get(0).getAdminArea();
                 strings[2] = addresses.get(0).getSubAdminArea();
+                strings[3] = addresses.get(0).getLocality();
+                strings[4] = addresses.get(0).getAddressLine(0);
+
+                if (strings[0] == null || strings[1] == null || strings[2] == null ||
+                        strings[3] == null || strings[4] == null) {
+                    strings = PositionManager.startGeocoderJSON(latitude, longitude);
+                }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            if (e.getCause().toString().equals("Service not Available")) {
+                // TODO: 13/10/17 mandare messaggio alla UI (MainFragmentActivity) con SingletonFirebaseProvider per mostrare toast con scritto di riavviare il dispositivo
+            }
 
             strings[0] = COUNTRY;
             strings[1] = REGION;
             strings[2] = SUB_REGION;
+            strings[3] = CITY;
+            strings[4] = ADDRESS;
         }
 
         return strings;
     }
 
-    public static String[] getLocationFromCoordinates(double latitude, double longitude) {
-        final String[] strings = new String[3];
+    private static String[] startGeocoderJSON(double latitude, double longitude) {
+        final String[] strings = new String[5];
+
         try {
             Thread geoC = new Thread(new RetrieveAndParseJSONPosition(new RetrieveAndParseJSONPosition.CallbackRetrieveAndParseJSON() {
                 @Override
@@ -384,22 +451,24 @@ public class PositionManager
                         strings[0] = position[0];
                         strings[1] = position[1];
                         strings[2] = position[2];
+                        strings[3] = position[3];
+                        strings[4] = position[4];
                     } else {
                         strings[0] = SingletonUser.getInstance().getCountry();
                         strings[1] = SingletonUser.getInstance().getRegion();
                         strings[2] = SingletonUser.getInstance().getSubRegion();
+                        strings[3] = SingletonUser.getInstance().getCity();
+                        strings[4] = SingletonUser.getInstance().getAddress();
                     }
                 }
             }, latitude, longitude));
             geoC.start();
             geoC.join();
+            Log.d(TAG, "Country: " + strings[0] + " Region: " + strings[1] + " SubRegion: " + strings[2] + " City: " + strings[3] + " Address: " + strings[4]);
         } catch (InterruptedException e) {
             e.printStackTrace();
-
-            strings[0] = COUNTRY;
-            strings[1] = REGION;
-            strings[2] = SUB_REGION;
         }
+
         return strings;
     }
 
@@ -416,6 +485,7 @@ public class PositionManager
     }
 
     //ADDED BY PONZINO_THE_WOLF_94
+
     private class SpeedLimitManager extends AsyncTask<String, String, String> {
 
         @Override
@@ -450,8 +520,9 @@ public class PositionManager
                     .url("https://roads.googleapis.com/v1/speedLimits?path=" + latitude + "," + longitude + "&key=" + "AIzaSyC2TCyPFqoATPFy7pa7iKdefrpjPWqXJTc")
                     .build();
                */
+            String maxSpeed = "N/A";
+
             try {
-                String maxSpeed = "";
                 response = client.newCall(request).execute();
                 String jsonData = response.body().string();
 
@@ -470,24 +541,61 @@ public class PositionManager
                             maxSpeed = tags.getString("maxspeed");
                             String currentSpeed = strings[0];
                             Double speed = Double.parseDouble(currentSpeed);
-                            Double mSpeed = Double.parseDouble(maxSpeed);
-                            Log.e("DEBUG", "MAX SPEED: " + maxSpeed + " CURRENT SPEED: " + speed);
-                            //TODO
-                            if (speed > mSpeed) {
-                                //Alert driver
-                                alertSpeed(mSpeed);
+                            try
+                            {
+                                Double mSpeed = Double.parseDouble(maxSpeed);
+                                Log.e("DEBUG", "MAX SPEED: " + maxSpeed + " CURRENT SPEED: " + speed);
+                                //TODO
+                                if (speed > mSpeed) {
+                                    //Alert driver
+                                    alertSpeed(mSpeed);
+                                    if (speedLimitText != null) {
+                                        publishProgress("design");
+                                    }
+                                } else {
+                                    publishProgress("designStatic");
+                                }
                             }
+                            catch(NumberFormatException e)
+                            {
+                                e.printStackTrace();
+                                maxSpeed = "N/A";
+                            }
+
                         }
                     }
 
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            if (maxSpeed.equals("N/A"))
+                publishProgress("designStatic");
+            publishProgress(maxSpeed);
 
             return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            if (!values[0].equals("design") && !values[0].equals("designStatic")) {
+                speedLimitText.setText(values[0]);
+            } else if (values[0].equals("design")){
+                AlphaAnimation blinkanimation= new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
+                blinkanimation.setDuration(1000); // duration - half a second
+                blinkanimation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
+                blinkanimation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
+                blinkanimation.setRepeatMode(Animation.REVERSE);
+                speedLimitSign.startAnimation(blinkanimation);
+            } else if (values[0].equals("designStatic")){
+                Log.e("DEBUG", "QUIVI?");
+                if (speedLimitSign.getAnimation() != null)
+                    speedLimitSign.clearAnimation();
+            }
         }
     }
 
@@ -496,13 +604,15 @@ public class PositionManager
             @Override
             public void onInit(int i) {
                 if(i != TextToSpeech.ERROR) {
-                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) || Locale.getDefault().getDisplayLanguage().equals(Locale.US)) {
+                    double speed = maxSpeed;
+                    int spd = (int) speed;
+                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH)) {
                         tts.setLanguage(Locale.UK);
-                        tts.speak("You're going too fast, the speed limit is " + maxSpeed + " kilometers per hour", TextToSpeech.QUEUE_ADD, null);
+                        tts.speak("You're going too fast, the speed limit is " + spd + " kilometers per hour", TextToSpeech.QUEUE_ADD, null);
                     }
                     else {
                         tts.setLanguage(Locale.ITALY);
-                        tts.speak("Stai correndo troppo, il limite di velocità è di " + maxSpeed + " chilometri orari", TextToSpeech.QUEUE_ADD, null);
+                        tts.speak("Stai correndo troppo, il limite di velocità è di " + spd + " chilometri orari", TextToSpeech.QUEUE_ADD, null);
                     }
                 }
             }
@@ -515,14 +625,14 @@ public class PositionManager
             @Override
             public void onInit(int i) {
                 if(i != TextToSpeech.ERROR) {
-                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) || Locale.getDefault().getDisplayLanguage().equals(Locale.US)) {
+                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH)) {
                         tts.setLanguage(Locale.UK);
                         if (type == 1)
                             tts.speak(ENGLISH_ACCELERATION_ALERT, TextToSpeech.QUEUE_ADD, null);
                         else
                             tts.speak(ENGLISH_BRAKING_ALERT, TextToSpeech.QUEUE_ADD, null);
                     } else {
-                        tts.setLanguage(Locale.ITALY);
+                        tts.setLanguage(Locale.ITALIAN);
                         if (type == 1)
                             tts.speak(ITALIAN_ACCELERATION_ALERT, TextToSpeech.QUEUE_ADD, null);
                         else
@@ -534,5 +644,6 @@ public class PositionManager
 
         });
     }
+
     //END ADDED BY FROM PONZINO_THE_WOLF_94
 }
