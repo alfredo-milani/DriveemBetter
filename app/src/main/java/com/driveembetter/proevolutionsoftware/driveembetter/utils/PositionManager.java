@@ -206,6 +206,8 @@ public class PositionManager
         String currentPosition = "";
         List<Address> addresses;
         // TODO: 13/10/17 ELIMINARE IL GEOCODER
+        // TODO: 14/10/17 SUCA
+
         addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
         if(addresses != null && addresses.size() > 0 ) {
             Address address = addresses.get(0);
@@ -233,6 +235,8 @@ public class PositionManager
                 double acceleration = ((double) (speed - initialSpeed)) / deltaT;
 
                 updateStatistics(speed, acceleration);
+                if (speedometer != null)
+                    speedometer.onSpeedChanged(speed);
 
                 //TODO ??
                 //check speed limits or abrupt braking or acceleration

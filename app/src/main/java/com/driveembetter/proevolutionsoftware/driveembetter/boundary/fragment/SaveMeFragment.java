@@ -88,7 +88,7 @@ public class SaveMeFragment
     private ImageView driverPic;
     private RatingBar ratingBar;
     private Button ratingButton;
-    private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken, userSelectedPic;
+    private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken, userSelectedPic, userSelectedAvailability;
     private UpdatePosition updatePosition;
 
     private int progressToMeters(int progress) {
@@ -250,7 +250,7 @@ public class SaveMeFragment
                         driverLocation.setText(userSelectedLocation);
                         Button message = container.findViewById(R.id.messageBtn);
 
-                        //GET THE SELECTED USER PHOTO URL AND FEEDBACK
+                        //GET THE SELECTED USER PHOTO URL, FEEDBACK, TOKEN AND AVAILABILITY
                         if (!userSelectedUid.equals("USERNAME_TEST")) {
                             DatabaseReference positionRef = database.getReference()
                                     .child(NODE_POSITION)
@@ -264,6 +264,8 @@ public class SaveMeFragment
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.hasChild(CHILD_IMAGE)) {
                                         userSelectedPic = dataSnapshot.child(CHILD_IMAGE).getValue().toString();
+                                        userSelectedToken = dataSnapshot.child("firebaseToken").getValue().toString();
+                                        userSelectedAvailability = dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString();
                                         GlideImageLoader.loadImage(
                                                 getActivity(),
                                                 driverPic,
@@ -311,8 +313,13 @@ public class SaveMeFragment
                         message.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                //catch user token
-                                DatabaseReference userRef = database.getReference("users/" + userSelectedUid);
+
+                                ChatActivity.startActivity(getActivity(),
+                                        userSelectedEmail,
+                                        userSelectedUid,
+                                        userSelectedToken);
+
+                                /*DatabaseReference userRef = database.getReference("users/" + userSelectedUid);
                                 final DatabaseReference userPositionRef = myRef.child(userSelectedUid);
 
                                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -345,6 +352,7 @@ public class SaveMeFragment
 
                                     }
                                 });
+                                */
 
                             }
                         });

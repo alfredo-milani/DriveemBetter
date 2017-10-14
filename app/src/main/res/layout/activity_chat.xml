@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@drawable/sign_in"
     tools:context="com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity">
 
     <android.support.design.widget.AppBarLayout
