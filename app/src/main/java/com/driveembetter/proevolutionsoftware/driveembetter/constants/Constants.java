@@ -71,7 +71,7 @@ public interface Constants {
     String CHILD_CURRENT_POSITION = "currentUserPosition";
     String CHILD_EMAIL = "email";
     String CHILD_AVAILABILITY = "availability";
-    String CHILD_CURRENT_VEHICLE = "current_vehicle";
+    String CHILD_CURRENT_VEHICLE = "currentVehicle";
     String CHILD_FEEDBACK = "feedback";
     String CHILD_HISTORICAL_FEEDBACK = "historicalFeedback";
     String CHILD_ZONA = "zona";
@@ -96,13 +96,7 @@ public interface Constants {
 
 
     // TODO DA TOGLIERE
-    String CAR = "Car";
-    String MOTO = "Moto";
-    String VAN = "Van";
-    String EMPTY_TYPE_FIELD = "Please select type";
     String EMPTY_FIELD = "Please insert all informations";
-    String CHILD_COUNT = "child_count";
-    Integer ADD_VCL_ACTIVITY_ID = 1;
     String PLATE_LIST = "Plate list";
     String VEHICLE_EXISTS_YET = "Plate exists yet";
     String PLATE = "Plate, ";

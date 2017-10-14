@@ -15,9 +15,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CAR;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MOTO;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VAN;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
 
 /**
  * Created by matteo on 03/10/17.

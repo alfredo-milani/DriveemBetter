@@ -32,19 +32,19 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CAR;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CURRENT;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.EMPTY_FIELD;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.INS_DATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MODEL;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MOTO;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.OWNER;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE_LIST;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.REV_DATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.TYPE;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VAN;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VEHICLE_EXISTS_YET;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
 
 public class ModifyVehicleActivity extends FragmentActivity {
 

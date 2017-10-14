@@ -26,17 +26,14 @@ import java.util.Random;
 public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
     private final static String TAG = ChartAsyncTask.class.getSimpleName();
-
     private final static int HOURS_IN_DAY = 24;
     private final static int DAYS_IN_WEEK = 7;
-    private final SingletonUser user;
 
     RetainedFragment fragment;
 
     public ChartAsyncTask(RetainedFragment fragment) {
         this.fragment = fragment;
         setGraphProperties();
-        user = SingletonUser.getInstance();
     }
 
 
@@ -126,12 +123,12 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
             if  (valueTime.equals(Constants.STR_WEEK)){
 
                 for (int i = 0; i < DAYS_IN_WEEK; i++) {
-                    if (user.getMeanWeek().getMap().get(i) != null) {
+                    if (SingletonUser.getInstance().getMeanWeek().getMap().get(i) != null) {
 
                         xVals.add(String.valueOf(i));
-                        sampleSum = user.getMeanWeek().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) user.getMeanWeek().getMap().get(i).getSampleSizeAcceleration();
-                        mean = sampleSum / sampleSize;
+                        sampleSum = SingletonUser.getInstance().getMeanWeek().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = SingletonUser.getInstance().getMeanWeek().getMap().get(i).getSampleSizeAcceleration();
+                        mean = Math.abs(sampleSum / sampleSize);
                         Entry entry = new Entry(mean, i);
                         vals.add(entry);
                     } else {
@@ -144,12 +141,12 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
             } else{
 
                 for (int i = 0; i < HOURS_IN_DAY; i++) {
-                    if (user.getMeanDay().getMap().get(i) != null) {
+                    if (SingletonUser.getInstance().getMeanDay().getMap().get(i) != null) {
 
                         xVals.add(String.valueOf(i));
-                        sampleSum = user.getMeanDay().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) user.getMeanDay().getMap().get(i).getSampleSizeAcceleration();
-                        mean = sampleSum / sampleSize;
+                        sampleSum = SingletonUser.getInstance().getMeanDay().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = SingletonUser.getInstance().getMeanDay().getMap().get(i).getSampleSizeAcceleration();
+                        mean = Math.abs(sampleSum / sampleSize);
                         Entry entry = new Entry(mean, i);
                         vals.add(entry);
                     } else {
@@ -168,12 +165,12 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
                 for (int i = 0; i < DAYS_IN_WEEK; i++) {
 
-                    if (user.getMeanWeek().getMap().get(i) != null) {
+                    if (SingletonUser.getInstance().getMeanWeek().getMap().get(i) != null) {
 
                         xVals.add(String.valueOf(i));
-                        sampleSum = user.getMeanWeek().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) user.getMeanWeek().getMap().get(i).getSampleSizeAcceleration();
-                        mean = sampleSum / sampleSize;
+                        sampleSum = SingletonUser.getInstance().getMeanWeek().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize =  SingletonUser.getInstance().getMeanWeek().getMap().get(i).getSampleSizeAcceleration();
+                        mean = Math.abs(sampleSum / sampleSize);
                         Entry entry = new Entry(mean, i);
                         vals.add(entry);
 
@@ -189,12 +186,12 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
                 for (int i = 0; i < HOURS_IN_DAY; i++) {
 
-                    if (user.getMeanDay().getMap().get(i) != null) {
+                    if (SingletonUser.getInstance().getMeanDay().getMap().get(i) != null) {
 
                         xVals.add(String.valueOf(i));
-                        sampleSum = user.getMeanDay().getMap().get(i).getSampleSumAcceleration();
-                        sampleSize = (float) user.getMeanDay().getMap().get(i).getSampleSizeAcceleration();
-                        mean = sampleSum / sampleSize;
+                        sampleSum = SingletonUser.getInstance().getMeanDay().getMap().get(i).getSampleSumAcceleration();
+                        sampleSize = SingletonUser.getInstance().getMeanDay().getMap().get(i).getSampleSizeAcceleration();
+                        mean = Math.abs(sampleSum / sampleSize);
                         Entry entry = new Entry(mean, i);
                         vals.add(entry);
 
@@ -226,7 +223,10 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         return new ScatterData(xVals, dataSets);
     }
 
-    public static void fillMeanWeekDay(int ore, int giorniSettimana, int type, MeanDay mean2, MeanWeek mean3) {
+    public static void fillMeanWeekDay(int ore, int giorniSettimana, int type) {
+        MeanDay mean2 = SingletonUser.getInstance().getMeanDay();
+        MeanWeek mean3 = SingletonUser.getInstance().getMeanWeek();
+
         switch (type) {
             case 0:
                 for (int i = 0; i < ore; ++i) {
@@ -355,6 +355,10 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
         // Sets the position where the XAxis should appear
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
+
+        // Only positive value
+        fragment.getChart().getAxisLeft().setAxisMinValue(0);
+        fragment.getChart().getAxisRight().setAxisMinValue(0);
     }
 }
 

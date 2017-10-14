@@ -50,7 +50,7 @@ public class SingletonUser extends User
     private static SingletonUser singletonInstance;
 
     private SingletonUser(String username, String email, Uri photoUrl, String uid, boolean emailVerified, String providerId, List providerData) {
-        super(uid, username, email, photoUrl, 0, null, 0.0);
+        super(uid, username, email, photoUrl, 0, null, 0.0, "");
         this.setEmailVerified(emailVerified);
         this.setProviderId(providerId);
         this.setProviderData(providerData);
@@ -58,8 +58,8 @@ public class SingletonUser extends User
         this.setCountry(COUNTRY);
         this.setRegion(REGION);
         this.setSubRegion(SUB_REGION);
-        this.setCity("NONE");
-        this.setAddress("NONE");
+        this.setCity(CITY);
+        this.setAddress(ADDRESS);
         this.meanDay = new MeanDay();
         this.meanWeek = new MeanWeek();
         // Lock rientrante perché i thread sono diversi

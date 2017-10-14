@@ -239,6 +239,7 @@ public class EditProfileDataActivity extends AppCompatActivity
                 break;
 
             case R.id.confirmModifyEmail:
+                // TODO: 14/10/17 aggiungere controllo sintattico inserimento email
                 String tmpEmail = this.editTextEmail.getText().toString();
                 if (TextUtils.isEmpty(tmpEmail)) {
                     this.editTextEmail.setError(getString(R.string.strEmptyField));

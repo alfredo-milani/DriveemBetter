@@ -204,15 +204,9 @@ public class PositionManager
 
     private void checkSpeedAndAcceleration(Location location) throws IOException {
         String currentPosition = "";
-        List<Address> addresses;
-        // TODO: 13/10/17 ELIMINARE IL GEOCODER
-        // TODO: 14/10/17 SUCA
-
-        addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
-        if(addresses != null && addresses.size() > 0 ) {
-            Address address = addresses.get(0);
-            // Thoroughfare seems to be the street name without numbers
-            currentPosition = address.getThoroughfare();
+        String[] currentAddress = SingletonUser.getInstance().getAddress().split(",");
+        if (currentAddress != null && currentAddress.length > 0) {
+            currentPosition = currentAddress[0];
         }
 
         if (location.hasSpeed()) {
@@ -333,7 +327,13 @@ public class PositionManager
                     user.setAddress(strings[4]);
                 }
 
-
+                if (user.getSubRegion().equals(SUB_REGION) ||
+                        user.getRegion().equals(REGION) ||
+                        user.getCountry().equals(COUNTRY)) {
+                    user.setAvailability(UNAVAILABLE);
+                } else {
+                    user.setAvailability(AVAILABLE);
+                }
 
                 if (!oldSubRegion.equals(user.getSubRegion()) ||
                         !oldRegion.equals(user.getRegion()) ||
@@ -343,21 +343,13 @@ public class PositionManager
                     FirebaseDatabaseManager.removeOldPosition(new String[] {oldCountry, oldRegion, oldSubRegion});
                     // Create user in new position
                     FirebaseDatabaseManager.createNewUserPosition();
-                }
-
-                if (user.getSubRegion().equals(SUB_REGION) ||
-                        user.getRegion().equals(REGION) ||
-                        user.getCountry().equals(COUNTRY)) {
-                    user.setAvailability(UNAVAILABLE);
-                } else {
-                    user.setAvailability(AVAILABLE);
+                    // Update users node
+                    FirebaseDatabaseManager.updateUserZonaAndAvailability();
                 }
             }
 
             // Update position node
             FirebaseDatabaseManager.updatePositionCoordAndAvail();
-            // Update users node
-            FirebaseDatabaseManager.updateUserCoordAndAvail();
         }
 
         @Override
@@ -495,7 +487,6 @@ public class PositionManager
     }
 
     //ADDED BY PONZINO_THE_WOLF_94
-
     private class SpeedLimitManager extends AsyncTask<String, String, String> {
 
         @Override
@@ -654,6 +645,5 @@ public class PositionManager
 
         });
     }
-
     //END ADDED BY FROM PONZINO_THE_WOLF_94
 }

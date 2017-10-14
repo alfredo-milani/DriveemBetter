@@ -34,12 +34,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CAR;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.EMPTY_FIELD;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MOTO;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE_LIST;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VAN;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.VEHICLE_EXISTS_YET;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
 
 public class AddVehicleActivity extends FragmentActivity {
 
@@ -70,12 +70,10 @@ public class AddVehicleActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_vehicle);
-
         init_resources();
 
         Intent mIntent = getIntent();
         this.plates_list = mIntent.getStringArrayListExtra(PLATE_LIST);
-
 
         insurance_date.setOnClickListener(new View.OnClickListener() {
 
@@ -114,28 +112,16 @@ public class AddVehicleActivity extends FragmentActivity {
                                                               break;
                                                       }
                                                   }
-
         });
 
-
-
-
         confirm.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View view) {
-
-
                 if( radioGroup.getCheckedRadioButtonId() == -1 || isEmpty(plateNumber) || isEmpty(owner) || isEmpty(model) || isEmpty(insurance_date) || isEmpty(revision_date) ) {
-
                     Toast.makeText(getApplicationContext(), EMPTY_FIELD , Toast.LENGTH_SHORT).show();
-
                 }else if (exists_yet(plateNumber.getText().toString())) {
-
                     Toast.makeText(getApplicationContext(), VEHICLE_EXISTS_YET, Toast.LENGTH_SHORT).show();
-
                 }else{
-
                     vehicle = new Vehicle(getType(),
                             model.getText().toString(),
                             plateNumber.getText().toString(),
@@ -150,9 +136,6 @@ public class AddVehicleActivity extends FragmentActivity {
                 }
             }
         });
-
-
-
     }
 
     private void showTruitonDatePickerDialog(View v) {
@@ -160,9 +143,7 @@ public class AddVehicleActivity extends FragmentActivity {
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 
-
     private boolean exists_yet(String plate) {
-
         if (plates_list == null){
             return false;
         }else {
@@ -175,25 +156,21 @@ public class AddVehicleActivity extends FragmentActivity {
         }
     }
 
-
-
-
     private void init_resources() {
-
-        confirm = (Button)findViewById(R.id.confirm);
-        plateNumber = (EditText)findViewById(R.id.newplatenumber);
-        owner = (EditText)findViewById(R.id.newowner);
-        model = (EditText)findViewById(R.id.newmodel);
-        radioGroup = (RadioGroup)findViewById(R.id.radiotype);
-        car = (RadioButton)findViewById(R.id.car);
-        moto = (RadioButton)findViewById(R.id.moto);
-        van = (RadioButton)findViewById(R.id.van);
-        insurance_date = (EditText)findViewById(R.id.insurance_date_plain);
-        revision_date = (EditText)findViewById(R.id.rev);
-        this.plates_list = new ArrayList<String>();
-        this.fromInsurance = false;
+        confirm = findViewById(R.id.confirm);
+        plateNumber = findViewById(R.id.newplatenumber);
+        owner = findViewById(R.id.newowner);
+        model = findViewById(R.id.newmodel);
+        radioGroup = findViewById(R.id.radiotype);
+        car = findViewById(R.id.car);
+        moto = findViewById(R.id.moto);
+        van = findViewById(R.id.van);
+        insurance_date = findViewById(R.id.insurance_date_plain);
+        revision_date = findViewById(R.id.rev);
+        plates_list = new ArrayList<String>();
+        fromInsurance = false;
         try_number = 1;
-        this.alert = (RelativeLayout)findViewById(R.id.alert);
+        alert = findViewById(R.id.alert);
 
 
 
@@ -201,38 +178,32 @@ public class AddVehicleActivity extends FragmentActivity {
     }
 
     private boolean isEmpty(EditText etText) {
-        if (etText.getText().toString().trim().length() > 0)
-            return false;
-
-        return true;
+        return etText.getText().toString().trim().length() <= 0;
     }
 
     private void addNewVehicle(){
-
         this.database = FirebaseDatabase.getInstance();
         this.ref = database.getReference("users/" + SingletonFirebaseProvider
                 .getInstance()
                 .getFirebaseUser()
                 .getUid() + "/vehicles");
 
-        if( getType().equals(CAR)){
+        switch (getType()) {
+            case CAR:
+                ref.child(vehicle.getNumberPlate())
+                        .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
+                break;
 
-            ref.child(vehicle.getNumberPlate())
-                    .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
+            case MOTO:
+                ref.child(vehicle.getNumberPlate())
+                        .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
+                break;
+
+            case VAN:
+                ref.child(vehicle.getNumberPlate())
+                        .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
+                break;
         }
-
-        if( getType().equals(MOTO)){
-
-            ref.child(vehicle.getNumberPlate())
-                    .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
-        }
-
-        if( getType().equals(VAN)){
-
-            ref.child(vehicle.getNumberPlate())
-                    .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
-        }
-
     }
 
     public String getType() {

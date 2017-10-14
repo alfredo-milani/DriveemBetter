@@ -5,6 +5,13 @@ package com.driveembetter.proevolutionsoftware.driveembetter.entity;
  */
 
 public class Vehicle {
+
+    private final static String TAG = Vehicle.class.getSimpleName();
+
+    public final static String CAR = "Car";
+    public final static String MOTO = "Moto";
+    public final static String VAN = "Van";
+
     private String numberPlate;
     private String owner;
     private int statusTires;
@@ -15,8 +22,6 @@ public class Vehicle {
     private String insurance_date;
     private String revision_date;
 
-    // TODO decidere se creare classe a sè stante per i veicoli oppure metterli direttamente nell'entità SingletonUser
-    private String otherStuff;
 
     public Vehicle(String type, String model, String numberPlate, String owner, String insurance_date, String revision_date) {
 

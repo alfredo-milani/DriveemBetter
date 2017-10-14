@@ -18,6 +18,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
@@ -59,6 +60,7 @@ public class UserDetailsRankingActivity
     private ProgressBar progressBar;
     private TextView feedback;
     private ImageButton fullscreen;
+    private ImageButton startChatButton;
 
 
 
@@ -95,7 +97,13 @@ public class UserDetailsRankingActivity
         this.progressBar = findViewById(R.id.progress_bar);
         this.feedback = findViewById(R.id.driverFeedbackContent);
         this.fullscreen = findViewById(R.id.fullscreeImageButton);
+        this.startChatButton = findViewById(R.id.startChatButton);
+
         this.fullscreen.setOnClickListener(this);
+        if (!this.user.getUid().equals(SingletonUser.getInstance().getUid())) {
+            this.startChatButton.setVisibility(View.VISIBLE);
+            this.startChatButton.setOnClickListener(this);
+        }
 
         if (this.user.getUsername() != null && !user.getUsername().isEmpty()) {
             this.username.setText(this.user.getUsername());
@@ -136,6 +144,15 @@ public class UserDetailsRankingActivity
         switch (id) {
             case R.id.fullscreeImageButton:
 
+                break;
+
+            case R.id.startChatButton:
+                ChatActivity.startActivity(
+                        this,
+                        user.getEmail(),
+                        user.getUid(),
+                        user.getToken()
+                );
                 break;
         }
     }

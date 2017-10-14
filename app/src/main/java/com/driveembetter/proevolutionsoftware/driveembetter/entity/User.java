@@ -27,6 +27,7 @@ public class User
         parcel.writeString(this.getAvailability());
         parcel.writeDouble(this.getFeedback());
         parcel.writeLong(this.getPoints());
+        parcel.writeString(this.getToken());
         if (this.getPhotoUrl() != null) {
             parcel.writeString(this.getPhotoUrl().toString());
         }
@@ -44,6 +45,7 @@ public class User
         this.setAvailability(in.readString());
         this.setFeedback(in.readDouble());
         this.setPoints(in.readLong());
+        this.setToken(in.readString());
         this.setPhotoUrl(this.getUriIfExist(in.readString()));
     }
 
@@ -74,8 +76,9 @@ public class User
     private Double feedback;
     private Uri photoUrl;
     private long points;
+    private String token;
 
-    public User(String uid, String username, String email, Uri photoUrl, long points, String availability, Double feedback) {
+    public User(String uid, String username, String email, Uri photoUrl, long points, String availability, Double feedback, String token) {
         this.uid = uid;
         this.username = username;
         this.email = email;
@@ -83,6 +86,7 @@ public class User
         this.photoUrl = photoUrl;
         this.points = points;
         this.feedback = feedback;
+        this.token = token;
     }
 
 
@@ -153,5 +157,13 @@ public class User
 
     public void setFeedback(Double feedback) {
         this.feedback = feedback;
+    }
+
+    public String getToken() {
+        return this.token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

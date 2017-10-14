@@ -8,7 +8,7 @@
             android:title="@string/general" />
         <item
             android:id="@+id/garage"
-            android:icon="@mipmap/garage_icon"
+            android:icon="@mipmap/ic_garage"
             android:title="@string/garage" />
 
         <item

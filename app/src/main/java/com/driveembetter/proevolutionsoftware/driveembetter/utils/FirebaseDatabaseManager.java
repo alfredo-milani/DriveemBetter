@@ -53,14 +53,18 @@ public class FirebaseDatabaseManager
     public static void refreshUserToken(String token) {
         SingletonUser user = SingletonUser.getInstance();
         if (user != null) {
-            DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
-                    .child(NODE_USERS)
+            DatabaseReference databaseReferencePosition = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_POSITION)
+                    .child(COUNTRY)
+                    .child(REGION)
+                    .child(SUB_REGION)
                     .child(user.getUid());
 
             // Set user's token
-            databaseReference
-                    .child(ARG_FIREBASE_TOKEN)
-                    .setValue(token);
+            Map<String, Object> map = new HashMap<>();
+            map.put(ARG_FIREBASE_TOKEN, token);
+
+            databaseReferencePosition.updateChildren(map);
         }
     }
 
@@ -255,9 +259,6 @@ public class FirebaseDatabaseManager
             if (user.getFeedback() != null) {
                 newUser.put(CHILD_FEEDBACK, user.getFeedback().toString());
             }
-            if (user.getCurrentVehicle() != null) {
-                newUser.put(CHILD_CURRENT_VEHICLE, user.getCurrentVehicle().getType());
-            }
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .onDisconnect()
@@ -348,7 +349,7 @@ public class FirebaseDatabaseManager
      * Update DB with latitude and longitude of the user.
      * Here we are in users node.
      */
-    public static void updateUserCoordAndAvail() {
+    public static void updateUserZonaAndAvailability() {
         SingletonUser user = SingletonUser.getInstance();
         if (user != null) {
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
@@ -356,12 +357,6 @@ public class FirebaseDatabaseManager
                     .child(user.getUid());
 
             Map<String, Object> newPosition = new HashMap<>();
-            newPosition.put(
-                    CHILD_CURRENT_POSITION,
-                    StringParser.getStringFromCoordinates(
-                            user.getLatitude(), user.getLongitude()
-                    )
-            );
             newPosition.put(
                     CHILD_ZONA,
                     StringParser.fromArrayToString(
@@ -466,17 +461,11 @@ public class FirebaseDatabaseManager
                                 .setValue(user.getEmail());
                     }
 
-                    if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
-                            dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        updateCurrentUserPosition(
-                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
-                        );
-                    } else {
-                        createNewUserPosition();
-                    }
                     if (dataSnapshot.hasChild(CHILD_ZONA) &&
                             dataSnapshot.child(CHILD_ZONA).getValue() != null) {
                         updateCurrentUserZona(dataSnapshot.child(CHILD_ZONA).getValue().toString());
+                    } else {
+                        createNewUserPosition();
                     }
                 } else {
                     Log.d(TAG, "Update SingletonUser class data");
@@ -484,12 +473,6 @@ public class FirebaseDatabaseManager
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
                     );
 
-                    if (dataSnapshot.hasChild(CHILD_CURRENT_POSITION) &&
-                            dataSnapshot.child(CHILD_CURRENT_POSITION).getValue() != null) {
-                        updateCurrentUserPosition(
-                                dataSnapshot.child(CHILD_CURRENT_POSITION).getValue().toString()
-                        );
-                    }
                     if (dataSnapshot.hasChild(CHILD_ZONA) &&
                             dataSnapshot.child(CHILD_ZONA).getValue() != null) {
                         updateCurrentUserZona(dataSnapshot.child(CHILD_ZONA).getValue().toString());
@@ -538,15 +521,6 @@ public class FirebaseDatabaseManager
         }
     }
 
-    private static void updateCurrentUserPosition(String location) {
-        String[] coordinates = StringParser.getCoordinates(location);
-        SingletonUser user = SingletonUser.getInstance();
-
-        if (user != null && coordinates.length == 2) {
-            user.setLatitude(Double.parseDouble(coordinates[0]));
-            user.setLongitude(Double.parseDouble(coordinates[1]));
-        }
-    }
 
 
     /**
@@ -972,6 +946,7 @@ public class FirebaseDatabaseManager
         long points = 0;
         String availability = UNAVAILABLE;
         double feedback = 0;
+        String token = "";
 
         if (user.hasChild(CHILD_USERNAME) &&
                 user.child(CHILD_USERNAME).getValue() != null) {
@@ -995,8 +970,11 @@ public class FirebaseDatabaseManager
         if (user.hasChild(CHILD_FEEDBACK)) {
             feedback = Double.valueOf(user.child(CHILD_FEEDBACK).getValue().toString());
         }
+        if (user.hasChild(ARG_FIREBASE_TOKEN)) {
+            token = String.valueOf(user.child(ARG_FIREBASE_TOKEN).getValue().toString());
+        }
 
-        return new User(user.getKey(), username, email, image, points, availability, feedback);
+        return new User(user.getKey(), username, email, image, points, availability, feedback, token);
     }
 
     /**

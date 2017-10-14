@@ -452,7 +452,6 @@ public class MainFragmentActivity extends AppCompatActivity
 
     private void manageActionOnNavigationItemSelected(int action) {
         switch (action) {
-
             case R.id.home:
                 if (!FragmentState.isFragmentOpen(FragmentState.HOME_FRAGMENT)) {
                     this.fragmentState.replaceFragment(
