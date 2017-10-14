@@ -121,20 +121,16 @@ public class GarageFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-
         this.singletonUser.getVehicles(this);
     }
 
     @Override
     public void onVehiclesReceive() {
 
-
-
         this.vehicles = this.singletonUser.getVehicleArrayList();
         vehicles_exist();
         getCurrentVhicle();
         control_insurance_expiration();
-
 
         listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
@@ -275,14 +271,19 @@ public class GarageFragment extends Fragment
 
     private void control_insurance_expiration() {
 
+        System.out.println("INURANCEEEE "+ insurance_date_list.size());
         if (insurance_date_list == null || insurance_date_list.size()==0){
+            System.out.println("INURANCEEEE NULL EXPIREEEEDDDD");
+
             return;
         }else{
             int i;
             for (i=0;i<insurance_date_list.size();i++){
-                System.out.println("INSURANCEEEEEEEEEE * " + insurance_date_list.size());
                 if (insurance_is_expired(i)){
+                    System.out.println("INURANCEEEE IS EXPIREEEEDDDD");
                     show_alert_message();
+                    this.insurance_date_list.clear();
+                    this.revision_date_list.clear();
                     return;
                 }
             }
@@ -290,7 +291,7 @@ public class GarageFragment extends Fragment
     }
 
     private void show_alert_message() {
-        final View popupView = getActivity().getLayoutInflater().inflate(R.layout.generale_alert, null);
+        final View popupView = getActivity().getLayoutInflater().inflate(R.layout.general_alert, null);
 
         final PopupWindow popupWindow = new PopupWindow(popupView,
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -309,8 +310,6 @@ public class GarageFragment extends Fragment
 
     private void vehicles_exist() {
 
-        this.insurance_date_list.clear();
-        this.revision_date_list.clear();
         if (vehicles == null){
             this.label.setVisibility(View.VISIBLE);
             this.label.setText("YOUR GARAGE IS EMPTY");
