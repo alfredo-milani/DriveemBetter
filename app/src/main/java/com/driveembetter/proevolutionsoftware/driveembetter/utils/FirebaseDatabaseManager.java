@@ -407,6 +407,7 @@ public class FirebaseDatabaseManager
                 .child(user.getUid());
 
         user.getMtxSyncData().lock();
+        Log.e(TAG, "LOCK");
         user.getMtxUpdatePosition().lock();
         // TODO deadlock se non viene fatto unlock a causa di mancanza connessione?
         // Attach a listener to read the data at our posts reference
@@ -495,6 +496,7 @@ public class FirebaseDatabaseManager
                         .setValue(UNAVAILABLE);
 
                 user.getMtxSyncData().unlock();
+                Log.e(TAG, "UNLOCK");
                 user.getMtxUpdatePosition().unlock();
             }
 

@@ -11,8 +11,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.NonReentrantLo
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by alfredo on 10/08/17.
@@ -44,7 +42,7 @@ public class SingletonUser extends User
     private Vehicle currentVehicle;
 
     // Sync
-    private final Lock mtxSyncData;
+    private final NonReentrantLock mtxSyncData;
     private final NonReentrantLock mtxUpdatePosition;
 
     private static SingletonUser singletonInstance;
@@ -63,7 +61,7 @@ public class SingletonUser extends User
         this.meanDay = new MeanDay();
         this.meanWeek = new MeanWeek();
         // Lock rientrante perché i thread sono diversi
-        this.mtxSyncData = new ReentrantLock(true);
+        this.mtxSyncData = new NonReentrantLock();
         // Lock non rientrante perché lo stesso thread opera sulle risorse
         this.mtxUpdatePosition = new NonReentrantLock();
     }
@@ -228,7 +226,7 @@ public class SingletonUser extends User
         SingletonUser.singletonInstance = null;
     }
 
-    public Lock getMtxSyncData() {
+    public NonReentrantLock getMtxSyncData() {
         return this.mtxSyncData;
     }
 

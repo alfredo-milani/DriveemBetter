@@ -55,12 +55,14 @@ public class RetrieveRankingRunnable
             return;
         }
 
-        Log.d(TAG, "positionManager: lat: " + this.user.getLatitude() + " long: " + this.user.getLongitude());
         this.user.getMtxSyncData().lock();
+        Log.d(TAG, "positionManager: lat: " + this.user.getLatitude() + " long: " + this.user.getLongitude());
+        Log.e(TAG, "LOCK");
         String country = this.user.getCountry();
         String region = this.user.getRegion();
         String subRegion = this.user.getSubRegion();
         this.user.getMtxSyncData().unlock();
+        Log.e(TAG, "UNLCCK");
 
         Log.d(TAG, "performQuery: " + country + "/" + region + "/" + subRegion);
         if (subRegion.equals(SUB_REGION) || region.equals(REGION) || country.equals(COUNTRY)) {

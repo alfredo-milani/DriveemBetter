@@ -11,7 +11,7 @@ public class NonReentrantLock {
     private boolean isLocked = false;
 
     public synchronized void lock() {
-        while(this.isLocked){
+        while (this.isLocked) {
             try {
                 this.wait();
             } catch (InterruptedException e) {
@@ -23,7 +23,7 @@ public class NonReentrantLock {
         this.isLocked = true;
     }
 
-    public synchronized void unlock(){
+    public synchronized void unlock() {
         this.isLocked = false;
         this.notify();
     }

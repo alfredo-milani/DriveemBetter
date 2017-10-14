@@ -200,15 +200,15 @@ public class MainFragmentActivity extends AppCompatActivity
         // Init user
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
 
-        // It should refresh automatically
-        FirebaseUtility firebaseUtility = new FirebaseUtility();
-        firebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
         // Sync SingletonUser with DB data
         if (this.singletonUser.getUid() != null &&
                 !this.singletonUser.getUid().isEmpty()) {
             Log.d(TAG, "Sync user data");
             FirebaseDatabaseManager.syncCurrentUser();
         }
+        // It should refresh automatically
+        FirebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
+        Log.e(TAG, "DDDIIIOOO");
 
         // Start listening to update position
         this.positionManager = PositionManager.getInstance(this);

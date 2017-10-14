@@ -3,15 +3,17 @@ package com.driveembetter.proevolutionsoftware.driveembetter.fcm;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
-public class FirebaseUtility
-        extends FirebaseInstanceIdService
+public class FirebaseUtility extends FirebaseInstanceIdService
         implements Constants {
 
     private static final String TAG = FirebaseUtility.class.getSimpleName();
+
+
 
     /**
      * Called if InstanceID token is updated. This may occur if the security of
@@ -28,7 +30,7 @@ public class FirebaseUtility
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
         // Instance ID token to your app server.
-        sendRegistrationToServer(refreshedToken);
+        FirebaseUtility.sendRegistrationToServer(refreshedToken);
     }
     // [END refresh_token]
 
@@ -40,8 +42,14 @@ public class FirebaseUtility
      *
      * @param token The new token.
      */
-    public void sendRegistrationToServer(final String token) {
-        //new SharedPrefUtil(getApplicationContext()).saveString(Constants.ARG_FIREBASE_TOKEN, token);
-        FirebaseDatabaseManager.refreshUserToken(token);
+    public static void sendRegistrationToServer(final String token) {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user != null) {
+            user.getMtxSyncData().lock();
+            Log.e(TAG, "LOCK");
+            FirebaseDatabaseManager.refreshUserToken(token);
+            user.getMtxSyncData().unlock();
+            Log.e(TAG, "UNLOCK");
+        }
     }
 }
