@@ -155,4 +155,5 @@
     <string name="revision_date">Data revisione</string>
     <string name="tires_cond">Stato gomme</string>
     <string name="week">Settimana</string>
+    <string name="restart_device">Per favore riavvia il tuo dispositivo</string>
 </resources>

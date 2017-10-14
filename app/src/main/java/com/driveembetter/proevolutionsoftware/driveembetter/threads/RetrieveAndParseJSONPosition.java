@@ -16,6 +16,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.ADDRESS;
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CITY;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.COUNTRY;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.REGION;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.SUB_REGION;
@@ -48,6 +50,8 @@ public class RetrieveAndParseJSONPosition implements Runnable {
     private final static String VALUE_TYPES_COUNTRY = "country";
     private final static String VALUE_TYPES_REGION = "administrative_area_level_1";
     private final static String VALUE_TYPES_SUB_REGION = "administrative_area_level_2";
+    private final static String VALUE_TYPE_CITY = "administrative_area_level_3";
+    private final static String VALUE_TYPE_ADDRESS = "route";
     private final static String VALUE_TYPES_LOCALITY = "locality";
 
     // To discriminate google's API response
@@ -124,6 +128,14 @@ public class RetrieveAndParseJSONPosition implements Runnable {
                                 case VALUE_TYPES_SUB_REGION:
                                     position[2] = keyPosition.getString(KEY_LONG_NAME);
                                     break;
+
+                                case VALUE_TYPE_CITY:
+                                    position[3] = keyPosition.getString(KEY_LONG_NAME);
+                                    break;
+
+                                case VALUE_TYPE_ADDRESS:
+                                    position[4] = keyPosition.getString(KEY_LONG_NAME);
+                                    break;
                             }
                         }
                     }
@@ -158,6 +170,12 @@ public class RetrieveAndParseJSONPosition implements Runnable {
         }
         if (position[2] == null) {
             position[2] = SUB_REGION;
+        }
+        if (position[3] == null) {
+            position[3] = CITY;
+        }
+        if (position[4] == null) {
+            position[4] = ADDRESS;
         }
 
         return position;
@@ -201,6 +219,8 @@ public class RetrieveAndParseJSONPosition implements Runnable {
 
         return buffer.toString();
     }
+
+
 
     /*
 {

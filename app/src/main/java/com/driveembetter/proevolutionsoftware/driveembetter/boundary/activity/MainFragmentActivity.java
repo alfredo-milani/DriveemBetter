@@ -128,7 +128,7 @@ public class MainFragmentActivity extends AppCompatActivity
                     Toast
                             .makeText(MainFragmentActivity.this, getString(R.string.session_expired), Toast.LENGTH_LONG)
                             .show();
-                    startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
+                    logoutCurrentProviders();
                     break;
 
                 case USER_LOGIN:
@@ -139,6 +139,7 @@ public class MainFragmentActivity extends AppCompatActivity
                     Log.d(TAG, "Log out");
 
                     positionManager.removeLocationUpdates();
+                    saveUserDataThread.interrupt();
                     reauthenticationThread.interrupt();
                     SingletonUser.resetSession();
                     startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
@@ -155,6 +156,7 @@ public class MainFragmentActivity extends AppCompatActivity
                     Toast
                             .makeText(MainFragmentActivity.this, getString(R.string.internal_firebase_error_login), Toast.LENGTH_LONG)
                             .show();
+                    logoutCurrentProviders();
                     break;
 
                 default:

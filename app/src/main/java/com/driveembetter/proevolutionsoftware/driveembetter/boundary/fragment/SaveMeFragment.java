@@ -4,19 +4,15 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
@@ -39,6 +35,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NumberManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
@@ -60,7 +57,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -238,17 +234,17 @@ public class SaveMeFragment
                                 SingletonUser.getInstance().getCountry();
 
 
-                        relativeLayout = (RelativeLayout) rootView.findViewById(R.id.relative);
+                        relativeLayout = rootView.findViewById(R.id.relative);
                         layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                         final ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.driver_info, null);
                         driverInfo = new PopupWindow(container, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
                         driverInfo.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
-                        driverUsername = (TextView) container.findViewById(R.id.driverUsernameContent);
-                        driverLocation = (TextView) container.findViewById(R.id.driverPositionContent);
-                        driverPic = (ImageView) container.findViewById(R.id.thumbnail);
-                        ratingBar = (RatingBar) container.findViewById(R.id.ratingBar);
+                        driverUsername = container.findViewById(R.id.driverUsernameContent);
+                        driverLocation = container.findViewById(R.id.driverPositionContent);
+                        driverPic = container.findViewById(R.id.thumbnail);
+                        ratingBar = container.findViewById(R.id.ratingBar);
                         ratingBar.setRating(2.0f);
-                        ratingButton = (Button) container.findViewById(R.id.ratingButton);
+                        ratingButton = container.findViewById(R.id.ratingButton);
                         driverLocation.setMovementMethod(new ScrollingMovementMethod());
                         driverUsername.setText(marker.getTitle());
                         driverLocation.setText(userSelectedLocation);
@@ -268,15 +264,19 @@ public class SaveMeFragment
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.hasChild(CHILD_IMAGE)) {
                                         userSelectedPic = dataSnapshot.child(CHILD_IMAGE).getValue().toString();
-                                        Log.e("DEBUGG", userSelectedPic);
-                                        DownloadImageTask downloadImageTask = new DownloadImageTask(driverPic);
-                                        downloadImageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, userSelectedPic);
+                                        GlideImageLoader.loadImage(
+                                                getActivity(),
+                                                driverPic,
+                                                Uri.parse(userSelectedPic),
+                                                R.mipmap.user_icon,
+                                                R.mipmap.user_black_icon
+                                        );
                                     }
                                     if (dataSnapshot.hasChild(CHILD_FEEDBACK)) {
                                         userSelectedFeedback = NumberManager.round(Double.parseDouble(dataSnapshot.child(CHILD_FEEDBACK).getValue().toString()),
                                                 2).toString();
                                     }
-                                    driverFeedback = (TextView) container.findViewById(R.id.driverFeedbackContent);
+                                    driverFeedback = container.findViewById(R.id.driverFeedbackContent);
                                     driverFeedback.setText(userSelectedFeedback);
                                 }
 
@@ -619,38 +619,5 @@ public class SaveMeFragment
 
             }
         });
-    }
-
-
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-
-        public DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            Log.e("DEBUG", "I'M EXECUTING?");
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            Resources res = getResources();
-            RoundedBitmapDrawable dr =
-                    RoundedBitmapDrawableFactory.create(res, result);
-            dr.setCornerRadius(Math.max(result.getWidth(), result.getHeight()) / 2.0f);
-            driverPic.setImageDrawable(dr);
-        }
     }
 }

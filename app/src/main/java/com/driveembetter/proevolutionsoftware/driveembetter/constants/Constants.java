@@ -90,6 +90,8 @@ public interface Constants {
     String STR_WEEK = "week";
     int HOURS = 24;
     int DAYS = 7;
+    long DAY_MS = 86400000;
+    long WEEK_MS = 604800000;
 
 
 

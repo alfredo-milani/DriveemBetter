@@ -39,6 +39,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -120,79 +121,84 @@ public class PositionManager
         }
 
         PositionManager.setStatisticsToPush(true);
-
-        Calendar calendar = Calendar.getInstance();
-        Date date = calendar.getTime();
-        int hour = date.getHours();
+        Date date = new Date();   // given date
+        Calendar calendarCurrent = GregorianCalendar.getInstance();
+        calendarCurrent.setTime(date);
+        long currentTimestamp = System.currentTimeMillis();
 
         // Daily update
-        if (date.equals(user.getMeanDay().getLocalDate())) { //stesso giorno
-            if (user.getMeanDay().getMap().get(hour) != null) {
-                Mean meanDay = user.getMeanDay().getMap().get(hour);
+        int currentHour = calendarCurrent.get(Calendar.HOUR_OF_DAY);
+        if (currentTimestamp - user.getMeanDay().getTimestamp() <= DAY_MS) { // stesso giorno
+            if (user.getMeanDay().getMap().get(calendarCurrent.get(Calendar.HOUR_OF_DAY)) != null) {
+                Mean meanDay = user.getMeanDay().getMap().get(currentHour);
                 meanDay.setSampleSumVelocity((float) speed);
                 meanDay.setSampleSizeVelocity();
                 meanDay.setSampleSumAcceleration((float) acceleration);
-                meanDay.setSampleSizeAcceleration();
-                user.getMeanDay().getMap().put(hour, meanDay);
+                if (acceleration != 0) {
+                    meanDay.setSampleSizeAcceleration();
+                }
+                user.getMeanDay().getMap().put(currentHour, meanDay);
             } else {
                 Mean meanDay = new Mean();
                 meanDay.setSampleSumVelocity((float) speed);
                 meanDay.setSampleSizeVelocity();
                 meanDay.setSampleSumAcceleration((float) acceleration);
-                meanDay.setSampleSizeAcceleration();
-                user.getMeanDay().getMap().put(hour, meanDay);
+                if (acceleration != 0) {
+                    meanDay.setSampleSizeAcceleration();
+                }
+                user.getMeanDay().getMap().put(currentHour, meanDay);
             }
         } else {
-            user.getMeanDay().setLocalDate(date);
+            user.getMeanDay().setTimestamp(currentTimestamp);
             user.getMeanDay().clear();
             user.getMeanDay().setClearDay(true);
             Mean meanDay = new Mean();
             meanDay.setSampleSumVelocity((float) speed); // modificare con il valore della velocità
             meanDay.setSampleSizeVelocity();
             meanDay.setSampleSumVelocity((float) acceleration);
-            meanDay.setSampleSizeAcceleration();
-            user.getMeanDay().getMap().put(hour, meanDay);
+            if (acceleration != 0) {
+                meanDay.setSampleSizeAcceleration();
+            }
+            user.getMeanDay().getMap().put(currentHour, meanDay);
         }
 
         //Weekly update
-        calendar.setTime(date);
-        int currentDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        int currentWeekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
-
+        Calendar calendarLast = GregorianCalendar.getInstance();
+        calendarLast.setTime(new Date(user.getMeanWeek().getTimestamp()));
+        int currentWeek = calendarCurrent.get(Calendar.WEEK_OF_MONTH);
+        int lastWeek = calendarLast.get(Calendar.WEEK_OF_MONTH);
         MeanWeek meanWeek2 = user.getMeanWeek();
-        calendar.setTime(meanWeek2.getLocalDate());
-        int weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
-
-        if (weekOfMonth == currentWeekOfMonth) {
-
-            if (meanWeek2.getMap().get(currentDayOfWeek) != null) {
-
-                Mean meanDay = meanWeek2.getMap().get(currentDayOfWeek);
+        if (currentWeek == lastWeek) { // stessa settimana (del mese)
+            if (meanWeek2.getMap().get(currentWeek) != null) {
+                Mean meanDay = meanWeek2.getMap().get(currentWeek);
                 meanDay.setSampleSumVelocity((float) speed);  // velocity
                 meanDay.setSampleSizeVelocity();
                 meanDay.setSampleSumAcceleration((float) acceleration); // acceleration
-                meanDay.setSampleSizeAcceleration();
-
+                if (acceleration != 0) {
+                    meanDay.setSampleSizeAcceleration();
+                }
             } else {
-
                 Mean meanDay = new Mean();
                 meanDay.setSampleSumVelocity((float) speed); // velocity
                 meanDay.setSampleSizeVelocity();
                 meanDay.setSampleSumAcceleration((float) acceleration); // acceleration
-                meanDay.setSampleSizeAcceleration();
-                meanWeek2.getMap().put(currentDayOfWeek, meanDay);
+                if (acceleration != 0) {
+                    meanDay.setSampleSizeAcceleration();
+                }
+                meanWeek2.getMap().put(currentWeek, meanDay);
             }
         } else {
-
-            meanWeek2.setLocalDate(date);
+            meanWeek2.setTimestamp(currentTimestamp);
             meanWeek2.clear();
             meanWeek2.setClearWeek(true);
             Mean meanDay = new Mean();
             meanDay.setSampleSumVelocity((float) speed); // velocity
             meanDay.setSampleSizeVelocity();
             meanDay.setSampleSumVelocity((float) acceleration); // acceleration
-            meanDay.setSampleSizeAcceleration();
-            meanWeek2.getMap().put(currentDayOfWeek, meanDay);
+            if (acceleration != 0) {
+                meanDay.setSampleSizeAcceleration();
+            }
+            meanWeek2.getMap().put(currentWeek, meanDay);
         }
     }
 

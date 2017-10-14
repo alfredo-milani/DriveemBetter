@@ -204,13 +204,13 @@ public class UserDetailsRankingActivity
             // titles
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                     UserDetailsRankingActivity.formatData,
-                    Locale.ITALIAN
+                    Locale.getDefault()
             );
             this.graphView.setTitle(String.format(
                     Locale.ENGLISH,
                     "%s: %s",
                     getString(R.string.last_update),
-                    simpleDateFormat.format(data.getLocalDate())
+                    simpleDateFormat.format(data.getTimestamp())
             ));
 
             // Adding axis titles

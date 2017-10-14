@@ -21,7 +21,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,7 +71,7 @@ public class FirebaseDatabaseManager
                     dataSnapshot.child(CHILD_STAT_DAY).getValue() != null) {
                 DataSnapshot daily = dataSnapshot.child(CHILD_STAT_DAY);
 
-                meanDay.setLocalDate(new Date((long) daily.child(CHILD_DATE).getValue()));
+                meanDay.setTimestamp((long) daily.child(CHILD_DATE).getValue());
                 for (DataSnapshot value : daily.getChildren()) {
                     if (!value.getKey().equals(CHILD_DATE)) {
                         int velSize = 0, accSize = 0; float velSum = 0, accSum = 0;
@@ -104,7 +103,7 @@ public class FirebaseDatabaseManager
                     dataSnapshot.child(CHILD_STAT_WEEK).getValue() != null) {
                 DataSnapshot weekly = dataSnapshot.child(CHILD_STAT_WEEK);
 
-                meanWeek.setLocalDate(new Date((long) weekly.child(CHILD_DATE).getValue()));
+                meanWeek.setTimestamp((long) weekly.child(CHILD_DATE).getValue());
                 for (DataSnapshot value : weekly.getChildren()) {
                     if (!value.getKey().equals(CHILD_DATE)) {
                         int velSize = 0, accSize = 0; float velSum = 0, accSum = 0;
@@ -149,7 +148,7 @@ public class FirebaseDatabaseManager
             // Saving MeanDay
             tmpOriginalMean = user.getMeanDay().getMap();
             tmpParsedMean = new HashMap<>(user.getMeanDay().getMap().size() + 1);
-            tmpParsedMean.put(CHILD_DATE, user.getMeanDay().getLocalDate().getTime());
+            tmpParsedMean.put(CHILD_DATE, user.getMeanDay().getTimestamp());
             for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
                 tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
             }
@@ -168,7 +167,7 @@ public class FirebaseDatabaseManager
             // Saving MeanWeek
             tmpOriginalMean = user.getMeanWeek().getMap();
             tmpParsedMean = new HashMap<>(user.getMeanWeek().getMap().size() + 1);
-            tmpParsedMean.put(CHILD_DATE, user.getMeanWeek().getLocalDate().getTime());
+            tmpParsedMean.put(CHILD_DATE, user.getMeanWeek().getTimestamp());
             for (Map.Entry<Integer, Mean> entry : tmpOriginalMean.entrySet()) {
                 tmpParsedMean.put(String.valueOf(entry.getKey()), entry.getValue());
             }

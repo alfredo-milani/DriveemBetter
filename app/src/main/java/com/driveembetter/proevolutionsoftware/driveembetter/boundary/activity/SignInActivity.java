@@ -157,6 +157,7 @@ public class SignInActivity
                     hideProgress();
                     Log.d(TAG, "handleMessage:internal firebase signin error");
                     Toast.makeText(SignInActivity.this, getString(R.string.internal_firebase_login_error), Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignInActivity.this, getString(R.string.restart_device), Toast.LENGTH_SHORT).show();
                     break;
 
                 case GOOGLE_SIGNIN_ERROR:

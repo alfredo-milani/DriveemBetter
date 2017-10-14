@@ -1,7 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.entity;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,12 +11,12 @@ public class MeanWeek {
 
     private Map<Integer, Mean> meanOfWeek;
     private boolean clearWeek;
-    private Date localDate;
+    private long timestamp;
 
     public MeanWeek() {
         this.meanOfWeek = new HashMap<Integer,Mean>();
         this.clearWeek = false;
-        this.localDate = Calendar.getInstance().getTime();
+        this.timestamp = System.currentTimeMillis();
     }
 
 
@@ -31,12 +29,12 @@ public class MeanWeek {
         this.meanOfWeek.clear();
     }
 
-    public Date getLocalDate() {
-        return localDate;
+    public long getTimestamp() {
+        return this.timestamp;
     }
 
-    public void setLocalDate(Date localDate) {
-        this.localDate = localDate;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public boolean isClearWeek() {

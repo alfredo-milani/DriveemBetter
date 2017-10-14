@@ -100,4 +100,5 @@
     <string name="loading_location">Loading your position…</string>
     <string name="decrease">Decrease</string>
     <string name="increase">Increase</string>
+    <string name="restart_device">Please restart your device</string>
 </resources>
