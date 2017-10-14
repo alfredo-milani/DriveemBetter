@@ -145,7 +145,7 @@
     <string name="add">CONFERMA</string>
     <string name="battery">Stato della batteria</string>
     <string name="day">Giorno</string>
-    <string name="general_alert"></string>
+    <string name="general_alert">Per favore controlla i veicoli contrassegnati dal punto esclamativo rosso, potrebbero avere assicurazione scaduta!</string>
     <string name="message">ATTENZIONE!</string>
     <string name="model">Modello</string>
     <string name="ok">OK</string>
