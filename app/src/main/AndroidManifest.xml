@@ -95,6 +95,15 @@
         </activity>
 
         <activity
+            android:name=".boundary.activity.ShowFullscreenGraph"
+            android:theme="@style/AppTheme" >
+            <!--Default Intent Filter-->
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".boundary.activity.SettingsActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait" >

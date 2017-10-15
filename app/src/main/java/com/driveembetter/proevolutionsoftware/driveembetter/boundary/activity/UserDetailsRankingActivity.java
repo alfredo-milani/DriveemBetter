@@ -1,10 +1,11 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -13,11 +14,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.adapters.PageAdapter;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
@@ -26,8 +27,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -47,8 +46,6 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     private final static String TAG = UserDetailsRankingActivity.class.getSimpleName();
 
     private final static String formatData = "dd-MM-yyyy HH:mm:ss";
-    private final static int minValYAcceleration = 0;
-    private final static int maxValYAcceleration = 3;
 
     // Resources
     private User user;
@@ -61,15 +58,9 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     private TextView points;
     private ImageView imageView;
     private ImageView availability;
-    private GraphView graphView;
-    private TextView unavailableData;
-    private ProgressBar progressBar;
     private TextView feedback;
-    private ImageButton fullscreen;
     private ImageButton startChatButton;
-    private TextView titleGraph;
-    private TextView subTitleGraph;
-    private ImageButton refreshData;
+    private PagerAdapter adapter;
 
 
 
@@ -101,21 +92,16 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         this.points = findViewById(R.id.points);
         this.imageView = findViewById(R.id.user_picture);
         this.availability = findViewById(R.id.availability);
-        this.graphView = findViewById(R.id.graph_points);
-        this.unavailableData = findViewById(R.id.unavailable_data);
-        this.progressBar = findViewById(R.id.progress_bar);
         this.feedback = findViewById(R.id.driverFeedbackContent);
-        this.fullscreen = findViewById(R.id.fullscreenImageButton);
         this.startChatButton = findViewById(R.id.startChatButton);
-        this.titleGraph = findViewById(R.id.titleGraph);
-        this.subTitleGraph = findViewById(R.id.subTitleGraph);
-        this.refreshData = findViewById(R.id.refreshGraph);
 
-        this.refreshData.setOnClickListener(this);
-        this.fullscreen.setOnClickListener(this);
+        ViewPager pager = findViewById(R.id.vpPager);
+        this.adapter = new PageAdapter(this.getSupportFragmentManager());
+        pager.setAdapter(this.adapter);
+
         if (this.user.getUid().equals(SingletonUser.getInstance().getUid())) {
             this.startChatButton.setColorFilter(
-                    ContextCompat.getColor(this, R.color.grey_400),
+                    ContextCompat.getColor(this, R.color.colorSchemasComplementary),
                     android.graphics.PorterDuff.Mode.MULTIPLY
             );
         } else {
@@ -153,45 +139,26 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         this.accelerationSeries = new LineGraphSeries<>();
         this.velocitySeries.setTitle(getString(R.string.velocity) + " (km/h)");
         this.accelerationSeries.setTitle(getString(R.string.acceleration) + " (m/s^2)");
-
-        // Adding axis titles
-        // this.graphView.getGridLabelRenderer().setVerticalAxisTitle("m/s");
-        // this.graphView.getGridLabelRenderer().setHorizontalAxisTitle("h");
-        // Adding series to graph
-        this.graphView.addSeries(this.velocitySeries);
-        this.graphView.getSecondScale().addSeries(this.accelerationSeries);
-        this.graphView.getSecondScale().setMinY(UserDetailsRankingActivity.minValYAcceleration);
-        this.graphView.getSecondScale().setMaxY(UserDetailsRankingActivity.maxValYAcceleration);
-        // this.graphView.addSeries(this.accelerationSeries);
-        // Setting color series
-        this.velocitySeries.setColor(ContextCompat.getColor(this, R.color.blue_700));
-        this.accelerationSeries.setColor(ContextCompat.getColor(this, R.color.tw__composer_red));
-        //
-        this.velocitySeries.setDrawAsPath(true);
-        this.accelerationSeries.setDrawAsPath(true);
-        // Setting line width
-        this.velocitySeries.setThickness(3);
-        this.accelerationSeries.setThickness(3);
-        // Legend
-        this.graphView.getLegendRenderer().setVisible(true);
-        this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));
-        this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
     }
 
     @Override
     public void hideProgress() {
+        /*
         if (this.progressBar.getVisibility() == View.VISIBLE) {
             this.progressBar.setIndeterminate(true);
             this.progressBar.setVisibility(View.GONE);
         }
+        */
     }
 
     @Override
     public void showProgress() {
+        /*
         if (this.progressBar.getVisibility() == View.GONE) {
             this.progressBar.setIndeterminate(true);
             this.progressBar.setVisibility(View.VISIBLE);
         }
+        */
     }
 
     @Override
@@ -261,12 +228,14 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         this.hideProgress();
         if (data == null || data.getMap().size() < 1) {
             Log.d(TAG, "Data null");
+            /*
             this.unavailableData.setVisibility(View.VISIBLE);
             this.fullscreen.setClickable(false);
             this.fullscreen.setColorFilter(
-                    ContextCompat.getColor(this, R.color.grey_400),
+                    ContextCompat.getColor(this, R.color.colorSchemasComplementary),
                     android.graphics.PorterDuff.Mode.MULTIPLY
             );
+            */
         } else {
             Log.d(TAG, "Data consistent");
             for (int i = 0; i < Constants.HOURS; ++i) {
@@ -305,6 +274,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
                     UserDetailsRankingActivity.formatData,
                     Locale.getDefault()
             );
+            /*
             this.titleGraph.setText("Velocity plot");
             this.subTitleGraph.setText(String.format(
                     Locale.ENGLISH,
@@ -312,6 +282,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
                     getString(R.string.last_update),
                     simpleDateFormat.format(data.getTimestamp())
             ));
+            */
         }
     }
 }

@@ -6,6 +6,7 @@
 
     <color name="colorText">@color/colorPrimary</color>
     <color name="colorSchemas">@color/colorPrimaryDark</color>
+    <color name="colorSchemasComplementary">@color/grey_500</color>
 
     <color name="red_50">#FFEBEE</color>
     <color name="red_100">#FFCDD2</color>
@@ -169,7 +170,7 @@
     <color name="light_green_A700">#64DD17</color>
 
     <color name="amber_50">#fff8e1</color>
-    <color name="amber_100">#FFECB3</color>
+    <color name="amber_100">#ffecb3</color>
     <color name="amber_200">#FFE082</color>
     <color name="amber_300">#FFD54F</color>
     <color name="amber_400">#FFCA28</color>

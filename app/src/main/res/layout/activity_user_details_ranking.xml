@@ -8,13 +8,34 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_picture"
-        android:layout_width="match_parent"
+        android:layout_width="75dp"
         android:layout_height="75dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp"
         app:civ_border_color="@color/colorSchemas"
         app:civ_border_width="1dp" />
+
+    <ImageView
+        android:id="@+id/availability"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignBottom="@+id/user_picture"
+        android:layout_marginStart="-20dp"
+        android:layout_toEndOf="@+id/user_picture"
+        android:contentDescription="@string/availability"
+        app:srcCompat="@drawable/unavailable_shape" />
+
+    <ImageButton
+        android:id="@+id/startChatButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_above="@+id/layout_info"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:background="@null"
+        android:contentDescription="@string/communicate"
+        android:tint="@color/colorSchemas"
+        app:srcCompat="@mipmap/ic_chat" />
 
     <LinearLayout
         android:id="@+id/layout_info"
@@ -36,14 +57,16 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/user_item" />
+                android:text="@string/user_item"
+                android:textColor="@color/colorSchemasComplementary" />
 
             <TextView
                 android:id="@+id/user"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center" />
+                android:gravity="center"
+                android:textColor="@color/colorSchemas" />
         </LinearLayout>
 
         <LinearLayout
@@ -67,7 +90,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/point_item" />
+                android:text="@string/point_item"
+                android:textColor="@color/colorSchemasComplementary" />
 
             <TextView
                 android:id="@+id/points"
@@ -75,39 +99,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="0" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp"
-            android:background="@color/colorSchemas"
-            android:orientation="horizontal" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/availability" />
-
-            <ImageView
-                android:id="@+id/availability"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:contentDescription="@string/availability"
-                app:srcCompat="@drawable/unavailable_shape" />
+                android:text="0"
+                android:textColor="@color/colorSchemas" />
         </LinearLayout>
 
         <LinearLayout
@@ -131,7 +124,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/feedback" />
+                android:text="@string/feedback"
+                android:textColor="@color/colorSchemasComplementary" />
 
             <TextView
                 android:id="@+id/driverFeedbackContent"
@@ -139,7 +133,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/not_determinated" />
+                android:text="@string/not_determinated"
+                android:textColor="@color/colorSchemas" />
         </LinearLayout>
 
     </LinearLayout>
@@ -147,8 +142,10 @@
     <android.support.v7.widget.CardView
         android:id="@+id/cardSecondScaleGraph"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
+        android:layout_below="@+id/layout_info"
+        android:layout_marginTop="5dp"
         card_view:cardBackgroundColor="@android:color/white"
         card_view:cardElevation="2sp"
         card_view:cardUseCompatPadding="true">
@@ -158,30 +155,43 @@
             android:layout_height="match_parent"
             android:layout_margin="8dp">
 
-            <com.jjoe64.graphview.GraphView
-                android:id="@+id/graph_points"
+            <android.support.v4.view.ViewPager
+                android:id="@+id/vpPager"
                 android:layout_width="match_parent"
-                android:layout_height="200dp" />
+                android:layout_height="match_parent"
+                android:layout_above="@+id/titleGraph">
+
+                <com.itsronald.widget.ViewPagerIndicator
+                    android:id="@+id/view_pager_indicator"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|center_horizontal"
+                    android:gravity="center_vertical"
+                    app:dotPadding="20dp"
+                    app:selectedDotColor="@color/colorSchemas"
+                    app:unselectedDotColor="@color/colorSchemasComplementary" />
+
+            </android.support.v4.view.ViewPager>
 
             <TextView
                 android:id="@+id/titleGraph"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/graph_points"
+                android:layout_above="@+id/subTitleGraph"
                 android:layout_marginTop="8dp"
                 android:maxLines="3"
                 android:textColor="@color/colorText"
-                android:textSize="22dp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/subTitleGraph"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/titleGraph"
+                android:layout_alignParentBottom="true"
                 android:maxLines="3"
                 android:textColor="@color/grey_700"
-                android:textSize="14dp" />
+                android:textSize="14sp" />
 
             <ImageButton
                 android:id="@+id/refreshGraph"
@@ -189,20 +199,22 @@
                 android:layout_height="40dp"
                 android:layout_alignTop="@+id/titleGraph"
                 android:layout_margin="5dp"
-                android:layout_toLeftOf="@+id/fullscreenImageButton"
+                android:layout_toStartOf="@+id/fullscreenImageButton"
                 android:background="@null"
                 android:tint="@color/colorSchemas"
-                app:srcCompat="@mipmap/refresh_icon" />
+                app:srcCompat="@mipmap/refresh_icon"
+                android:contentDescription="@string/menu_refresh" />
 
             <ImageButton
                 android:id="@+id/fullscreenImageButton"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_alignTop="@+id/titleGraph"
                 android:background="@null"
                 android:src="@mipmap/ic_fullscreen"
-                android:tint="@color/colorSchemas" />
+                android:tint="@color/colorSchemas"
+                android:contentDescription="@string/appbar_scrolling_view_behavior" />
 
         </RelativeLayout>
 
@@ -219,25 +231,5 @@
         android:textColor="@color/colorPrimary"
         android:textSize="20sp"
         android:visibility="gone" />
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:layout_below="@+id/layout_info"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp" />
-
-    <ImageButton
-        android:id="@+id/startChatButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/layout_info"
-        android:layout_alignParentEnd="true"
-        android:background="@null"
-        android:contentDescription="@string/communicate"
-        android:tint="@color/colorSchemas"
-        app:srcCompat="@mipmap/ic_chat" />
 
 </RelativeLayout>
