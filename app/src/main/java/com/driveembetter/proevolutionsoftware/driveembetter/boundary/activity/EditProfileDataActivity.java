@@ -52,8 +52,8 @@ public class EditProfileDataActivity extends AppCompatActivity
     private ImageView editPasswordButton;
 
     private LinearLayout editPasswordLayout;
-    private EditText editTextNewPsd;
-    private EditText editTextNewPsd2;
+    private EditText editTextNewPsw;
+    private EditText editTextNewPsw2;
     private Button backEditPassword;
     private Button confirmEditPassword;
 
@@ -105,8 +105,8 @@ public class EditProfileDataActivity extends AppCompatActivity
         this.editProfilePictureButton = findViewById(R.id.editProfilePictureButton);
         this.editPasswordButton = findViewById(R.id.imageView3);
         this.editPasswordLayout = findViewById(R.id.change_password_data);
-        this.editTextNewPsd = findViewById(R.id.editTextPasswordNew);
-        this.editTextNewPsd2 = findViewById(R.id.editTextPasswordNew2);
+        this.editTextNewPsw = findViewById(R.id.editTextPasswordNew);
+        this.editTextNewPsw2 = findViewById(R.id.editTextPasswordNew2);
         this.confirmEditPassword = findViewById(R.id.confirmModifyPassword);
         this.backEditPassword = findViewById(R.id.backModifyPassword);
         this.editEmailTextView = findViewById(R.id.email);
@@ -212,18 +212,22 @@ public class EditProfileDataActivity extends AppCompatActivity
                 break;
 
             case R.id.confirmModifyPassword:
-                String newPsw = this.editTextNewPsd.getText().toString();
-                String newPsw2 = this.editTextNewPsd2.getText().toString();
+                String newPsw = this.editTextNewPsw.getText().toString();
+                String newPsw2 = this.editTextNewPsw2.getText().toString();
 
                 if (TextUtils.isEmpty(newPsw)) {
-                    this.editTextNewPsd.setError(getString(R.string.strEmptyField));
+                    this.editTextNewPsw.setError(getString(R.string.strEmptyField));
                     break;
                 } else if (TextUtils.isEmpty(newPsw2)) {
-                    this.editTextNewPsd2.setError(getString(R.string.strEmptyField));
+                    this.editTextNewPsw2.setError(getString(R.string.strEmptyField));
                     break;
                 } else if (!newPsw.equals(newPsw2)) {
-                    this.editTextNewPsd.setError(getString(R.string.bad_new_psw));
-                    this.editTextNewPsd2.setError(getString(R.string.bad_new_psw));
+                    this.editTextNewPsw.setError(getString(R.string.bad_new_psw));
+                    this.editTextNewPsw2.setError(getString(R.string.bad_new_psw));
+                    break;
+                } else if (newPsw2.length() < 6) {
+                    this.editTextNewPsw.setError(getString(R.string.password_invalid));
+                    this.editTextNewPsw2.setError(getString(R.string.password_invalid));
                     break;
                 }
 
@@ -239,10 +243,13 @@ public class EditProfileDataActivity extends AppCompatActivity
                 break;
 
             case R.id.confirmModifyEmail:
-                // TODO: 14/10/17 aggiungere controllo sintattico inserimento email
                 String tmpEmail = this.editTextEmail.getText().toString();
+                String[] tmpEmailCheck = tmpEmail.split("@");
                 if (TextUtils.isEmpty(tmpEmail)) {
                     this.editTextEmail.setError(getString(R.string.strEmptyField));
+                    break;
+                } else if (tmpEmailCheck.length != 2 || !tmpEmailCheck[1].contains(".")) {
+                    this.editTextEmail.setError(getString(R.string.bad_formatted_email));
                     break;
                 }
 

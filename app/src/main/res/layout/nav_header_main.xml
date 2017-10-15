@@ -14,7 +14,8 @@
         android:layout_centerVertical="false"
         android:layout_marginTop="25dp"
         android:src="@mipmap/user_icon"
-        app:civ_border_color="#FFFFFF" />
+        app:civ_border_color="@color/colorSchemas"
+        app:civ_border_width="1dp" />
 
     <ImageButton
         android:id="@+id/imageViewSettings"

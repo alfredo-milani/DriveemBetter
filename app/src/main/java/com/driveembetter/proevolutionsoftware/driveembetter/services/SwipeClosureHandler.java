@@ -16,7 +16,7 @@ public class SwipeClosureHandler extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (startId == START_NOT_STICKY) {
-            Log.e("DEBUG", "Service was stopped and automatically restarted by the system. Stopping self now.");
+            Log.d("DEBUG", "Service was stopped and automatically restarted by the system. Stopping self now.");
             stopSelf();
         }
         return Service.START_NOT_STICKY;

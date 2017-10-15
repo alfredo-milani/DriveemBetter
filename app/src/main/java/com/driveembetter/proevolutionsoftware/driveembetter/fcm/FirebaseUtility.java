@@ -1,10 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.fcm;
 
-import android.util.Log;
-
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.RefreshTokenRunnable;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
@@ -25,31 +22,10 @@ public class FirebaseUtility extends FirebaseInstanceIdService
     public void onTokenRefresh() {
         // Get updated InstanceID token.
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-        Log.d(TAG, "Refreshed token: " + refreshedToken);
-
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
         // Instance ID token to your app server.
-        FirebaseUtility.sendRegistrationToServer(refreshedToken);
+        new Thread(new RefreshTokenRunnable(refreshedToken)).start();
     }
     // [END refresh_token]
-
-    /**
-     * Persist token to third-party servers.
-     * <p>
-     * Modify this method to associate the user's FCM InstanceID token with any server-side account
-     * maintained by your application.
-     *
-     * @param token The new token.
-     */
-    public static void sendRegistrationToServer(final String token) {
-        SingletonUser user = SingletonUser.getInstance();
-        if (user != null) {
-            user.getMtxSyncData().lock();
-            Log.e(TAG, "LOCK");
-            FirebaseDatabaseManager.refreshUserToken(token);
-            user.getMtxSyncData().unlock();
-            Log.e(TAG, "UNLOCK");
-        }
-    }
 }

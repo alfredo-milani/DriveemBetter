@@ -50,10 +50,10 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.Re
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.driveembetter.proevolutionsoftware.driveembetter.fcm.FirebaseUtility;
 import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosureHandler;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ReauthenticateUserRunnable;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.RefreshTokenRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.SaveUserStatisticsRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
@@ -207,8 +207,9 @@ public class MainFragmentActivity extends AppCompatActivity
             FirebaseDatabaseManager.syncCurrentUser();
         }
         // It should refresh automatically
-        FirebaseUtility.sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
-        Log.e(TAG, "DDDIIIOOO");
+        new Thread(new RefreshTokenRunnable(
+                FirebaseInstanceId.getInstance().getToken()
+        )).start();
 
         // Start listening to update position
         this.positionManager = PositionManager.getInstance(this);

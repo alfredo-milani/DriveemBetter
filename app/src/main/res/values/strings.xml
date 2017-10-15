@@ -101,4 +101,7 @@
     <string name="decrease">Decrease</string>
     <string name="increase">Increase</string>
     <string name="restart_device">Please restart your device</string>
+    <string name="user_not_traceable">You can not contact this user</string>
+    <string name="d">d</string>
+    <string name="cannot_contact_user">You can not contact this user</string>
 </resources>

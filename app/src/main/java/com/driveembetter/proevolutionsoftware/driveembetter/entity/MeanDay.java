@@ -9,6 +9,8 @@ import java.util.Map;
 
 public class MeanDay {
 
+    private final static String TAG = MeanDay.class.getSimpleName();
+
     private Map<Integer, Mean> meanOfDays;
     private boolean clearDay;
     private long timestamp;
@@ -23,6 +25,10 @@ public class MeanDay {
 
     public Map<Integer,Mean> getMap() {
         return this.meanOfDays;
+    }
+
+    public void setMeanOfDays(Map<Integer, Mean> meanOfDays) {
+        this.meanOfDays = meanOfDays;
     }
 
     public void clear() {

@@ -26,6 +26,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.facto
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonGoogleProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.ManageCache;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.common.SignInButton;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
@@ -74,7 +75,7 @@ public class SignInActivity
                     new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
                             android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         } else {
-            Log.e("DB", "PERMISSION GRANTED");
+            Log.d("DB", "PERMISSION GRANTED");
         }
 
         this.initWidget();
@@ -170,6 +171,8 @@ public class SignInActivity
                     hideProgress();
                     Log.d(TAG, "handleMessage:signin_error:action_canceled");
                     Toast.makeText(SignInActivity.this, getString(R.string.canceled_action), Toast.LENGTH_SHORT).show();
+                    // TODO: 14/10/17 vedere se cancellando la cache il problema viene risolto
+                    ManageCache.deleteCache(getApplicationContext());
                     break;
 
                 case UNKNOWN_ERROR:

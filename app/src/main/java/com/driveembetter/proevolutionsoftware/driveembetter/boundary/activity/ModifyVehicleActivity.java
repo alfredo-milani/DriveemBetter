@@ -80,7 +80,7 @@ public class ModifyVehicleActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_modify_vehicle);
+        this.setContentView(R.layout.activity_modify_vehicle);
         init_resources();
         Intent myIntent = getIntent();
         Bundle extras = myIntent.getExtras();

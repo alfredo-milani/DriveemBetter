@@ -197,7 +197,7 @@ public class SaveMeFragment
                             new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
                                     android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
                 } else {
-                    Log.e("DB", "PERMISSION GRANTED");
+                    Log.d("DB", "PERMISSION GRANTED");
                 }
                 googleMap.setMyLocationEnabled(true);
 
@@ -507,8 +507,6 @@ public class SaveMeFragment
                     subRegion = SingletonUser.getInstance().getSubRegion();
 
                     if (!country.equals(oldCountry) || !oldRegion.equals(oldRegion) || !subRegion.equals(oldSubRegion)) {
-                        Log.e("DEBUG", oldCountry + " " +  oldRegion + " " + oldSubRegion);
-                        Log.e("DEBUG", country + " " +  region + " " + subRegion);
                         lookForMyNeighbors(country, region, subRegion);
                     }
 
@@ -532,7 +530,6 @@ public class SaveMeFragment
                                     circle.setVisible(false);
                                     int zoom = getZoomLevel(circle);
                                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
-                                    Log.e("animate", "camera animated at: " + String.valueOf(zoom));
                                 }
                             }
                         });
@@ -573,7 +570,6 @@ public class SaveMeFragment
                                     Marker toDeleteMarker = markerPool.get(user);
                                     toDeleteMarker.remove();
                                     markerPool.remove(user);
-                                    Log.e("DEBUG", "MARKER DELETED");
                                 }
                             } else {
                                 //Map<String, Object> coordinates = data.get(user);
@@ -587,7 +583,6 @@ public class SaveMeFragment
                                 LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
                                 if (markerPool.containsKey(user)) {
                                     markerPool.get(user).setPosition(userPos);
-                                    Log.e("DEBUG", "GIA' ESISTE");
                                 } else {
                                     String markerTitle = "user@drivembetter.com";
                                     if (data.get(user).get(CHILD_EMAIL) != null)
@@ -614,7 +609,6 @@ public class SaveMeFragment
                                         .title(markerTitle));
                                     }
                                     markerPool.put(user, userMarker);
-                                    Log.e("DEBUG", "NON ESISTE");
                                 }
                             }
                         }

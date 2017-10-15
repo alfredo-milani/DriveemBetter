@@ -13,8 +13,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="25dp"
-        android:src="@mipmap/user_black_icon"
-        app:civ_border_color="#FFFFFF" />
+        app:civ_border_color="@color/colorSchemas"
+        app:civ_border_width="1dp" />
 
     <LinearLayout
         android:id="@+id/layout_info"
@@ -144,52 +144,69 @@
 
     </LinearLayout>
 
-
-
     <android.support.v7.widget.CardView
         android:id="@+id/cardSecondScaleGraph"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/layout_info"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         card_view:cardBackgroundColor="@android:color/white"
         card_view:cardElevation="2sp"
         card_view:cardUseCompatPadding="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ImageButton
-                android:id="@+id/fullscreeImageButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/textView19"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="25dp"
-                android:background="@null"
-                app:srcCompat="@drawable/ic_fullscreen"
-                android:contentDescription="@string/strFunction" />
-
-            <TextView
-                android:id="@+id/textView19"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView"
-                android:layout_marginEnd="133dp"
-                android:layout_alignParentBottom="true"
-                android:layout_toStartOf="@+id/fullscreeImageButton"
-                android:layout_marginBottom="11dp" />
+            android:layout_height="match_parent"
+            android:layout_margin="8dp">
 
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/graph_points"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                app:seriesType="line" />
+                android:layout_height="200dp" />
+
+            <TextView
+                android:id="@+id/titleGraph"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/graph_points"
+                android:layout_marginTop="8dp"
+                android:maxLines="3"
+                android:textColor="@color/colorText"
+                android:textSize="22dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/subTitleGraph"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/titleGraph"
+                android:maxLines="3"
+                android:textColor="@color/grey_700"
+                android:textSize="14dp" />
+
+            <ImageButton
+                android:id="@+id/refreshGraph"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignTop="@+id/titleGraph"
+                android:layout_margin="5dp"
+                android:layout_toLeftOf="@+id/fullscreenImageButton"
+                android:background="@null"
+                android:tint="@color/colorSchemas"
+                app:srcCompat="@mipmap/refresh_icon" />
+
+            <ImageButton
+                android:id="@+id/fullscreenImageButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/titleGraph"
+                android:background="@null"
+                android:src="@mipmap/ic_fullscreen"
+                android:tint="@color/colorSchemas" />
 
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
-
 
     <TextView
         android:id="@+id/unavailable_data"
@@ -219,8 +236,8 @@
         android:layout_above="@+id/layout_info"
         android:layout_alignParentEnd="true"
         android:background="@null"
-        android:visibility="gone"
-        app:srcCompat="@mipmap/ic_chat"
-        android:contentDescription="@string/communicate" />
+        android:contentDescription="@string/communicate"
+        android:tint="@color/colorSchemas"
+        app:srcCompat="@mipmap/ic_chat" />
 
 </RelativeLayout>

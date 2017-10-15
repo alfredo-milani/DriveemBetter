@@ -41,7 +41,7 @@
     <string name="google_signin_error">Error while logging in.</string>
     <string name="wrong_email_or_psw">The password or the email address are invalid.</string>
     <string name="menu_refresh">Refresh</string>
-    <string name="user_not_retrieved">Unable to retrieve singletonUser information.</string>
+    <string name="user_not_retrieved">Unable to retrieve user information.</string>
     <string name="user_exist">User already exist. Try with another email address.</string>
 
 

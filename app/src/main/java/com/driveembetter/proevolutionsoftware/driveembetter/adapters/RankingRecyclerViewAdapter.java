@@ -59,7 +59,8 @@ public class RankingRecyclerViewAdapter extends RecyclerView.Adapter<RankingRecy
         void bind(final User item, final OnItemClickListener listener) {
             // itemView defined in super class
             this.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
+                @Override
+                public void onClick(View v) {
                     listener.onItemClick(item);
                 }
             });

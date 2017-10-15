@@ -70,7 +70,7 @@ public class AddVehicleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_vehicle);
+        this.setContentView(R.layout.activity_add_vehicle);
         init_resources();
 
         Intent mIntent = getIntent();
