@@ -1,6 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -9,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -22,10 +24,17 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.Pa
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Locale;
+
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
+import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
 
 /**
  * Created by alfredo on 02/09/17.
@@ -34,7 +43,9 @@ import java.util.Locale;
 public class UserDetailsRankingActivity extends AppCompatActivity
         implements Constants,
         View.OnClickListener,
-        PageFragment.UpdateUIGraph {
+        PageFragment.UpdateUIGraph,
+        ViewPager.OnPageChangeListener,
+        FirebaseDatabaseManager.RetrieveVehiclesFromDB {
 
     private final static String TAG = UserDetailsRankingActivity.class.getSimpleName();
 
@@ -55,6 +66,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     private TextView titleGraph;
     private TextView subTitleGraph;
     private ImageButton fullscreenGraph;
+    private ImageView currentImageVehicle;
 
 
 
@@ -95,10 +107,28 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         this.titleGraph = findViewById(R.id.titleGraph);
         this.subTitleGraph = findViewById(R.id.subTitleGraph);
         this.fullscreenGraph = findViewById(R.id.fullscreenImageButton);
+        this.currentImageVehicle = findViewById(R.id.currentVehicle);
 
-        ViewPager pager = findViewById(R.id.vpPager);
+        final ViewPager pager = findViewById(R.id.vpPager);
         this.adapter = new PageAdapter(this.getSupportFragmentManager());
         pager.setAdapter(this.adapter);
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                Log.e(TAG, "PAGET: " + position);
+                PageFragment.pushDataToUI();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         if (UserDetailsRankingActivity.user.getUid().equals(SingletonUser.getInstance().getUid())) {
             this.startChatButton.setColorFilter(
@@ -133,6 +163,8 @@ public class UserDetailsRankingActivity extends AppCompatActivity
                     UserDetailsRankingActivity.user.getFeedback()
             ));
         }
+
+        FirebaseDatabaseManager.getCurrentVehicleRanking(this, user.getUid());
     }
 
     @Override
@@ -172,6 +204,58 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     }
 
     @Override
+    public void onUserVehiclesReceived(ArrayList<Vehicle> vehicles) {
+        final String format = "android.resource://%s/%d";
+        if (!vehicles.isEmpty()) {
+            Uri uri;
+            switch (vehicles.get(0).getType()) {
+                case CAR:
+                    uri = Uri.parse(String.format(
+                            Locale.ENGLISH,
+                            format,
+                            this.getPackageName(),
+                            R.mipmap.car
+                    ));
+                    break;
+
+                case VAN:
+                    uri = Uri.parse(String.format(
+                            Locale.ENGLISH,
+                            format,
+                            this.getPackageName(),
+                            R.mipmap.van
+                    ));
+                    break;
+
+                case MOTO:
+                    uri = Uri.parse(String.format(
+                            Locale.ENGLISH,
+                            format,
+                            this.getPackageName(),
+                            R.mipmap.moto
+                    ));
+                    break;
+
+                default:
+                    uri = Uri.parse(String.format(
+                            Locale.ENGLISH,
+                            format,
+                            this.getPackageName(),
+                            R.drawable.ic_answere_mark
+                    ));
+            }
+
+            GlideImageLoader.loadImage(
+                    this,
+                    this.currentImageVehicle,
+                    uri,
+                    R.drawable.ic_answere_mark,
+                    R.drawable.ic_answere_mark
+            );
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -183,8 +267,18 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
     }
 
     @Override
@@ -203,7 +297,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
                     this.simpleDateFormat.format(subTitle)
             ));
         } else {
-            this.subTitleGraph.setText(getString(R.string.error));
+            this.subTitleGraph.setText(getString(R.string.unknown));
         }
 
         if (clickable) {
@@ -219,5 +313,10 @@ public class UserDetailsRankingActivity extends AppCompatActivity
 
     public static String getUserID() {
         return UserDetailsRankingActivity.user.getUid();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }

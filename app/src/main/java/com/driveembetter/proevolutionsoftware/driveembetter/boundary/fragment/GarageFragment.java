@@ -270,17 +270,11 @@ public class GarageFragment extends Fragment
     }
 
     private void control_insurance_expiration() {
-
-        System.out.println("INURANCEEEE "+ insurance_date_list.size());
         if (insurance_date_list == null || insurance_date_list.size()==0){
-            System.out.println("INURANCEEEE NULL EXPIREEEEDDDD");
-
-            return;
         }else{
             int i;
             for (i=0;i<insurance_date_list.size();i++){
                 if (insurance_is_expired(i)){
-                    System.out.println("INURANCEEEE IS EXPIREEEEDDDD");
                     show_alert_message();
                     this.insurance_date_list.clear();
                     this.revision_date_list.clear();

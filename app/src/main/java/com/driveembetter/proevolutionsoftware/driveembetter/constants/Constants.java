@@ -71,7 +71,7 @@ public interface Constants {
     String CHILD_CURRENT_POSITION = "currentUserPosition";
     String CHILD_EMAIL = "email";
     String CHILD_AVAILABILITY = "availability";
-    String CHILD_CURRENT_VEHICLE = "currentVehicle";
+    String CHILD_CURRENT_VEHICLE = "current_vehicle";
     String CHILD_FEEDBACK = "feedback";
     String CHILD_HISTORICAL_FEEDBACK = "historicalFeedback";
     String CHILD_ZONA = "zona";

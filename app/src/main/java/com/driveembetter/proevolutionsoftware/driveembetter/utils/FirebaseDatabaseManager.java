@@ -716,15 +716,8 @@ public class FirebaseDatabaseManager
         void onUserVehiclesReceived(ArrayList<Vehicle> vehicles);
     }
 
-    public static void getCurrentVehicle(final RetrieveVehiclesFromDB retrieveVehiclesFromDB,
-                                         final SingletonUser.UserDataCallback userDataCallback)
-            throws CallbackNotInitialized {
-        if (retrieveVehiclesFromDB == null || userDataCallback == null) {
-            throw new CallbackNotInitialized(TAG);
-        }
-
+    public static void getCurrentVehicle() {
         final SingletonUser user = SingletonUser.getInstance();
-        //Create query
         final Query query = FirebaseDatabaseManager.databaseReference
                 .child(NODE_USERS)
                 .child(user.getUid());
@@ -737,6 +730,44 @@ public class FirebaseDatabaseManager
                     String[] temp1 = currentVehicle.split("=");
                     String[] vehicleData = temp1[1].split(";");
                     user.setCurrentVehicle(new Vehicle(vehicleData[0], vehicleData[1], vehicleData[2], vehicleData[3],vehicleData[4],vehicleData[5]));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "DB Error: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    public static void getCurrentVehicleRanking(final RetrieveVehiclesFromDB retrieveVehiclesFromDB, final String id)
+        throws CallbackNotInitialized {
+        if (retrieveVehiclesFromDB == null) {
+            throw new CallbackNotInitialized(TAG);
+        }
+
+        // Create query
+        final Query query = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(id);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE)) {
+                    String currentVehicle = dataSnapshot.child(CHILD_CURRENT_VEHICLE).getValue().toString();
+                    String[] temp1 = currentVehicle.split("=");
+                    String[] vehicleData = temp1[1].split(";");
+                    ArrayList<Vehicle> vehicleArrayList = new ArrayList<Vehicle>(1);
+                    vehicleArrayList.add(new Vehicle(
+                            vehicleData[0],
+                            vehicleData[1],
+                            vehicleData[2],
+                            vehicleData[3],
+                            vehicleData[4],
+                            vehicleData[5]
+                    ));
+                    retrieveVehiclesFromDB.onUserVehiclesReceived(vehicleArrayList);
                 }
             }
 

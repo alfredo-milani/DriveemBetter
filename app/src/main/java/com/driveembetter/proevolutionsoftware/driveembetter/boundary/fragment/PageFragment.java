@@ -42,6 +42,7 @@ public class PageFragment extends Fragment
     public final static int ACCELERATION_GRAPH_WEEKLY = 4;
     public final static int FEEDBACK_GRAPH = 5;
     public final static int POINTS_GRAPH = 6;
+    private static int CURRENT_FRAGMENT;
 
     // Widgets
     private Context context;
@@ -52,9 +53,14 @@ public class PageFragment extends Fragment
 
     // Resources
     private static String userID;
-    private UpdateUIGraph updateUI;
+    private static UpdateUIGraph updateUI;
     private int typeGraph;
     private LineGraphSeries<DataPoint> graphSeries;
+    private static boolean userVisibleHint;
+
+    private static String title;
+    private static long timestamp;
+    private static boolean dataReceived;
 
     public interface UpdateUIGraph {
         void updateUI(String title, long subTitle, boolean dataReceived);
@@ -127,12 +133,20 @@ public class PageFragment extends Fragment
     public void onStart() {
         super.onStart();
 
-        Log.d(TAG, "START: " + this.typeGraph);
         this.getGraphData();
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        Log.e(TAG, "DIO: " + this.typeGraph + " / " + isVisibleToUser);
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if (isVisibleToUser) {
+            this.userVisibleHint = true;
+        }
+    }
+
     private void getGraphData() {
-        Log.d(TAG, "getGraphData: " + this.typeGraph);
         this.showProgress();
 
         switch (this.typeGraph) {
@@ -243,11 +257,9 @@ public class PageFragment extends Fragment
         Log.d(TAG, "Data received");
         if (meanDay == null || meanDay.getMap().size() < 1) {
             Log.d(TAG, "Data null");
-            this.updateUI.updateUI(
-                    getString(R.string.velocity_graph),
-                    0,
-                    false
-            );
+            this.title = getString(R.string.velocity_graph);
+            this.timestamp = 0;
+            this.dataReceived = false;
         } else {
             Log.d(TAG, "Data consistent");
             this.unavailableData.setVisibility(View.GONE);
@@ -270,13 +282,13 @@ public class PageFragment extends Fragment
                 }
             }
 
+            this.title = getString(R.string.velocity_graph);
+            this.timestamp = meanDay.getTimestamp();
+            this.dataReceived = true;
             this.graphView.addSeries(this.graphSeries);
-            this.updateUI.updateUI(
-                    getString(R.string.velocity_graph),
-                    meanDay.getTimestamp(),
-                    true
-            );
         }
+
+        this.pushDataToUI();
     }
 
     @Override
@@ -291,11 +303,9 @@ public class PageFragment extends Fragment
         Log.d(TAG, "Data received");
         if (meanDay == null || meanDay.getMap().size() < 1) {
             Log.d(TAG, "Data null");
-            this.updateUI.updateUI(
-                    getString(R.string.acceleration_graph),
-                    0,
-                    false
-            );
+            this.title = getString(R.string.acceleration_graph);
+            this.timestamp = 0;
+            this.dataReceived = false;
         } else {
             Log.d(TAG, "Data consistent");
             this.unavailableData.setVisibility(View.GONE);
@@ -319,13 +329,13 @@ public class PageFragment extends Fragment
                 }
             }
 
+            this.title = getString(R.string.acceleration_graph);
+            this.timestamp = meanDay.getTimestamp();
+            this.dataReceived = true;
             this.graphView.addSeries(this.graphSeries);
-            this.updateUI.updateUI(
-                    getString(R.string.acceleration_graph),
-                    meanDay.getTimestamp(),
-                    true
-            );
         }
+
+        this.pushDataToUI();
     }
 
     @Override
@@ -341,5 +351,15 @@ public class PageFragment extends Fragment
     @Override
     public void onFeedbackReceived() {
         this.hideProgress();
+    }
+
+    public static void pushDataToUI() {
+        if (userVisibleHint) {
+            updateUI.updateUI(
+                    title,
+                    timestamp,
+                    dataReceived
+            );
+        }
     }
 }

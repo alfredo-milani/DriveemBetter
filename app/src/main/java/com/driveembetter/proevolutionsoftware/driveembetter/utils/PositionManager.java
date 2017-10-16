@@ -130,8 +130,18 @@ public class PositionManager
         long currentTimestamp = System.currentTimeMillis();
 
         // Daily update
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+        cal1.setTime(new Date(System.currentTimeMillis()));
+        cal2.setTime(new Date(user.getMeanDay().getTimestamp()));
+        boolean sameDay = cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+
+        Date dateLastUpdate = new Date(user.getMeanDay().getTimestamp());
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTime(dateLastUpdate);
         int currentHour = calendarCurrent.get(Calendar.HOUR_OF_DAY);
-        if (currentTimestamp - user.getMeanDay().getTimestamp() <= DAY_MS) { // stesso giorno
+        if (sameDay) { // stesso giorno
             if (user.getMeanDay().getMap().get(calendarCurrent.get(Calendar.HOUR_OF_DAY)) != null) {
                 Mean meanDay = user.getMeanDay().getMap().get(currentHour);
                 meanDay.setSampleSumVelocity((float) speed);

@@ -235,7 +235,7 @@
         android:visibility="gone" />
 
     <ImageView
-        android:id="@+id/imageView5"
+        android:id="@+id/currentVehicle"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_alignStart="@+id/user_picture"

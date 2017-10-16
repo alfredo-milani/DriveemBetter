@@ -70,7 +70,7 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, true);
-        PositionManager.getInstance(getContext()).resetCity();
+        PositionManager.resetCity();
     }
 
     @Override
