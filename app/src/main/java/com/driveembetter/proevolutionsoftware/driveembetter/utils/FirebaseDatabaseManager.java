@@ -1154,4 +1154,97 @@ public class FirebaseDatabaseManager
             }
         });
     }
+    public static void updateUserPoints(final long points, final String uid) {
+        final DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(uid);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(CHILD_POINTS)) {
+                    String currentPointsString = dataSnapshot.child(CHILD_POINTS).getValue().toString();
+                    Long newPoints = Long.parseLong(currentPointsString) + points;
+                    if (newPoints < 0) {
+                        databaseReference.
+                                child(CHILD_POINTS).setValue(0);
+                        updatePositionPoints(points, uid);
+                    } else {
+                        databaseReference.
+                                child(CHILD_POINTS).setValue(newPoints);
+                        updatePositionPoints(newPoints, uid);
+                    }
+                } else {
+                    Map<String, Object> pointMap = new HashMap<>();
+                    pointMap.put(CHILD_POINTS, points);
+                    databaseReference.updateChildren(pointMap);
+                    updatePositionPoints(points, uid);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public static void updateUserPoints(final long points) {
+        User user = SingletonUser.getInstance();
+        final DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(user.getUid());
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(CHILD_POINTS)) {
+                    Log.e("DEB", dataSnapshot.child(CHILD_POINTS).getValue().toString());
+                    String currentPointsString =  dataSnapshot.child(CHILD_POINTS).getValue().toString();
+                    Long newPoints = Long.parseLong(currentPointsString) + points;
+                    if (newPoints < 0) {
+                        databaseReference.
+                                child(CHILD_POINTS).setValue(0);
+                        updatePositionPoints(0);
+                    } else {
+                        databaseReference.
+                                child(CHILD_POINTS).setValue(newPoints);
+                        updatePositionPoints(newPoints);
+                    }
+                } else {
+                    Map<String, Object> pointMap = new HashMap<>();
+                    pointMap.put(CHILD_POINTS, points);
+                    databaseReference.updateChildren(pointMap);
+                    updatePositionPoints(points);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private static void updatePositionPoints(long points) {
+        SingletonUser user = SingletonUser.getInstance();
+        FirebaseDatabaseManager.databaseReference
+                .child(NODE_POSITION)
+                .child(user.getCountry())
+                .child(user.getRegion())
+                .child(user.getSubRegion())
+                .child(user.getUid())
+                .child(CHILD_POINTS)
+                .setValue(points);
+    }
+
+    private static void updatePositionPoints(long points, String uid) {
+        SingletonUser user = SingletonUser.getInstance();
+        FirebaseDatabaseManager.databaseReference
+                .child(NODE_POSITION)
+                .child(user.getCountry())
+                .child(user.getRegion())
+                .child(user.getSubRegion())
+                .child(uid)
+                .child(CHILD_POINTS)
+                .setValue(points);
+    }
 }

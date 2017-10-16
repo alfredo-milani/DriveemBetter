@@ -38,6 +38,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NumberManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PointManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -197,7 +198,7 @@ public class SaveMeFragment
                             new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
                                     android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
                 } else {
-                    Log.d("DB", "PERMISSION GRANTED");
+                    Log.e("DB", "PERMISSION GRANTED");
                 }
                 googleMap.setMyLocationEnabled(true);
 
@@ -292,7 +293,6 @@ public class SaveMeFragment
                         ratingButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                //TODO TEST
                                 if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) ||
                                         Locale.getDefault().getDisplayLanguage().equals(Locale.US))
                                     Toast.makeText(context, FEEDBACK_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
@@ -301,6 +301,7 @@ public class SaveMeFragment
                                 FirebaseDatabaseManager.updateUserFeedback(userSelectedUid, Double.parseDouble(String.valueOf(ratingBar.getRating())),
                                         SingletonUser.getInstance().getCountry(), SingletonUser.getInstance().getRegion(),
                                         SingletonUser.getInstance().getSubRegion());
+                                PointManager.updatePoints(Double.parseDouble(String.valueOf(ratingBar.getRating())), userSelectedUid);
                                 ratingButton.setClickable(false);
                                 ratingButton.setTextColor(Color.BLACK);
                                 if (Locale.getDefault().getDisplayLanguage().equals(Locale.US) ||
@@ -507,6 +508,8 @@ public class SaveMeFragment
                     subRegion = SingletonUser.getInstance().getSubRegion();
 
                     if (!country.equals(oldCountry) || !oldRegion.equals(oldRegion) || !subRegion.equals(oldSubRegion)) {
+                        Log.e("DEBUG", oldCountry + " " +  oldRegion + " " + oldSubRegion);
+                        Log.e("DEBUG", country + " " +  region + " " + subRegion);
                         lookForMyNeighbors(country, region, subRegion);
                     }
 
@@ -530,6 +533,7 @@ public class SaveMeFragment
                                     circle.setVisible(false);
                                     int zoom = getZoomLevel(circle);
                                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
+                                    Log.e("animate", "camera animated at: " + String.valueOf(zoom));
                                 }
                             }
                         });
@@ -570,6 +574,7 @@ public class SaveMeFragment
                                     Marker toDeleteMarker = markerPool.get(user);
                                     toDeleteMarker.remove();
                                     markerPool.remove(user);
+                                    Log.e("DEBUG", "MARKER DELETED");
                                 }
                             } else {
                                 //Map<String, Object> coordinates = data.get(user);
@@ -583,6 +588,7 @@ public class SaveMeFragment
                                 LatLng userPos = new LatLng(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
                                 if (markerPool.containsKey(user)) {
                                     markerPool.get(user).setPosition(userPos);
+                                    Log.e("DEBUG", "GIA' ESISTE");
                                 } else {
                                     String markerTitle = "user@drivembetter.com";
                                     if (data.get(user).get(CHILD_EMAIL) != null)
@@ -603,12 +609,13 @@ public class SaveMeFragment
                                         if (data.get(user).get(CHILD_CURRENT_VEHICLE).equals("Van"))
                                             mipMapRef = R.mipmap.van;
                                         userMarker = googleMap.addMarker(new MarkerOptions()
-                                        .draggable(true)
-                                        .position(userPos)
-                                        .icon(BitmapDescriptorFactory.fromResource(mipMapRef))
-                                        .title(markerTitle));
+                                                .draggable(true)
+                                                .position(userPos)
+                                                .icon(BitmapDescriptorFactory.fromResource(mipMapRef))
+                                                .title(markerTitle));
                                     }
                                     markerPool.put(user, userMarker);
+                                    Log.e("DEBUG", "NON ESISTE");
                                 }
                             }
                         }

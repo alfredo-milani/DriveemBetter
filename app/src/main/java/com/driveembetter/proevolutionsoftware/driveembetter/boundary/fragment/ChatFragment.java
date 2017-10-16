@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 public class ChatFragment extends Fragment implements ChatContract.View, TextView.OnEditorActionListener {
     private RecyclerView mRecyclerViewChat;
     private EditText mETxtMessage;
+
+    private Button sendMessageButton;
 
     private ProgressDialog mProgressDialog;
 
@@ -74,6 +77,8 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     private void bindViews(View view) {
         mRecyclerViewChat = (RecyclerView) view.findViewById(R.id.recycler_view_chat);
         mETxtMessage = (EditText) view.findViewById(R.id.edit_text_message);
+        sendMessageButton = (Button) view.findViewById(R.id.send_message_button);
+
     }
 
     @Override
@@ -93,6 +98,12 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
         mChatPresenter = new ChatPresenter(this);
         mChatPresenter.getMessage(FirebaseAuth.getInstance().getCurrentUser().getUid(),
                 getArguments().getString(Constants.ARG_RECEIVER_UID));
+        sendMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendMessage();
+            }
+        });
     }
 
     @Override
@@ -106,20 +117,22 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
 
     private void sendMessage() {
         String message = mETxtMessage.getText().toString();
-        String receiver = getArguments().getString(Constants.ARG_RECEIVER);
-        String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
-        String sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        String senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String receiverFirebaseToken = getArguments().getString(Constants.ARG_FIREBASE_TOKEN);
-        Chat chat = new Chat(sender,
-                receiver,
-                senderUid,
-                receiverUid,
-                message,
-                System.currentTimeMillis());
-        mChatPresenter.sendMessage(getActivity().getApplicationContext(),
-                chat,
-                receiverFirebaseToken);
+        if (message.trim().length() > 0) {
+            String receiver = getArguments().getString(Constants.ARG_RECEIVER);
+            String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
+            String sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            String senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            String receiverFirebaseToken = getArguments().getString(Constants.ARG_FIREBASE_TOKEN);
+            Chat chat = new Chat(sender,
+                    receiver,
+                    senderUid,
+                    receiverUid,
+                    message,
+                    System.currentTimeMillis());
+            mChatPresenter.sendMessage(getActivity().getApplicationContext(),
+                    chat,
+                    receiverFirebaseToken);
+        }
     }
 
     @Override

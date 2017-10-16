@@ -47,6 +47,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.PointManager.FIRST_ACCELERATION_BOUND;
+import static com.driveembetter.proevolutionsoftware.driveembetter.utils.PointManager.FIRST_DECELERATION_BOUND;
+
 /**
  * Created by matti on 28/08/2017.
  */
@@ -203,56 +206,80 @@ public class PositionManager
     }
 
     private void checkSpeedAndAcceleration(Location location) throws IOException {
+
         String currentPosition = "";
+
         String[] currentAddress = SingletonUser.getInstance().getAddress().split(",");
         if (currentAddress != null && currentAddress.length > 0) {
             currentPosition = currentAddress[0];
         }
 
+
+        /*
+
+        addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
+        if(addresses != null && addresses.size() > 0 ) {
+            Address address = addresses.get(0);
+            // Thoroughfare seems to be the street name without numbers
+            currentPosition = address.getThoroughfare();
+        }
+        */
+
         if (location.hasSpeed()) {
-            if (initialSpeed == -1) {
-                //first time that velocity has been detected, I don't check acceleration
-                initialSpeed = (int) ((location.getSpeed() * 3600) / 1000);
-                initialTime = System.currentTimeMillis();
-                Log.e("SPEED", "Speed: " + initialSpeed);
-                updateStatistics(initialSpeed, 0);
-                if (speedometer != null)
-                    speedometer.onSpeedChanged(initialSpeed);
-                //TODO
-                //check speed limits
-                SpeedLimitManager speedLimitManager = new SpeedLimitManager();
-                speedLimitManager.execute(String.valueOf(initialSpeed), String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-            } else {
-                float speed = ((location.getSpeed() * 3600) / 1000);
-                double time = System.currentTimeMillis();
-                double deltaT = (time - initialTime) / 1000;
-                double acceleration = ((double) (speed - initialSpeed)) / deltaT;
-
-                updateStatistics(speed, acceleration);
-                if (speedometer != null)
-                    speedometer.onSpeedChanged(speed);
-
-                //TODO ??
-                //check speed limits or abrupt braking or acceleration
-                if (acceleration > 5)
-                    alertAcceleration(1);
-                if (acceleration < -8)
-                    alertAcceleration(-1);
-                if (currentPosition != null && lastPosition != null &&
-                        !currentPosition.equals(lastPosition)) {
-                    SpeedLimitManager speedLimitManager = new SpeedLimitManager();
-                    speedLimitManager.execute(
-                            String.valueOf(speed),
-                            String.valueOf(location.getLatitude()),
-                            String.valueOf(location.getLongitude())
-                    );
+            if (location.getSpeed() * 3600 / 1000 > 20) {
+                if (location.getSpeed() * 3600 / 1000 > 140) {
+                    alertGeneralSpeed();
+                    PointManager.updatePoints(4, 0, 0);
                 }
-                initialTime = time;
-                initialSpeed = speed;
-                lastPosition = currentPosition;
+                if (initialSpeed == -1) {
+                    //first time that velocity has been detected, I don't check acceleration
+                    initialSpeed = (int) ((location.getSpeed() * 3600) / 1000);
+                    initialTime = System.currentTimeMillis();
+                    Log.e("SPEED", "Speed: " + initialSpeed);
+                    updateStatistics(initialSpeed, 0);
+                    if (speedometer != null)
+                        speedometer.onSpeedChanged(initialSpeed);
+                    //TODO
+                    //check speed limits
+                    SpeedLimitManager speedLimitManager = new SpeedLimitManager();
+                    speedLimitManager.execute(String.valueOf(initialSpeed), String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+                } else {
+                    float speed = ((location.getSpeed() * 3600) / 1000);
+                    double time = System.currentTimeMillis();
+                    double deltaT = (time - initialTime) / 1000;
+                    double acceleration = ((double) (speed - initialSpeed)) / deltaT;
+
+                    updateStatistics(speed, acceleration);
+                    if (speedometer != null)
+                        speedometer.onSpeedChanged(speed);
+
+                    //TODO ??
+                    //check speed limits or abrupt braking or acceleration
+
+                    PointManager.updatePoints(1, acceleration, 0);
+
+                    if (acceleration > FIRST_ACCELERATION_BOUND)
+                        alertAcceleration(1);
+                    if (acceleration < FIRST_DECELERATION_BOUND)
+                        alertAcceleration(-1);
+                    if (currentPosition != null && lastPosition != null &&
+                            !currentPosition.equals(lastPosition)) {
+                        SpeedLimitManager speedLimitManager = new SpeedLimitManager();
+                        speedLimitManager.execute(
+                                String.valueOf(speed),
+                                String.valueOf(location.getLatitude()),
+                                String.valueOf(location.getLongitude())
+                        );
+                    }
+                    initialTime = time;
+                    initialSpeed = speed;
+                    lastPosition = currentPosition;
+                }
             }
         }
     }
+
+
 
 
 
@@ -616,6 +643,24 @@ public class PositionManager
                 }
             }
 
+        });
+    }
+
+    private void alertGeneralSpeed() {
+        tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                if (i != TextToSpeech.ERROR) {
+                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH)) {
+                        tts.setLanguage(Locale.UK);
+                        tts.speak("You're going too fast, please slow down", TextToSpeech.QUEUE_ADD, null);
+                    }
+                    else {
+                        tts.setLanguage(Locale.ITALY);
+                        tts.speak("Stai correndo troppo, rallenta", TextToSpeech.QUEUE_ADD, null);
+                    }
+                }
+            }
         });
     }
 
