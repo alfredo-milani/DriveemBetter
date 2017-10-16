@@ -102,6 +102,15 @@
     <string name="increase">Increase</string>
     <string name="restart_device">Please restart your device</string>
     <string name="user_not_traceable">You can not contact this user</string>
-    <string name="d">d</string>
     <string name="cannot_contact_user">You can not contact this user</string>
+    <string name="vel_mu">mi/h</string>
+    <string name="acc_mu">m/s^2</string>
+    <string name="hour_mu">h</string>
+    <string name="points_mu">points</string>
+    <string name="unknown">Unknwon</string>
+    <string name="velocity_graph">Velocity graph</string>
+    <string name="acceleration_graph">Acceleration graph</string>
+    <string name="points_graph">Points graph</string>
+    <string name="feedback_graph">Feedback graph</string>
+    <string name="error">Error</string>
 </resources>

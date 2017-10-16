@@ -24,6 +24,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.ACCELERATION_GRAPH_DAILY;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.ACCELERATION_GRAPH_WEEKLY;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.VELOCITY_GRAPH_DAILY;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.VELOCITY_GRAPH_WEEKLY;
+
 
 /**
  * Created by alfredo on 01/09/17.
@@ -563,20 +568,24 @@ public class FirebaseDatabaseManager
      *  STATISTICS DATA
      */
     public interface RetrieveDataDB {
-        void onDailyDataReceived(MeanDay meanDay);
-        void onWeeklyDataReceived(MeanWeek meanWeek);
+        void onDailyVelocityReceived(MeanDay meanDay);
+        void onWeeklyVelocityReceived(MeanWeek meanWeek);
+        void onDailyAccelerationReceived(MeanDay meanDay);
+        void onWeeklyAccelerationReceived(MeanWeek meanWeek);
+        void onPointsDataReceived();
+        void onFeedbackReceived();
     }
 
-    public static void retrieveDailyData(final RetrieveDataDB callback, String userId) {
+    public static void retrieveDailyData(final RetrieveDataDB callback, final int typeDataRequested, String userID) {
         if (callback == null) {
             throw new CallbackNotInitialized(TAG);
-        } else if (userId == null) {
+        } else if (userID == null) {
             return;
         }
 
         final Query query = FirebaseDatabaseManager.databaseReference
                 .child(NODE_USERS)
-                .child(userId);
+                .child(userID);
 
         // Attach a listener to read the data at our posts reference
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -597,7 +606,15 @@ public class FirebaseDatabaseManager
                     meanDay = null;
                 }
 
-                callback.onDailyDataReceived(meanDay);
+                switch (typeDataRequested) {
+                    case VELOCITY_GRAPH_DAILY:
+                        callback.onDailyVelocityReceived(meanDay);
+                        break;
+
+                    case ACCELERATION_GRAPH_DAILY:
+                        callback.onDailyAccelerationReceived(meanDay);
+                        break;
+                }
             }
 
             @Override
@@ -606,6 +623,90 @@ public class FirebaseDatabaseManager
             }
         });
     }
+
+    public static void retrieveWeeklyData(final RetrieveDataDB callback, final int typeDataRequested, String userID) {
+        if (callback == null) {
+            throw new CallbackNotInitialized(TAG);
+        } else if (userID == null) {
+            return;
+        }
+
+        final Query query = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(userID);
+
+        // Attach a listener to read the data at our posts reference
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                MeanWeek meanWeek = new MeanWeek();
+                if (dataSnapshot.exists()) {
+                    if (dataSnapshot.child(CHILD_STATISTICS) != null) {
+                        FirebaseDatabaseManager.restoreStatisticsState(
+                                dataSnapshot.child(CHILD_STATISTICS),
+                                null,
+                                meanWeek
+                        );
+                    } else {
+                        meanWeek = null;
+                    }
+                } else {
+                    meanWeek = null;
+                }
+
+                switch (typeDataRequested) {
+                    case VELOCITY_GRAPH_WEEKLY:
+                        callback.onWeeklyVelocityReceived(meanWeek);
+                        break;
+
+                    case ACCELERATION_GRAPH_WEEKLY:
+                        callback.onWeeklyAccelerationReceived(meanWeek);
+                        break;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "The read failed: " + databaseError.getCode());
+            }
+        });
+    }
+
+    public static void retrieveFeedbackHistory(final RetrieveDataDB callback, String userID) {
+        if (callback == null) {
+            throw new CallbackNotInitialized(TAG);
+        } else if (userID == null) {
+            return;
+        }
+
+        final Query query = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(userID);
+
+        // Attach a listener to read the data at our posts reference
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    if (dataSnapshot.child(CHILD_STATISTICS) != null) {
+
+                    } else {
+                        // meanWeek = null;
+                    }
+                } else {
+                    // meanWeek = null;
+                }
+
+                callback.onFeedbackReceived();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "The read failed: " + databaseError.getCode());
+            }
+        });
+    }
+
 
 
     /**
@@ -698,6 +799,7 @@ public class FirebaseDatabaseManager
             }
         });
     }
+
 
 
     /**

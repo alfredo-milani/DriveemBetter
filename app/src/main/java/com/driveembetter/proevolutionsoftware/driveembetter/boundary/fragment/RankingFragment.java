@@ -110,7 +110,6 @@ public class RankingFragment extends Fragment
     public void retrieveList(ArrayList<User> arrayList, ArrayList<Integer> resultCode) {
         this.showToastFromResult(resultCode);
 
-        // this.recycleView.addItemDecoration(new DividerItemDecoration(this.context));
         RankingRecyclerViewAdapter rankingRecyclerViewAdapter =
                 new RankingRecyclerViewAdapter(this.context, arrayList, this);
         // To avoid memory leaks set adapter in onActivityCreated
@@ -118,23 +117,27 @@ public class RankingFragment extends Fragment
 
 
         this.hideProgress();
-        if (arrayList != null && arrayList.size() > 0) {
-            this.emptyListLayout.setVisibility(View.GONE);
-            int scrollPosition = this.getPositionCurrentUser(arrayList);
-            if (scrollPosition >= 0) {
-                // To show current user on top of the list view
-                RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(this.context) {
-                    @Override protected int getVerticalSnapPreference() {
-                        return LinearSmoothScroller.SNAP_TO_START;
-                    }
-                };
-                smoothScroller.setTargetPosition(scrollPosition);
-                this.layoutManager.startSmoothScroll(smoothScroller);
+        // Check if fragment is attached to activity
+        if (this.isAdded()) {
+            if (arrayList != null && arrayList.size() > 0) {
+                this.emptyListLayout.setVisibility(View.GONE);
+                int scrollPosition = this.getPositionCurrentUser(arrayList);
+                if (scrollPosition >= 0) {
+                    // To show current user on top of the list view
+                    RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(this.context) {
+                        @Override
+                        protected int getVerticalSnapPreference() {
+                            return LinearSmoothScroller.SNAP_TO_START;
+                        }
+                    };
+                    smoothScroller.setTargetPosition(scrollPosition);
+                    this.layoutManager.startSmoothScroll(smoothScroller);
+                }
+                Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
+                this.emptyListLayout.setVisibility(View.VISIBLE);
             }
-            Toast.makeText(this.context, getString(R.string.refresh_complete), Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this.context, getString(R.string.level_empty_list), Toast.LENGTH_SHORT).show();
-            this.emptyListLayout.setVisibility(View.VISIBLE);
         }
     }
 

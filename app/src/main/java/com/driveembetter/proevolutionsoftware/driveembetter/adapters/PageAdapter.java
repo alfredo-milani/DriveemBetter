@@ -14,7 +14,7 @@ public class PageAdapter extends FragmentPagerAdapter {
 
     private final static String TAG = PageAdapter.class.getSimpleName();
 
-    private static int NUM_ITEMS = 3;
+    private static int NUM_ITEMS = 5;
 
     public PageAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);
@@ -30,13 +30,13 @@ public class PageAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position) {
-            case 0: return PageFragment.newInstance(PageFragment.VELOCITY_GRAPH);
+            case 0: return PageFragment.newInstance(PageFragment.VELOCITY_GRAPH_DAILY);
 
-            case 1: return PageFragment.newInstance(PageFragment.ACCELERATION_GRAPH);
+            case 1: return PageFragment.newInstance(PageFragment.ACCELERATION_GRAPH_DAILY);
 
             case 2: return PageFragment.newInstance(PageFragment.FEEDBACK_GRAPH);
 
-            default: return PageFragment.newInstance(PageFragment.VELOCITY_GRAPH);
+            default: return PageFragment.newInstance(PageFragment.VELOCITY_GRAPH_DAILY);
         }
     }
 }

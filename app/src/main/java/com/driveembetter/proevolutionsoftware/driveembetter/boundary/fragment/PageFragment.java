@@ -1,46 +1,67 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.UserDetailsRankingActivity;
+import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
+import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.LegendRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 /**
  * Created by alfredo on 15/10/17.
  */
 
 public class PageFragment extends Fragment
-        implements View.OnClickListener {
+        implements TaskProgressInterface,
+        FirebaseDatabaseManager.RetrieveDataDB {
 
     private final static String TAG = PageFragment.class.getSimpleName();
 
-    public final static String ARG_FRAGMENT_GRAPH = "graph";
-    public final static int VELOCITY_GRAPH = 1;
-    public final static int ACCELERATION_GRAPH = 2;
-    public final static int FEEDBACK_GRAPH = 3;
+    public final static String ARG_FRAGMENT_GRAPH = "graphType";
+    public final static int VELOCITY_GRAPH_DAILY = 1;
+    public final static int VELOCITY_GRAPH_WEEKLY = 2;
+    public final static int ACCELERATION_GRAPH_DAILY = 3;
+    public final static int ACCELERATION_GRAPH_WEEKLY = 4;
+    public final static int FEEDBACK_GRAPH = 5;
+    public final static int POINTS_GRAPH = 6;
 
     // Widgets
+    private Context context;
     private View rootView;
     private GraphView graphView;
-    private TextView unavailableData;
     private ProgressBar progressBar;
-    private ImageButton fullscreen;
-    private TextView titleGraph;
-    private TextView subTitleGraph;
-    private ImageButton refreshData;
+    private TextView unavailableData;
 
     // Resources
+    private static String userID;
+    private UpdateUIGraph updateUI;
     private int typeGraph;
+    private LineGraphSeries<DataPoint> graphSeries;
+
+    public interface UpdateUIGraph {
+        void updateUI(String title, long subTitle, boolean dataReceived);
+    }
 
     public static PageFragment newInstance(int type) {
+        PageFragment.userID = UserDetailsRankingActivity.getUserID();
         PageFragment fragment = new PageFragment();
         Bundle args = new Bundle();
         args.putInt(PageFragment.ARG_FRAGMENT_GRAPH, type);
@@ -48,7 +69,26 @@ public class PageFragment extends Fragment
         return fragment;
     }
 
+    public static void refreshData() {
+        //getGraphData();
 
+    }
+
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        this.context = context;
+        try {
+            this.updateUI = (UpdateUIGraph) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(
+                    context.toString() + " must implement OnHeadlineSelectedListener"
+            );
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,76 +97,249 @@ public class PageFragment extends Fragment
         this.initResources();
     }
 
+    private void initResources() {
+        this.typeGraph = this.getArguments().getInt(
+                PageFragment.ARG_FRAGMENT_GRAPH,
+                PageFragment.VELOCITY_GRAPH_DAILY
+        );
+    }
+
+    private void initWidgets() {
+        this.graphView = this.rootView.findViewById(R.id.graph);
+        this.progressBar = this.rootView.findViewById(R.id.progress_bar);
+        this.unavailableData = this.rootView.findViewById(R.id.unavailable_data);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.rootView = inflater.inflate(R.layout.fragment_pageview, container, false);
-
-        return this.rootView;
+        return inflater.inflate(R.layout.fragment_pageview, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        this.rootView = view;
         this.initWidgets();
     }
 
-    private void initResources() {
-        this.typeGraph = this.getArguments().getInt(
-                PageFragment.ARG_FRAGMENT_GRAPH,
-                PageFragment.VELOCITY_GRAPH
-        );
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Log.d(TAG, "START: " + this.typeGraph);
+        this.getGraphData();
     }
 
-    private void initWidgets() {
-        this.graphView = this.rootView.findViewById(R.id.graph);
-        this.unavailableData = this.rootView.findViewById(R.id.unavailable_data);
-        this.progressBar = this.rootView.findViewById(R.id.progress_bar);
-        this.fullscreen = this.rootView.findViewById(R.id.fullscreenImageButton);
-        this.titleGraph = this.rootView.findViewById(R.id.titleGraph);
-        this.subTitleGraph = this.rootView.findViewById(R.id.subTitleGraph);
-        this.refreshData = this.rootView.findViewById(R.id.refreshGraph);
+    private void getGraphData() {
+        Log.d(TAG, "getGraphData: " + this.typeGraph);
+        this.showProgress();
 
-        this.refreshData.setOnClickListener(this);
-        this.fullscreen.setOnClickListener(this);
+        switch (this.typeGraph) {
+            case PageFragment.VELOCITY_GRAPH_DAILY:
+                this.initGraphVelocity();
+                FirebaseDatabaseManager.retrieveDailyData(
+                        this,
+                        VELOCITY_GRAPH_DAILY,
+                        PageFragment.userID
+                );
+                break;
 
+            case PageFragment.VELOCITY_GRAPH_WEEKLY:
+                this.initGraphVelocity();
+                FirebaseDatabaseManager.retrieveWeeklyData(
+                        this,
+                        VELOCITY_GRAPH_WEEKLY,
+                        PageFragment.userID
+                );
+                break;
 
+            case PageFragment.ACCELERATION_GRAPH_DAILY:
+                this.initGraphAcceleration();
+                FirebaseDatabaseManager.retrieveDailyData(
+                        this,
+                        ACCELERATION_GRAPH_DAILY,
+                        PageFragment.userID
+                );
+                break;
 
+            case PageFragment.ACCELERATION_GRAPH_WEEKLY:
+                this.initGraphAcceleration();
+                FirebaseDatabaseManager.retrieveWeeklyData(
+                        this,
+                        ACCELERATION_GRAPH_WEEKLY,
+                        PageFragment.userID
+                );
+                break;
+
+            case PageFragment.FEEDBACK_GRAPH:
+                // FirebaseDatabaseManager.retrieveWeeklyData();
+                break;
+
+            case PageFragment.POINTS_GRAPH: break;
+        }
+    }
+
+    private void initGraphVelocity() {
+        this.graphSeries = new LineGraphSeries<>();
+        this.graphSeries.setTitle(getString(R.string.velocity) /* + " " + getString(R.string.vel_mu) */);
         // Adding axis titles
-        // this.graphView.getGridLabelRenderer().setVerticalAxisTitle("m/s");
-        // this.graphView.getGridLabelRenderer().setHorizontalAxisTitle("h");
-        // Adding series to graph
-        /*
-        this.graphView.addSeries(this.velocitySeries);
-        this.graphView.getSecondScale().addSeries(this.accelerationSeries);
-        this.graphView.getSecondScale().setMinY(UserDetailsRankingActivity.minValYAcceleration);
-        this.graphView.getSecondScale().setMaxY(UserDetailsRankingActivity.maxValYAcceleration);
-        // this.graphView.addSeries(this.accelerationSeries);
-        // Setting color series
-        this.velocitySeries.setColor(ContextCompat.getColor(this, R.color.blue_700));
-        this.accelerationSeries.setColor(ContextCompat.getColor(this, R.color.tw__composer_red));
+        this.graphView.getGridLabelRenderer().setVerticalAxisTitle(getString(R.string.vel_mu));
+        this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
+        // Setting color graphSeries
+        this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.blue_700));
         //
-        this.velocitySeries.setDrawAsPath(true);
-        this.accelerationSeries.setDrawAsPath(true);
+        this.graphSeries.setDrawAsPath(true);
         // Setting line width
-        this.velocitySeries.setThickness(3);
-        this.accelerationSeries.setThickness(3);
+        this.graphSeries.setThickness(3);
         // Legend
         this.graphView.getLegendRenderer().setVisible(true);
         this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));
         this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-        */
     }
 
-    private void initGraphVelocity() {
+    private void initGraphAcceleration() {
+        this.graphSeries = new LineGraphSeries<>();
+        this.graphSeries.setTitle(getString(R.string.acceleration) /* + " " + getString(R.string.acc_mu) */);
+        // Adding axis titles
+        this.graphView.getGridLabelRenderer().setVerticalAxisTitle(getString(R.string.acc_mu));
+        this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
+        // Setting color graphSeries
+        this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.red_700));
+        //
+        this.graphSeries.setDrawAsPath(true);
+        // Setting line width
+        this.graphSeries.setThickness(3);
+        // Legend
+        this.graphView.getLegendRenderer().setVisible(true);
+        this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));
+        this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.BOTTOM);
+    }
+
+    private void initGraphPoints() {
 
     }
 
     @Override
-    public void onClick(View view) {
-        int id = view.getId();
-        switch (id) {
-
+    public void hideProgress() {
+        if (this.progressBar.getVisibility() == View.VISIBLE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void showProgress() {
+        if (this.progressBar.getVisibility() == View.GONE) {
+            this.progressBar.setIndeterminate(true);
+            this.progressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onDailyVelocityReceived(MeanDay meanDay) {
+        this.hideProgress();
+
+        Log.d(TAG, "Data received");
+        if (meanDay == null || meanDay.getMap().size() < 1) {
+            Log.d(TAG, "Data null");
+            this.updateUI.updateUI(
+                    getString(R.string.velocity_graph),
+                    0,
+                    false
+            );
+        } else {
+            Log.d(TAG, "Data consistent");
+            this.unavailableData.setVisibility(View.GONE);
+            for (int i = 0; i < Constants.HOURS; ++i) {
+                if (meanDay.getMap().get(i) != null) {
+                    float sampleSumVelocity = meanDay.getMap().get(i).getSampleSumVelocity();
+                    int sampleSizeVelocity = meanDay.getMap().get(i).getSampleSizeVelocity();
+
+                    this.graphSeries.appendData(
+                            new DataPoint(i, sampleSumVelocity / sampleSizeVelocity),
+                            false,
+                            Constants.HOURS
+                    );
+                } else {
+                    this.graphSeries.appendData(
+                            new DataPoint(i, 0),
+                            false,
+                            Constants.HOURS
+                    );
+                }
+            }
+
+            this.graphView.addSeries(this.graphSeries);
+            this.updateUI.updateUI(
+                    getString(R.string.velocity_graph),
+                    meanDay.getTimestamp(),
+                    true
+            );
+        }
+    }
+
+    @Override
+    public void onWeeklyVelocityReceived(MeanWeek meanWeek) {
+        this.hideProgress();
+    }
+
+    @Override
+    public void onDailyAccelerationReceived(MeanDay meanDay) {
+        this.hideProgress();
+
+        Log.d(TAG, "Data received");
+        if (meanDay == null || meanDay.getMap().size() < 1) {
+            Log.d(TAG, "Data null");
+            this.updateUI.updateUI(
+                    getString(R.string.acceleration_graph),
+                    0,
+                    false
+            );
+        } else {
+            Log.d(TAG, "Data consistent");
+            this.unavailableData.setVisibility(View.GONE);
+            for (int i = 0; i < Constants.HOURS; ++i) {
+                if (meanDay.getMap().get(i) != null) {
+                    float sampleSumAcceleration = meanDay.getMap().get(i).getSampleSumAcceleration();
+                    int sampleSizeAcceleration = meanDay.getMap().get(i).getSampleSizeAcceleration();
+
+                    this.graphSeries.appendData(
+                            new DataPoint(i, sampleSumAcceleration / sampleSizeAcceleration),
+                            false,
+                            Constants.HOURS
+                    );
+
+                } else {
+                    this.graphSeries.appendData(
+                            new DataPoint(i, 0),
+                            false,
+                            Constants.HOURS
+                    );
+                }
+            }
+
+            this.graphView.addSeries(this.graphSeries);
+            this.updateUI.updateUI(
+                    getString(R.string.acceleration_graph),
+                    meanDay.getTimestamp(),
+                    true
+            );
+        }
+    }
+
+    @Override
+    public void onWeeklyAccelerationReceived(MeanWeek meanWeek) {
+        this.hideProgress();
+    }
+
+    @Override
+    public void onPointsDataReceived() {
+        this.hideProgress();
+    }
+
+    @Override
+    public void onFeedbackReceived() {
+        this.hideProgress();
     }
 }

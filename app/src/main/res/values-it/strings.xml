@@ -157,4 +157,15 @@
     <string name="week">Settimana</string>
     <string name="restart_device">Per favore riavvia il tuo dispositivo</string>
     <string name="cannot_contact_user">Non è possibile contattare questo utente</string>
+    <string name="vel_mu">km/h</string>
+    <string name="acc_mu">m/s^2</string>
+    <string name="hour_mu">h</string>
+    <string name="points_mu">points</string>
+    <string name="unknown">Sconosciuta</string>
+    <string name="user_not_traceable">Utente non tracciabile</string>
+    <string name="velocity_graph">Grafico delle velocità</string>
+    <string name="acceleration_graph">Grafico delle accelerazioni</string>
+    <string name="points_graph">Grafico dei punti</string>
+    <string name="feedback_graph">Grafico dei feedbacks</string>
+    <string name="error">Errore</string>
 </resources>

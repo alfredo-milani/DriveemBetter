@@ -428,9 +428,7 @@ public class PositionManager
             }
         } catch (IOException e) {
             e.printStackTrace();
-            if (e.getCause().toString().equals("Service not Available")) {
-                // TODO: 13/10/17 mandare messaggio alla UI (MainFragmentActivity) con SingletonFirebaseProvider per mostrare toast con scritto di riavviare il dispositivo
-            }
+            // TODO: 13/10/17 mandare messaggio alla UI (MainFragmentActivity) con SingletonFirebaseProvider per mostrare toast con scritto di riavviare il dispositivo
 
             strings[0] = COUNTRY;
             strings[1] = REGION;
