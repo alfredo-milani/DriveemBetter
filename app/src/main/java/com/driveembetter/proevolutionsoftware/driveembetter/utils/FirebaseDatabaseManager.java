@@ -20,7 +20,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -572,10 +575,11 @@ public class FirebaseDatabaseManager
         void onWeeklyVelocityReceived(MeanWeek meanWeek);
         void onDailyAccelerationReceived(MeanDay meanDay);
         void onWeeklyAccelerationReceived(MeanWeek meanWeek);
+        void onFeedbackReceived(Map<Date, Double> map);
         void onPointsDataReceived();
-        void onFeedbackReceived();
     }
 
+    @org.jetbrains.annotations.Contract("null, _, _ -> fail")
     public static void retrieveDailyData(final RetrieveDataDB callback, final int typeDataRequested, String userID) {
         if (callback == null) {
             throw new CallbackNotInitialized(TAG);
@@ -624,6 +628,7 @@ public class FirebaseDatabaseManager
         });
     }
 
+    @Contract("null, _, _ -> fail")
     public static void retrieveWeeklyData(final RetrieveDataDB callback, final int typeDataRequested, String userID) {
         if (callback == null) {
             throw new CallbackNotInitialized(TAG);
@@ -672,6 +677,7 @@ public class FirebaseDatabaseManager
         });
     }
 
+    @Contract("null, _ -> fail")
     public static void retrieveFeedbackHistory(final RetrieveDataDB callback, String userID) {
         if (callback == null) {
             throw new CallbackNotInitialized(TAG);
@@ -687,17 +693,34 @@ public class FirebaseDatabaseManager
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<Date, Double> map = new HashMap<Date, Double>();
                 if (dataSnapshot.exists()) {
-                    if (dataSnapshot.child(CHILD_STATISTICS) != null) {
+                    if (dataSnapshot.child(CHILD_STATISTICS) != null &&
+                            dataSnapshot
+                                    .child(CHILD_STATISTICS)
+                                    .child(CHILD_HISTORICAL_FEEDBACK) != null &&
+                            dataSnapshot.child(CHILD_STATISTICS)
+                                    .child(CHILD_HISTORICAL_FEEDBACK)
+                                    .getValue() != null) {
+                        Iterable<DataSnapshot> feedbacks = dataSnapshot
+                                .child(CHILD_STATISTICS)
+                                .child(CHILD_HISTORICAL_FEEDBACK)
+                                .getChildren();
 
+                        for (DataSnapshot feedback : feedbacks) {
+                            map.put(
+                                    new Date(Long.valueOf(feedback.getKey())),
+                                    Double.valueOf(feedback.getValue().toString())
+                            );
+                        }
                     } else {
-                        // meanWeek = null;
+                        map = null;
                     }
                 } else {
-                    // meanWeek = null;
+                    map = null;
                 }
 
-                callback.onFeedbackReceived();
+                callback.onFeedbackReceived(map);
             }
 
             @Override
@@ -740,6 +763,7 @@ public class FirebaseDatabaseManager
         });
     }
 
+    @Contract("null, _ -> fail")
     public static void getCurrentVehicleRanking(final RetrieveVehiclesFromDB retrieveVehiclesFromDB, final String id)
         throws CallbackNotInitialized {
         if (retrieveVehiclesFromDB == null) {
@@ -778,6 +802,7 @@ public class FirebaseDatabaseManager
         });
     }
 
+    @Contract("null, _ -> fail; !null, null -> fail")
     public static void getVehiclesDB(final RetrieveVehiclesFromDB retrieveVehiclesFromDB,
                                      final SingletonUser.UserDataCallback userDataCallback)
             throws CallbackNotInitialized {
@@ -847,6 +872,7 @@ public class FirebaseDatabaseManager
         void onUsersRankingReceived(ArrayList<User> users);
     }
 
+    @Contract("null -> fail")
     public static void getUsersRank(final RetrieveRankFromDB retrieveRankFromDB)
             throws CallbackNotInitialized {
         SingletonUser user = SingletonUser.getInstance();

@@ -3,6 +3,8 @@ package com.driveembetter.proevolutionsoftware.driveembetter.entity;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.DAYS;
+
 /**
  * Created by FabianaRossi94 on 03/10/2017.
  */
@@ -14,7 +16,7 @@ public class MeanWeek {
     private long timestamp;
 
     public MeanWeek() {
-        this.meanOfWeek = new HashMap<Integer,Mean>();
+        this.meanOfWeek = new HashMap<Integer,Mean>(DAYS);
         this.clearWeek = false;
         this.timestamp = System.currentTimeMillis();
     }

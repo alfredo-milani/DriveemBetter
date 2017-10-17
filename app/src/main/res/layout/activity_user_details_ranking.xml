@@ -16,6 +16,14 @@
         app:civ_border_width="1dp" />
 
     <ImageView
+        android:id="@+id/currentVehicle"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        app:srcCompat="@drawable/ic_answere_mark"
+        android:layout_alignTop="@+id/user_picture"
+        android:layout_alignStart="@+id/availability" />
+
+    <ImageView
         android:id="@+id/availability"
         android:layout_width="20dp"
         android:layout_height="20dp"
@@ -146,6 +154,8 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/layout_info"
         android:layout_marginTop="5dp"
+        app:cardElevation="2sp"
+        app:cardUseCompatPadding="true"
         card_view:cardBackgroundColor="@android:color/white"
         card_view:cardElevation="2sp"
         card_view:cardUseCompatPadding="true">
@@ -158,8 +168,7 @@
             <android.support.v4.view.ViewPager
                 android:id="@+id/vpPager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_above="@+id/titleGraph">
+                android:layout_height="match_parent">
 
                 <com.itsronald.widget.ViewPagerIndicator
                     android:id="@+id/view_pager_indicator"
@@ -173,73 +182,8 @@
 
             </android.support.v4.view.ViewPager>
 
-            <TextView
-                android:id="@+id/titleGraph"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/subTitleGraph"
-                android:layout_marginTop="8dp"
-                android:maxLines="3"
-                android:text="@string/loading"
-                android:textColor="@color/colorText"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/subTitleGraph"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:maxLines="3"
-                android:text="@string/unknown"
-                android:textColor="@color/grey_700"
-                android:textSize="14sp" />
-
-            <ImageButton
-                android:id="@+id/refreshGraph"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignTop="@+id/titleGraph"
-                android:layout_margin="5dp"
-                android:layout_toStartOf="@+id/fullscreenImageButton"
-                android:background="@null"
-                android:tint="@color/colorSchemas"
-                app:srcCompat="@mipmap/refresh_icon"
-                android:contentDescription="@string/menu_refresh" />
-
-            <ImageButton
-                android:id="@+id/fullscreenImageButton"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentEnd="true"
-                android:layout_alignTop="@+id/titleGraph"
-                android:background="@null"
-                android:src="@mipmap/ic_fullscreen"
-                android:tint="@color/colorSchemas"
-                android:contentDescription="@string/appbar_scrolling_view_behavior" />
-
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
-
-    <TextView
-        android:id="@+id/unavailable_data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/layout_info"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:text="@string/data_unavailable"
-        android:textColor="@color/colorPrimary"
-        android:textSize="20sp"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/currentVehicle"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_alignStart="@+id/user_picture"
-        android:layout_alignTop="@+id/user_picture"
-        app:srcCompat="@drawable/ic_answere_mark" />
 
 </RelativeLayout>

@@ -113,4 +113,11 @@
     <string name="points_graph">Points graph</string>
     <string name="feedback_graph">Feedback graph</string>
     <string name="error">Error</string>
+    <string name="velocity_daily_graph">Daily average speed chart</string>
+    <string name="acceleration_daily_graph">Daily average acceleration chart</string>
+    <string name="velocity_weekly_graph">Weekly average speed chart</string>
+    <string name="acceleration_weekly_graph">Weekly average speed chart</string>
+    <string name="updated_graph">Graph updated</string>
+    <string name="date">Date</string>
+    <string name="feedback_scale">from 1 to 5</string>
 </resources>

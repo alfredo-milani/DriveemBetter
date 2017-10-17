@@ -1,32 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_gravity="center_horizontal"
-        android:text="DDDIIIOOO"
-        android:textColor="@color/black"
-        android:textSize="20dp" />
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graph"
         android:layout_width="match_parent"
-        android:layout_height="200dp" />
+        android:layout_height="match_parent"
+        android:layout_margin="5dp" />
 
-    <ImageView
-        android:id="@+id/ivIcon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_below="@+id/tvTitle"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="93dp"
-        app:srcCompat="@color/amber_100" />
+    <TextView
+        android:id="@+id/unavailableData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/data_unavailable"
+        android:textColor="@color/colorSchemas"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 
 </RelativeLayout>

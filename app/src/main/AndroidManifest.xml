@@ -96,7 +96,8 @@
 
         <activity
             android:name=".boundary.activity.ShowFullscreenGraph"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme"
+            android:screenOrientation="landscape" >
             <!--Default Intent Filter-->
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />

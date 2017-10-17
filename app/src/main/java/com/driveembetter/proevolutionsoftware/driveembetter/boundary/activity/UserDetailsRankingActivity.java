@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,7 +9,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -18,9 +16,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.adapters.PageAdapter;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
@@ -28,7 +26,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -43,17 +40,12 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicl
 public class UserDetailsRankingActivity extends AppCompatActivity
         implements Constants,
         View.OnClickListener,
-        PageFragment.UpdateUIGraph,
-        ViewPager.OnPageChangeListener,
         FirebaseDatabaseManager.RetrieveVehiclesFromDB {
 
     private final static String TAG = UserDetailsRankingActivity.class.getSimpleName();
 
-    private final static String formatData = "dd-MM-yyyy HH:mm:ss";
-
     // Resources
     private static User user;
-    private SimpleDateFormat simpleDateFormat;
 
     // Widgets
     private TextView username;
@@ -63,9 +55,6 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     private TextView feedback;
     private ImageButton startChatButton;
     private PagerAdapter adapter;
-    private TextView titleGraph;
-    private TextView subTitleGraph;
-    private ImageButton fullscreenGraph;
     private ImageView currentImageVehicle;
 
 
@@ -80,10 +69,6 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     }
 
     private void initResources() {
-        this.simpleDateFormat = new SimpleDateFormat(
-                UserDetailsRankingActivity.formatData,
-                Locale.getDefault()
-        );
         UserDetailsRankingActivity.user = this.getIntent().getParcelableExtra(USER);
     }
 
@@ -104,31 +89,21 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         this.availability = findViewById(R.id.availability);
         this.feedback = findViewById(R.id.driverFeedbackContent);
         this.startChatButton = findViewById(R.id.startChatButton);
-        this.titleGraph = findViewById(R.id.titleGraph);
-        this.subTitleGraph = findViewById(R.id.subTitleGraph);
-        this.fullscreenGraph = findViewById(R.id.fullscreenImageButton);
         this.currentImageVehicle = findViewById(R.id.currentVehicle);
 
         final ViewPager pager = findViewById(R.id.vpPager);
-        this.adapter = new PageAdapter(this.getSupportFragmentManager());
+        this.adapter = new PageAdapter(
+                this.getSupportFragmentManager(),
+                UserDetailsRankingActivity.user.getUid()
+        );
         pager.setAdapter(this.adapter);
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                Log.e(TAG, "PAGET: " + position);
-                PageFragment.pushDataToUI();
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
+        // Increase cache limit
+        pager.setOffscreenPageLimit(2);
+        // pager.setPageTransformer(true, new AccordionTransformer());
+        // pager.setPageTransformer(true, new DepthPageTransformer());
+        // pager.setPageTransformer(true, new ZoomOutSlideTransformer());
+        // pager.setPageTransformer(true, new CubeInTransformer());
+        pager.setPageTransformer(true, new FlipHorizontalTransformer());
 
         if (UserDetailsRankingActivity.user.getUid().equals(SingletonUser.getInstance().getUid())) {
             this.startChatButton.setColorFilter(
@@ -152,9 +127,23 @@ public class UserDetailsRankingActivity extends AppCompatActivity
                 R.mipmap.user_icon,
                 R.mipmap.user_icon);
         if (UserDetailsRankingActivity.user.getAvailability().equals(AVAILABLE)) {
-            this.availability.setImageResource(R.drawable.available_shape);
+            GlideImageLoader.loadImage(
+                    this,
+                    this.availability,
+                    GlideImageLoader.fromResourceToUri(this, R.drawable.available_shape),
+                    R.drawable.unavailable_shape,
+                    R.drawable.unavailable_shape
+            );
+            FirebaseDatabaseManager.getCurrentVehicleRanking(this, user.getUid());
         } else {
-            this.availability.setImageResource(R.drawable.unavailable_shape);
+            GlideImageLoader.loadImage(
+                    this,
+                    this.availability,
+                    GlideImageLoader.fromResourceToUri(this, R.drawable.unavailable_shape),
+                    R.drawable.unavailable_shape,
+                    R.drawable.unavailable_shape
+            );
+            this.currentImageVehicle.setVisibility(View.GONE);
         }
         if (UserDetailsRankingActivity.user.getFeedback() != 0) {
             this.feedback.setText(String.format(
@@ -163,21 +152,12 @@ public class UserDetailsRankingActivity extends AppCompatActivity
                     UserDetailsRankingActivity.user.getFeedback()
             ));
         }
-
-        FirebaseDatabaseManager.getCurrentVehicleRanking(this, user.getUid());
     }
 
     @Override
     public void onClick(View view) {
         int id = view.getId();
         switch (id) {
-            case R.id.fullscreenImageButton:
-                // TODO: 15/10/17 fullscreen mode: vedi se fare con frgments
-                Intent newIntent = new Intent(UserDetailsRankingActivity.this, ShowFullscreenGraph.class);
-                newIntent.putExtra(USER, user);
-                this.startActivity(newIntent);
-                break;
-
             case R.id.startChatButton:
                 if (UserDetailsRankingActivity.user.getEmail() == null ||
                         TextUtils.isEmpty(UserDetailsRankingActivity.user.getEmail()) ||
@@ -196,53 +176,28 @@ public class UserDetailsRankingActivity extends AppCompatActivity
                         UserDetailsRankingActivity.user.getToken()
                 );
                 break;
-
-            case R.id.refreshGraph:
-
-                break;
         }
     }
 
     @Override
     public void onUserVehiclesReceived(ArrayList<Vehicle> vehicles) {
-        final String format = "android.resource://%s/%d";
         if (!vehicles.isEmpty()) {
             Uri uri;
             switch (vehicles.get(0).getType()) {
                 case CAR:
-                    uri = Uri.parse(String.format(
-                            Locale.ENGLISH,
-                            format,
-                            this.getPackageName(),
-                            R.mipmap.car
-                    ));
+                    uri = GlideImageLoader.fromResourceToUri(this, R.mipmap.car);
                     break;
 
                 case VAN:
-                    uri = Uri.parse(String.format(
-                            Locale.ENGLISH,
-                            format,
-                            this.getPackageName(),
-                            R.mipmap.van
-                    ));
+                    uri = GlideImageLoader.fromResourceToUri(this, R.mipmap.van);
                     break;
 
                 case MOTO:
-                    uri = Uri.parse(String.format(
-                            Locale.ENGLISH,
-                            format,
-                            this.getPackageName(),
-                            R.mipmap.moto
-                    ));
+                    uri = GlideImageLoader.fromResourceToUri(this, R.mipmap.moto);
                     break;
 
                 default:
-                    uri = Uri.parse(String.format(
-                            Locale.ENGLISH,
-                            format,
-                            this.getPackageName(),
-                            R.drawable.ic_answere_mark
-                    ));
+                    uri = GlideImageLoader.fromResourceToUri(this, R.drawable.ic_answere_mark);
             }
 
             GlideImageLoader.loadImage(
@@ -264,59 +219,5 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
-    }
-
-    @Override
-    public void updateUI(String title, long subTitle, boolean clickable) {
-        if (title != null) {
-            this.titleGraph.setText(title);
-        } else {
-            this.titleGraph.setText(getString(R.string.error));
-        }
-
-        if (subTitle != 0) {
-            this.subTitleGraph.setText(String.format(
-                    Locale.ENGLISH,
-                    "%s: %s",
-                    getString(R.string.last_update),
-                    this.simpleDateFormat.format(subTitle)
-            ));
-        } else {
-            this.subTitleGraph.setText(getString(R.string.unknown));
-        }
-
-        if (clickable) {
-            this.fullscreenGraph.setClickable(true);
-        } else {
-            this.fullscreenGraph.setClickable(false);
-            this.fullscreenGraph.setColorFilter(
-                    ContextCompat.getColor(this, R.color.colorSchemasComplementary),
-                    android.graphics.PorterDuff.Mode.MULTIPLY
-            );
-        }
-    }
-
-    public static String getUserID() {
-        return UserDetailsRankingActivity.user.getUid();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 }

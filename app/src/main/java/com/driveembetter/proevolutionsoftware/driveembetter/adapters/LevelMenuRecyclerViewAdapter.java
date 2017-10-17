@@ -31,8 +31,8 @@ public class LevelMenuRecyclerViewAdapter
 
         RecyclerViewHolder(View view) {
             super(view);
-            this.label = (TextView) view.findViewById(R.id.label);
-            this.radioButton = (RadioButton) view.findViewById(R.id.radio_button);
+            this.label = view.findViewById(R.id.label);
+            this.radioButton = view.findViewById(R.id.radio_button);
         }
 
     }

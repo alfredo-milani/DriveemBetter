@@ -3,6 +3,8 @@ package com.driveembetter.proevolutionsoftware.driveembetter.entity;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.HOURS;
+
 /**
  * Created by FabianaRossi94 on 10/09/2017.
  */
@@ -16,7 +18,7 @@ public class MeanDay {
     private long timestamp;
 
     public MeanDay() {
-        this.meanOfDays = new HashMap<Integer,Mean>();
+        this.meanOfDays = new HashMap<Integer,Mean>(HOURS);
         this.clearDay = false;
         this.timestamp = System.currentTimeMillis();
     }

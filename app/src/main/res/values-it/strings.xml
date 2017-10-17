@@ -168,4 +168,11 @@
     <string name="points_graph">Grafico dei punti</string>
     <string name="feedback_graph">Grafico dei feedbacks</string>
     <string name="error">Errore</string>
+    <string name="velocity_daily_graph">Grafico giornaliero delle velocità medie</string>
+    <string name="acceleration_daily_graph">Grafico giornaliero delle accelerazioni medie</string>
+    <string name="velocity_weekly_graph">Grafico settimanale delle accelerazioni medie</string>
+    <string name="acceleration_weekly_graph">Grafico settimanale delle accelerazioni medie</string>
+    <string name="updated_graph">Grafico aggiornato</string>
+    <string name="date">Data</string>
+    <string name="feedback_scale">da 1 a 5</string>
 </resources>

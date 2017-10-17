@@ -142,7 +142,7 @@ public class PositionManager
         calendar.setTime(dateLastUpdate);
         int currentHour = calendarCurrent.get(Calendar.HOUR_OF_DAY);
         if (sameDay) { // stesso giorno
-            if (user.getMeanDay().getMap().get(calendarCurrent.get(Calendar.HOUR_OF_DAY)) != null) {
+            if (user.getMeanDay().getMap().get(calendarCurrent.get(Calendar.HOUR_OF_DAY)) != null) { // stessa ora
                 Mean meanDay = user.getMeanDay().getMap().get(currentHour);
                 meanDay.setSampleSumVelocity((float) speed);
                 meanDay.setSampleSizeVelocity();
@@ -166,7 +166,7 @@ public class PositionManager
             user.getMeanDay().clear();
             user.getMeanDay().setClearDay(true);
             Mean meanDay = new Mean();
-            meanDay.setSampleSumVelocity((float) speed); // modificare con il valore della velocità
+            meanDay.setSampleSumVelocity((float) speed);
             meanDay.setSampleSizeVelocity();
             meanDay.setSampleSumVelocity((float) acceleration);
             if (acceleration != 0) {
@@ -174,6 +174,7 @@ public class PositionManager
             }
             user.getMeanDay().getMap().put(currentHour, meanDay);
         }
+        user.getMeanDay().setTimestamp(System.currentTimeMillis());
 
         //Weekly update
         Calendar calendarLast = GregorianCalendar.getInstance();
@@ -213,6 +214,7 @@ public class PositionManager
             }
             meanWeek2.getMap().put(currentWeek, meanDay);
         }
+        user.getMeanWeek().setTimestamp(System.currentTimeMillis());
     }
 
     private void checkSpeedAndAcceleration(Location location) throws IOException {
