@@ -51,8 +51,8 @@ public class FragmentState extends Application {
 
     public FragmentState(FragmentManager fragmentManager) {
         FragmentState.fragmentManager = fragmentManager;
-        FragmentState.currentInAnimation = R.anim.fade_in;
-        FragmentState.currentOutAnimation = R.anim.fade_out;
+        FragmentState.currentInAnimation = R.anim.fragment_fade_in;
+        FragmentState.currentOutAnimation = R.anim.fragment_fade_out;
     }
 
 

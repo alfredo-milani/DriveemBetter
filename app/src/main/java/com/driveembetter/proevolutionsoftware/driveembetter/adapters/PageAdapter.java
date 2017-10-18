@@ -3,6 +3,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment;
 
@@ -15,12 +16,11 @@ public class PageAdapter extends FragmentPagerAdapter {
     private final static String TAG = PageAdapter.class.getSimpleName();
 
     private static int NUM_ITEMS = 5;
-    private final String userID;
 
     public PageAdapter(FragmentManager fragmentManager, String userID) {
         super(fragmentManager);
 
-        this.userID = userID;
+        PageFragment.setUserID(userID);
     }
 
 
@@ -33,17 +33,19 @@ public class PageAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position) {
-            case 0: return PageFragment.newInstance(PageFragment.VELOCITY_GRAPH_DAILY, this.userID);
+            case 0: return PageFragment.newInstance(PageFragment.VELOCITY_GRAPH_DAILY);
 
-            case 1: return PageFragment.newInstance(PageFragment.ACCELERATION_GRAPH_DAILY, this.userID);
+            case 1: return PageFragment.newInstance(PageFragment.ACCELERATION_GRAPH_DAILY);
 
-            case 2: return PageFragment.newInstance(PageFragment.VELOCITY_GRAPH_WEEKLY, this.userID);
+            case 2: return PageFragment.newInstance(PageFragment.VELOCITY_GRAPH_WEEKLY);
 
-            case 3: return PageFragment.newInstance(PageFragment.ACCELERATION_GRAPH_WEEKLY, this.userID);
+            case 3: return PageFragment.newInstance(PageFragment.ACCELERATION_GRAPH_WEEKLY);
 
-            case 4: return PageFragment.newInstance(PageFragment.FEEDBACK_GRAPH, this.userID);
+            case 4: return PageFragment.newInstance(PageFragment.FEEDBACK_GRAPH);
 
-            default: return PageFragment.newInstance(PageFragment.VELOCITY_GRAPH_DAILY, this.userID);
+            default:
+                Log.e(TAG, "PageAdapter - Position not found: " + position);
+                return null;
         }
     }
 }

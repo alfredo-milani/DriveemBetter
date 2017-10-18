@@ -267,7 +267,7 @@ public class SaveMeFragment
                                         userSelectedPic = dataSnapshot.child(CHILD_IMAGE).getValue().toString();
                                         userSelectedToken = dataSnapshot.child("firebaseToken").getValue().toString();
                                         userSelectedAvailability = dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString();
-                                        GlideImageLoader.loadImage(
+                                        GlideImageLoader.loadImageUri(
                                                 getActivity(),
                                                 driverPic,
                                                 Uri.parse(userSelectedPic),

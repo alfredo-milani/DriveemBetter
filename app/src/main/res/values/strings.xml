@@ -120,4 +120,5 @@
     <string name="updated_graph">Graph updated</string>
     <string name="date">Date</string>
     <string name="feedback_scale">from 1 to 5</string>
+    <string name="updating_graph_data">Updating data...</string>
 </resources>

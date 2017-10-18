@@ -89,7 +89,7 @@ public class RankingRecyclerViewAdapter extends RecyclerView.Adapter<RankingRecy
 
     @Override
     public void onBindViewHolder(UserViewHolder holder, int position) {
-        GlideImageLoader.loadImage(
+        GlideImageLoader.loadImageUri(
                 (Activity) this.context,
                 holder.userPhoto,
                 this.users.get(position).getPhotoUrl(),

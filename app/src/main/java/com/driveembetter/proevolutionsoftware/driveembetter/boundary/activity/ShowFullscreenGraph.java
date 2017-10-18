@@ -18,11 +18,14 @@ import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.util.Calendar;
+import java.util.Iterator;
 import java.util.Locale;
 
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.ARG_FRAGMENT_GRAPH;
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.ARG_FRAGMENT_GRAPH_SERIES;
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.GRAPH_ERROR;
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.HOURS;
 
 /**
  * Created by alfredo on 14/10/17.
@@ -104,6 +107,19 @@ public class ShowFullscreenGraph extends AppCompatActivity {
         }
     }
 
+    private void setGraphHorizontalScale(int numberOfLabels, long minVal, long maxVal) {
+        this.graphView.getViewport().setXAxisBoundsManual(true);
+        if (numberOfLabels >= 0) {
+            this.graphView.getGridLabelRenderer().setNumHorizontalLabels(numberOfLabels);
+        }
+        if (minVal >= 0) {
+            this.graphView.getViewport().setMinX(minVal);
+        }
+        if (maxVal >= 0) {
+            this.graphView.getViewport().setMaxX(maxVal);
+        }
+    }
+
     private void setTitleSerie() {
         switch (this.typeGraph) {
             case PageFragment.VELOCITY_GRAPH_DAILY:
@@ -119,6 +135,9 @@ public class ShowFullscreenGraph extends AppCompatActivity {
                 this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
                 // Setting color graphSeries
                 this.series.setColor(ContextCompat.getColor(this, R.color.blue_700));
+
+                // Set manual x bounds to have nice steps
+                this.setGraphHorizontalScale(4, 0, HOURS - 1);
                 break;
 
             case PageFragment.VELOCITY_GRAPH_WEEKLY:
@@ -134,6 +153,9 @@ public class ShowFullscreenGraph extends AppCompatActivity {
                 this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
                 // Setting color graphSeries
                 this.series.setColor(ContextCompat.getColor(this, R.color.blue_700));
+
+                // Set manual x bounds to have nice steps
+                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
                 break;
 
             case PageFragment.ACCELERATION_GRAPH_DAILY:
@@ -149,6 +171,8 @@ public class ShowFullscreenGraph extends AppCompatActivity {
                 this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
                 // Setting color graphSeries
                 this.series.setColor(ContextCompat.getColor(this, R.color.red_700));
+                // Bounds
+                this.setGraphHorizontalScale(4, 0, HOURS - 1);
                 break;
 
             case PageFragment.ACCELERATION_GRAPH_WEEKLY:
@@ -160,10 +184,19 @@ public class ShowFullscreenGraph extends AppCompatActivity {
                         getString(R.string.acc_mu)
                 ));
 
+                Iterator<DataPoint> i = this.series.getValues(this.series.getLowestValueX(), this.series.getHighestValueX());
+                int jj = 0;
+                while (i.hasNext()) {
+                    i.next();
+                    ++jj;
+                }
+                Log.e(TAG, "LEN: " + jj);
+
                 // Adding axis titles
                 this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
                 // Setting color graphSeries
                 this.series.setColor(ContextCompat.getColor(this, R.color.red_700));
+                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
                 break;
 
             case PageFragment.FEEDBACK_GRAPH:
@@ -174,6 +207,13 @@ public class ShowFullscreenGraph extends AppCompatActivity {
                         getString(R.string.feedback),
                         getString(R.string.feedback_scale)
                 ));
+                int in = 0;
+                Iterator<DataPoint> d = this.series.getValues(this.series.getLowestValueX(), this.series.getHighestValueX());
+                while (d.hasNext()) {
+                    Log.d(TAG, "VAL: " + d.next());
+                    ++in;
+                }
+                Log.d(TAG, "LEN F: " + in);
 
                 // Adding axis titles
                 this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.date));

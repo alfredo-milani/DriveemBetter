@@ -168,7 +168,8 @@
             <android.support.v4.view.ViewPager
                 android:id="@+id/vpPager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_gravity="center">
 
                 <com.itsronald.widget.ViewPagerIndicator
                     android:id="@+id/view_pager_indicator"

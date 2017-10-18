@@ -247,7 +247,7 @@ public class MainFragmentActivity extends AppCompatActivity
             if (this.singletonUser.getUsername() != null) {
                 this.usernameTextView.setText(this.singletonUser.getUsername());
             }
-            GlideImageLoader.loadImage(
+            GlideImageLoader.loadImageUri(
                     this,
                     this.userPicture,
                     this.singletonUser.getPhotoUrl(),

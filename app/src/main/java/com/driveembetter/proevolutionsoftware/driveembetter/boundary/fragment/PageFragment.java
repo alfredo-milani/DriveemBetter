@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,7 +22,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.BarGraphSeries;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -34,8 +33,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.DAYS;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.DAY_MS;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.HOURS;
 
 /**
@@ -49,12 +46,12 @@ public class PageFragment extends Fragment
 
     private final static String TAG = PageFragment.class.getSimpleName();
 
-    public final static String ARG_FRAGMENT_GRAPH = "graphType";
-    public final static String ARG_FRAGMENT_GRAPH_SERIES = "graphSeries";
+    public final static String ARG_FRAGMENT_GRAPH = "fragmentGraphType";
+    public final static String ARG_FRAGMENT_GRAPH_SERIES = "fragmentGraphSeries";
     public final static int GRAPH_ERROR = -1;
     public final static int VELOCITY_GRAPH_DAILY = 1;
-    public final static int VELOCITY_GRAPH_WEEKLY = 2;
-    public final static int ACCELERATION_GRAPH_DAILY = 3;
+    public final static int ACCELERATION_GRAPH_DAILY = 2;
+    public final static int VELOCITY_GRAPH_WEEKLY = 3;
     public final static int ACCELERATION_GRAPH_WEEKLY = 4;
     public final static int FEEDBACK_GRAPH = 5;
     public final static int POINTS_GRAPH = 6;
@@ -75,10 +72,12 @@ public class PageFragment extends Fragment
     private static String userID;
     private int typeGraph;
     private LineGraphSeries<DataPoint> graphSeries;
-    private BarGraphSeries<DataPoint> barGraphSeries;
 
-    public static PageFragment newInstance(int type, String userID) {
+    public static void setUserID(String userID) {
         PageFragment.userID = userID;
+    }
+
+    public static PageFragment newInstance(int type) {
         PageFragment fragment = new PageFragment();
         Bundle args = new Bundle();
         args.putInt(PageFragment.ARG_FRAGMENT_GRAPH, type);
@@ -89,15 +88,13 @@ public class PageFragment extends Fragment
 
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.initResources();
+        Log.d(TAG, "ONCREATE - save: " + savedInstanceState);
+        if (savedInstanceState == null) {
+            this.initResources();
+        }
     }
 
     private void initResources() {
@@ -107,8 +104,9 @@ public class PageFragment extends Fragment
         );
         this.typeGraph = this.getArguments().getInt(
                 PageFragment.ARG_FRAGMENT_GRAPH,
-                PageFragment.VELOCITY_GRAPH_DAILY
+                PageFragment.GRAPH_ERROR
         );
+        this.graphSeries = new LineGraphSeries<>();
     }
 
     private void initWidgets() {
@@ -133,15 +131,22 @@ public class PageFragment extends Fragment
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        this.rootView = view;
-        this.initWidgets();
+        Log.d(TAG, "VIEWCREATED - save: " + savedInstanceState);
+        if (savedInstanceState == null) {
+            this.rootView = view;
+            this.initWidgets();
+            this.initGraphView();
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        this.getGraphData();
+
+        this.initGraphSeries();
+        this.retrieveGraphData();
+        Log.d(TAG, "onStart" + typeGraph + " / " + this.graphSeries);
     }
 
     @Override
@@ -159,15 +164,18 @@ public class PageFragment extends Fragment
     }
 
     private void refreshGraphData() {
-        this.getGraphData();
+        this.initGraphSeries();
+        this.retrieveGraphData();
+
         Toast.makeText(
                 this.getActivity(),
-                getString(R.string.updated_graph),
+                getString(R.string.updating_graph_data),
                 Toast.LENGTH_SHORT
         ).show();
     }
 
     private void startFullscreenGraph() {
+        Log.e(TAG, "GGG: " + typeGraph);
         Intent fullscreenIntent = new Intent(this.getActivity(), ShowFullscreenGraph.class);
         fullscreenIntent.putExtra(ARG_FRAGMENT_GRAPH, this.typeGraph);
         if (this.graphSeries != null) {
@@ -188,12 +196,43 @@ public class PageFragment extends Fragment
         this.startActivity(fullscreenIntent);
     }
 
-    private void getGraphData() {
+    private void initGraphView() {
+        switch (this.typeGraph) {
+            case PageFragment.VELOCITY_GRAPH_DAILY:
+                this.setGraphHorizontalScale(4, 0, HOURS - 1);
+                this.initGraphVelocity();
+                break;
+
+            case PageFragment.VELOCITY_GRAPH_WEEKLY:
+                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.initGraphVelocity();
+                break;
+
+            case PageFragment.ACCELERATION_GRAPH_DAILY:
+                this.setGraphHorizontalScale(4, 0, HOURS - 1);
+                this.initGraphAcceleration();
+                break;
+
+            case PageFragment.ACCELERATION_GRAPH_WEEKLY:
+                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.initGraphAcceleration();
+                break;
+
+            case PageFragment.FEEDBACK_GRAPH:
+                this.initGraphFeedback();
+                break;
+
+            case PageFragment.POINTS_GRAPH:
+                this.initGraphPoints();
+                break;
+        }
+    }
+
+    private void retrieveGraphData() {
         this.showProgress();
 
         switch (this.typeGraph) {
             case PageFragment.VELOCITY_GRAPH_DAILY:
-                this.initGraphVelocity();
                 FirebaseDatabaseManager.retrieveDailyData(
                         this,
                         VELOCITY_GRAPH_DAILY,
@@ -202,7 +241,6 @@ public class PageFragment extends Fragment
                 break;
 
             case PageFragment.VELOCITY_GRAPH_WEEKLY:
-                this.initGraphVelocity();
                 FirebaseDatabaseManager.retrieveWeeklyData(
                         this,
                         VELOCITY_GRAPH_WEEKLY,
@@ -211,7 +249,6 @@ public class PageFragment extends Fragment
                 break;
 
             case PageFragment.ACCELERATION_GRAPH_DAILY:
-                this.initGraphAcceleration();
                 FirebaseDatabaseManager.retrieveDailyData(
                         this,
                         ACCELERATION_GRAPH_DAILY,
@@ -220,7 +257,6 @@ public class PageFragment extends Fragment
                 break;
 
             case PageFragment.ACCELERATION_GRAPH_WEEKLY:
-                this.initGraphAcceleration();
                 FirebaseDatabaseManager.retrieveWeeklyData(
                         this,
                         ACCELERATION_GRAPH_WEEKLY,
@@ -229,7 +265,6 @@ public class PageFragment extends Fragment
                 break;
 
             case PageFragment.FEEDBACK_GRAPH:
-                this.initGraphFeedback();
                 FirebaseDatabaseManager.retrieveFeedbackHistory(
                         this,
                         PageFragment.userID
@@ -238,103 +273,109 @@ public class PageFragment extends Fragment
 
             case PageFragment.POINTS_GRAPH:
                 // TODO: 17/10/17
-                this.initGraphPoints();
                 break;
         }
     }
 
-    private void setGraphHorizontalScale(int hLabels, long maxVal) {
+    private void setGraphHorizontalScale(int numberOfLabels, long minVal, long maxVal) {
         this.graphView.getViewport().setXAxisBoundsManual(true);
-        this.graphView.getGridLabelRenderer().setNumHorizontalLabels(hLabels);
-        // this.graphView.getViewport().setMinX(0);
-        this.graphView.getViewport().setMaxX(maxVal);
+        if (numberOfLabels >= 0) {
+            this.graphView.getGridLabelRenderer().setNumHorizontalLabels(numberOfLabels);
+        }
+        if (minVal >= 0) {
+            this.graphView.getViewport().setMinX(minVal);
+        }
+        if (maxVal >= 0) {
+            this.graphView.getViewport().setMaxX(maxVal);
+        }
+    }
+
+    private void initGraphSeries() {
+        this.graphView.removeSeries(this.graphSeries);
+        this.graphSeries = new LineGraphSeries<>();
+        //
+        this.graphSeries.setDrawAsPath(true);
+        // Setting line width
+        this.graphSeries.setThickness(3);
+
+        switch (this.typeGraph) {
+            case PageFragment.VELOCITY_GRAPH_DAILY:
+            case PageFragment.VELOCITY_GRAPH_WEEKLY:
+                this.graphSeries.setTitle(String.format(
+                        Locale.ENGLISH,
+                        "%s (%s)",
+                        getString(R.string.velocity),
+                        getString(R.string.vel_mu)
+                ));
+                // Setting color graphSeries
+                this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.blue_700));
+                break;
+
+            case PageFragment.ACCELERATION_GRAPH_DAILY:
+            case PageFragment.ACCELERATION_GRAPH_WEEKLY:
+                this.graphSeries.setTitle(String.format(
+                        Locale.ENGLISH,
+                        "%s (%s)",
+                        getString(R.string.acceleration),
+                        getString(R.string.acc_mu)
+                ));
+                // Setting color graphSeries
+                this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.red_700));
+                break;
+
+            case PageFragment.FEEDBACK_GRAPH:
+                this.graphSeries.setTitle(String.format(
+                        Locale.ENGLISH,
+                        "%s (%s)",
+                        getString(R.string.feedback),
+                        getString(R.string.feedback_scale)
+                ));
+                // Setting color graphSeries
+                this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.green_700));
+                break;
+
+            case PageFragment.POINTS_GRAPH:
+                // TODO: 18/10/17
+                break;
+        }
     }
 
     private void initBaseGraph() {
-        if (this.graphSeries != null) { // Delete old data
-            this.graphView.removeSeries(this.graphSeries);
-        } else if (this.barGraphSeries != null) {
-            this.graphView.removeSeries(this.barGraphSeries);
-        } else { // First init
-            // Legend
-            this.graphView.getLegendRenderer().setVisible(true);
-            this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));
-            this.graphView.getLegendRenderer().setFixedPosition(0, 0);
-            // this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-        }
-        this.graphSeries = new LineGraphSeries<>();
-        this.barGraphSeries = new BarGraphSeries<>();
-        //
-        this.graphSeries.setDrawAsPath(true);
-        this.barGraphSeries.setDrawValuesOnTop(true);
-        // Setting line width
-        this.graphSeries.setThickness(3);
+        // Legend
+        this.graphView.getLegendRenderer().setVisible(true);
+        this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));
+        this.graphView.getLegendRenderer().setFixedPosition(0, 0);
+        // this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
     }
 
     private void initGraphVelocity() {
         this.initBaseGraph();
-        this.graphSeries.setTitle(String.format(
-                Locale.ENGLISH,
-                "%s (%s)",
-                getString(R.string.velocity),
-                getString(R.string.vel_mu)
-        ));
         // Adding axis titles
         // this.graphView.getGridLabelRenderer().setVerticalAxisTitle(getString(R.string.vel_mu));
         this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
-        // Setting color graphSeries
-        this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.blue_700));
     }
 
     private void initGraphAcceleration() {
         this.initBaseGraph();
-        this.graphSeries.setTitle(String.format(
-                Locale.ENGLISH,
-                "%s (%s)",
-                getString(R.string.acceleration),
-                getString(R.string.acc_mu)
-        ));
         // Adding axis titles
         // this.graphView.getGridLabelRenderer().setVerticalAxisTitle(getString(R.string.acc_mu));
         this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
-        // Setting color graphSeries
-        this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.red_700));
     }
 
     private void initGraphFeedback() {
         this.initBaseGraph();
-        this.barGraphSeries.setTitle(String.format(
-                Locale.ENGLISH,
-                "%s (%s)",
-                getString(R.string.feedback),
-                getString(R.string.feedback_scale)
-        ));
-
         // Adding axis titles
         // this.graphView.getGridLabelRenderer().setVerticalAxisTitle(getString(R.string.acc_mu));
-        // this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.date));
-        // Setting color graphSeries
-        // this.barGraphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.green_700));
-
-        // Spacing
-        // this.barGraphSeries.setSpacing(50);
-
-        // this.graphView.getViewport().setXAxisBoundsManual(true);
-
-        // Draw values on top
-        // this.barGraphSeries.setDrawValuesOnTop(true);
-        // this.barGraphSeries.setValuesOnTopColor(Color.RED);
+        this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.date));
 
         // Set date label formatter
-        /*
         this.graphView.getGridLabelRenderer().setLabelFormatter(
                 new DateAsXAxisLabelFormatter(this.getActivity())
         );
-        */
-        // this.graphView.getGridLabelRenderer().setNumHorizontalLabels(3);
+        this.graphView.getGridLabelRenderer().setNumHorizontalLabels(3);
 
         // As we use dates as labels, the human rounding to nice readable numbers is not necessary
-        // this.graphView.getGridLabelRenderer().setHumanRounding(false);
+        this.graphView.getGridLabelRenderer().setHumanRounding(false);
     }
 
     private void initGraphPoints() {
@@ -345,13 +386,14 @@ public class PageFragment extends Fragment
     public void hideProgress() {
         if (this.progressBar.getVisibility() == View.VISIBLE) {
             this.progressBar.setIndeterminate(true);
-            this.progressBar.setVisibility(View.GONE);
+            this.progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
     @Override
     public void showProgress() {
-        if (this.progressBar.getVisibility() == View.GONE) {
+        if (this.progressBar.getVisibility() == View.GONE ||
+                this.progressBar.getVisibility() == View.INVISIBLE) {
             this.progressBar.setIndeterminate(true);
             this.progressBar.setVisibility(View.VISIBLE);
         }
@@ -359,13 +401,11 @@ public class PageFragment extends Fragment
 
     @Override
     public void onDailyVelocityReceived(MeanDay meanDay) {
-        this.setGraphHorizontalScale(4, HOURS);
         this.hideProgress();
 
         Log.d(TAG, "Data received");
         if (meanDay == null || meanDay.getMap().size() < 1) {
             Log.d(TAG, "Data null");
-            this.unavailableData.setVisibility(View.VISIBLE);
             this.updateUI(
                     getString(R.string.velocity_daily_graph),
                     0,
@@ -397,7 +437,6 @@ public class PageFragment extends Fragment
                     meanDay.getTimestamp(),
                     true
             );
-            this.graphView.addSeries(this.graphSeries);
         }
     }
 
@@ -408,7 +447,6 @@ public class PageFragment extends Fragment
         Log.d(TAG, "Data received");
         if (meanWeek == null || meanWeek.getMap().size() < 1) {
             Log.d(TAG, "Data null");
-            this.unavailableData.setVisibility(View.VISIBLE);
             this.updateUI(
                     getString(R.string.velocity_weekly_graph),
                     0,
@@ -416,7 +454,7 @@ public class PageFragment extends Fragment
             );
         } else {
             Log.d(TAG, "Data consistent");
-            for (int i = 0; i < DAYS; ++i) {
+            for (int i = 1; i <= Calendar.WEEK_OF_MONTH; ++i) {
                 if (meanWeek.getMap().get(i) != null) {
                     float sampleSumVelocity = meanWeek.getMap().get(i).getSampleSumVelocity();
                     int sampleSizeVelocity = meanWeek.getMap().get(i).getSampleSizeVelocity();
@@ -424,13 +462,13 @@ public class PageFragment extends Fragment
                     this.graphSeries.appendData(
                             new DataPoint(i, sampleSumVelocity / sampleSizeVelocity),
                             false,
-                            DAYS
+                            Calendar.WEEK_OF_MONTH
                     );
                 } else {
                     this.graphSeries.appendData(
                             new DataPoint(i, 0),
                             false,
-                            DAYS
+                            Calendar.WEEK_OF_MONTH
                     );
                 }
             }
@@ -440,19 +478,16 @@ public class PageFragment extends Fragment
                     meanWeek.getTimestamp(),
                     true
             );
-            this.graphView.addSeries(this.graphSeries);
         }
     }
 
     @Override
     public void onDailyAccelerationReceived(MeanDay meanDay) {
-        this.setGraphHorizontalScale(4, HOURS);
         this.hideProgress();
 
         Log.d(TAG, "Data received");
         if (meanDay == null || meanDay.getMap().size() < 1) {
             Log.d(TAG, "Data null");
-            this.unavailableData.setVisibility(View.VISIBLE);
             this.updateUI(
                     getString(R.string.acceleration_daily_graph),
                     0,
@@ -485,7 +520,6 @@ public class PageFragment extends Fragment
                     meanDay.getTimestamp(),
                     true
             );
-            this.graphView.addSeries(this.graphSeries);
         }
     }
 
@@ -496,7 +530,6 @@ public class PageFragment extends Fragment
         Log.d(TAG, "Data received");
         if (meanWeek == null || meanWeek.getMap().size() < 1) {
             Log.d(TAG, "Data null");
-            this.unavailableData.setVisibility(View.VISIBLE);
             this.updateUI(
                     getString(R.string.acceleration_weekly_graph),
                     0,
@@ -504,7 +537,7 @@ public class PageFragment extends Fragment
             );
         } else {
             Log.d(TAG, "Data consistent");
-            for (int i = 0; i < DAYS; ++i) {
+            for (int i = 1; i <= Calendar.WEEK_OF_MONTH; ++i) {
                 if (meanWeek.getMap().get(i) != null) {
                     float sampleSumAcceleration = meanWeek.getMap().get(i).getSampleSumAcceleration();
                     int sampleSizeAcceleration = meanWeek.getMap().get(i).getSampleSizeAcceleration();
@@ -512,14 +545,14 @@ public class PageFragment extends Fragment
                     this.graphSeries.appendData(
                             new DataPoint(i, sampleSumAcceleration / sampleSizeAcceleration),
                             false,
-                            DAYS
+                            Calendar.WEEK_OF_MONTH
                     );
 
                 } else {
                     this.graphSeries.appendData(
                             new DataPoint(i, 0),
                             false,
-                            DAYS
+                            Calendar.WEEK_OF_MONTH
                     );
                 }
             }
@@ -529,28 +562,12 @@ public class PageFragment extends Fragment
                     meanWeek.getTimestamp(),
                     true
             );
-            this.graphView.addSeries(this.graphSeries);
         }
     }
 
     @Override
     public void onFeedbackReceived(Map<Date, Double> map) {
         this.hideProgress();
-
-        this.barGraphSeries = new BarGraphSeries<>(new DataPoint[] {
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(3, 8),
-                new DataPoint(7, 2)
-        });
-
-        // Set manual x bounds to have nice steps
-        this.graphView.getViewport().setMinX(System.currentTimeMillis() - DAY_MS);
-        this.graphView.getViewport().setMaxX(System.currentTimeMillis() + DAY_MS);
-
-        this.graphView.addSeries(this.barGraphSeries);
-
-        if (true) return;
 
         Log.d(TAG, "Data received");
         if (map == null || map.size() < 1) {
@@ -589,7 +606,7 @@ public class PageFragment extends Fragment
                     continue;
                 }
 
-                this.barGraphSeries.appendData(
+                this.graphSeries.appendData(
                         new DataPoint((Date) entry.getKey(), meanFeedback / occurence),
                         false,
                         3
@@ -598,23 +615,15 @@ public class PageFragment extends Fragment
                 ++i; meanFeedback = 0.0; occurence = 0;
             }
 
+            // Set manual x bounds to have nice steps
+            this.graphView.getViewport().setMinX(firstUpdate.getTime());
+            this.graphView.getViewport().setMaxX(lastUpdate.getTime());
+
             this.updateUI(
                     getString(R.string.feedback_graph),
                     lastUpdate == null ? null : lastUpdate.getTime(),
                     true
             );
-            this.barGraphSeries = new BarGraphSeries<>(new DataPoint[] {
-                    new DataPoint(0, 1),
-                    new DataPoint(1, 5),
-                    new DataPoint(3, 8),
-                    new DataPoint(7, 2)
-            });
-
-            // Set manual x bounds to have nice steps
-            this.graphView.getViewport().setMinX(firstUpdate.getTime() - DAY_MS);
-            this.graphView.getViewport().setMaxX(lastUpdate.getTime() + DAY_MS);
-
-            this.graphView.addSeries(this.barGraphSeries);
         }
     }
 
@@ -652,7 +661,9 @@ public class PageFragment extends Fragment
 
         if (clickable) {
             this.fullscreenGraph.setClickable(true);
+            this.graphView.addSeries(this.graphSeries);
         } else {
+            this.unavailableData.setVisibility(View.VISIBLE);
             this.fullscreenGraph.setClickable(false);
             this.fullscreenGraph.setColorFilter(
                     ContextCompat.getColor(this.getContext(), R.color.colorSchemasComplementary),

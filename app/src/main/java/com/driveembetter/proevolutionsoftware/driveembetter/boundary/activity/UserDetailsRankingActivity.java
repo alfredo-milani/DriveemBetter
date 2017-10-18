@@ -98,7 +98,8 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         );
         pager.setAdapter(this.adapter);
         // Increase cache limit
-        pager.setOffscreenPageLimit(2);
+        // TODO: 18/10/17 Per ora ci sono 5 tipi di grafici, quindi con un valore come 4 non viene distrutto nessun fragment. Nel caso in cui si qualche fragment venisse distrutto (aumento numero fragments o diminuzione valore di offset) gestire la ricostruzione del fragment (rendering legenda ecc...)
+        pager.setOffscreenPageLimit(4);
         // pager.setPageTransformer(true, new AccordionTransformer());
         // pager.setPageTransformer(true, new DepthPageTransformer());
         // pager.setPageTransformer(true, new ZoomOutSlideTransformer());
@@ -120,26 +121,26 @@ public class UserDetailsRankingActivity extends AppCompatActivity
             this.username.setText(UserDetailsRankingActivity.user.getUsernameFromUid());
         }
         this.points.setText(String.valueOf(UserDetailsRankingActivity.user.getPoints()));
-        GlideImageLoader.loadImage(
+        GlideImageLoader.loadImageUri(
                 this,
                 this.imageView,
                 UserDetailsRankingActivity.user.getPhotoUrl(),
                 R.mipmap.user_icon,
                 R.mipmap.user_icon);
         if (UserDetailsRankingActivity.user.getAvailability().equals(AVAILABLE)) {
-            GlideImageLoader.loadImage(
+            GlideImageLoader.loadImageUri(
                     this,
                     this.availability,
-                    GlideImageLoader.fromResourceToUri(this, R.drawable.available_shape),
-                    R.drawable.unavailable_shape,
-                    R.drawable.unavailable_shape
+                    null,
+                    R.drawable.available_shape,
+                    R.drawable.available_shape
             );
             FirebaseDatabaseManager.getCurrentVehicleRanking(this, user.getUid());
         } else {
-            GlideImageLoader.loadImage(
+            GlideImageLoader.loadImageUri(
                     this,
                     this.availability,
-                    GlideImageLoader.fromResourceToUri(this, R.drawable.unavailable_shape),
+                    null,
                     R.drawable.unavailable_shape,
                     R.drawable.unavailable_shape
             );
@@ -200,7 +201,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
                     uri = GlideImageLoader.fromResourceToUri(this, R.drawable.ic_answere_mark);
             }
 
-            GlideImageLoader.loadImage(
+            GlideImageLoader.loadImageUri(
                     this,
                     this.currentImageVehicle,
                     uri,

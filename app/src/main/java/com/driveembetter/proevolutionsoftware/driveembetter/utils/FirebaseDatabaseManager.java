@@ -106,7 +106,10 @@ public class FirebaseDatabaseManager
                                     break;
                             }
                         }
-                        meanDay.getMap().put(Integer.valueOf(value.getKey()), new Mean(accSum, velSum, velSize, accSize));
+                        meanDay.getMap().put(
+                                Integer.valueOf(value.getKey()),
+                                new Mean(accSum, velSum, velSize, accSize)
+                        );
                     }
                 }
             }
@@ -138,7 +141,10 @@ public class FirebaseDatabaseManager
                                     break;
                             }
                         }
-                        meanWeek.getMap().put(Integer.valueOf(value.getKey()), new Mean(accSum, velSum, velSize, accSize));
+                        meanWeek.getMap().put(
+                                Integer.valueOf(value.getKey()),
+                                new Mean(accSum, velSum, velSize, accSize)
+                        );
                     }
                 }
             }

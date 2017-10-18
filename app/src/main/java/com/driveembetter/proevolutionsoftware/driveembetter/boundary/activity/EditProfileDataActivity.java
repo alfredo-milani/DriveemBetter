@@ -133,7 +133,7 @@ public class EditProfileDataActivity extends AppCompatActivity
         if (this.user.getUsername() != null) {
             this.usernameTextView.setText(this.user.getUsername());
         }
-        GlideImageLoader.loadImage(
+        GlideImageLoader.loadImageUri(
                 this,
                 this.userPicture,
                 this.user.getPhotoUrl(),
@@ -299,7 +299,7 @@ public class EditProfileDataActivity extends AppCompatActivity
 
             case EditProfileDataActivity.UP_PICTURE_SUCCESS_AUTH:
                 this.syncUserData();
-                GlideImageLoader.loadImage(
+                GlideImageLoader.loadImageUri(
                         this,
                         this.userPicture,
                         this.user.getPhotoUrl(),
