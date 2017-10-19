@@ -37,7 +37,6 @@
     <string name="user_exist">L\'utente esiste già. Prova con un altro indirizzo email.</string>
 
 
-
     <!-- Chart -->
     <string name="action_help">Aiuto</string>
     <string name="strFunction">Inserire Funzione:</string>
@@ -176,4 +175,14 @@
     <string name="date">Data</string>
     <string name="feedback_scale">da 1 a 5</string>
     <string name="updating_graph_data">Aggiornamento dati...</string>
+    <string name="Add_vehicle">Aggiungi veicolo</string>
+    <string name="Modify_vehicle">Modifica veicolo</string>
+    <string name="Moto">Moto</string>
+    <string name="Car">Auto</string>
+    <string name="Van">Furgone</string>
+    <string name="type">Tipo di veicolo</string>
+
+    <string name="chose_vehicle">Scegli il tipo di veicolo</string>
+    <string name="last_revision_date">Data ultima revisione</string>
+    <string name="insurance_expiration_date">Scadenza assicurazione</string>
 </resources>

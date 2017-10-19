@@ -29,6 +29,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Ad
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ModifyVehicleActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.InsuranceRevisionMetronome;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.VehiclesAdapter;
 import com.google.firebase.database.DataSnapshot;
@@ -46,6 +48,7 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.INS_DATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.MODEL;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NO;
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NODE_POSITION;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.OWNER;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PLATE_LIST;
@@ -85,6 +88,7 @@ public class GarageFragment extends Fragment
     private DatabaseReference current_ref;
     private Boolean clik_event;
     private String current_vehicle;
+    private InsuranceRevisionMetronome insuranceRevisionMetronome;
 
 
     @Override
@@ -177,6 +181,8 @@ public class GarageFragment extends Fragment
                         add_new_current_vehicle(selected_item);
                         hideOptions();
                         clik_event = false;
+                        insurance_date_list.clear();
+                        revision_date_list.clear();
                         onStart();
 
                     }
@@ -202,8 +208,8 @@ public class GarageFragment extends Fragment
                                         vehicles.remove(selected_item);
                                         vehiclesName.remove(selected_item);
                                         plates_list.remove(selected_item);
-                                        insurance_date_list.remove(selected_item);
-                                        revision_date_list.remove(selected_item);
+                                        insurance_date_list.clear();
+                                        revision_date_list.clear();
                                         hideOptions();
                                         dialog.cancel();
                                         clik_event = false;
@@ -269,6 +275,13 @@ public class GarageFragment extends Fragment
         });
     }
 
+    private void insurance_point() {
+        insuranceRevisionMetronome = new InsuranceRevisionMetronome();
+        insuranceRevisionMetronome.one_day_passed();
+    }
+
+
+
     private void control_insurance_expiration() {
         if (insurance_date_list == null || insurance_date_list.size()==0){
         }else{
@@ -276,6 +289,7 @@ public class GarageFragment extends Fragment
             for (i=0;i<insurance_date_list.size();i++){
                 if (insurance_is_expired(i)){
                     show_alert_message();
+                    insurance_point();
                     this.insurance_date_list.clear();
                     this.revision_date_list.clear();
                     return;
@@ -312,8 +326,11 @@ public class GarageFragment extends Fragment
             this.label.setVisibility(View.VISIBLE);
             this.label.setText("YOUR GARAGE IS EMPTY");
             listview.setVisibility(View.INVISIBLE);
+            this.insurance_date_list.clear();
+            this.revision_date_list.clear();
 
         }else {
+
             listview.setVisibility(View.VISIBLE);
             this.label.setVisibility(View.INVISIBLE);
         }
@@ -328,6 +345,14 @@ public class GarageFragment extends Fragment
                 .getFirebaseUser()
                 .getUid() + "/current_vehicle");
         ref.removeValue();
+
+        FirebaseDatabaseManager.getDatabaseReference().child(NODE_POSITION)
+                .child(singletonUser.getCountry())
+                .child(singletonUser.getRegion())
+                .child(singletonUser.getSubRegion())
+                .child(singletonUser.getUid())
+                .child("current_vehicle")
+                .removeValue();
     }
 
     private void add_new_current_vehicle(int selected_item) {
@@ -338,7 +363,7 @@ public class GarageFragment extends Fragment
                 .getFirebaseUser()
                 .getUid() + "/current_vehicle");
 
-        if( vehicles.get(selected_item).getType().equals(CAR)){
+        if( vehicles.get(selected_item).getType().equals(CAR) || vehicles.get(selected_item).getType().equals("Auto")){
 
             ref.child(vehicles.get(selected_item).getNumberPlate())
                     .setValue(vehicles.get(selected_item).getType()+ ";" +vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+
@@ -351,11 +376,19 @@ public class GarageFragment extends Fragment
                     .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
         }
 
-        if( vehicles.get(selected_item).getType().equals(VAN)){
+        if( vehicles.get(selected_item).getType().equals(VAN) || vehicles.get(selected_item).getType().equals("Furgone")){
 
             ref.child(vehicles.get(selected_item).getNumberPlate())
                     .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
         }
+
+        FirebaseDatabaseManager.getDatabaseReference().child(NODE_POSITION)
+                .child(singletonUser.getCountry())
+                .child(singletonUser.getRegion())
+                .child(singletonUser.getSubRegion())
+                .child(singletonUser.getUid())
+                .child("current_vehicle")
+                .setValue(vehicles.get(selected_item).getType());
 
         singletonUser.setCurrentVehicle(vehicles.get(selected_item));
     }
@@ -407,6 +440,14 @@ public class GarageFragment extends Fragment
                     .getFirebaseUser()
                     .getUid() + "/current_vehicle");
             current_ref.child(current_vehicle).removeValue();
+
+            FirebaseDatabaseManager.getDatabaseReference().child(NODE_POSITION)
+                    .child(singletonUser.getCountry())
+                    .child(singletonUser.getRegion())
+                    .child(singletonUser.getSubRegion())
+                    .child(singletonUser.getUid())
+                    .child("current_vehicle")
+                    .removeValue();
         }
     }
 
@@ -503,14 +544,10 @@ public class GarageFragment extends Fragment
 
         int i;
         for(i=0; i<vehicles.size();i++){
-            System.out.println("VEHICLEEEEESSSS * " + vehicles.size());
-
             this.vehiclesName.add(i, vehicles.get(i).getModel());
             this.plates_list.add(i, vehicles.get(i).getNumberPlate());
             this.insurance_date_list.add(i, vehicles.get(i).getInsurance_date());
             this.revision_date_list.add(i, vehicles.get(i).getRevision_date());
-            System.out.println("INSURANCEEEEEEEEEE222222222222222 * " + insurance_date_list.size());
-
 
         }
 
@@ -527,6 +564,7 @@ public class GarageFragment extends Fragment
         this.revision_date_list = new ArrayList<String>();
         this.insurance_date_list = new ArrayList<String>();
         this.clik_event = false;
+
     }
 
     private void getCurrentVhicle() {

@@ -10,6 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.TranslateAnimation;
@@ -72,7 +73,6 @@ public class AddVehicleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_add_vehicle);
         init_resources();
-
         Intent mIntent = getIntent();
         this.plates_list = mIntent.getStringArrayListExtra(PLATE_LIST);
 
@@ -105,6 +105,8 @@ public class AddVehicleActivity extends AppCompatActivity {
                                                       switch (checkedId) {
                                                           case R.id.car:
                                                               setType(car.getText().toString());
+                                                              System.out.println("TEEEEEEEEEEEEEEEEEEEEEEEXXXTTTT " + car.getText().toString());
+
                                                               break;
                                                           case R.id.moto:
                                                               setType(moto.getText().toString());
@@ -215,7 +217,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                 .getFirebaseUser()
                 .getUid() + "/vehicles");
 
-        if( getType().equals(CAR)){
+        if( getType().equals(CAR) || getType().equals("Auto")){
 
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
@@ -227,7 +229,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                     .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
         }
 
-        if( getType().equals(VAN)){
+        if( getType().equals(VAN) || getType().equals("Furgone")){
 
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
@@ -242,6 +244,16 @@ public class AddVehicleActivity extends AppCompatActivity {
     public void setType(String type) {
         this.type = type;
 
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 

@@ -12,36 +12,30 @@
         android:id="@+id/alert"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/gar"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintVertical_bias="0.0"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
+        android:background="@null"
         tools:layout_constraintTop_creator="1">
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:text="Add your veichle"
-            android:textSize="30sp" />
 
         <TextView
             android:id="@+id/textView8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textView2"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="21dp"
-            android:text="Chose vehicle type" />
+            android:defaultFocusHighlightEnabled="false"
+            android:text="@string/chose_vehicle"
+            android:textAllCaps="true"
+            android:textColor="@color/black"
+            android:textStyle="bold|italic"
+            tools:text="@string/chose_vehicle" />
 
         <RadioGroup
             android:id="@+id/radiotype"
@@ -49,14 +43,17 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/textView8"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="15dp">
 
             <RadioButton
                 android:id="@+id/moto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Moto" />
+                android:text="@string/Moto"
+                android:theme="@style/RadioButtonStyle"
+                android:textColor="@color/black" />
+
 
             <RadioButton
                 android:id="@+id/car"
@@ -66,7 +63,9 @@
                 android:layout_marginRight="5dp"
                 android:layout_toStartOf="@+id/radiotype"
                 android:layout_weight="1"
-                android:text="Car" />
+                android:text="@string/Car"
+                android:theme="@style/RadioButtonStyle"
+                android:textColor="@color/black" />
 
             <RadioButton
                 android:id="@+id/van"
@@ -74,76 +73,95 @@
                 android:layout_height="wrap_content"
                 android:layout_alignTop="@+id/radiotype"
                 android:layout_toEndOf="@+id/radiotype"
-                android:text="Van" />
+                android:text="@string/Van"
+                android:theme="@style/RadioButtonStyle"
+                android:textColor="@color/black" />
+
 
 
         </RadioGroup>
 
         <EditText
             android:id="@+id/newplatenumber"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/newowner"
             android:layout_below="@+id/radiotype"
-            android:layout_marginTop="10dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginTop="20dp"
             android:ems="10"
             android:hint="@string/plate_number"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:theme="@style/EditTextTheme" />
 
         <EditText
             android:id="@+id/newowner"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/textView2"
+            android:layout_alignStart="@+id/newplatenumber"
             android:layout_below="@+id/newplatenumber"
-            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
             android:ems="10"
             android:hint="@string/owner"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:theme="@style/EditTextTheme" />
 
         <EditText
             android:id="@+id/newmodel"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/newowner"
             android:layout_below="@+id/newowner"
             android:layout_marginTop="5dp"
             android:ems="10"
             android:hint="@string/model"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:theme="@style/EditTextTheme"
+            android:layout_alignEnd="@+id/newowner" />
 
         <Button
             android:id="@+id/confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark"
             android:layout_below="@+id/rev"
-            android:layout_centerHorizontal="true"
-            android:background="?android:attr/selectableItemBackground"
-            android:text="@string/add" />
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="40dp"
+            android:text="@string/add"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_alignStart="@+id/rev"
+            android:layout_alignEnd="@+id/rev" />
 
 
         <EditText
             android:id="@+id/insurance_date_plain"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/newmodel"
             android:layout_alignStart="@+id/newmodel"
             android:layout_below="@+id/newmodel"
             android:layout_marginTop="5dp"
             android:ems="10"
             android:focusableInTouchMode="false"
-            android:hint="Insurance expiration"
+            android:theme="@style/EditTextTheme"
+            android:hint="Insurance expiration date"
             android:inputType="date" />
 
         <EditText
             android:id="@+id/rev"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/insurance_date_plain"
             android:layout_alignStart="@+id/insurance_date_plain"
             android:layout_below="@+id/insurance_date_plain"
             android:layout_marginTop="5dp"
             android:ems="10"
             android:focusableInTouchMode="false"
-            android:hint="Last revision"
+            android:hint="Last revision date"
+            android:theme="@style/EditTextTheme"
             android:inputType="date" />
 
 

@@ -52,11 +52,11 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
     @Override
     public int getItemViewType(int position) {
 
-        if(vehicles.get(position).getType().equals(CAR)){
+        if(vehicles.get(position).getType().equals(CAR) || vehicles.get(position).getType().equals("Auto")){
             return 0;
         }else if (vehicles.get(position).getType().equals(MOTO)){
             return 1;
-        }else if (vehicles.get(position).getType().equals(VAN)){
+        }else if (vehicles.get(position).getType().equals(VAN) || vehicles.get(position).getType().equals("Furgone")){
             return 2;
         }
         return -1;

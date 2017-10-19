@@ -59,6 +59,10 @@
     <string name="battery">Battery status</string>
     <string name="add">CONFIRM</string>
     <string name="model">Model</string>
+    <string name="Moto">Moto</string>
+    <string name="Car">Car</string>
+    <string name="type">Vehicle Type</string>
+    <string name="Van">Van</string>
     <string name="insurance_date">Insurance date</string>
     <string name="revision_date">Revision date</string>
 
@@ -121,4 +125,9 @@
     <string name="date">Date</string>
     <string name="feedback_scale">from 1 to 5</string>
     <string name="updating_graph_data">Updating data...</string>
+    <string name="Add_vehicle">Add new vehicle</string>
+    <string name="chose_vehicle">Chose vehicle type</string>
+    <string name="Modify_vehicle">Modify your vehicle</string>
+    <string name="last_revision_date">Last Revision Date</string>
+    <string name="insurance_expiration_date">Insurance expiration date</string>
 </resources>

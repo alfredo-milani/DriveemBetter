@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/popup_element"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/popup_element"
-    android:background="@drawable/gar">
+    android:layout_marginBottom="30dp"
+    android:layout_marginTop="30dp"
+    android:background="@color/yellow_50"
+    android:orientation="vertical">
 
 
     <ScrollView
@@ -15,7 +18,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/modelview"
@@ -24,7 +27,7 @@
                 android:layout_marginBottom="15dp"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
-                android:textColor="@android:color/white"
+                android:textColor="@android:color/black"
                 android:textSize="40sp"
                 android:textStyle="italic" />
 
@@ -34,18 +37,20 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_marginTop="5dp"
+                android:background="@color/grey_300"
                 android:gravity="center"
-                android:text="Type"
+                android:text="@string/type"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                tools:text="@string/type" />
 
             <TextView
                 android:id="@+id/typeview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textColor="@android:color/white"
+                android:textColor="@android:color/black"
                 android:textSize="20sp" />
 
             <TextView
@@ -54,8 +59,9 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_marginTop="10dp"
+                android:background="@color/grey_300"
                 android:gravity="center"
-                android:text="Plate"
+                android:text="@string/plate_number"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="italic" />
@@ -65,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textColor="#dfe2e2"
+                android:textColor="@color/black"
                 android:textSize="20sp" />
 
             <TextView
@@ -74,8 +80,9 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_marginTop="10dp"
+                android:background="@color/grey_300"
                 android:gravity="center"
-                android:text="Owner"
+                android:text="@string/owner"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="italic" />
@@ -85,7 +92,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textColor="#dfe2e2"
+                android:textColor="@color/black"
                 android:textSize="20sp" />
 
             <TextView
@@ -94,12 +101,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/grey_300"
                 android:gravity="center"
-                android:text="Insurance Date"
+                android:text="@string/insurance_expiration_date"
                 android:textColor="@android:color/black"
                 android:textSize="20sp"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                tools:text="@string/insurance_expiration_date" />
 
             <TextView
                 android:id="@+id/ins_date"
@@ -108,7 +117,7 @@
                 android:layout_margin="10dp"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
-                android:textColor="#dfe2e2"
+                android:textColor="@color/black"
                 android:textSize="20sp" />
 
             <TextView
@@ -117,11 +126,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
+                android:background="@color/grey_300"
                 android:gravity="center"
-                android:text="Revision Date"
+                android:text="@string/last_revision_date"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                tools:text="@string/last_revision_date" />
 
             <TextView
                 android:id="@+id/rev_date"
@@ -130,7 +141,7 @@
                 android:layout_margin="10dp"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
-                android:textColor="#dfe2e2"
+                android:textColor="@color/black"
                 android:textSize="20sp" />
 
             <RelativeLayout
@@ -143,12 +154,14 @@
 
                 <ImageButton
                     android:id="@+id/modify_from_options"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginBottom="20dp"
-                    android:layout_marginLeft="30dp"
-                    android:background="?android:attr/selectableItemBackground"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_toStartOf="@+id/ok"
+                    android:background="@color/colorPrimaryDark"
                     app:srcCompat="@mipmap/wrench" />
 
                 <Button
@@ -160,10 +173,10 @@
                     android:layout_marginEnd="44dp"
                     android:layout_marginLeft="100dp"
                     android:layout_marginRight="30dp"
-                    android:background="?android:attr/selectableItemBackground"
+                    android:background="@color/colorPrimaryDark"
                     android:gravity="center"
                     android:text="@string/ok"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/white"
                     android:textSize="30sp" />
 
 

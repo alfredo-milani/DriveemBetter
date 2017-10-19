@@ -6,123 +6,111 @@
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants"
     android:orientation="vertical"
-    android:padding="3dp"
+    android:padding="2dp"
     android:weightSum="1">
 
     <android.support.v7.widget.CardView
-        android:background="?android:attr/selectableItemBackground"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@null">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="95dp"
             android:descendantFocusability="blocksDescendants"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:weightSum="1">
 
             <ImageView
                 android:id="@+id/imageView4"
                 android:layout_width="85dp"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="10dp"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="20dp"
                 app:srcCompat="@mipmap/van" />
 
-            <HorizontalScrollView
-                android:layout_width="144dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clickable="false"
                 android:descendantFocusability="blocksDescendants"
                 android:focusable="false"
-                android:focusableInTouchMode="false">
+                android:focusableInTouchMode="false"
+                android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="144dp"
-                    android:layout_height="match_parent"
+                <TableLayout
+                    android:layout_width="286dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
                     android:clickable="false"
                     android:descendantFocusability="blocksDescendants"
                     android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:orientation="vertical">
+                    android:focusableInTouchMode="false">
 
-                    <TableLayout
+                    <TableRow
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
                         android:clickable="false"
-                        android:descendantFocusability="blocksDescendants"
                         android:focusable="false"
                         android:focusableInTouchMode="false">
 
-                        <TableRow
+                        <TextView
+                            android:id="@+id/textView23"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_marginTop="10dp"
-                            android:clickable="false"
-                            android:focusable="false"
-                            android:focusableInTouchMode="false">
+                            android:layout_marginTop="5dp"
+                            android:gravity="center"
+                            android:scrollbars="horizontal"
+                            android:text="TextView"
+                            android:textAlignment="center"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
 
-                            <TextView
-                                android:id="@+id/textView23"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_marginLeft="5dp"
-                                android:layout_marginTop="5dp"
-                                android:gravity="center"
-                                android:text="TextView"
-                                android:textAlignment="center"
-                                android:textSize="20sp" />
+                    </TableRow>
 
-                        </TableRow>
+                </TableLayout>
 
-                        <TableRow
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="center"
-                            android:clickable="false"
-                            android:focusable="false"
-                            android:focusableInTouchMode="false">
+                <RelativeLayout
+                    android:layout_width="291dp"
+                    android:layout_height="match_parent">
 
-                            <TextView
-                                android:id="@+id/textView24"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_marginLeft="5dp" />
-                        </TableRow>
+                    <TextView
+                        android:id="@+id/textView24"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="5dp"
+                        android:layout_alignParentStart="true" />
 
-                    </TableLayout>
-                </LinearLayout>
-            </HorizontalScrollView>
+                    <ImageView
+                        android:id="@+id/current"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignEnd="@+id/textView20"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="85dp"
+                        android:adjustViewBounds="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        app:srcCompat="@mipmap/steeringwheel_black" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                    <TextView
+                        android:id="@+id/textView20"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="58dp"
+                        android:layout_marginLeft="220dp"
+                        android:layout_marginRight="10dp"
+                        android:text="!"
+                        android:textColor="@color/red_900"
+                        android:textSize="30sp" />
+                </RelativeLayout>
 
-                <ImageView
-                    android:id="@+id/current"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="30dp"
-                    android:adjustViewBounds="true"
-                    android:background="?android:attr/selectableItemBackground"
-                    app:srcCompat="@mipmap/steeringwheel_black" />
 
-                <TextView
-                    android:id="@+id/textView20"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="80dp"
-                    android:layout_marginRight="10dp"
-                    android:text="!"
-                    android:textColor="@color/red_900"
-                    android:textSize="40sp" />
+            </LinearLayout>
 
-            </RelativeLayout>
 
         </LinearLayout>
     </android.support.v7.widget.CardView>

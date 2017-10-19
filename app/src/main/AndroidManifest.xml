@@ -46,8 +46,9 @@
 
         <activity
             android:name=".boundary.activity.AddVehicleActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait" >
+            android:label="@string/Add_vehicle"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" >
             <!--Default Intent Filter-->
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />
@@ -56,8 +57,9 @@
 
         <activity
             android:name=".boundary.activity.ModifyVehicleActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait" >
+            android:label="@string/Modify_vehicle"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" >
             <!--Default Intent Filter-->
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />

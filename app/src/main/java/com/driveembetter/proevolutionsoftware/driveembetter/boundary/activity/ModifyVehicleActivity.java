@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.TranslateAnimation;
@@ -46,7 +48,7 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicl
 import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
 import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
 
-public class ModifyVehicleActivity extends FragmentActivity {
+public class ModifyVehicleActivity extends AppCompatActivity {
 
 
     private EditText newPlateNumber;
@@ -140,7 +142,7 @@ public class ModifyVehicleActivity extends FragmentActivity {
                 .getInstance()
                 .getFirebaseUser()
                 .getUid() + "/vehicles");
-        if( type.equals(CAR)){
+        if( type.equals(CAR) || type.equals("Auto")){
 
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
@@ -150,7 +152,7 @@ public class ModifyVehicleActivity extends FragmentActivity {
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
         }
-        if( type.equals(VAN)){
+        if( type.equals(VAN) || type.equals("Furgone")){
 
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
@@ -172,7 +174,7 @@ public class ModifyVehicleActivity extends FragmentActivity {
 
             current_ref.child(current_plate).removeValue();
 
-            if( type.equals(CAR)){
+            if( type.equals(CAR) || type.equals("Auto")){
 
                 current_ref.child(vehicle.getNumberPlate())
                         .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
@@ -181,7 +183,7 @@ public class ModifyVehicleActivity extends FragmentActivity {
                 current_ref.child(vehicle.getNumberPlate())
                         .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
             }
-            if( type.equals(VAN)){
+            if( type.equals(VAN) || type.equals("Furgone")){
                 current_ref.child(vehicle.getNumberPlate())
                         .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
             }
@@ -259,7 +261,10 @@ public class ModifyVehicleActivity extends FragmentActivity {
     }
 
     private void init_resources() {
-
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         this.newPlateNumber = (EditText) findViewById(R.id.newplatenumber);
         this.newModel = (EditText) findViewById(R.id.newmodel);
         this.newOwner = (EditText) findViewById(R.id.newowner);
@@ -368,5 +373,16 @@ public class ModifyVehicleActivity extends FragmentActivity {
 
             popupWindow.showAtLocation(alert, Gravity.CENTER,0,0);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

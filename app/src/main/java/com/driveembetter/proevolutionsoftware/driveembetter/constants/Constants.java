@@ -56,7 +56,8 @@ public interface Constants {
 
     // Database timestamp
     String CHILD_TIMESTAMP = "timestamp";
-    int MAX_TIMESTAMP_TIME = 10;    // Minimum value for validity of timestamp (in MINUTES)
+    int MAX_TIMESTAMP_TIME = 10;
+    long MILL_IN_A_DAY = 1000 * 24 *3600;// Minimum value for validity of timestamp (in MINUTES)
 
     // Database's nodes
     String NODE_POSITION = "position";
