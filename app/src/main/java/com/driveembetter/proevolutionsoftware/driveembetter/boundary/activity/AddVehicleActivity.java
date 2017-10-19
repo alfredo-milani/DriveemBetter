@@ -296,7 +296,6 @@ public class AddVehicleActivity extends AppCompatActivity {
                                 show_alert_message();
                                 insurance_date.setTextColor(Color.RED);
                                 insurance_date.setText(day + "/" + (month + 1) + "/" + year);
-                                insurance_date.startAnimation(shakeError());
                             }
                         }
 
@@ -327,6 +326,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     popupWindow.dismiss();
+                    insurance_date.startAnimation(shakeError());
                 }
             });
 
