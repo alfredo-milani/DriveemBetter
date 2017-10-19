@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
@@ -247,7 +248,12 @@ public class ShowFullscreenGraph extends AppCompatActivity {
 
     public void updateUI() {
         if (this.graphSeries != null) {
+            if (this.unavailableData.getVisibility() == View.VISIBLE) {
+                this.unavailableData.setVisibility(View.GONE);
+            }
             this.graphView.addSeries(this.graphSeries);
+        } else {
+            this.unavailableData.setVisibility(View.VISIBLE);
         }
     }
 

@@ -2,7 +2,6 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -21,21 +20,16 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity;
-import com.driveembetter.proevolutionsoftware.driveembetter.entity.Friend;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 import java.util.Locale;
 
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_FIRST_FRIEND;
-import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_NAME;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_PHONE_NO;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_SECOND_FRIEND;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NODE_USERS;
