@@ -200,22 +200,22 @@ public class PageFragment extends Fragment
     private void initGraphView() {
         switch (this.typeGraph) {
             case PageFragment.VELOCITY_GRAPH_DAILY:
-                this.setGraphHorizontalScale(4, 0, HOURS - 1);
+                this.setGraphHorizontalScale(-1, 0, HOURS - 1);
                 this.initGraphVelocity();
                 break;
 
             case PageFragment.VELOCITY_GRAPH_WEEKLY:
-                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH + 1, 1, Calendar.WEEK_OF_MONTH + 1);
                 this.initGraphVelocity();
                 break;
 
             case PageFragment.ACCELERATION_GRAPH_DAILY:
-                this.setGraphHorizontalScale(4, 0, HOURS - 1);
+                this.setGraphHorizontalScale(-1, 0, HOURS - 1);
                 this.initGraphAcceleration();
                 break;
 
             case PageFragment.ACCELERATION_GRAPH_WEEKLY:
-                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH + 1, 1, Calendar.WEEK_OF_MONTH + 1);
                 this.initGraphAcceleration();
                 break;
 
@@ -598,38 +598,40 @@ public class PageFragment extends Fragment
     }
 
     public void updateUI(DataPoint[] dataPoint, String title, long subTitle, boolean clickable) {
-        if (title != null) {
-            this.titleGraph.setText(title);
-        } else {
-            this.titleGraph.setText(getString(R.string.error));
-        }
+        if (this.isAdded()) {
+            if (title != null) {
+                this.titleGraph.setText(title);
+            } else {
+                this.titleGraph.setText(getString(R.string.error));
+            }
 
-        if (subTitle != 0) {
-            this.subTitleGraph.setText(String.format(
-                    Locale.ENGLISH,
-                    "%s: %s",
-                    getString(R.string.last_update),
-                    this.simpleDateFormat.format(subTitle)
-            ));
-        } else {
-            this.subTitleGraph.setText(getString(R.string.unknown));
-        }
+            if (subTitle != 0) {
+                this.subTitleGraph.setText(String.format(
+                        Locale.ENGLISH,
+                        "%s: %s",
+                        getString(R.string.last_update),
+                        this.simpleDateFormat.format(subTitle)
+                ));
+            } else {
+                this.subTitleGraph.setText(getString(R.string.unknown));
+            }
 
-        if (clickable) {
-            this.fullscreenGraph.setClickable(true);
-        } else {
-            this.unavailableData.setVisibility(View.VISIBLE);
-            this.fullscreenGraph.setClickable(false);
-            this.fullscreenGraph.setColorFilter(
-                    ContextCompat.getColor(this.getContext(), R.color.colorSchemasComplementary),
-                    android.graphics.PorterDuff.Mode.MULTIPLY
-            );
-        }
+            if (clickable) {
+                this.fullscreenGraph.setClickable(true);
+            } else {
+                this.unavailableData.setVisibility(View.VISIBLE);
+                this.fullscreenGraph.setClickable(false);
+                this.fullscreenGraph.setColorFilter(
+                        ContextCompat.getColor(this.getContext(), R.color.colorSchemasComplementary),
+                        android.graphics.PorterDuff.Mode.MULTIPLY
+                );
+            }
 
-        if (dataPoint != null) {
-            this.graphSeries = new LineGraphSeries<DataPoint>(dataPoint);
-            this.initGraphSeries();
-            this.graphView.addSeries(this.graphSeries);
+            if (dataPoint != null) {
+                this.graphSeries = new LineGraphSeries<DataPoint>(dataPoint);
+                this.initGraphSeries();
+                this.graphView.addSeries(this.graphSeries);
+            }
         }
     }
 }
