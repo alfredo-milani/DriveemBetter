@@ -166,6 +166,8 @@ public class GarageFragment extends Fragment
                         intent.putExtras(extras);
                         startActivity(intent);
                         hideOptions();
+                        insurance_date_list.clear();
+                        revision_date_list.clear();
                         onStart();
                         clik_event = false;
 
@@ -180,9 +182,9 @@ public class GarageFragment extends Fragment
                         remove_old_current_vehicle();
                         add_new_current_vehicle(selected_item);
                         hideOptions();
-                        clik_event = false;
                         insurance_date_list.clear();
                         revision_date_list.clear();
+                        clik_event = false;
                         onStart();
 
                     }
@@ -208,10 +210,10 @@ public class GarageFragment extends Fragment
                                         vehicles.remove(selected_item);
                                         vehiclesName.remove(selected_item);
                                         plates_list.remove(selected_item);
-                                        insurance_date_list.clear();
-                                        revision_date_list.clear();
                                         hideOptions();
                                         dialog.cancel();
+                                        insurance_date_list.clear();
+                                        revision_date_list.clear();
                                         clik_event = false;
                                         onStart();
                                     }
@@ -496,6 +498,8 @@ public class GarageFragment extends Fragment
                 startActivity(intent);
                 popupWindow.dismiss();
                 hideOptions();
+                insurance_date_list.clear();
+                revision_date_list.clear();
                 clik_event = false;
                 onStart();
 
