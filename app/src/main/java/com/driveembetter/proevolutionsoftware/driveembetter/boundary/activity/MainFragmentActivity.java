@@ -103,6 +103,8 @@ public class MainFragmentActivity extends AppCompatActivity
     private View headerView;
     private ImageButton settingsImageButton;
     private DrawerLayout drawerLayout;
+    private Button emergencyButton;
+
 
     private ProgressDialog progress;
     private ChartAsyncTask task;
@@ -181,8 +183,6 @@ public class MainFragmentActivity extends AppCompatActivity
     private void initResources() {
         // Get all providers to manage user's connection state
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
-        SensorHandler sensorHandler = new SensorHandler(this);
-        sensorHandler.startSensorHandler();
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         if (this.singletonFirebaseProvider == null) {
             this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
@@ -263,6 +263,11 @@ public class MainFragmentActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         this.setSupportActionBar(toolbar);
 
+        this.emergencyButton = findViewById(R.id.emergency_button);
+        SensorHandler sensorHandler = new SensorHandler(this);
+        sensorHandler.setEmergencyButton(emergencyButton);
+        sensorHandler.setContext(this);
+        sensorHandler.startSensorHandler();
         this.drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, this.drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);

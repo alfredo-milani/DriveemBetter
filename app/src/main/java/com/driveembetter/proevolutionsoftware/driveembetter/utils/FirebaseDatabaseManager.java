@@ -1360,4 +1360,64 @@ public class FirebaseDatabaseManager
                 .child(CHILD_POINTS)
                 .setValue(points);
     }
+
+    public static void deleteFriend(int number) {
+        SingletonUser user = SingletonUser.getInstance();
+        switch (number) {
+            case 1:
+                FirebaseDatabaseManager.databaseReference
+                        .child(NODE_USERS)
+                        .child(user.getUid())
+                        .child(CHILD_FIRST_FRIEND)
+                        .removeValue();
+                break;
+            case 2:
+                FirebaseDatabaseManager.databaseReference
+                        .child(NODE_USERS)
+                        .child(user.getUid())
+                        .child(CHILD_SECOND_FRIEND)
+                        .removeValue();
+                break;
+        }
+    }
+
+    /**
+     *
+     * @param number 1: first friend, 2: second friend
+     * @param name number-th friend's name
+     * @param phoneNo number-th friend's (mobile) phone number
+     */
+
+    public static void updateFriend(int number, String name, String phoneNo) {
+        SingletonUser user = SingletonUser.getInstance();
+        switch (number) {
+            case 1:
+                FirebaseDatabaseManager.databaseReference
+                        .child(NODE_USERS)
+                        .child(user.getUid())
+                        .child(CHILD_FIRST_FRIEND)
+                        .child(CHILD_NAME)
+                        .setValue(name);
+                FirebaseDatabaseManager.databaseReference
+                        .child(NODE_USERS)
+                        .child(user.getUid())
+                        .child(CHILD_FIRST_FRIEND)
+                        .child(CHILD_PHONE_NO)
+                        .setValue(phoneNo);
+                break;
+            case 2:
+                FirebaseDatabaseManager.databaseReference
+                        .child(NODE_USERS)
+                        .child(user.getUid())
+                        .child(CHILD_SECOND_FRIEND)
+                        .child(CHILD_NAME)
+                        .setValue(name);
+                FirebaseDatabaseManager.databaseReference
+                        .child(NODE_USERS)
+                        .child(user.getUid())
+                        .child(CHILD_SECOND_FRIEND)
+                        .child(CHILD_PHONE_NO)
+                        .setValue(phoneNo);
+        }
+    }
 }

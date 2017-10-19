@@ -130,4 +130,9 @@
     <string name="Modify_vehicle">Modify your vehicle</string>
     <string name="last_revision_date">Last Revision Date</string>
     <string name="insurance_expiration_date">Insurance expiration date</string>
+    <string name="empty_friends">No Friends Selected</string>
+    <string name="friends_list">SELECT YOUR FAVORITE CONTACTS</string>
+    <string name="help_request">Help! I\'ve met with an accident at </string>
+    <string name="nearby_hospitals">Nearby hospitals here </string>
+    <string name="crash_detected">A car accident was detected, please press central button to avoid sending help requests</string>
 </resources>
