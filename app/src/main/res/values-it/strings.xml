@@ -19,7 +19,7 @@
     <string name="back">Indietro</string>
     <string name="invalid_user">Non è presente alcun identificatore corrispondente. L\'utente potrebbe essere stato rimosso.</string>
     <string name="invalid_credentials">La password è sbagliata o l\'utente non ha una password.</string>
-    <string name="verification_email_success">Email di verifica inviata. Controlla la tua email ed effettua il login in %s.</string>
+    <string name="verification_email_success">Email di verifica inviata. Controlla la tua email ed accedi come %s.</string>
     <string name="verification_email_failure">Errore durante l\'invio dell\'email di verifica. Riprova più tardi.</string>
     <string name="email_not_verified">Email non ancora verificata. Controlla il tuo indirizzo email e segui il link per attivare il tuo account.</string>
     <string name="sign_in_as">Accesso effettuato come: %s.</string>

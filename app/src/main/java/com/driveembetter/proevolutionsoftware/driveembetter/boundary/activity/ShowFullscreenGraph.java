@@ -91,36 +91,45 @@ public class ShowFullscreenGraph extends AppCompatActivity {
     }
 
     private void initGraphView() {
+        String string = getString(R.string.app_name);
         switch (this.typeGraph) {
             case PageFragment.VELOCITY_GRAPH_DAILY:
+                string = getString(R.string.velocity_daily_graph);
                 this.setGraphHorizontalScale(4, 0, HOURS - 1);
                 this.initGraphVelocity();
                 break;
 
             case PageFragment.VELOCITY_GRAPH_WEEKLY:
+                string = getString(R.string.velocity_weekly_graph);
                 this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
                 this.initGraphVelocity();
                 break;
 
             case PageFragment.ACCELERATION_GRAPH_DAILY:
+                string = getString(R.string.acceleration_daily_graph);
                 this.setGraphHorizontalScale(4, 0, HOURS - 1);
                 this.initGraphAcceleration();
                 break;
 
             case PageFragment.ACCELERATION_GRAPH_WEEKLY:
+                string = getString(R.string.acceleration_weekly_graph);
                 this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
                 this.initGraphAcceleration();
                 break;
 
             case PageFragment.FEEDBACK_GRAPH:
+                string = getString(R.string.feedback_graph);
                 this.setGraphHorizontalScale(MAX_LABEL_FEEDBACK_GRAPH, -1, -1);
                 this.initGraphFeedback();
                 break;
 
             case PageFragment.POINTS_GRAPH:
+                string = getString(R.string.points_graph);
                 this.initGraphPoints();
                 break;
         }
+
+        this.setTitle(string);
     }
 
     private void setGraphHorizontalScale(int numberOfLabels, long minVal, long maxVal) {

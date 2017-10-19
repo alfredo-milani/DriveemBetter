@@ -26,6 +26,8 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseStorag
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 
+import java.util.Locale;
+
 /**
  * Created by alfredo on 10/10/17.
  */
@@ -325,7 +327,11 @@ public class EditProfileDataActivity extends AppCompatActivity
             case EditProfileDataActivity.UP_EMAIL_SUCCESS:
                 this.syncUserData();
                 Toast.makeText(this, getString(R.string.email_updated), Toast.LENGTH_SHORT).show();
-                Toast.makeText(this, getString(R.string.verification_email_success), Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        this,
+                        String.format(Locale.getDefault(), getString(R.string.verification_email_success), user.getEmail()),
+                        Toast.LENGTH_SHORT
+                ).show();
                 this.editEmailTextView.setText(this.user.getEmail());
                 break;
 
