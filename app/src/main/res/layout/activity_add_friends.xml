@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/firstFriendCard"
+        android:layout_width="match_parent"
+        android:layout_margin="@dimen/margin_avg"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/first_user_name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_avg"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="@string/empty_friends"/>
+
+    <TextView
+        android:id="@+id/first_phone_number_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_avg"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/first_user_name_text"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/colorPrimary" />
+
+    <Button
+        android:id="@+id/first_button"
+        android:background="@mipmap/ic_button_edit_user"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/margin_avg"
+        android:layout_below="@id/first_phone_number_text" />
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/secondFriendCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/firstFriendCard"
+        android:layout_margin="@dimen/margin_avg">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/second_user_name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_avg"
+                android:layout_centerHorizontal="true"
+                android:text="@string/empty_friends"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/colorPrimaryDark" />
+
+            <TextView
+                android:id="@+id/second_phone_number_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/second_user_name_text"
+                android:layout_margin="@dimen/margin_avg"
+                android:layout_centerHorizontal="true"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorPrimary" />
+
+            <Button
+                android:id="@+id/second_button"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:background="@mipmap/ic_button_edit_user"
+                android:layout_margin="@dimen/margin_avg"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/second_phone_number_text" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+
+
+</RelativeLayout>

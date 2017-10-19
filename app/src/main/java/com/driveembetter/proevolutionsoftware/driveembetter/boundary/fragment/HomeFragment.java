@@ -1,7 +1,9 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.AddFriendsActivity;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.Speedometer;
@@ -28,6 +32,8 @@ public class HomeFragment extends Fragment {
     private double longitude;
     private ImageView weatherIcon;
     private TextView positionText, windText, temperatureText, humidityText, visibilityText, speedLimitText, windDirectionText;
+    private FloatingActionButton fab;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,7 @@ public class HomeFragment extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_home, container, false);
         speedometer = (Speedometer) view.findViewById(R.id.Speedometer);
+        this.fab = (FloatingActionButton) view.findViewById(R.id.floatingActionButton);
         speedLimitSign = (ImageView) view.findViewById(R.id.speed_limit);
         speedLimitText = (TextView) view.findViewById(R.id.speed_limit_text);
         weatherIcon = (ImageView) view.findViewById(R.id.weather_icon);
@@ -61,6 +68,15 @@ public class HomeFragment extends Fragment {
         visibilityText = (TextView) view.findViewById(R.id.visibility_text);
         PositionManager.getInstance(getContext()).createTools(view);
         // Set action bar title
+
+        this.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent addFriendIntent = new Intent(getActivity(), AddFriendsActivity.class);
+                getActivity().startActivity(addFriendIntent);
+            }
+        });
+
         this.getActivity().setTitle(R.string.general);
         return view;
 
@@ -70,7 +86,7 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, true);
-        PositionManager.resetCity();
+        PositionManager.getInstance(getContext()).resetCity();
     }
 
     @Override
@@ -108,15 +124,15 @@ public class HomeFragment extends Fragment {
         SharedPreferences userDetails = getActivity().getApplicationContext().getSharedPreferences("HOME_DETAILS", MODE_PRIVATE);
 
         if (userDetails != null) {
-            positionText.setText(userDetails.getString("POSITION_TEXT", ""));
-            windText.setText(userDetails.getString("WIND_TEXT", ""));
-            temperatureText.setText(userDetails.getString("TEMP_TEXT", ""));
-            humidityText.setText(userDetails.getString("HUMIDITY_TEXT", ""));
-            visibilityText.setText(userDetails.getString("VISIBILITY_TEXT", ""));
-            speedLimitText.setText(userDetails.getString("SPEED_LIMIT_TEXT", ""));
-            windDirectionText.setText(userDetails.getString("WIND_DIRECTION_TEXT", ""));
-            weatherIcon.setImageResource(userDetails.getInt("WEATHER_ICON", 0));
-            weatherIcon.setTag(userDetails.getInt("WEATHER_ICON", 0));
+            positionText.setText(userDetails.getString("POSITION_TEXT", "N/A"));
+            windText.setText(userDetails.getString("WIND_TEXT", "N/A"));
+            temperatureText.setText(userDetails.getString("TEMP_TEXT", "N/A"));
+            humidityText.setText(userDetails.getString("HUMIDITY_TEXT", "N/A"));
+            visibilityText.setText(userDetails.getString("VISIBILITY_TEXT", "N/A"));
+            speedLimitText.setText(userDetails.getString("SPEED_LIMIT_TEXT", "N/A"));
+            windDirectionText.setText(userDetails.getString("WIND_DIRECTION_TEXT", "N/A"));
+            weatherIcon.setImageResource(userDetails.getInt("WEATHER_ICON", R.mipmap.ic_weather_unknown));
+            weatherIcon.setTag(userDetails.getInt("WEATHER_ICON", R.mipmap.ic_weather_unknown));
 
         }
     }

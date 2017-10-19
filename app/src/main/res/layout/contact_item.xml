@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_margin="@dimen/margin_avg"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/name"
+        android:text="NAME"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_width="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_margin="@dimen/margin_small"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/phone_no"
+        android:text="PHONE NUMBER"
+        android:textColor="@color/colorPrimary"
+        android:layout_margin="@dimen/margin_small"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

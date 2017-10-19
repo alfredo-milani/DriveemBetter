@@ -181,7 +181,11 @@
     <string name="Car">Auto</string>
     <string name="Van">Furgone</string>
     <string name="type">Tipo di veicolo</string>
-
+    <string name="empty_friends">Nessun Amico Selezionato</string>
+    <string name="friends_list">SELEZIONA I TUOI CONTATTI PREFERITI</string>
+    <string name="help_request">Aiuto! Sono stato coinvolto in un incidente: </string>
+    <string name="nearby_hospitals">Ecco gli ospedali più vicini </string>
+    <string name="crash_detected">A car accident was detected, please press central button to avoid sending help requests</string>
     <string name="chose_vehicle">Scegli il tipo di veicolo</string>
     <string name="last_revision_date">Data ultima revisione</string>
     <string name="insurance_expiration_date">Scadenza assicurazione</string>

@@ -76,6 +76,10 @@ public interface Constants {
     String CHILD_FEEDBACK = "feedback";
     String CHILD_HISTORICAL_FEEDBACK = "historicalFeedback";
     String CHILD_ZONA = "zona";
+    String CHILD_FIRST_FRIEND = "firstFriend";
+    String CHILD_SECOND_FRIEND = "secondFriend";
+    String CHILD_NAME = "name";
+    String CHILD_PHONE_NO = "phoneNo";
 
     // Statistics
     String CHILD_STATISTICS = "statistics";

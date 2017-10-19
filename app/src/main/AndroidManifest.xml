@@ -13,6 +13,11 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CLEAR_APP_CACHE"/>
     <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+
 
     <application
         android:allowBackup="true"
@@ -135,6 +140,25 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".boundary.activity.MainFragmentActivity" />
         </activity>
+        <activity android:name=".boundary.activity.AddFriendsActivity"
+            android:theme="@style/AppTheme"
+            android:label="Your Friends"
+            android:parentActivityName=".boundary.activity.MainFragmentActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".boundary.activity.ContactListActivity"
+            android:theme="@style/AppTheme"
+            android:label="Contacts List"
+            android:windowSoftInputMode="stateHidden"
+            android:parentActivityName=".boundary.activity.AddFriendsActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT" />
+            </intent-filter>
+        </activity>
+
 
         <service
             android:name=".services.SwipeClosureHandler"
