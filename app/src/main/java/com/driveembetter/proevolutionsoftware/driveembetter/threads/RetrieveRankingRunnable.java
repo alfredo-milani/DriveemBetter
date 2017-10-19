@@ -75,7 +75,8 @@ public class RetrieveRankingRunnable
             }
         }
 
-        FirebaseDatabaseManager.getUsersRank(this);
+        // TODO: 19/10/17 completare metodo per trovare e cancellare doppioni
+        FirebaseDatabaseManager.getUsersRank(this, false);
     }
 
     private void onAttach() {

@@ -15,7 +15,7 @@ public class PageAdapter extends FragmentPagerAdapter {
 
     private final static String TAG = PageAdapter.class.getSimpleName();
 
-    private static int NUM_ITEMS = 5;
+    private static int NUM_ITEMS = 4;
 
     public PageAdapter(FragmentManager fragmentManager, String userID) {
         super(fragmentManager);
@@ -41,7 +41,9 @@ public class PageAdapter extends FragmentPagerAdapter {
 
             case 3: return PageFragment.newInstance(PageFragment.ACCELERATION_GRAPH_WEEKLY);
 
-            case 4: return PageFragment.newInstance(PageFragment.FEEDBACK_GRAPH);
+            // case 4: return PageFragment.newInstance(PageFragment.FEEDBACK_GRAPH);
+
+            // case 5: return PageFragment.newInstance(PageFragment.POINTS_GRAPH);
 
             default:
                 Log.e(TAG, "PageAdapter - Position not found: " + position);

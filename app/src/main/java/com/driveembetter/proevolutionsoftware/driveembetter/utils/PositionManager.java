@@ -384,6 +384,7 @@ public class PositionManager
                     FirebaseDatabaseManager.createNewUserPosition();
                     // Update users node
                     FirebaseDatabaseManager.updateUserZonaAndAvailability();
+                    return;
                 }
             }
 

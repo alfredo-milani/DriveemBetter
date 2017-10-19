@@ -8,18 +8,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.LegendRenderer;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.Locale;
 
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.ARG_FRAGMENT_GRAPH;
@@ -35,9 +33,11 @@ public class ShowFullscreenGraph extends AppCompatActivity {
 
     private final static String TAG = ShowFullscreenGraph.class.getSimpleName();
 
+    private final static int MAX_LABEL_FEEDBACK_GRAPH = 3;
+
     // Resources
     private int typeGraph;
-    private LineGraphSeries<DataPoint> series;
+    private LineGraphSeries<DataPoint> graphSeries;
 
     // Widgets
     private GraphView graphView;
@@ -50,16 +50,30 @@ public class ShowFullscreenGraph extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fullscreen_graph_activity);
 
+        Log.d(TAG, "ONCREATE");
         this.initResources();
         this.initWidgets();
     }
 
     private void initResources() {
         this.typeGraph = this.getIntent().getIntExtra(ARG_FRAGMENT_GRAPH, GRAPH_ERROR);
-        this.series = this.getSeriesFromDouble(
+        this.graphSeries = this.getSeriesFromDouble(
                 this.getIntent().getDoubleArrayExtra(ARG_FRAGMENT_GRAPH_SERIES)
         );
         Log.e(TAG, "T: "  + typeGraph);
+    }
+
+    private void initWidgets() {
+        this.graphView = findViewById(R.id.graph);
+        this.unavailableData = findViewById(R.id.unavailable_data);
+
+        // Set action bar title
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        this.initGraphView();
     }
 
     @Nullable
@@ -76,34 +90,36 @@ public class ShowFullscreenGraph extends AppCompatActivity {
         return new LineGraphSeries<>(dataPoints);
     }
 
-    private void initWidgets() {
-        this.graphView = findViewById(R.id.graph);
-        this.unavailableData = findViewById(R.id.unavailable_data);
+    private void initGraphView() {
+        switch (this.typeGraph) {
+            case PageFragment.VELOCITY_GRAPH_DAILY:
+                this.setGraphHorizontalScale(4, 0, HOURS - 1);
+                this.initGraphVelocity();
+                break;
 
-        // Set action bar title
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-        this.setTitleSerie();
-    }
+            case PageFragment.VELOCITY_GRAPH_WEEKLY:
+                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.initGraphVelocity();
+                break;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+            case PageFragment.ACCELERATION_GRAPH_DAILY:
+                this.setGraphHorizontalScale(4, 0, HOURS - 1);
+                this.initGraphAcceleration();
+                break;
 
-        this.initGraph();
-    }
+            case PageFragment.ACCELERATION_GRAPH_WEEKLY:
+                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.initGraphAcceleration();
+                break;
 
-    private void initGraph() {
-        this.graphView.getLegendRenderer().setVisible(true);
-        this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));
-        this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+            case PageFragment.FEEDBACK_GRAPH:
+                this.setGraphHorizontalScale(MAX_LABEL_FEEDBACK_GRAPH, -1, -1);
+                this.initGraphFeedback();
+                break;
 
-        if (this.typeGraph != GRAPH_ERROR && this.series != null) {
-            this.graphView.addSeries(this.series);
-        } else {
-            this.unavailableData.setVisibility(View.VISIBLE);
+            case PageFragment.POINTS_GRAPH:
+                this.initGraphPoints();
+                break;
         }
     }
 
@@ -120,115 +136,109 @@ public class ShowFullscreenGraph extends AppCompatActivity {
         }
     }
 
-    private void setTitleSerie() {
+    private void initGraphSeries() {
+        this.graphView.removeAllSeries();
+        //
+        this.graphSeries.setDrawAsPath(true);
+        // Setting line width
+        this.graphSeries.setThickness(3);
+
         switch (this.typeGraph) {
             case PageFragment.VELOCITY_GRAPH_DAILY:
-                this.setTitle(R.string.velocity_daily_graph);
-                this.series.setTitle(String.format(
-                        Locale.ENGLISH,
-                        "%s (%s)",
-                        getString(R.string.velocity),
-                        getString(R.string.vel_mu)
-                ));
-
-                // Adding axis titles
-                this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
-                // Setting color graphSeries
-                this.series.setColor(ContextCompat.getColor(this, R.color.blue_700));
-
-                // Set manual x bounds to have nice steps
-                this.setGraphHorizontalScale(4, 0, HOURS - 1);
-                break;
-
             case PageFragment.VELOCITY_GRAPH_WEEKLY:
-                this.setTitle(R.string.velocity_weekly_graph);
-                this.series.setTitle(String.format(
+                this.graphSeries.setTitle(String.format(
                         Locale.ENGLISH,
                         "%s (%s)",
                         getString(R.string.velocity),
                         getString(R.string.vel_mu)
                 ));
-
-                // Adding axis titles
-                this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
                 // Setting color graphSeries
-                this.series.setColor(ContextCompat.getColor(this, R.color.blue_700));
-
-                // Set manual x bounds to have nice steps
-                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.graphSeries.setColor(ContextCompat.getColor(this, R.color.blue_700));
                 break;
 
             case PageFragment.ACCELERATION_GRAPH_DAILY:
-                this.setTitle(R.string.acceleration_daily_graph);
-                this.series.setTitle(String.format(
-                        Locale.ENGLISH,
-                        "%s (%s)",
-                        getString(R.string.acceleration),
-                        getString(R.string.acc_mu)
-                ));
-
-                // Adding axis titles
-                this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
-                // Setting color graphSeries
-                this.series.setColor(ContextCompat.getColor(this, R.color.red_700));
-                // Bounds
-                this.setGraphHorizontalScale(4, 0, HOURS - 1);
-                break;
-
             case PageFragment.ACCELERATION_GRAPH_WEEKLY:
-                this.setTitle(R.string.acceleration_weekly_graph);
-                this.series.setTitle(String.format(
+                this.graphSeries.setTitle(String.format(
                         Locale.ENGLISH,
                         "%s (%s)",
                         getString(R.string.acceleration),
                         getString(R.string.acc_mu)
                 ));
-
-                Iterator<DataPoint> i = this.series.getValues(this.series.getLowestValueX(), this.series.getHighestValueX());
-                int jj = 0;
-                while (i.hasNext()) {
-                    i.next();
-                    ++jj;
-                }
-                Log.e(TAG, "LEN: " + jj);
-
-                // Adding axis titles
-                this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
                 // Setting color graphSeries
-                this.series.setColor(ContextCompat.getColor(this, R.color.red_700));
-                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.graphSeries.setColor(ContextCompat.getColor(this, R.color.red_700));
                 break;
 
             case PageFragment.FEEDBACK_GRAPH:
-                this.setTitle(R.string.feedback_graph);
-                this.series.setTitle(String.format(
+                this.graphSeries.setTitle(String.format(
                         Locale.ENGLISH,
                         "%s (%s)",
                         getString(R.string.feedback),
                         getString(R.string.feedback_scale)
                 ));
-                int in = 0;
-                Iterator<DataPoint> d = this.series.getValues(this.series.getLowestValueX(), this.series.getHighestValueX());
-                while (d.hasNext()) {
-                    Log.d(TAG, "VAL: " + d.next());
-                    ++in;
-                }
-                Log.d(TAG, "LEN F: " + in);
-
-                // Adding axis titles
-                this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.date));
                 // Setting color graphSeries
-                this.series.setColor(ContextCompat.getColor(this, R.color.green_700));
+                this.graphSeries.setColor(ContextCompat.getColor(this, R.color.green_700));
                 break;
 
             case PageFragment.POINTS_GRAPH:
-                this.setTitle(R.string.points_graph);
-                this.series.setTitle(String.format(
-                        Locale.ENGLISH,
-                        "%s",
-                        getString(R.string.points)
-                ));
+                // TODO: 18/10/17
                 break;
+        }
+    }
+
+    private void initBaseGraph() {
+        Log.d(TAG, "BASE GRAPH");
+        // Legend
+        this.graphView.getLegendRenderer().setVisible(true);
+        this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));
+        this.graphView.getLegendRenderer().setFixedPosition(0, 0);
+        // this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+    }
+
+    private void initGraphVelocity() {
+        this.initBaseGraph();
+        // Adding axis titles
+        // this.graphView.getGridLabelRenderer().setVerticalAxisTitle(getString(R.string.vel_mu));
+        this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
+    }
+
+    private void initGraphAcceleration() {
+        this.initBaseGraph();
+        // Adding axis titles
+        // this.graphView.getGridLabelRenderer().setVerticalAxisTitle(getString(R.string.acc_mu));
+        this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.hour_mu));
+    }
+
+    private void initGraphFeedback() {
+        this.initBaseGraph();
+        // Adding axis titles
+        // this.graphView.getGridLabelRenderer().setVerticalAxisTitle(getString(R.string.acc_mu));
+        this.graphView.getGridLabelRenderer().setHorizontalAxisTitle(getString(R.string.date));
+
+        // Set date label formatter
+        this.graphView.getGridLabelRenderer().setLabelFormatter(
+                new DateAsXAxisLabelFormatter(this)
+        );
+
+        // As we use dates as labels, the human rounding to nice readable numbers is not necessary
+        this.graphView.getGridLabelRenderer().setHumanRounding(false);
+    }
+
+    private void initGraphPoints() {
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        this.initGraphSeries();
+        this.updateUI();
+    }
+
+
+    public void updateUI() {
+        if (this.graphSeries != null) {
+            this.graphView.addSeries(this.graphSeries);
         }
     }
 

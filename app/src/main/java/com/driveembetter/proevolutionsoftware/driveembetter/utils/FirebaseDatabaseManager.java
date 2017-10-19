@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import org.jetbrains.annotations.Contract;
@@ -263,6 +264,7 @@ public class FirebaseDatabaseManager
                     .child(user.getUid());
 
             Map<String, Object> newUser = new HashMap<>();
+            newUser.put(CHILD_TIMESTAMP, ServerValue.TIMESTAMP);
             newUser.put(CHILD_USERNAME, user.getUsername());
             newUser.put(CHILD_EMAIL, user.getEmail());
             newUser.put(CHILD_POINTS, String.valueOf(user.getPoints()));
@@ -399,6 +401,7 @@ public class FirebaseDatabaseManager
                     .child(user.getUid());
 
             Map<String, Object> newPosition = new HashMap<>();
+            newPosition.put(CHILD_TIMESTAMP, ServerValue.TIMESTAMP);
             newPosition.put(
                     CHILD_CURRENT_POSITION,
                     StringParser.getStringFromCoordinates(
@@ -879,7 +882,7 @@ public class FirebaseDatabaseManager
     }
 
     @Contract("null -> fail")
-    public static void getUsersRank(final RetrieveRankFromDB retrieveRankFromDB)
+    public static void getUsersRank(final RetrieveRankFromDB retrieveRankFromDB, final boolean checkForDouble)
             throws CallbackNotInitialized {
         SingletonUser user = SingletonUser.getInstance();
 
@@ -910,8 +913,12 @@ public class FirebaseDatabaseManager
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<User> arrayList = FirebaseDatabaseManager.getUsersList(dataSnapshot);
+                        if (checkForDouble) {
+                            arrayList = checkForDouble(arrayList);
+                        }
                         retrieveRankFromDB.onUsersRankingReceived(
-                                FirebaseDatabaseManager.getUsersList(dataSnapshot)
+                                arrayList
                         );
                     }
 
@@ -941,6 +948,9 @@ public class FirebaseDatabaseManager
                             for (DataSnapshot district : districts) {
                                 arrayList.addAll(FirebaseDatabaseManager.getUsersList(district));
                             }
+                        }
+                        if (checkForDouble) {
+                            arrayList = checkForDouble(arrayList);
                         }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
                     }
@@ -974,6 +984,9 @@ public class FirebaseDatabaseManager
                                 }
                             }
                         }
+                        if (checkForDouble) {
+                            arrayList = checkForDouble(arrayList);
+                        }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
                     }
 
@@ -1004,6 +1017,9 @@ public class FirebaseDatabaseManager
                                     }
                                 }
                             }
+                        }
+                        if (checkForDouble) {
+                            arrayList = checkForDouble(arrayList);
                         }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
                     }
@@ -1043,8 +1059,12 @@ public class FirebaseDatabaseManager
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<User> arrayList = FirebaseDatabaseManager.getUsersList(dataSnapshot);
+                        if (checkForDouble) {
+                            arrayList = checkForDouble(arrayList);
+                        }
                         retrieveRankFromDB.onUsersRankingReceived(
-                                FirebaseDatabaseManager.getUsersList(dataSnapshot)
+                                arrayList
                         );
                     }
 
@@ -1074,6 +1094,9 @@ public class FirebaseDatabaseManager
                                 }
                             }
                         }
+                        if (checkForDouble) {
+                            arrayList = checkForDouble(arrayList);
+                        }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
                     }
 
@@ -1087,6 +1110,29 @@ public class FirebaseDatabaseManager
             default:
                 Log.w(TAG, "Error in level selection: " + RankingFragment.getLevel());
         }
+    }
+
+    private static ArrayList<User> checkForDouble(ArrayList<User> arrayList) {
+        ArrayList<User> toDelete = new ArrayList<>();
+        for (User user : arrayList) {
+            User userContained = arrayList.get(arrayList.indexOf(user));
+            if (arrayList.contains(user) && user.getTimestamp() != userContained.getTimestamp()) {
+                Log.e(TAG, "UID: " + userContained.getUid() + " / " + user.getTimestamp() + " / " + userContained.getTimestamp());
+                if (user.getTimestamp() == userContained.getTimestamp()) {
+                    continue;
+                }
+                if (user.getTimestamp() > userContained.getTimestamp()) {
+                    // userContained.getDataSnapshot().getRef().removeValue();
+                    toDelete.add(userContained);
+                } else {
+                    // user.getDataSnapshot().getRef().removeValue();
+                    toDelete.add(user);
+                }
+            }
+        }
+
+        arrayList.removeAll(toDelete);
+        return arrayList;
     }
 
     private static ArrayList<User> getUsersList(DataSnapshot dataSnapshot) {
@@ -1112,6 +1158,7 @@ public class FirebaseDatabaseManager
         String availability = UNAVAILABLE;
         double feedback = 0;
         String token = "";
+        long timestamp = 0;
 
         if (user.hasChild(CHILD_USERNAME) &&
                 user.child(CHILD_USERNAME).getValue() != null) {
@@ -1138,8 +1185,11 @@ public class FirebaseDatabaseManager
         if (user.hasChild(ARG_FIREBASE_TOKEN)) {
             token = String.valueOf(user.child(ARG_FIREBASE_TOKEN).getValue().toString());
         }
+        if (user.hasChild(CHILD_TIMESTAMP)) {
+            timestamp = Long.valueOf(user.child(CHILD_TIMESTAMP).getValue().toString());
+        }
 
-        return new User(user.getKey(), username, email, image, points, availability, feedback, token);
+        return new User(user.getKey(), username, email, image, points, availability, feedback, token, timestamp, user);
     }
 
     /**

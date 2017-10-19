@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.DAY_MS;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.HOURS;
 
 /**
@@ -55,6 +56,8 @@ public class PageFragment extends Fragment
     public final static int ACCELERATION_GRAPH_WEEKLY = 4;
     public final static int FEEDBACK_GRAPH = 5;
     public final static int POINTS_GRAPH = 6;
+
+    private final static int MAX_LABEL_FEEDBACK_GRAPH = 3;
 
     // Widgets
     private View rootView;
@@ -91,7 +94,6 @@ public class PageFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "ONCREATE - save: " + savedInstanceState);
         if (savedInstanceState == null) {
             this.initResources();
         }
@@ -106,7 +108,6 @@ public class PageFragment extends Fragment
                 PageFragment.ARG_FRAGMENT_GRAPH,
                 PageFragment.GRAPH_ERROR
         );
-        this.graphSeries = new LineGraphSeries<>();
     }
 
     private void initWidgets() {
@@ -131,7 +132,6 @@ public class PageFragment extends Fragment
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Log.d(TAG, "VIEWCREATED - save: " + savedInstanceState);
         if (savedInstanceState == null) {
             this.rootView = view;
             this.initWidgets();
@@ -143,10 +143,7 @@ public class PageFragment extends Fragment
     public void onStart() {
         super.onStart();
 
-
-        this.initGraphSeries();
-        this.retrieveGraphData();
-        Log.d(TAG, "onStart" + typeGraph + " / " + this.graphSeries);
+        this.fillGraph();
     }
 
     @Override
@@ -163,9 +160,13 @@ public class PageFragment extends Fragment
         }
     }
 
-    private void refreshGraphData() {
-        this.initGraphSeries();
+    private void fillGraph() {
+        this.graphView.removeAllSeries();
         this.retrieveGraphData();
+    }
+
+    private void refreshGraphData() {
+        this.fillGraph();
 
         Toast.makeText(
                 this.getActivity(),
@@ -219,6 +220,7 @@ public class PageFragment extends Fragment
                 break;
 
             case PageFragment.FEEDBACK_GRAPH:
+                this.setGraphHorizontalScale(MAX_LABEL_FEEDBACK_GRAPH, -1, -1);
                 this.initGraphFeedback();
                 break;
 
@@ -291,8 +293,6 @@ public class PageFragment extends Fragment
     }
 
     private void initGraphSeries() {
-        this.graphView.removeSeries(this.graphSeries);
-        this.graphSeries = new LineGraphSeries<>();
         //
         this.graphSeries.setDrawAsPath(true);
         // Setting line width
@@ -370,9 +370,8 @@ public class PageFragment extends Fragment
 
         // Set date label formatter
         this.graphView.getGridLabelRenderer().setLabelFormatter(
-                new DateAsXAxisLabelFormatter(this.getActivity())
+                new DateAsXAxisLabelFormatter(this.getContext())
         );
-        this.graphView.getGridLabelRenderer().setNumHorizontalLabels(3);
 
         // As we use dates as labels, the human rounding to nice readable numbers is not necessary
         this.graphView.getGridLabelRenderer().setHumanRounding(false);
@@ -407,32 +406,27 @@ public class PageFragment extends Fragment
         if (meanDay == null || meanDay.getMap().size() < 1) {
             Log.d(TAG, "Data null");
             this.updateUI(
+                    null,
                     getString(R.string.velocity_daily_graph),
                     0,
                     false
             );
         } else {
             Log.d(TAG, "Data consistent");
+            DataPoint[] dataPoints = new DataPoint[HOURS];
             for (int i = 0; i < HOURS; ++i) {
                 if (meanDay.getMap().get(i) != null) {
                     float sampleSumVelocity = meanDay.getMap().get(i).getSampleSumVelocity();
                     int sampleSizeVelocity = meanDay.getMap().get(i).getSampleSizeVelocity();
 
-                    this.graphSeries.appendData(
-                            new DataPoint(i, sampleSumVelocity / sampleSizeVelocity),
-                            false,
-                            HOURS
-                    );
+                    dataPoints[i] = new DataPoint(i, sampleSumVelocity / sampleSizeVelocity);
                 } else {
-                    this.graphSeries.appendData(
-                            new DataPoint(i, 0),
-                            false,
-                            HOURS
-                    );
+                    dataPoints[i] = new DataPoint(i, 0);
                 }
             }
 
             this.updateUI(
+                    dataPoints,
                     getString(R.string.velocity_daily_graph),
                     meanDay.getTimestamp(),
                     true
@@ -448,32 +442,27 @@ public class PageFragment extends Fragment
         if (meanWeek == null || meanWeek.getMap().size() < 1) {
             Log.d(TAG, "Data null");
             this.updateUI(
+                    null,
                     getString(R.string.velocity_weekly_graph),
                     0,
                     false
             );
         } else {
             Log.d(TAG, "Data consistent");
+            DataPoint[] dataPoints = new DataPoint[Calendar.WEEK_OF_MONTH];
             for (int i = 1; i <= Calendar.WEEK_OF_MONTH; ++i) {
                 if (meanWeek.getMap().get(i) != null) {
                     float sampleSumVelocity = meanWeek.getMap().get(i).getSampleSumVelocity();
                     int sampleSizeVelocity = meanWeek.getMap().get(i).getSampleSizeVelocity();
 
-                    this.graphSeries.appendData(
-                            new DataPoint(i, sampleSumVelocity / sampleSizeVelocity),
-                            false,
-                            Calendar.WEEK_OF_MONTH
-                    );
+                    dataPoints[i - 1] = new DataPoint(i, sampleSumVelocity / sampleSizeVelocity);
                 } else {
-                    this.graphSeries.appendData(
-                            new DataPoint(i, 0),
-                            false,
-                            Calendar.WEEK_OF_MONTH
-                    );
+                    dataPoints[i - 1] = new DataPoint(i, 0);
                 }
             }
 
             this.updateUI(
+                    dataPoints,
                     getString(R.string.velocity_weekly_graph),
                     meanWeek.getTimestamp(),
                     true
@@ -489,33 +478,27 @@ public class PageFragment extends Fragment
         if (meanDay == null || meanDay.getMap().size() < 1) {
             Log.d(TAG, "Data null");
             this.updateUI(
+                    null,
                     getString(R.string.acceleration_daily_graph),
                     0,
                     false
             );
         } else {
             Log.d(TAG, "Data consistent");
+            DataPoint[] dataPoints = new DataPoint[HOURS];
             for (int i = 0; i < HOURS; ++i) {
                 if (meanDay.getMap().get(i) != null) {
                     float sampleSumAcceleration = meanDay.getMap().get(i).getSampleSumAcceleration();
                     int sampleSizeAcceleration = meanDay.getMap().get(i).getSampleSizeAcceleration();
 
-                    this.graphSeries.appendData(
-                            new DataPoint(i, sampleSumAcceleration / sampleSizeAcceleration),
-                            false,
-                            HOURS
-                    );
-
+                    dataPoints[i] = new DataPoint(i, sampleSumAcceleration / sampleSizeAcceleration);
                 } else {
-                    this.graphSeries.appendData(
-                            new DataPoint(i, 0),
-                            false,
-                            HOURS
-                    );
+                    dataPoints[i] = new DataPoint(i, 0);
                 }
             }
 
             this.updateUI(
+                    dataPoints,
                     getString(R.string.acceleration_daily_graph),
                     meanDay.getTimestamp(),
                     true
@@ -531,33 +514,27 @@ public class PageFragment extends Fragment
         if (meanWeek == null || meanWeek.getMap().size() < 1) {
             Log.d(TAG, "Data null");
             this.updateUI(
+                    null,
                     getString(R.string.acceleration_weekly_graph),
                     0,
                     false
             );
         } else {
             Log.d(TAG, "Data consistent");
+            DataPoint[] dataPoints = new DataPoint[Calendar.WEEK_OF_MONTH];
             for (int i = 1; i <= Calendar.WEEK_OF_MONTH; ++i) {
                 if (meanWeek.getMap().get(i) != null) {
                     float sampleSumAcceleration = meanWeek.getMap().get(i).getSampleSumAcceleration();
                     int sampleSizeAcceleration = meanWeek.getMap().get(i).getSampleSizeAcceleration();
 
-                    this.graphSeries.appendData(
-                            new DataPoint(i, sampleSumAcceleration / sampleSizeAcceleration),
-                            false,
-                            Calendar.WEEK_OF_MONTH
-                    );
-
+                    dataPoints[i - 1] = new DataPoint(i, sampleSumAcceleration / sampleSizeAcceleration);
                 } else {
-                    this.graphSeries.appendData(
-                            new DataPoint(i, 0),
-                            false,
-                            Calendar.WEEK_OF_MONTH
-                    );
+                    dataPoints[i - 1] = new DataPoint(i, 0);
                 }
             }
 
             this.updateUI(
+                    dataPoints,
                     getString(R.string.acceleration_weekly_graph),
                     meanWeek.getTimestamp(),
                     true
@@ -572,8 +549,8 @@ public class PageFragment extends Fragment
         Log.d(TAG, "Data received");
         if (map == null || map.size() < 1) {
             Log.d(TAG, "Data null");
-            this.unavailableData.setVisibility(View.VISIBLE);
             this.updateUI(
+                    null,
                     getString(R.string.feedback_graph),
                     0,
                     false
@@ -581,47 +558,25 @@ public class PageFragment extends Fragment
         } else {
             Log.d(TAG, "Data consistent");
             int i = 0; int mapSize = map.size();
-            Date firstUpdate = null;
+            DataPoint[] dataPoints = new DataPoint[mapSize];
+            Date firstUpdate;
             Date lastUpdate = null;
-            int occurence = 0;
-            double meanFeedback = 0.0;
-            Calendar lastOcc = Calendar.getInstance();
-            Calendar currentOcc = Calendar.getInstance();
             for (Map.Entry entry : map.entrySet()) {
                 if (i == 0) {
                     firstUpdate = (Date) entry.getKey();
-                    currentOcc.setTime((Date) entry.getKey());
-                    meanFeedback += (Double) entry.getValue();
-                    ++occurence; ++i;
-                    continue;
+                    this.graphView.getViewport().setMinX(firstUpdate.getTime() - DAY_MS);
                 } else if (i == mapSize - 1) {
                     lastUpdate = (Date) entry.getKey();
+                    this.graphView.getViewport().setMaxX(lastUpdate.getTime() + DAY_MS);
                 }
 
-                lastOcc.setTime((Date) entry.getKey());
-                if (lastOcc.get(Calendar.YEAR) == currentOcc.get(Calendar.YEAR) &&
-                        lastOcc.get(Calendar.DAY_OF_YEAR) == currentOcc.get(Calendar.DAY_OF_YEAR)) {
-                    meanFeedback += (Double) entry.getValue();
-                    ++occurence;
-                    continue;
-                }
-
-                this.graphSeries.appendData(
-                        new DataPoint((Date) entry.getKey(), meanFeedback / occurence),
-                        false,
-                        3
-                );
-
-                ++i; meanFeedback = 0.0; occurence = 0;
+                dataPoints[i++] = new DataPoint((Date) entry.getKey(), (Double) entry.getValue());
             }
 
-            // Set manual x bounds to have nice steps
-            this.graphView.getViewport().setMinX(firstUpdate.getTime());
-            this.graphView.getViewport().setMaxX(lastUpdate.getTime());
-
             this.updateUI(
+                    dataPoints,
                     getString(R.string.feedback_graph),
-                    lastUpdate == null ? null : lastUpdate.getTime(),
+                    lastUpdate == null ? 0 : lastUpdate.getTime(),
                     true
             );
         }
@@ -633,6 +588,7 @@ public class PageFragment extends Fragment
 
         this.unavailableData.setVisibility(View.VISIBLE);
         this.updateUI(
+                null,
                 getString(R.string.points_graph),
                 0,
                 false
@@ -641,7 +597,7 @@ public class PageFragment extends Fragment
         // TODO: 17/10/17
     }
 
-    public void updateUI(String title, long subTitle, boolean clickable) {
+    public void updateUI(DataPoint[] dataPoint, String title, long subTitle, boolean clickable) {
         if (title != null) {
             this.titleGraph.setText(title);
         } else {
@@ -661,7 +617,6 @@ public class PageFragment extends Fragment
 
         if (clickable) {
             this.fullscreenGraph.setClickable(true);
-            this.graphView.addSeries(this.graphSeries);
         } else {
             this.unavailableData.setVisibility(View.VISIBLE);
             this.fullscreenGraph.setClickable(false);
@@ -669,6 +624,12 @@ public class PageFragment extends Fragment
                     ContextCompat.getColor(this.getContext(), R.color.colorSchemasComplementary),
                     android.graphics.PorterDuff.Mode.MULTIPLY
             );
+        }
+
+        if (dataPoint != null) {
+            this.graphSeries = new LineGraphSeries<DataPoint>(dataPoint);
+            this.initGraphSeries();
+            this.graphView.addSeries(this.graphSeries);
         }
     }
 }

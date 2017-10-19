@@ -4,6 +4,10 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.database.DataSnapshot;
+
+import java.util.Objects;
+
 /**
  * Created by alfredo on 31/08/17.
  */
@@ -77,6 +81,10 @@ public class User
     private Uri photoUrl;
     private long points;
     private String token;
+    // To delete copy
+    private long timestamp;
+    // TODO: 19/10/17 cerca di rimuovere l attributo datasnapshot. per l eliminazione maniteni 2 liste: una con datasnapshot e una con lista effettiva di users
+    private DataSnapshot dataSnapshot;
 
     public User(String uid, String username, String email, Uri photoUrl, long points, String availability, Double feedback, String token) {
         this.uid = uid;
@@ -87,6 +95,12 @@ public class User
         this.points = points;
         this.feedback = feedback;
         this.token = token;
+    }
+
+    public User(String uid, String username, String email, Uri photoUrl, long points, String availability, Double feedback, String token, long timestamp, DataSnapshot dataSnapshot) {
+        this(uid, username, email, photoUrl, points, availability, feedback, token);
+        this.timestamp = timestamp;
+        this.dataSnapshot = dataSnapshot;
     }
 
 
@@ -165,5 +179,39 @@ public class User
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public long getTimestamp() {
+        return this.timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public DataSnapshot getDataSnapshot() {
+        return this.dataSnapshot;
+    }
+
+    public void setDataSnapshot(DataSnapshot dataSnapshot) {
+        this.dataSnapshot = dataSnapshot;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uid);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        } else if (obj == this) {
+            return true;
+        } else if (!(obj instanceof User)) {
+            return false;
+        }
+        User user = (User) obj;
+        return Objects.equals(uid, user.uid);
     }
 }
