@@ -12,6 +12,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanDay;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.MeanWeek;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonScatterData;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.github.mikephil.charting.charts.ScatterChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -157,7 +158,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
                 }
             }
-
+            scatterDataSet = new ScatterDataSet(vals, "km/h");
 
         } else{
 
@@ -204,14 +205,15 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
                 }
             }
-
+            scatterDataSet = new ScatterDataSet(vals, "10^-3 km/h^2");
         }
 
         /* Create a new scatter data set and set properties */
-        scatterDataSet = new ScatterDataSet(vals, "statistics");
+        //scatterDataSet = new ScatterDataSet(vals, "statistics");
         scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
         scatterDataSet.setColor(Color.BLUE);
-        scatterDataSet.setScatterShapeSize(6f);
+        scatterDataSet.setScatterShapeSize(10);
+        scatterDataSet.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
         sessionData.setValid(true); //validate data
         sessionData.setData(scatterDataSet);
         sessionData.setxVals(xVals);
@@ -289,7 +291,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
     /* Set graph properties */
     private void setGraphProperties() {
 
-        fragment.getChart().getLegend().setEnabled(false);
+        fragment.getChart().getLegend().setEnabled(true);
 
         // Sets the background color that will cover the whole fragment.getChart()-view
         fragment.getChart().setBackgroundColor(Color.WHITE);
