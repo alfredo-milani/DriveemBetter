@@ -356,7 +356,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         xAxis.setDrawGridLines(true);
 
         // Sets the position where the XAxis should appear
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
         // Only positive value
         fragment.getChart().getAxisLeft().setAxisMinValue(0);
