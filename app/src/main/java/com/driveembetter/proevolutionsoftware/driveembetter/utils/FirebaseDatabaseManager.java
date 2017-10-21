@@ -490,6 +490,22 @@ public class FirebaseDatabaseManager
                             (long) dataSnapshot.child(CHILD_POINTS).getValue()
                     );
 
+                    if (dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE) &&
+                            dataSnapshot.child(CHILD_CURRENT_VEHICLE).getValue() != null) {
+                        String currentVehicle = dataSnapshot.child(CHILD_CURRENT_VEHICLE).getValue().toString();
+                        String[] temp1 = currentVehicle.split("=");
+                        String[] vehicleData = temp1[1].split(";");
+
+                        user.setCurrentVehicle(new Vehicle(
+                                vehicleData[0],
+                                vehicleData[1],
+                                vehicleData[2],
+                                vehicleData[3],
+                                vehicleData[4],
+                                vehicleData[5]
+                        ));
+                    }
+
                     if (dataSnapshot.hasChild(CHILD_ZONA) &&
                             dataSnapshot.child(CHILD_ZONA).getValue() != null) {
                         updateCurrentUserZona(dataSnapshot.child(CHILD_ZONA).getValue().toString());

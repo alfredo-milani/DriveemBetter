@@ -94,7 +94,7 @@
         <activity
             android:name=".boundary.activity.UserDetailsRankingActivity"
             android:theme="@style/AppTheme"
-            android:screenOrientation="portrait" >
+            android:configChanges="orientation" >
             <!--Default Intent Filter-->
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />

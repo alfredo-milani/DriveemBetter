@@ -147,8 +147,8 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
                         xVals.add(String.valueOf(i));
                         sampleSum = SingletonUser.getInstance().getMeanDay().getMap().get(i).getSampleSumAcceleration();
                         sampleSize = SingletonUser.getInstance().getMeanDay().getMap().get(i).getSampleSizeAcceleration();
-                        mean = Math.abs(sampleSum / sampleSize);
-                        Entry entry = new Entry(mean, i);
+                        mean = sampleSum / sampleSize;
+                        Entry entry = new Entry(mean + 1, i);
                         vals.add(entry);
                     } else {
                         xVals.add(String.valueOf(i));
@@ -171,7 +171,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
                         xVals.add(String.valueOf(i));
                         sampleSum = SingletonUser.getInstance().getMeanWeek().getMap().get(i).getSampleSumAcceleration();
                         sampleSize =  SingletonUser.getInstance().getMeanWeek().getMap().get(i).getSampleSizeAcceleration();
-                        mean = Math.abs(sampleSum / sampleSize);
+                        mean = sampleSum / sampleSize;
                         Entry entry = new Entry(mean, i);
                         vals.add(entry);
 

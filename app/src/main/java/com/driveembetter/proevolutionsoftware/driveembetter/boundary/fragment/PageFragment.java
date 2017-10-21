@@ -1,6 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -633,5 +634,12 @@ public class PageFragment extends Fragment
                 this.graphView.addSeries(this.graphSeries);
             }
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        Toast.makeText(this.getContext(), "DIO BOVE ORENTAZIONE CAMBIATA", Toast.LENGTH_SHORT).show();
     }
 }
