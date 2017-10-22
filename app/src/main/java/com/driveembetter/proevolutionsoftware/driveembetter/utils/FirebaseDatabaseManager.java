@@ -764,30 +764,6 @@ public class FirebaseDatabaseManager
         void onUserVehiclesReceived(ArrayList<Vehicle> vehicles);
     }
 
-    public static void getCurrentVehicle() {
-        final SingletonUser user = SingletonUser.getInstance();
-        final Query query = FirebaseDatabaseManager.databaseReference
-                .child(NODE_USERS)
-                .child(user.getUid());
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(CHILD_CURRENT_VEHICLE)) {
-                    String currentVehicle = dataSnapshot.child(CHILD_CURRENT_VEHICLE).getValue().toString();
-                    String[] temp1 = currentVehicle.split("=");
-                    String[] vehicleData = temp1[1].split(";");
-                    user.setCurrentVehicle(new Vehicle(vehicleData[0], vehicleData[1], vehicleData[2], vehicleData[3],vehicleData[4],vehicleData[5]));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "DB Error: " + databaseError.getMessage());
-            }
-        });
-    }
-
     @Contract("null, _ -> fail")
     public static void getCurrentVehicleRanking(final RetrieveVehiclesFromDB retrieveVehiclesFromDB, final String id)
         throws CallbackNotInitialized {

@@ -14,7 +14,7 @@
         android:layout_centerVertical="false"
         android:layout_marginTop="25dp"
         android:src="@mipmap/user_icon"
-        app:civ_border_color="@color/colorSchemas"
+        app:civ_border_color="@color/colorPrimaryDark"
         app:civ_border_width="1dp" />
 
     <ImageButton
@@ -27,6 +27,7 @@
         android:layout_marginBottom="10dp"
         android:layout_marginEnd="10dp"
         android:background="@null"
+        android:tint="@color/colorAccent"
         app:srcCompat="@drawable/ic_gear_white" />
 
     <TextView
@@ -36,7 +37,8 @@
         android:layout_below="@+id/user_picture"
         android:layout_marginTop="20dp"
         android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/colorText" />
 
     <TextView
         android:id="@+id/email_text_view"
@@ -44,6 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/username_text_view"
         android:layout_marginTop="5dp"
-        android:gravity="center" />
+        android:gravity="center"
+        android:textColor="@color/colorText" />
 
 </RelativeLayout>

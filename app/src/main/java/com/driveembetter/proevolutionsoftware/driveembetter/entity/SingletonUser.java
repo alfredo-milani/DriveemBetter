@@ -149,9 +149,7 @@ public class SingletonUser extends User
             throw new CallbackNotInitialized(TAG);
         }
 
-        FirebaseDatabaseManager.getCurrentVehicle();
         FirebaseDatabaseManager.getVehiclesDB(this, userDataCallback);
-        //FirebaseDatabaseManager.getCurrentVehicle(this, userDataCallback);
     }
 
     @Override

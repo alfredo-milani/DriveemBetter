@@ -16,7 +16,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="95dp"
-            android:background="@color/grey_200"
+            android:background="@color/colorItemList"
             android:descendantFocusability="blocksDescendants"
             android:orientation="horizontal"
             android:weightSum="1">

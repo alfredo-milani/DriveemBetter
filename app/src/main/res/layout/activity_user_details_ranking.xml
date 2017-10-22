@@ -2,9 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_picture"
@@ -12,16 +13,17 @@
         android:layout_height="75dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp"
-        app:civ_border_color="@color/colorSchemas"
+        app:civ_border_color="@color/colorPrimaryDark"
         app:civ_border_width="1dp" />
 
     <ImageView
         android:id="@+id/currentVehicle"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        app:srcCompat="@drawable/ic_answere_mark"
+        android:layout_alignStart="@+id/availability"
         android:layout_alignTop="@+id/user_picture"
-        android:layout_alignStart="@+id/availability" />
+        android:tint="@color/colorSchemas"
+        app:srcCompat="@drawable/ic_answere_mark" />
 
     <ImageView
         android:id="@+id/availability"
@@ -66,7 +68,9 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/user_item"
-                android:textColor="@color/colorSchemasComplementary" />
+                android:textColor="@color/colorSchemasComplementary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/user"
@@ -99,7 +103,9 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/point_item"
-                android:textColor="@color/colorSchemasComplementary" />
+                android:textColor="@color/colorSchemasComplementary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/points"
@@ -133,7 +139,9 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/feedback"
-                android:textColor="@color/colorSchemasComplementary" />
+                android:textColor="@color/colorSchemasComplementary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/driverFeedbackContent"
@@ -178,8 +186,8 @@
                     android:layout_gravity="top|center_horizontal"
                     android:gravity="center_vertical"
                     app:dotPadding="20dp"
-                    app:selectedDotColor="@color/colorSchemas"
-                    app:unselectedDotColor="@color/colorSchemasComplementary" />
+                    app:selectedDotColor="@color/colorItemList"
+                    app:unselectedDotColor="@color/colorPrimaryDark" />
 
             </android.support.v4.view.ViewPager>
 

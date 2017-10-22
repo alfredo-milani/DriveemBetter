@@ -9,13 +9,14 @@
         android:id="@+id/cv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:cardBackgroundColor="@color/colorPrimaryDark"
         app:cardElevation="2sp">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="65dp"
-            android:background="@color/light_blue_100">
+            android:background="@color/colorItemList2">
 
             <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/user_picture"
@@ -24,7 +25,7 @@
                 android:layout_weight="1"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                app:civ_border_color="@color/colorSchemas"
+                app:civ_border_color="@color/colorPrimaryDark"
                 app:civ_border_width="1dp" />
 
             <TextView
@@ -33,7 +34,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical|center_horizontal"
-                android:textColor="@color/colorText"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -43,7 +44,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical|center_horizontal"
-                android:textColor="@color/colorText"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -53,8 +54,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical|center_horizontal"
-                android:textColor="@color/colorText"
-                android:textSize="18sp"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="24sp"
                 android:textStyle="bold" />
 
         </LinearLayout>

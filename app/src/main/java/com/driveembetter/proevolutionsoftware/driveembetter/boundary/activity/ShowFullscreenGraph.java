@@ -66,7 +66,7 @@ public class ShowFullscreenGraph extends AppCompatActivity {
 
     private void initWidgets() {
         this.graphView = findViewById(R.id.graph);
-        this.unavailableData = findViewById(R.id.unavailable_data);
+        this.unavailableData = findViewById(R.id.unavailableData);
 
         // Set action bar title
         ActionBar actionBar = getSupportActionBar();

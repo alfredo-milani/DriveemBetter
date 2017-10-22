@@ -19,7 +19,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:text="@string/data_unavailable"
-        android:textColor="@color/colorSchemas"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="22sp"
         android:textStyle="bold"
         android:visibility="invisible" />
@@ -40,7 +40,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="@string/loading"
-        android:textColor="@color/colorText"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="22sp"
         android:textStyle="bold" />
 
@@ -53,7 +53,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="@string/unknown"
-        android:textColor="@color/grey_700"
+        android:textColor="@color/colorPrimary"
         android:textSize="14sp" />
 
     <ImageButton
@@ -65,7 +65,7 @@
         android:layout_toStartOf="@+id/fullscreenImageButton"
         android:background="@null"
         android:contentDescription="@string/menu_refresh"
-        android:tint="@color/colorSchemas"
+        android:tint="@color/colorPrimary"
         app:srcCompat="@mipmap/refresh_icon" />
 
     <ImageButton
@@ -77,6 +77,6 @@
         android:background="@null"
         android:contentDescription="@string/appbar_scrolling_view_behavior"
         android:src="@mipmap/ic_fullscreen"
-        android:tint="@color/colorSchemas" />
+        android:tint="@color/colorPrimary" />
 
 </RelativeLayout>

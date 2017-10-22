@@ -135,4 +135,5 @@
     <string name="help_request">Help! I\'ve met with an accident at </string>
     <string name="nearby_hospitals">Nearby hospitals here </string>
     <string name="crash_detected">A car accident was detected, please press central button to avoid sending help requests</string>
+    <string name="team_name" translatable="false">Pro Evolution Software</string>
 </resources>

@@ -13,13 +13,13 @@
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:padding="10dp"
-        android:textColor="@android:color/black"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="15sp" />
 
     <RadioButton
         android:id="@+id/radio_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:buttonTint="@color/colorSchemas" />
+        app:buttonTint="@color/colorPrimary" />
 
 </LinearLayout>
