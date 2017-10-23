@@ -28,10 +28,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.ACCELERATION_GRAPH_DAILY;
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.ACCELERATION_GRAPH_WEEKLY;
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.VELOCITY_GRAPH_DAILY;
-import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.PageFragment.VELOCITY_GRAPH_WEEKLY;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.ACCELERATION_GRAPH_DAILY;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.ACCELERATION_GRAPH_WEEKLY;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.VELOCITY_GRAPH_DAILY;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.VELOCITY_GRAPH_WEEKLY;
 
 
 /**

@@ -41,15 +41,16 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
  * Created by alfredo on 15/10/17.
  */
 
-public class PageFragment extends Fragment
+public class RankingGraphFragment extends Fragment
         implements TaskProgressInterface,
         FirebaseDatabaseManager.RetrieveDataDB,
         View.OnClickListener {
 
-    private final static String TAG = PageFragment.class.getSimpleName();
+    private final static String TAG = RankingGraphFragment.class.getSimpleName();
 
     public final static String ARG_FRAGMENT_GRAPH = "fragmentGraphType";
     public final static String ARG_FRAGMENT_GRAPH_SERIES = "fragmentGraphSeries";
+    public final static String ARG_FRAGMENT_GRAPH_LAST_UPDATE = "fragmentGraphLastUpdate";
     public final static int GRAPH_ERROR = -1;
     public final static int VELOCITY_GRAPH_DAILY = 1;
     public final static int ACCELERATION_GRAPH_DAILY = 2;
@@ -78,13 +79,13 @@ public class PageFragment extends Fragment
     private LineGraphSeries<DataPoint> graphSeries;
 
     public static void setUserID(String userID) {
-        PageFragment.userID = userID;
+        RankingGraphFragment.userID = userID;
     }
 
-    public static PageFragment newInstance(int type) {
-        PageFragment fragment = new PageFragment();
+    public static RankingGraphFragment newInstance(int type) {
+        RankingGraphFragment fragment = new RankingGraphFragment();
         Bundle args = new Bundle();
-        args.putInt(PageFragment.ARG_FRAGMENT_GRAPH, type);
+        args.putInt(RankingGraphFragment.ARG_FRAGMENT_GRAPH, type);
         fragment.setArguments(args);
         return fragment;
     }
@@ -102,12 +103,12 @@ public class PageFragment extends Fragment
 
     private void initResources() {
         this.simpleDateFormat = new SimpleDateFormat(
-                PageFragment.formatData,
+                RankingGraphFragment.formatData,
                 Locale.getDefault()
         );
         this.typeGraph = this.getArguments().getInt(
-                PageFragment.ARG_FRAGMENT_GRAPH,
-                PageFragment.GRAPH_ERROR
+                RankingGraphFragment.ARG_FRAGMENT_GRAPH,
+                RankingGraphFragment.GRAPH_ERROR
         );
     }
 
@@ -180,6 +181,7 @@ public class PageFragment extends Fragment
         Log.e(TAG, "GGG: " + typeGraph);
         Intent fullscreenIntent = new Intent(this.getActivity(), ShowFullscreenGraph.class);
         fullscreenIntent.putExtra(ARG_FRAGMENT_GRAPH, this.typeGraph);
+
         if (this.graphSeries != null) {
             Iterator<DataPoint> dataPoint = this.graphSeries.getValues(
                     this.graphSeries.getLowestValueX(),
@@ -195,37 +197,41 @@ public class PageFragment extends Fragment
 
             fullscreenIntent.putExtra(ARG_FRAGMENT_GRAPH_SERIES, values);
         }
+
+        String lastUpdate = this.subTitleGraph.getText().toString();
+        fullscreenIntent.putExtra(ARG_FRAGMENT_GRAPH_LAST_UPDATE, lastUpdate);
+
         this.startActivity(fullscreenIntent);
     }
 
     private void initGraphView() {
         switch (this.typeGraph) {
-            case PageFragment.VELOCITY_GRAPH_DAILY:
+            case RankingGraphFragment.VELOCITY_GRAPH_DAILY:
                 this.setGraphHorizontalScale(-1, 0, HOURS - 1);
                 this.initGraphVelocity();
                 break;
 
-            case PageFragment.VELOCITY_GRAPH_WEEKLY:
+            case RankingGraphFragment.VELOCITY_GRAPH_WEEKLY:
                 this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH + 1, 1, Calendar.WEEK_OF_MONTH + 1);
                 this.initGraphVelocity();
                 break;
 
-            case PageFragment.ACCELERATION_GRAPH_DAILY:
+            case RankingGraphFragment.ACCELERATION_GRAPH_DAILY:
                 this.setGraphHorizontalScale(-1, 0, HOURS - 1);
                 this.initGraphAcceleration();
                 break;
 
-            case PageFragment.ACCELERATION_GRAPH_WEEKLY:
+            case RankingGraphFragment.ACCELERATION_GRAPH_WEEKLY:
                 this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH + 1, 1, Calendar.WEEK_OF_MONTH + 1);
                 this.initGraphAcceleration();
                 break;
 
-            case PageFragment.FEEDBACK_GRAPH:
+            case RankingGraphFragment.FEEDBACK_GRAPH:
                 this.setGraphHorizontalScale(MAX_LABEL_FEEDBACK_GRAPH, -1, -1);
                 this.initGraphFeedback();
                 break;
 
-            case PageFragment.POINTS_GRAPH:
+            case RankingGraphFragment.POINTS_GRAPH:
                 this.initGraphPoints();
                 break;
         }
@@ -235,46 +241,46 @@ public class PageFragment extends Fragment
         this.showProgress();
 
         switch (this.typeGraph) {
-            case PageFragment.VELOCITY_GRAPH_DAILY:
+            case RankingGraphFragment.VELOCITY_GRAPH_DAILY:
                 FirebaseDatabaseManager.retrieveDailyData(
                         this,
                         VELOCITY_GRAPH_DAILY,
-                        PageFragment.userID
+                        RankingGraphFragment.userID
                 );
                 break;
 
-            case PageFragment.VELOCITY_GRAPH_WEEKLY:
+            case RankingGraphFragment.VELOCITY_GRAPH_WEEKLY:
                 FirebaseDatabaseManager.retrieveWeeklyData(
                         this,
                         VELOCITY_GRAPH_WEEKLY,
-                        PageFragment.userID
+                        RankingGraphFragment.userID
                 );
                 break;
 
-            case PageFragment.ACCELERATION_GRAPH_DAILY:
+            case RankingGraphFragment.ACCELERATION_GRAPH_DAILY:
                 FirebaseDatabaseManager.retrieveDailyData(
                         this,
                         ACCELERATION_GRAPH_DAILY,
-                        PageFragment.userID
+                        RankingGraphFragment.userID
                 );
                 break;
 
-            case PageFragment.ACCELERATION_GRAPH_WEEKLY:
+            case RankingGraphFragment.ACCELERATION_GRAPH_WEEKLY:
                 FirebaseDatabaseManager.retrieveWeeklyData(
                         this,
                         ACCELERATION_GRAPH_WEEKLY,
-                        PageFragment.userID
+                        RankingGraphFragment.userID
                 );
                 break;
 
-            case PageFragment.FEEDBACK_GRAPH:
+            case RankingGraphFragment.FEEDBACK_GRAPH:
                 FirebaseDatabaseManager.retrieveFeedbackHistory(
                         this,
-                        PageFragment.userID
+                        RankingGraphFragment.userID
                 );
                 break;
 
-            case PageFragment.POINTS_GRAPH:
+            case RankingGraphFragment.POINTS_GRAPH:
                 // TODO: 17/10/17
                 break;
         }
@@ -300,8 +306,8 @@ public class PageFragment extends Fragment
         this.graphSeries.setThickness(3);
 
         switch (this.typeGraph) {
-            case PageFragment.VELOCITY_GRAPH_DAILY:
-            case PageFragment.VELOCITY_GRAPH_WEEKLY:
+            case RankingGraphFragment.VELOCITY_GRAPH_DAILY:
+            case RankingGraphFragment.VELOCITY_GRAPH_WEEKLY:
                 this.graphSeries.setTitle(String.format(
                         Locale.ENGLISH,
                         "%s (%s)",
@@ -312,8 +318,8 @@ public class PageFragment extends Fragment
                 this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.blue_700));
                 break;
 
-            case PageFragment.ACCELERATION_GRAPH_DAILY:
-            case PageFragment.ACCELERATION_GRAPH_WEEKLY:
+            case RankingGraphFragment.ACCELERATION_GRAPH_DAILY:
+            case RankingGraphFragment.ACCELERATION_GRAPH_WEEKLY:
                 this.graphSeries.setTitle(String.format(
                         Locale.ENGLISH,
                         "%s (%s)",
@@ -324,7 +330,7 @@ public class PageFragment extends Fragment
                 this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.red_700));
                 break;
 
-            case PageFragment.FEEDBACK_GRAPH:
+            case RankingGraphFragment.FEEDBACK_GRAPH:
                 this.graphSeries.setTitle(String.format(
                         Locale.ENGLISH,
                         "%s (%s)",
@@ -335,7 +341,7 @@ public class PageFragment extends Fragment
                 this.graphSeries.setColor(ContextCompat.getColor(this.getActivity(), R.color.green_700));
                 break;
 
-            case PageFragment.POINTS_GRAPH:
+            case RankingGraphFragment.POINTS_GRAPH:
                 // TODO: 18/10/17
                 break;
         }
