@@ -295,7 +295,7 @@ public class RankingFragment extends Fragment
         this.swipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(getContext(), R.color.colorPrimaryDark),
                 ContextCompat.getColor(getContext(), R.color.colorItemList),
-                ContextCompat.getColor(getContext(), R.color.white)
+                ContextCompat.getColor(getContext(), R.color.colorItemList2)
         );
         this.swipeRefreshLayout.setOnRefreshListener(this);
 
