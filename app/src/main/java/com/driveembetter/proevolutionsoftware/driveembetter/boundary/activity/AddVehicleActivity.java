@@ -315,7 +315,7 @@ public class AddVehicleActivity extends AppCompatActivity {
         }
 
         private void show_alert_message() {
-            final View popupView = getActivity().getLayoutInflater().inflate(R.layout.insurance_alert, null);
+            final View popupView = getActivity().getLayoutInflater().inflate(R.layout.popup_insurance_alert, null);
 
             final PopupWindow popupWindow = new PopupWindow(popupView,
                     FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);

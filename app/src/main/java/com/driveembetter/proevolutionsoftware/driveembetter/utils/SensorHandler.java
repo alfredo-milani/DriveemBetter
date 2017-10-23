@@ -39,7 +39,8 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.utils.PointMa
  * Created by matti on 31/08/2017.
  */
 
-public class SensorHandler extends Activity implements SensorEventListener {
+public class SensorHandler extends Activity
+        implements SensorEventListener {
 
     private final static String TAG = SensorHandler.class.getSimpleName();
 

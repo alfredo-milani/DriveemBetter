@@ -305,7 +305,7 @@ public class GarageFragment extends Fragment
             return;
         }
 
-        final View popupView = getActivity().getLayoutInflater().inflate(R.layout.general_alert, null);
+        final View popupView = getActivity().getLayoutInflater().inflate(R.layout.item_general_alert, null);
 
         final PopupWindow popupWindow = new PopupWindow(popupView,
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -455,7 +455,7 @@ public class GarageFragment extends Fragment
 
     private void show_details(final int position) {
 
-        final View popupView = getActivity().getLayoutInflater().inflate(R.layout.vehicle_informations, null);
+        final View popupView = getActivity().getLayoutInflater().inflate(R.layout.popup_vehicle_informations, null);
 
         final PopupWindow popupWindow = new PopupWindow(popupView,
                 FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);

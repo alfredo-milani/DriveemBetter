@@ -293,9 +293,9 @@ public class RankingFragment extends Fragment
         this.recycleView.setLayoutManager(this.layoutManager);
         this.swipeRefreshLayout = this.rootView.findViewById(R.id.swiperefresh_ranking);
         this.swipeRefreshLayout.setColorSchemeColors(
-                ContextCompat.getColor(getContext(), R.color.blue_800),
-                ContextCompat.getColor(getContext(), R.color.blue_600),
-                ContextCompat.getColor(getContext(), R.color.blue_400)
+                ContextCompat.getColor(getContext(), R.color.colorPrimaryDark),
+                ContextCompat.getColor(getContext(), R.color.colorItemList),
+                ContextCompat.getColor(getContext(), R.color.white)
         );
         this.swipeRefreshLayout.setOnRefreshListener(this);
 

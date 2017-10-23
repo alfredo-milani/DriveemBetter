@@ -1,4 +1,4 @@
-package com.driveembetter.proevolutionsoftware.driveembetter.adapters;
+package com.driveembetter.proevolutionsoftware.driveembetter.design;
 
 import android.content.Context;
 import android.graphics.Canvas;

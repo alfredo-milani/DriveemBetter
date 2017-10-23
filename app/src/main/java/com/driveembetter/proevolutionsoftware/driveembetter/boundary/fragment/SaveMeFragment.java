@@ -237,7 +237,7 @@ public class SaveMeFragment
 
                         relativeLayout = rootView.findViewById(R.id.relative);
                         layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        final ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.driver_info, null);
+                        final ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup_driver_info, null);
                         driverInfo = new PopupWindow(container, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
                         driverInfo.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
                         driverUsername = container.findViewById(R.id.driverUsernameContent);

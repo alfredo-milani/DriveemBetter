@@ -49,7 +49,7 @@ public class ShowFullscreenGraph extends AppCompatActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fullscreen_graph_activity);
+        setContentView(R.layout.activity_fullscreen_graph);
 
         Log.d(TAG, "ONCREATE");
         this.initResources();

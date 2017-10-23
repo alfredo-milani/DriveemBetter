@@ -73,12 +73,6 @@
             android:layout_toEndOf="@+id/driverFeedback"
             android:layout_alignBottom="@+id/driverFeedback" />
 
-        <android.support.v4.widget.Space
-            android:id="@+id/space"
-            android:layout_width="wrap_content"
-            android:layout_height="10dp"
-            android:layout_alignBottom="@+id/messageBtn"/>
-
         <RatingBar
             android:id="@+id/ratingBar"
             android:layout_width="wrap_content"

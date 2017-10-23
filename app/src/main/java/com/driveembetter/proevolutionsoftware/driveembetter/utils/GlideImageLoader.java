@@ -30,6 +30,8 @@ public class GlideImageLoader {
 
         Glide.with(context)
                 .load(url)
+                .dontTransform()
+                .thumbnail(0.5f)
                 .placeholder(placeHolderUrl) // Default image. Loaded at initial time
                 .error(errorImageUrl) // In case of any glide exception or not able to download then this image will be appear.
                 .diskCacheStrategy(DiskCacheStrategy.ALL) // Using to load into cache then second time it will load fast.

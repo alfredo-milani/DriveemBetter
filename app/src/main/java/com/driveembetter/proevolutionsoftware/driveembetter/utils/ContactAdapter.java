@@ -57,7 +57,7 @@ public class ContactAdapter extends ArrayAdapter<Friend> implements Filterable {
                LayoutInflater inflater = ((Activity) context).getLayoutInflater();
 
                 if (listViewItemType == 0) {
-                    row = inflater.from(getContext()).inflate(R.layout.contact_item, null);
+                    row = inflater.from(getContext()).inflate(R.layout.item_contact, null);
                 }
 
                 holder.textView1 = row.findViewById(R.id.name);
