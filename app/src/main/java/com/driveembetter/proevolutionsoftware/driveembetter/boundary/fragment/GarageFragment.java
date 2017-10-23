@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,16 +24,20 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.SingletonFirebaseProvider;
+import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.AddVehicleActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ModifyVehicleActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.InsuranceRevisionMetronome;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveRankingRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.VehiclesAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -42,7 +48,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CURRENT;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.INS_DATE;
@@ -58,10 +66,14 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
 import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
 import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
 import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
+import static java.util.Calendar.DATE;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
 
 public class GarageFragment extends Fragment
-    implements SingletonUser.UserDataCallback {
+    implements SingletonUser.UserDataCallback, SwipeRefreshLayout.OnRefreshListener,
+        TaskProgressInterface{
 
     private SingletonUser singletonUser;
     private SingletonFirebaseProvider singletonFirebaseProvider;
@@ -72,7 +84,7 @@ public class GarageFragment extends Fragment
     private ImageButton delete;
     private ImageButton modify;
     private ImageButton select, modify_from_options;
-    private Button ok, ok_alert;
+    private Button ok, ok_alert, ok_alert_double, ok_review_alert;
     private int selected_item;
     private FloatingActionButton fab;
     private ArrayList<String> plates_list, insurance_date_list, revision_date_list;
@@ -89,6 +101,7 @@ public class GarageFragment extends Fragment
     private Boolean clik_event;
     private String current_vehicle;
     private InsuranceRevisionMetronome insuranceRevisionMetronome;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
 
     @Override
@@ -126,15 +139,18 @@ public class GarageFragment extends Fragment
     public void onStart() {
         super.onStart();
         this.singletonUser.getVehicles(this);
+        this.showProgress();
+
     }
 
     @Override
     public void onVehiclesReceive() {
-
+        this.hideProgress();
         this.vehicles = this.singletonUser.getVehicleArrayList();
         vehicles_exist();
         getCurrentVhicle();
-        control_insurance_expiration();
+        control_insurance_review_expiration();
+
 
         listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
@@ -284,42 +300,103 @@ public class GarageFragment extends Fragment
 
 
 
-    private void control_insurance_expiration() {
-        if (insurance_date_list == null || insurance_date_list.size()==0){
+    private void control_insurance_review_expiration() {
+        if (insurance_date_list == null || insurance_date_list.size()==0 || revision_date_list==null || revision_date_list.size()==0){
         }else{
-            int i;
+            boolean insurance = false;
+            boolean review = false;
+            int i,j;
             for (i=0;i<insurance_date_list.size();i++){
                 if (insurance_is_expired(i)){
-                    show_alert_message();
-                    insurance_point();
-                    this.insurance_date_list.clear();
-                    this.revision_date_list.clear();
-                    return;
+                    insurance = true;
+                    break;
                 }
+            }
+
+            for (j=0;j<revision_date_list.size();j++){
+                if (review_is_expired(i)){
+                    review = true;
+                    break;
+                }
+            }
+            if (insurance && !review) {
+                show_alert_message(1);
+                insurance_point();
+            }
+
+            if (insurance && review){
+                show_alert_message(2);
+                insurance_point();
+            }
+
+            if (!insurance && review){
+                show_alert_message(3);
+                insurance_point();
             }
         }
     }
 
-    private void show_alert_message() {
+    private void show_alert_message(int type_alert) {
         if (getActivity() == null) {
             return;
         }
+        if (type_alert == 1) {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111");
+            final View popupView = getActivity().getLayoutInflater().inflate(R.layout.item_general_alert, null);
 
-        final View popupView = getActivity().getLayoutInflater().inflate(R.layout.item_general_alert, null);
+            final PopupWindow popupWindow = new PopupWindow(popupView,
+                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 
-        final PopupWindow popupWindow = new PopupWindow(popupView,
-                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            popupWindow.setFocusable(true);
+            ok_alert = (Button) popupView.findViewById(R.id.ok_general);
+            ok_alert.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    popupWindow.dismiss();
+                }
+            });
 
-        popupWindow.setFocusable(true);
-        ok_alert = (Button) popupView.findViewById(R.id.ok_general);
-        ok_alert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                popupWindow.dismiss();
-            }
-        });
+            popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER, 0, 0);
+        }
 
-        popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER,0,0);
+        if (type_alert == 2) {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!22222");
+
+            final View popupView = getActivity().getLayoutInflater().inflate(R.layout.item_double_general_alert, null);
+
+            final PopupWindow popupWindow = new PopupWindow(popupView,
+                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+
+            popupWindow.setFocusable(true);
+            ok_alert_double = (Button) popupView.findViewById(R.id.ok_general_double);
+            ok_alert_double.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    popupWindow.dismiss();
+                }
+            });
+
+
+            popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER, 0, 0);
+        }
+
+        if (type_alert == 3) {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!33333");
+
+            final View popupView = getActivity().getLayoutInflater().inflate(R.layout.review_alert, null);
+
+            final PopupWindow popupWindow = new PopupWindow(popupView,
+                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+
+            popupWindow.setFocusable(true);
+            ok_review_alert = (Button) popupView.findViewById(R.id.ok_review_alert);
+            ok_review_alert.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    popupWindow.dismiss();
+                }
+            });
+        }
     }
 
     private void vehicles_exist() {
@@ -410,6 +487,13 @@ public class GarageFragment extends Fragment
         this.label = (TextView)view.findViewById(R.id.label_garage);
         // Set action bar title
         this.getActivity().setTitle(R.string.garage);
+        this.swipeRefreshLayout = view.findViewById(R.id.swiperefresh_garage);
+        this.swipeRefreshLayout.setColorSchemeColors(
+                ContextCompat.getColor(getContext(), R.color.colorPrimaryDark),
+                ContextCompat.getColor(getContext(), R.color.colorItemList),
+                ContextCompat.getColor(getContext(), R.color.colorItemList2)
+        );
+        this.swipeRefreshLayout.setOnRefreshListener(this);
         return view;
 
     }
@@ -458,7 +542,7 @@ public class GarageFragment extends Fragment
         final View popupView = getActivity().getLayoutInflater().inflate(R.layout.popup_vehicle_informations, null);
 
         final PopupWindow popupWindow = new PopupWindow(popupView,
-                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
 
         popupWindow.setFocusable(true);
 
@@ -568,7 +652,6 @@ public class GarageFragment extends Fragment
         this.revision_date_list = new ArrayList<String>();
         this.insurance_date_list = new ArrayList<String>();
         this.clik_event = false;
-
     }
 
     private void getCurrentVhicle() {
@@ -610,7 +693,6 @@ public class GarageFragment extends Fragment
 
     private boolean insurance_is_expired(int position) {
 
-        System.out.println("VEHHIIIICLLEESSSS  " +vehicles.size());
         String current_date = vehicles.get(position).getInsurance_date();
         Date today = new Date();
         String myFormatString = "dd/MM/yy";
@@ -625,6 +707,46 @@ public class GarageFragment extends Fragment
         if(givenDate.before(today))
             return true;
         return false;
+    }
+
+    private boolean review_is_expired(int position) {
+        Date today = new Date();
+        String current_date = vehicles.get(position).getRevision_date();
+        String myFormatString = "dd/MM/yy";
+        SimpleDateFormat df = new SimpleDateFormat(myFormatString);
+        Date givenDate = null;
+        try {
+            givenDate = df.parse(current_date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        int years_ago = getDiffYears(givenDate, today);
+        System.out.println("DDDDIIIIIIFFFFFFFFFFF + " + years_ago);
+        if (years_ago>=2){
+            return true;
+        }
+        return false;
+    }
+
+
+    public static int getDiffYears(Date first, Date last) {
+        Calendar a = getCalendar(first);
+        Calendar b = getCalendar(last);
+        System.out.println("DDDDIIIIIIFFFFFFFFFFF + " + b.get(YEAR));
+        System.out.println("DDDDIIIIIIFFFFFFFFFFF + " + a.get(YEAR));
+
+        int diff = b.get(YEAR) - a.get(YEAR);
+        if (a.get(MONTH) > b.get(MONTH) ||
+                (a.get(MONTH) == b.get(MONTH) && a.get(DATE) > b.get(DATE))) {
+            diff--;
+        }
+        return diff;
+    }
+
+    public static Calendar getCalendar(Date date) {
+        Calendar cal = Calendar.getInstance(Locale.US);
+        cal.setTime(date);
+        return cal;
     }
 
     public TranslateAnimation shakeError() {
@@ -653,5 +775,40 @@ public class GarageFragment extends Fragment
         super.onStop();
 
         FragmentState.setFragmentState(FragmentState.GARAGE_FRAGMENT, false);
+    }
+
+
+    @Override
+    public void onRefresh() {
+
+        if (!NetworkConnectionUtil.isConnectedToInternet(getContext())) {
+            this.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getActivity(), getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            if (this.swipeRefreshLayout.isRefreshing()) {
+                this.hideProgress();
+            }
+            return;
+        }
+
+        if (!this.swipeRefreshLayout.isRefreshing()) {
+            this.showProgress();
+        }
+
+        onStart();
+    }
+
+    @Override
+    public void hideProgress() {
+        this.swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void showProgress() {
+        this.swipeRefreshLayout.setRefreshing(true);
     }
 }

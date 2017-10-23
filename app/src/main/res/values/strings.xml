@@ -52,6 +52,7 @@
 
     <string name="insurance_alert">Your insurance is exipired! Please update your insurance expiration date as soon as you renew it</string>
     <string name="general_alert">Check marking vehicles with red exclamation mark, may have the insurance expired, please check the vehicle!</string>
+    <string name="review_alert">Check marking vehicles with blue exclamation mark, you have done last review at least two years ago, please check the vehicle!</string>
 
     <string name="plate_number">Plate number</string>
     <string name="owner">Owner</string>

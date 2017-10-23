@@ -144,6 +144,7 @@
     <string name="add">CONFERMA</string>
     <string name="battery">Stato della batteria</string>
     <string name="day">Giorno</string>
+    <string name="review_alert">Controlla inoltre i veicoli contrassegnati dal punto esclamativo blu, la loro ultima revisione risale ad almeno due anni fa!</string>
     <string name="general_alert">Per favore controlla i veicoli contrassegnati dal punto esclamativo rosso, potrebbero avere assicurazione scaduta!</string>
     <string name="message">ATTENZIONE!</string>
     <string name="model">Modello</string>
