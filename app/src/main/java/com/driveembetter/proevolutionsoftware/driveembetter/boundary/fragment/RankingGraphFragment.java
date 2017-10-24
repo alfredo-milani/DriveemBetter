@@ -431,12 +431,14 @@ public class RankingGraphFragment extends Fragment
                 }
             }
 
-            this.updateUI(
-                    dataPoints,
-                    getString(R.string.velocity_daily_graph),
-                    meanDay.getTimestamp(),
-                    true
-            );
+            if (this.isAdded()) {
+                this.updateUI(
+                        dataPoints,
+                        this.getString(R.string.velocity_daily_graph),
+                        meanDay.getTimestamp(),
+                        true
+                );
+            }
         }
     }
 
@@ -467,12 +469,15 @@ public class RankingGraphFragment extends Fragment
                 }
             }
 
-            this.updateUI(
-                    dataPoints,
-                    getString(R.string.velocity_weekly_graph),
-                    meanWeek.getTimestamp(),
-                    true
-            );
+
+            if (this.isAdded()) {
+                this.updateUI(
+                        dataPoints,
+                        this.getString(R.string.velocity_weekly_graph),
+                        meanWeek.getTimestamp(),
+                        true
+                );
+            }
         }
     }
 
@@ -503,12 +508,14 @@ public class RankingGraphFragment extends Fragment
                 }
             }
 
-            this.updateUI(
-                    dataPoints,
-                    getString(R.string.acceleration_daily_graph),
-                    meanDay.getTimestamp(),
-                    true
-            );
+            if (this.isAdded()) {
+                this.updateUI(
+                        dataPoints,
+                        this.getString(R.string.acceleration_daily_graph),
+                        meanDay.getTimestamp(),
+                        true
+                );
+            }
         }
     }
 
@@ -539,12 +546,14 @@ public class RankingGraphFragment extends Fragment
                 }
             }
 
-            this.updateUI(
-                    dataPoints,
-                    getString(R.string.acceleration_weekly_graph),
-                    meanWeek.getTimestamp(),
-                    true
-            );
+            if (this.isAdded()) {
+                this.updateUI(
+                        dataPoints,
+                        this.getString(R.string.acceleration_weekly_graph),
+                        meanWeek.getTimestamp(),
+                        true
+                );
+            }
         }
     }
 
@@ -579,12 +588,14 @@ public class RankingGraphFragment extends Fragment
                 dataPoints[i++] = new DataPoint((Date) entry.getKey(), (Double) entry.getValue());
             }
 
-            this.updateUI(
-                    dataPoints,
-                    getString(R.string.feedback_graph),
-                    lastUpdate == null ? 0 : lastUpdate.getTime(),
-                    true
-            );
+            if (this.isAdded()) {
+                this.updateUI(
+                        dataPoints,
+                        this.getString(R.string.feedback_graph),
+                        lastUpdate == null ? 0 : lastUpdate.getTime(),
+                        true
+                );
+            }
         }
     }
 
@@ -593,12 +604,15 @@ public class RankingGraphFragment extends Fragment
         this.hideProgress();
 
         this.unavailableData.setVisibility(View.VISIBLE);
-        this.updateUI(
-                null,
-                getString(R.string.points_graph),
-                0,
-                false
-        );
+
+        if (this.isAdded()) {
+            this.updateUI(
+                    null,
+                    this.getString(R.string.points_graph),
+                    0,
+                    false
+            );
+        }
 
         // TODO: 17/10/17
     }

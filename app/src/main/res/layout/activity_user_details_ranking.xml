@@ -22,7 +22,7 @@
         android:layout_height="20dp"
         android:layout_alignStart="@+id/availability"
         android:layout_alignTop="@+id/user_picture"
-        android:tint="@color/colorSchemas"
+        android:tint="@color/colorAccent"
         app:srcCompat="@drawable/ic_answere_mark" />
 
     <ImageView
@@ -44,7 +44,7 @@
         android:layout_marginEnd="20dp"
         android:background="@null"
         android:contentDescription="@string/communicate"
-        android:tint="@color/colorSchemas"
+        android:tint="@color/colorAccent"
         app:srcCompat="@mipmap/ic_chat" />
 
     <LinearLayout
@@ -68,7 +68,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/user_item"
-                android:textColor="@color/colorSchemasComplementary"
+                android:textColor="@color/colorAccent"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -86,7 +86,7 @@
             android:layout_height="1dp"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
-            android:background="@color/colorSchemas"
+            android:background="@color/colorPrimaryDark"
             android:orientation="horizontal" />
 
         <LinearLayout
@@ -103,7 +103,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/point_item"
-                android:textColor="@color/colorSchemasComplementary"
+                android:textColor="@color/colorAccent"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -122,7 +122,7 @@
             android:layout_height="1dp"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
-            android:background="@color/colorSchemas"
+            android:background="@color/colorPrimaryDark"
             android:orientation="horizontal" />
 
         <LinearLayout
@@ -139,7 +139,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/feedback"
-                android:textColor="@color/colorSchemasComplementary"
+                android:textColor="@color/colorAccent"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -179,7 +179,7 @@
                 android:layout_gravity="top|center_horizontal"
                 android:gravity="center_vertical"
                 app:dotPadding="20dp"
-                app:selectedDotColor="@color/colorItemList"
+                app:selectedDotColor="@color/colorAccent"
                 app:unselectedDotColor="@color/colorPrimaryDark" />
 
         </android.support.v4.view.ViewPager>

@@ -20,7 +20,8 @@
             android:layout_height="65dp"
             android:background="@drawable/style_card_view_ranking_list_current_user">
 
-            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/user_picture"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

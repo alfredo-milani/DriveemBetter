@@ -38,7 +38,7 @@
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@color/colorText" />
+        android:textColor="@color/colorTextOnBlack" />
 
     <TextView
         android:id="@+id/email_text_view"
@@ -47,6 +47,6 @@
         android:layout_below="@+id/username_text_view"
         android:layout_marginTop="5dp"
         android:gravity="center"
-        android:textColor="@color/colorText" />
+        android:textColor="@color/colorTextOnBlack" />
 
 </RelativeLayout>
