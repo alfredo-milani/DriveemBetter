@@ -38,7 +38,7 @@
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@color/colorTextOnBlack" />
+        android:textColor="@color/colorAccent" />
 
     <TextView
         android:id="@+id/email_text_view"

@@ -147,6 +147,11 @@ public class RankingGraphFragment extends Fragment
         this.fillGraph();
     }
 
+    private void fillGraph() {
+        this.graphView.removeAllSeries();
+        this.retrieveGraphData();
+    }
+
     @Override
     public void onClick(View view) {
         int id = view.getId();
@@ -161,19 +166,14 @@ public class RankingGraphFragment extends Fragment
         }
     }
 
-    private void fillGraph() {
-        this.graphView.removeAllSeries();
-        this.retrieveGraphData();
-    }
-
     private void refreshGraphData() {
-        this.fillGraph();
-
         Toast.makeText(
                 this.getActivity(),
                 getString(R.string.updating_graph_data),
                 Toast.LENGTH_SHORT
         ).show();
+
+        this.fillGraph();
     }
 
     private void startFullscreenGraph() {
@@ -204,6 +204,7 @@ public class RankingGraphFragment extends Fragment
     }
 
     private void initGraphView() {
+        Log.d(TAG, "EEE: " + typeGraph);
         switch (this.typeGraph) {
             case RankingGraphFragment.VELOCITY_GRAPH_DAILY:
                 this.setGraphHorizontalScale(-1, 0, HOURS - 1);
@@ -237,6 +238,7 @@ public class RankingGraphFragment extends Fragment
     }
 
     private void retrieveGraphData() {
+        Log.d(TAG, "TEST: " + this.typeGraph);
         this.showProgress();
 
         switch (this.typeGraph) {
