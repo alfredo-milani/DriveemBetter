@@ -29,13 +29,11 @@ public class RankingRecyclerViewAdapter extends RecyclerView.Adapter<RankingRecy
 
     private final static int CURRENT_USER = -1;
 
-
-
     public interface OnItemClickListener {
         void onItemClick(User item);
     }
 
-    public RankingRecyclerViewAdapter(Context context, List<User> users, OnItemClickListener listener){
+    public RankingRecyclerViewAdapter(Context context, List<User> users, OnItemClickListener listener) {
         this.users = users;
         this.context = context;
         this.listener = listener;
@@ -66,6 +64,8 @@ public class RankingRecyclerViewAdapter extends RecyclerView.Adapter<RankingRecy
             });
         }
     }
+
+
 
     @Override
     public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

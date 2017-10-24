@@ -1,5 +1,4 @@
-<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/tools"
     android:id="@+id/cardSecondScaleGraph"
@@ -7,17 +6,17 @@
     android:layout_height="match_parent"
     android:layout_margin="1dp"
     app:cardBackgroundColor="@color/colorPrimaryDark"
-    app:cardCornerRadius="10dp"
+    app:cardCornerRadius="5dp"
     app:cardElevation="3dp"
     app:cardUseCompatPadding="true"
     card_view:cardBackgroundColor="@android:color/white"
     card_view:cardElevation="2sp"
-    card_view:cardUseCompatPadding="true" >
+    card_view:cardUseCompatPadding="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/style_card_view_user_datail_ranking_list" >
+        android:background="@drawable/style_card_view_user_datail_ranking_list">
 
         <ProgressBar
             android:id="@+id/progress_bar"

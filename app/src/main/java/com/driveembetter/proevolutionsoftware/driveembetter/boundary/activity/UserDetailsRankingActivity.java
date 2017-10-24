@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
-import com.driveembetter.proevolutionsoftware.driveembetter.adapters.PageAdapter;
+import com.driveembetter.proevolutionsoftware.driveembetter.adapters.RankingGraphPageAdapter;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
@@ -92,7 +92,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         this.currentImageVehicle = findViewById(R.id.currentVehicle);
 
         final ViewPager pager = findViewById(R.id.vpPager);
-        this.adapter = new PageAdapter(
+        this.adapter = new RankingGraphPageAdapter(
                 this.getSupportFragmentManager(),
                 UserDetailsRankingActivity.user.getUid()
         );

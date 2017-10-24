@@ -25,13 +25,13 @@ public class GlideImageLoader {
     private final static String format2 = "%s://%s/%s/%s";
 
 
-    public static void loadImageUri(final Activity context, ImageView imageView, Uri url, int placeHolderUrl, int errorImageUrl) {
+    public static void loadImageUri(Activity context, ImageView imageView, Uri url, int placeHolderUrl, int errorImageUrl) {
         if (context == null || context.isDestroyed()) return;
 
         Glide.with(context)
                 .load(url)
-                .dontTransform()
                 .thumbnail(0.5f)
+                .dontTransform()
                 .placeholder(placeHolderUrl) // Default image. Loaded at initial time
                 .error(errorImageUrl) // In case of any glide exception or not able to download then this image will be appear.
                 .diskCacheStrategy(DiskCacheStrategy.ALL) // Using to load into cache then second time it will load fast.
