@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    TODO da scegliere
     <color name="colorPrimary">#3e4a4f</color>
     <color name="colorPrimaryDark">#2E3436</color>
     <color name="colorAccent">@color/amber_500</color>
+    <color name="colorBackground">@color/grey_300</color>
 
     <!--
    <color name="colorPrimary">#596889</color>
@@ -12,9 +12,9 @@
    <color name="colorAccent">@color/white</color>
   -->
    <color name="colorText">@color/black</color>
-   <color name="colorSchemas">@color/white</color>
+   <color name="colorSchemas">@color/amber_500</color>
    <color name="colorSchemasComplementary">@color/colorPrimaryDark</color>
-   <color name="colorItemList">@color/blue_grey_300</color>
+   <color name="colorItemList">@color/grey_400</color>
    <color name="colorSelectedItemList">@color/amber_500</color>
    <color name="colorItemList2">@color/amber_500</color>
 

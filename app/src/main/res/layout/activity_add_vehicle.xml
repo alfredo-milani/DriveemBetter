@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/costraint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context="com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.AddVehicleActivity">
 
     <RelativeLayout
         android:id="@+id/alert"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -21,7 +22,6 @@
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
-        android:background="@null"
         tools:layout_constraintTop_creator="1">
 
         <TextView
@@ -51,8 +51,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/Moto"
-                android:theme="@style/RadioButtonStyle"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:theme="@style/RadioButtonStyle" />
 
 
             <RadioButton
@@ -64,8 +64,8 @@
                 android:layout_toStartOf="@+id/radiotype"
                 android:layout_weight="1"
                 android:text="@string/Car"
-                android:theme="@style/RadioButtonStyle"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:theme="@style/RadioButtonStyle" />
 
             <RadioButton
                 android:id="@+id/van"
@@ -74,9 +74,8 @@
                 android:layout_alignTop="@+id/radiotype"
                 android:layout_toEndOf="@+id/radiotype"
                 android:text="@string/Van"
-                android:theme="@style/RadioButtonStyle"
-                android:textColor="@color/black" />
-
+                android:textColor="@color/black"
+                android:theme="@style/RadioButtonStyle" />
 
 
         </RadioGroup>
@@ -111,29 +110,29 @@
             android:id="@+id/newmodel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/newowner"
             android:layout_alignStart="@+id/newowner"
             android:layout_below="@+id/newowner"
             android:layout_marginTop="5dp"
             android:ems="10"
             android:hint="@string/model"
             android:inputType="textPersonName"
-            android:theme="@style/EditTextTheme"
-            android:layout_alignEnd="@+id/newowner" />
+            android:theme="@style/EditTextTheme" />
 
         <Button
             android:id="@+id/confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark"
+            android:layout_alignEnd="@+id/rev"
+            android:layout_alignStart="@+id/rev"
             android:layout_below="@+id/rev"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="40dp"
+            android:background="@color/colorPrimaryDark"
             android:text="@string/add"
-            android:textSize="15sp"
-            android:textStyle="bold"
             android:textColor="@color/white"
-            android:layout_alignStart="@+id/rev"
-            android:layout_alignEnd="@+id/rev" />
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
 
         <EditText
@@ -146,9 +145,9 @@
             android:layout_marginTop="5dp"
             android:ems="10"
             android:focusableInTouchMode="false"
-            android:theme="@style/EditTextTheme"
             android:hint="Insurance expiration date"
-            android:inputType="date" />
+            android:inputType="date"
+            android:theme="@style/EditTextTheme" />
 
         <EditText
             android:id="@+id/rev"
@@ -161,8 +160,8 @@
             android:ems="10"
             android:focusableInTouchMode="false"
             android:hint="Last revision date"
-            android:theme="@style/EditTextTheme"
-            android:inputType="date" />
+            android:inputType="date"
+            android:theme="@style/EditTextTheme" />
 
 
     </RelativeLayout>
