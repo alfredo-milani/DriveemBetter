@@ -159,6 +159,18 @@
         </activity>
 
 
+        <activity android:name=".boundary.activity.EmergencyActivity"
+            android:theme="@style/AppTheme"
+            android:label="Crash Detected!"
+            android:windowSoftInputMode="stateHidden"
+            android:parentActivityName=".boundary.activity.MainFragmentActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+
+
         <service
             android:name=".services.SwipeClosureHandler"
             android:stopWithTask="false"/>

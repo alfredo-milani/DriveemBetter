@@ -64,6 +64,7 @@ public interface Constants {
     String NODE_USERS = "users";
     String NODE_VEHICLES = "vehicles";
     String NODE_CURRENT_VEHICLE = "current_vehicle";
+    String NODE_CHAT_ROOMS = "chat_rooms";
 
     // Database's child for entity User
     String CHILD_USERNAME = "username";

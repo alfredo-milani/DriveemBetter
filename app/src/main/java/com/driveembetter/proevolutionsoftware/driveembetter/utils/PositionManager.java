@@ -347,7 +347,7 @@ public class PositionManager
 
                     yahooProgressBar.setVisibility(View.VISIBLE);
                     yahooProgressBar.getIndeterminateDrawable().setColorFilter(
-                            Color.BLUE,
+                            context.getResources().getColor(R.color.colorPrimaryDark),
                             android.graphics.PorterDuff.Mode.MULTIPLY
                     );
 

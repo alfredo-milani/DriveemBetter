@@ -1412,4 +1412,11 @@ public class FirebaseDatabaseManager
                         .setValue(phoneNo);
         }
     }
+
+    public static void deleteChat(String sender, String receiver) {
+        FirebaseDatabaseManager.databaseReference
+                .child(NODE_CHAT_ROOMS)
+                .child(sender + "_" + receiver)
+                .removeValue();
+    }
 }
