@@ -13,11 +13,16 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
 import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
 import static com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
+import static java.util.Calendar.DATE;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
 /**
  * Created by matteo on 03/10/17.
@@ -91,6 +96,7 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
             holder.textView2 = row.findViewById(R.id.textView24);
             holder.imageview = row.findViewById(R.id.current);
             holder.textView3 = row.findViewById(R.id.textView20);
+            holder.textView4 = row.findViewById(R.id.textView9);
 
             row.setTag(holder);
         }
@@ -106,6 +112,12 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
                 holder.textView3.setVisibility(View.VISIBLE);
             }else{
                 holder.textView3.setVisibility(View.INVISIBLE);
+            }
+
+            if(review_is_expired(position)){
+                holder.textView4.setVisibility(View.VISIBLE);
+            }else{
+                holder.textView4.setVisibility(View.INVISIBLE);
             }
             holder.textView1.setText(vehicle.getModel());
             holder.textView2.setText(vehicle.getNumberPlate());
@@ -123,6 +135,11 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
                 }else{
                     holder.textView3.setVisibility(View.INVISIBLE);
                 }
+                if(review_is_expired(position)){
+                    holder.textView4.setVisibility(View.VISIBLE);
+                }else{
+                    holder.textView4.setVisibility(View.INVISIBLE);
+                }
                 holder.imageview.setVisibility(View.VISIBLE);
 
             }else if (!current_plate.equals(vehicle.getNumberPlate())){
@@ -131,11 +148,53 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
                 }else{
                     holder.textView3.setVisibility(View.INVISIBLE);
                 }
+                if(review_is_expired(position)){
+                    holder.textView4.setVisibility(View.VISIBLE);
+                }else{
+                    holder.textView4.setVisibility(View.INVISIBLE);
+                }
                 holder.imageview.setVisibility(View.INVISIBLE);
             }
         }
         return row;
     }
+
+    private boolean review_is_expired(int position) {
+        Date today = new Date();
+        String current_date = vehicles.get(position).getRevision_date();
+        String myFormatString = "dd/MM/yy";
+        SimpleDateFormat df = new SimpleDateFormat(myFormatString);
+        Date givenDate = null;
+        try {
+            givenDate = df.parse(current_date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        int years_ago = getDiffYears(givenDate,today);
+        if (years_ago>=2){
+            return true;
+        }
+        return false;
+    }
+
+
+    public static int getDiffYears(Date first, Date last) {
+        Calendar a = getCalendar(first);
+        Calendar b = getCalendar(last);
+        int diff = b.get(YEAR) - a.get(YEAR);
+        if (a.get(MONTH) > b.get(MONTH) ||
+                (a.get(MONTH) == b.get(MONTH) && a.get(DATE) > b.get(DATE))) {
+            diff--;
+        }
+        return diff;
+    }
+
+    public static Calendar getCalendar(Date date) {
+        Calendar cal = Calendar.getInstance(Locale.US);
+        cal.setTime(date);
+        return cal;
+    }
+
 
     private boolean insurance_is_expired(int position) {
 

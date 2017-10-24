@@ -1,12 +1,21 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -22,12 +31,15 @@ import com.driveembetter.proevolutionsoftware.driveembetter.chat.ChatPresenter;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Chat;
 import com.driveembetter.proevolutionsoftware.driveembetter.events.PushNotificationEvent;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ChatFragment extends Fragment implements ChatContract.View, TextView.OnEditorActionListener {
@@ -55,6 +67,55 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     }
 
     @Override
+    public void onCreateOptionsMenu(
+            Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.chat_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.delete_button) {
+            final String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
+            final String senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+
+            // set title
+            alertDialogBuilder.setTitle("Attenzione");
+
+            // set dialog message
+            alertDialogBuilder
+                    .setMessage("Sicuro di voler cancellare questa chat?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            FirebaseDatabaseManager.deleteChat(senderUid, receiverUid);
+                            Intent intent = getActivity().getIntent();
+                            getActivity().finish();
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+
+            // create alert dialog
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            // show it
+            alertDialog.show();
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
@@ -70,6 +131,7 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_chat, container, false);
+        setHasOptionsMenu(true);
         bindViews(fragmentView);
         return fragmentView;
     }
