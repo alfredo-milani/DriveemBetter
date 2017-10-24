@@ -394,6 +394,7 @@ public class RankingGraphFragment extends Fragment
         if (this.progressBar.getVisibility() == View.VISIBLE) {
             this.progressBar.setIndeterminate(true);
             this.progressBar.setVisibility(View.INVISIBLE);
+            this.fullscreenGraph.setClickable(true);
         }
     }
 
@@ -403,6 +404,7 @@ public class RankingGraphFragment extends Fragment
                 this.progressBar.getVisibility() == View.INVISIBLE) {
             this.progressBar.setIndeterminate(true);
             this.progressBar.setVisibility(View.VISIBLE);
+            this.fullscreenGraph.setClickable(false);
         }
     }
 
