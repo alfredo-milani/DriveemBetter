@@ -84,11 +84,11 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
 
             // set title
-            alertDialogBuilder.setTitle("Attenzione");
+            alertDialogBuilder.setTitle("Warning!");
 
             // set dialog message
             alertDialogBuilder
-                    .setMessage("Sicuro di voler cancellare questa chat?")
+                    .setMessage("Do you want to delete this car?")
                     .setCancelable(false)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
