@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    android:background="@color/colorPrimary"
+    android:background="@color/white"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -16,14 +16,16 @@
     <com.github.mikephil.charting.charts.ScatterChart
         android:id="@+id/view"
         android:layout_width="match_parent"
-        android:layout_height="406dp" />
+        android:layout_height="406dp"
+        android:paddingEnd="16dp"/>
 
     <RadioGroup
         android:id="@+id/radioGroupParameter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/view"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/view">
+        android:layout_marginTop="22dp">
 
         <RadioButton
             android:id="@+id/radio_velocity"
@@ -34,7 +36,8 @@
             android:layout_weight="1"
             android:checked="true"
             android:onClick="onRadioButtonClicked"
-            android:text="@string/velocity" />
+            android:text="@string/velocity"
+            android:theme="@style/MyRadioButton" />
 
         <RadioButton
             android:id="@+id/radio_acceleration"
@@ -42,17 +45,17 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="onRadioButtonClicked"
-            android:text="@string/acceleration" />
+            android:text="@string/acceleration"
+            android:theme="@style/MyRadioButton" />
     </RadioGroup>
 
     <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/view"
         android:layout_marginLeft="46dp"
-        android:layout_marginStart="46dp"
-        android:layout_toEndOf="@+id/radioGroupParameter"
-        android:layout_toRightOf="@+id/radioGroupParameter">
+        android:layout_alignTop="@+id/radioGroupParameter"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="75dp">
 
         <RadioButton
             android:id="@+id/radio_week"
@@ -61,7 +64,8 @@
             android:layout_weight="1"
             android:checked="true"
             android:onClick="onRadioButtonClickedTime"
-            android:text="@string/week" />
+            android:text="@string/week"
+            android:theme="@style/MyRadioButton" />
 
         <RadioButton
             android:id="@+id/radio_day"
@@ -69,7 +73,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="onRadioButtonClickedTime"
-            android:text="@string/day" />
+            android:text="@string/day"
+            android:theme="@style/MyRadioButton" />
     </RadioGroup>
 
 </RelativeLayout>

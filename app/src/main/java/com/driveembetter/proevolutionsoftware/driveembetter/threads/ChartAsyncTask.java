@@ -211,7 +211,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
         /* Create a new scatter data set and set properties */
         //scatterDataSet = new ScatterDataSet(vals, "statistics");
         scatterDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-        scatterDataSet.setColor(Color.BLUE);
+        scatterDataSet.setColor(R.color.colorPrimaryDark);
         scatterDataSet.setScatterShapeSize(10);
         scatterDataSet.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
         sessionData.setValid(true); //validate data
@@ -319,7 +319,7 @@ public class ChartAsyncTask extends AsyncTask<String, Double, ScatterData> {
 
         // Enables / disables drawing the zero-line
         yAxis.setDrawZeroLine(true);
-        yAxis.setZeroLineColor(Color.YELLOW);
+        yAxis.setZeroLineColor(R.color.colorPrimary);
 
         // Set the axis enabled
         yAxis.setEnabled(true);
