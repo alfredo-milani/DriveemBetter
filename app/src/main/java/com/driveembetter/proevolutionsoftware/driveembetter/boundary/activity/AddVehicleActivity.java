@@ -78,7 +78,10 @@ public class AddVehicleActivity extends AppCompatActivity {
         init_resources();
         Intent mIntent = getIntent();
         this.plates_list = mIntent.getStringArrayListExtra(PLATE_LIST);
-        show_info_message();
+        System.out.println("agaaaaaaiiiinnnnnn " + again);
+        if (again = false) {
+            show_info_message();
+        }
 
         insurance_date.setOnClickListener(new View.OnClickListener() {
 
@@ -254,7 +257,6 @@ public class AddVehicleActivity extends AppCompatActivity {
 
 
     private void show_info_message() {
-        if (again == false) {
             final View popupView = this.getLayoutInflater().inflate(R.layout.popup_info_vehicle, null);
 
             final PopupWindow popupWindow = new PopupWindow(popupView,
@@ -283,7 +285,6 @@ public class AddVehicleActivity extends AppCompatActivity {
                     }
                 }
             });
-        }
     }
 
 
