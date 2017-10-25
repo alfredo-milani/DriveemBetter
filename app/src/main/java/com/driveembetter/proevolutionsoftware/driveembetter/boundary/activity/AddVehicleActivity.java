@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -58,14 +61,14 @@ public class AddVehicleActivity extends AppCompatActivity {
     private DatabaseReference ref;
     private String type;
     private ArrayList<String> plates_list;
-    private static boolean fromInsurance;
+    private static boolean fromInsurance, again;
     private static int try_number;
-    private static Button ok;
+    private static Button ok, ok_worry;
     private static RelativeLayout alert;
-
+    private static CheckBox show_again;
     private static EditText insurance_date;
     private static EditText revision_date;
-
+    SharedPreferences prefs;
 
 
     @Override
@@ -75,7 +78,10 @@ public class AddVehicleActivity extends AppCompatActivity {
         init_resources();
         Intent mIntent = getIntent();
         this.plates_list = mIntent.getStringArrayListExtra(PLATE_LIST);
-
+        System.out.println("agaaaaaaiiiinnnnnn " + again);
+        if (again = false) {
+            show_info_message();
+        }
 
         insurance_date.setOnClickListener(new View.OnClickListener() {
 
@@ -85,8 +91,6 @@ public class AddVehicleActivity extends AppCompatActivity {
                 fromInsurance = true;
                 showTruitonDatePickerDialog(v);
             }
-
-
         });
 
         revision_date.setOnClickListener(new View.OnClickListener() {
@@ -119,9 +123,6 @@ public class AddVehicleActivity extends AppCompatActivity {
 
         });
 
-
-
-
         confirm.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -153,8 +154,6 @@ public class AddVehicleActivity extends AppCompatActivity {
             }
         });
 
-
-
     }
 
     private void showTruitonDatePickerDialog(View v) {
@@ -177,15 +176,14 @@ public class AddVehicleActivity extends AppCompatActivity {
         }
     }
 
-
-
-
     private void init_resources() {
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        again = prefs.getBoolean("again", false);
         confirm = (Button)findViewById(R.id.confirm);
         plateNumber = (EditText)findViewById(R.id.newplatenumber);
         owner = (EditText)findViewById(R.id.newowner);
@@ -254,6 +252,39 @@ public class AddVehicleActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+
+    private void show_info_message() {
+            final View popupView = this.getLayoutInflater().inflate(R.layout.popup_info_vehicle, null);
+
+            final PopupWindow popupWindow = new PopupWindow(popupView,
+                    FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+
+            popupWindow.setFocusable(true);
+            ok_worry = (Button) popupView.findViewById(R.id.ok_worry);
+            show_again = (CheckBox) popupView.findViewById(R.id.show_again);
+
+            popupView.post(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    popupWindow.showAtLocation(alert, Gravity.CENTER, 0, 0);
+
+                    ok_worry.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            popupWindow.dismiss();
+                        }
+                    });
+
+                    if (show_again.isChecked()) {
+                        Boolean statusLocked = prefs.edit().putBoolean("again", true).commit();
+                    }
+                }
+            });
     }
 
 

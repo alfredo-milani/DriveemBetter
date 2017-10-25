@@ -147,9 +147,11 @@
     <string name="review_alert">Controlla inoltre i veicoli contrassegnati dal punto esclamativo blu, la loro ultima revisione risale ad almeno due anni fa!</string>
     <string name="general_alert">Per favore controlla i veicoli contrassegnati dal punto esclamativo rosso, potrebbero avere assicurazione scaduta!</string>
     <string name="message">ATTENZIONE!</string>
+    <string name="dont_worry">Non preoccuparti</string>
     <string name="model">Modello</string>
     <string name="ok">OK</string>
     <string name="owner">Proprietario</string>
+    <string name="insert_info">Per favore inserisci tutte le informazioni richieste. Se non ricordi esattamente qualcosa puoi aggiungere ciò che ti ricordi e in un secondo momento modificarle.</string>
     <string name="plate_number">Targa</string>
     <string name="repeat_password">Ripeti password</string>
     <string name="revision_date">Data revisione</string>
@@ -190,4 +192,6 @@
     <string name="chose_vehicle">Scegli il tipo di veicolo</string>
     <string name="last_revision_date">Data ultima revisione</string>
     <string name="insurance_expiration_date">Scadenza assicurazione</string>
+    <string name="not_show_again">non mostrare più</string>
+
 </resources>

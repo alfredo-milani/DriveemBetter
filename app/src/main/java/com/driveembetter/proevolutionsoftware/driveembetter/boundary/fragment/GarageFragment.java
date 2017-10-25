@@ -34,7 +34,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.Mo
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.InsuranceRevisionMetronome;
-import com.driveembetter.proevolutionsoftware.driveembetter.threads.RetrieveRankingRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
@@ -138,6 +137,8 @@ public class GarageFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
+        insurance_date_list.clear();
+        revision_date_list.clear();
         this.singletonUser.getVehicles(this);
         this.showProgress();
 
@@ -182,8 +183,6 @@ public class GarageFragment extends Fragment
                         intent.putExtras(extras);
                         startActivity(intent);
                         hideOptions();
-                        insurance_date_list.clear();
-                        revision_date_list.clear();
                         onStart();
                         clik_event = false;
 
@@ -198,8 +197,6 @@ public class GarageFragment extends Fragment
                         remove_old_current_vehicle();
                         add_new_current_vehicle(selected_item);
                         hideOptions();
-                        insurance_date_list.clear();
-                        revision_date_list.clear();
                         clik_event = false;
                         onStart();
 
@@ -228,8 +225,6 @@ public class GarageFragment extends Fragment
                                         plates_list.remove(selected_item);
                                         hideOptions();
                                         dialog.cancel();
-                                        insurance_date_list.clear();
-                                        revision_date_list.clear();
                                         clik_event = false;
                                         onStart();
                                     }
@@ -341,7 +336,6 @@ public class GarageFragment extends Fragment
             return;
         }
         if (type_alert == 1) {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111");
             final View popupView = getActivity().getLayoutInflater().inflate(R.layout.item_general_alert, null);
 
             final PopupWindow popupWindow = new PopupWindow(popupView,
@@ -360,8 +354,6 @@ public class GarageFragment extends Fragment
         }
 
         if (type_alert == 2) {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!22222");
-
             final View popupView = getActivity().getLayoutInflater().inflate(R.layout.item_double_general_alert, null);
 
             final PopupWindow popupWindow = new PopupWindow(popupView,
@@ -381,8 +373,6 @@ public class GarageFragment extends Fragment
         }
 
         if (type_alert == 3) {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!33333");
-
             final View popupView = getActivity().getLayoutInflater().inflate(R.layout.review_alert, null);
 
             final PopupWindow popupWindow = new PopupWindow(popupView,
@@ -553,7 +543,7 @@ public class GarageFragment extends Fragment
         this.modify_from_options = (ImageButton)popupView.findViewById(R.id.modify_from_options);
         this.ins_date = (TextView) popupView.findViewById(R.id.ins_date);
         this.rev_date = (TextView)popupView.findViewById(R.id.rev_date);
-        this.ok = (Button) popupView.findViewById(R.id.ok);
+        this.ok = (Button) popupView.findViewById(R.id.ok_worry);
 
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -582,8 +572,6 @@ public class GarageFragment extends Fragment
                 startActivity(intent);
                 popupWindow.dismiss();
                 hideOptions();
-                insurance_date_list.clear();
-                revision_date_list.clear();
                 clik_event = false;
                 onStart();
 

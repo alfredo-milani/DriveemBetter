@@ -74,10 +74,6 @@ public class ModifyVehicleActivity extends AppCompatActivity {
     private static RelativeLayout alert;
     private static int try_number;
 
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 

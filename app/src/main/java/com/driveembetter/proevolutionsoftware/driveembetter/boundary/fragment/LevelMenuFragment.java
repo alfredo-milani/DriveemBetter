@@ -116,7 +116,7 @@ public class LevelMenuFragment
         this.getDialog().setTitle(getString(R.string.dialogue_level_menu));
         this.getDialog().setCancelable(false);
 
-        (this.rootView.findViewById(R.id.ok)).setOnClickListener(this);
+        (this.rootView.findViewById(R.id.ok_worry)).setOnClickListener(this);
         (this.rootView.findViewById(R.id.cancel)).setOnClickListener(this);
     }
 
@@ -126,7 +126,7 @@ public class LevelMenuFragment
 
         int id = view.getId();
         switch (id) {
-            case R.id.ok:
+            case R.id.ok_worry:
                 if (this.callback == null) {
                     throw new CallbackNotInitialized(TAG);
                 }
