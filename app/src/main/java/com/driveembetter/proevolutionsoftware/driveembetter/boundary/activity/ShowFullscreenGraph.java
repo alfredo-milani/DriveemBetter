@@ -216,6 +216,9 @@ public class ShowFullscreenGraph extends AppCompatActivity
         this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));
         this.graphView.getLegendRenderer().setFixedPosition(0, 0);
         // this.graphView.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        // Enable scaling
+        this.graphView.getViewport().setScalable(true);
+        this.graphView.getViewport().setScalableY(true);
     }
 
     private void initGraphVelocity() {

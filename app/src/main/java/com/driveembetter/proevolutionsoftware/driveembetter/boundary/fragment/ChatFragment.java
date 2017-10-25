@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
@@ -19,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -33,14 +29,12 @@ import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Chat;
 import com.driveembetter.proevolutionsoftware.driveembetter.events.PushNotificationEvent;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class ChatFragment extends Fragment implements ChatContract.View, TextView.OnEditorActionListener {
@@ -138,9 +132,9 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
     }
 
     private void bindViews(View view) {
-        mRecyclerViewChat = (RecyclerView) view.findViewById(R.id.recycler_view_chat);
-        mETxtMessage = (EditText) view.findViewById(R.id.edit_text_message);
-        sendMessageButton = (ImageButton) view.findViewById(R.id.send_message_button);
+        mRecyclerViewChat = view.findViewById(R.id.recycler_view_chat);
+        mETxtMessage = view.findViewById(R.id.edit_text_message);
+        sendMessageButton = view.findViewById(R.id.send_message_button);
 
     }
 
