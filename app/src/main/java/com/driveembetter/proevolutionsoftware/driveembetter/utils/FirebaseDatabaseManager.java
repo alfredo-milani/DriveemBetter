@@ -312,6 +312,11 @@ public class FirebaseDatabaseManager
                                     .child(CHILD_EMAIL)
                                     .setValue(user.getEmail());
                         }
+                        if (!dataSnapshot.hasChild(ARG_FIREBASE_TOKEN)) {
+                            dataSnapshot.getRef()
+                                    .child(ARG_FIREBASE_TOKEN)
+                                    .setValue(user.getToken());
+                        }
                         if (!dataSnapshot.hasChild(CHILD_IMAGE) &&
                                 user.getPhotoUrl() != null) {
                             dataSnapshot.getRef()
@@ -1417,6 +1422,10 @@ public class FirebaseDatabaseManager
         FirebaseDatabaseManager.databaseReference
                 .child(NODE_CHAT_ROOMS)
                 .child(sender + "_" + receiver)
+                .removeValue();
+        FirebaseDatabaseManager.databaseReference
+                .child(NODE_CHAT_ROOMS)
+                .child(receiver + "_" + sender)
                 .removeValue();
     }
 }

@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.PopupWindow;
@@ -69,12 +70,26 @@ public class AddFriendsActivity extends AppCompatActivity {
         this.secondFriendName.setText(prefs.getString("name2", getResources().getString(R.string.empty_friends)));
         this.secondNumber.setText(prefs.getString("phone_no2", ""));
 
+        /*
         //check permissions
         if (!checkPermission())
             requestPermission();
 
         if (!checkPermission())
             this.finish();
+            */
+
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.SEND_SMS}, 1);
+        } else {
+            Log.d("DB", "PERMISSION GRANTED");
+        }
 
 
         this.firstButton.setOnClickListener(new View.OnClickListener() {

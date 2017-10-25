@@ -265,7 +265,11 @@ public class SaveMeFragment
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.hasChild(CHILD_IMAGE)) {
                                         userSelectedPic = dataSnapshot.child(CHILD_IMAGE).getValue().toString();
-                                        userSelectedToken = dataSnapshot.child("firebaseToken").getValue().toString();
+                                        if (dataSnapshot.hasChild(ARG_FIREBASE_TOKEN)) {
+                                            userSelectedToken = dataSnapshot.child("firebaseToken").getValue().toString();
+                                        } else {
+                                            userSelectedToken = "none";
+                                        }
                                         userSelectedAvailability = dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString();
                                         GlideImageLoader.loadImageUri(
                                                 getActivity(),
@@ -315,10 +319,15 @@ public class SaveMeFragment
                             @Override
                             public void onClick(View view) {
 
-                                ChatActivity.startActivity(getActivity(),
-                                        userSelectedEmail,
-                                        userSelectedUid,
-                                        userSelectedToken);
+                                if (userSelectedToken.equals("none")) {
+                                    Toast.makeText(context, activity.getResources().getString(R.string.cannot_contact_user), Toast.LENGTH_LONG)
+                                            .show();
+                                } else {
+
+                                    ChatActivity.startActivity(getActivity(),
+                                            userSelectedEmail,
+                                            userSelectedUid,
+                                            userSelectedToken);
 
                                 /*DatabaseReference userRef = database.getReference("users/" + userSelectedUid);
                                 final DatabaseReference userPositionRef = myRef.child(userSelectedUid);
@@ -355,8 +364,10 @@ public class SaveMeFragment
                                 });
                                 */
 
+                                }
                             }
                         });
+
                         container.setOnTouchListener(new View.OnTouchListener() {
                             @Override
                             public boolean onTouch(View view, MotionEvent motionEvent) {

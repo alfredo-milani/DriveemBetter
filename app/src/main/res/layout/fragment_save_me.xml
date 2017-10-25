@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:layout_weight="0.3"
-        android:background="@color/grey_400">
+        android:background="@color/colorPrimaryDark">
 
         <ImageView
             android:layout_width="50dp"
@@ -26,7 +26,7 @@
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceInverse"
             android:textStyle="bold"
-            android:textColor="@color/tw__solid_white"
+            android:textColor="@color/amber_A700"
             android:text="@string/location_loading" />
 
     </LinearLayout>
@@ -35,7 +35,7 @@
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/grey_400"
+        android:background="@color/colorPrimary"
         android:max="5"
         android:layout_weight="0.32"
         android:progress="4"
@@ -48,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="0.30"
-        android:background="@color/grey_400"
+        android:background="@color/colorPrimary"
         android:orientation="horizontal">
 
         <ImageView
@@ -66,7 +66,7 @@
             android:layout_marginStart="8dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
-            android:textColor="@color/tw__solid_white"
+            android:textColor="@color/amber_A700"
             android:text="@string/range" />
 
         <TextView
@@ -78,7 +78,7 @@
             android:layout_marginStart="8dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
-            android:textColor="@color/tw__solid_white" />
+            android:textColor="@color/amber_A700" />
     </LinearLayout>
 
     <com.google.android.gms.maps.MapView

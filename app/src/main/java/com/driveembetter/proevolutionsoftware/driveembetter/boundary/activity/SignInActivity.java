@@ -1,5 +1,6 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -68,12 +69,17 @@ public class SignInActivity
         this.setContentView(R.layout.activity_sign_in);
 
         if (ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.DISABLE_KEYGUARD) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                            android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.DISABLE_KEYGUARD,
+                            Manifest.permission.WAKE_LOCK}, 1);
         } else {
             Log.d("DB", "PERMISSION GRANTED");
         }
