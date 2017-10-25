@@ -172,7 +172,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
 
                 ChatActivity.startActivity(
                         this,
-                        UserDetailsRankingActivity.user.getEmail(),
+                        UserDetailsRankingActivity.user.getUsername(),
                         UserDetailsRankingActivity.user.getUid(),
                         UserDetailsRankingActivity.user.getToken()
                 );

@@ -9,6 +9,12 @@ public interface Constants {
     String USER = "user_info";
     String PROVIDER_TYPE = "provider_type";
 
+    // Trusted Friends constants
+
+
+    int PICK_FIRST_CONTACT = 120;
+    int PICK_SECOND_CONTACT = 121;
+
 
 
     // Authentication providers

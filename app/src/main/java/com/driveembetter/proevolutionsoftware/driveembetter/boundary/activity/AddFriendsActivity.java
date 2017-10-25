@@ -2,6 +2,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -12,11 +13,13 @@ import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -35,6 +38,8 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_PHONE_NO;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_SECOND_FRIEND;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NODE_USERS;
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PICK_FIRST_CONTACT;
+import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.PICK_SECOND_CONTACT;
 
 /**
  * Created by matti on 17/10/2017.
@@ -45,14 +50,12 @@ public class AddFriendsActivity extends AppCompatActivity
 
     private final static String TAG = AddFriendsActivity.class.getSimpleName();
 
-    private final static int PICK_FIRST_CONTACT = 120;
-    private final static int PICK_SECOND_CONTACT = 121;
-
     TextView firstFriendName, secondFriendName, firstNumber, secondNumber;
     Button firstButton, secondButton;
     PopupWindow contactList;
     CardView firstFriendCard, secondFriendCard;
     RelativeLayout relativeLayout;
+    ImageButton deleteFirst, deleteSecond;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,6 +75,8 @@ public class AddFriendsActivity extends AppCompatActivity
         this.secondButton = findViewById(R.id.second_button);
         this.firstFriendCard = findViewById(R.id.firstFriendCard);
         this.secondFriendCard = findViewById(R.id.secondFriendCard);
+        this.deleteFirst = findViewById(R.id.delete_first_friend);
+        this.deleteSecond = findViewById(R.id.delete_second_friend);
 
         SharedPreferences prefs = getSharedPreferences("friends_preference", MODE_PRIVATE);
         this.firstFriendName.setText(prefs.getString("name1", getResources().getString(R.string.empty_friends)));
@@ -124,20 +129,84 @@ public class AddFriendsActivity extends AppCompatActivity
         */
         this.firstButton.setOnClickListener(this);
         this.secondButton.setOnClickListener(this);
+        this.deleteFirst.setOnClickListener(this);
+        this.deleteSecond.setOnClickListener(this);
+
         getFriends();
     }
 
     @Override
     public void onClick(View view) {
+        AlertDialog.Builder alertDialogBuilder;
+        AlertDialog alertDialog;
         int id = view.getId();
         Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         switch (id) {
             case R.id.first_button:
-                startActivityForResult(intent, AddFriendsActivity.PICK_FIRST_CONTACT);
+                startActivityForResult(intent, PICK_FIRST_CONTACT);
                 break;
 
             case R.id.second_button:
-                startActivityForResult(intent, AddFriendsActivity.PICK_SECOND_CONTACT);
+                startActivityForResult(intent, PICK_SECOND_CONTACT);
+                break;
+            case R.id.delete_first_friend:
+
+                alertDialogBuilder = new AlertDialog.Builder(this);
+
+                // set title
+                alertDialogBuilder.setTitle("Warning!");
+
+                // set dialog message
+                alertDialogBuilder
+                        .setMessage("Do you want to delete this friend?")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                FirebaseDatabaseManager.deleteFriend(1);
+                                firstFriendName.setText(getResources().getString(R.string.empty_friends));
+                                firstNumber.setText("");
+                                deleteFirst.setVisibility(View.GONE);
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+                // create alert dialog
+                alertDialog = alertDialogBuilder.create();
+                // show it
+                alertDialog.show();
+                break;
+            case R.id.delete_second_friend:
+                alertDialogBuilder = new AlertDialog.Builder(this);
+
+                // set title
+                alertDialogBuilder.setTitle("Warning!");
+
+                // set dialog message
+                alertDialogBuilder
+                        .setMessage("Do you want to delete this friend?")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                FirebaseDatabaseManager.deleteFriend(2);
+                                secondFriendName.setText(getResources().getString(R.string.empty_friends));
+                                secondNumber.setText("");
+                                deleteSecond.setVisibility(View.GONE);
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+                // create alert dialog
+                alertDialog = alertDialogBuilder.create();
+                // show it
+                alertDialog.show();
                 break;
         }
     }
@@ -174,7 +243,7 @@ public class AddFriendsActivity extends AppCompatActivity
                     }
 
                     switch (reqCode) {
-                        case (AddFriendsActivity.PICK_FIRST_CONTACT):
+                        case (PICK_FIRST_CONTACT):
                             this.firstFriendName.setText(name);
                             if (number != null) {
                                 this.firstNumber.setText(number);
@@ -206,23 +275,10 @@ public class AddFriendsActivity extends AppCompatActivity
                 Log.d(TAG, "Azione cancellata: lista contatti chiusa");
                 break;
         }
-    }
-
-    private boolean checkPermission(){
-        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
-        if (result == PackageManager.PERMISSION_GRANTED){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private void requestPermission(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_CONTACTS)){
-            Toast.makeText(this,"Please, accept read contact permission.",Toast.LENGTH_LONG).show();
-        } else {
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_CONTACTS}, 0);
-        }
+        if (!firstFriendName.getText().equals(getResources().getString(R.string.empty_friends)))
+            deleteFirst.setVisibility(View.VISIBLE);
+        if (!secondFriendName.getText().equals(getResources().getString(R.string.empty_friends)))
+            deleteSecond.setVisibility(View.VISIBLE);
     }
 
 
@@ -260,6 +316,13 @@ public class AddFriendsActivity extends AppCompatActivity
                     secondFriendName.setText(R.string.empty_friends);
                     secondNumber.setText("");
                 }
+
+
+                if (!firstFriendName.getText().equals(getResources().getString(R.string.empty_friends)))
+                    deleteFirst.setVisibility(View.VISIBLE);
+                if (!secondFriendName.getText().equals(getResources().getString(R.string.empty_friends)))
+                    deleteSecond.setVisibility(View.VISIBLE);
+
             }
 
             @Override

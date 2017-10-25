@@ -1399,7 +1399,7 @@ public class FirebaseDatabaseManager
     public static void updateFriend(int number, String name, String phoneNo) {
         SingletonUser user = SingletonUser.getInstance();
         switch (number) {
-            case 1:
+            case PICK_FIRST_CONTACT:
                 FirebaseDatabaseManager.databaseReference
                         .child(NODE_USERS)
                         .child(user.getUid())
@@ -1413,7 +1413,7 @@ public class FirebaseDatabaseManager
                         .child(CHILD_PHONE_NO)
                         .setValue(phoneNo);
                 break;
-            case 2:
+            case PICK_SECOND_CONTACT:
                 FirebaseDatabaseManager.databaseReference
                         .child(NODE_USERS)
                         .child(user.getUid())

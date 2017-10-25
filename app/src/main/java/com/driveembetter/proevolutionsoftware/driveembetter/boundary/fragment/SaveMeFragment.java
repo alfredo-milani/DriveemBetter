@@ -89,7 +89,7 @@ public class SaveMeFragment
     private ImageView driverPic;
     private RatingBar ratingBar;
     private Button ratingButton;
-    private String userSelectedLocation, userSelectedFeedback, userSelectedEmail, userSelectedUid, userSelectedToken, userSelectedPic, userSelectedAvailability;
+    private String userSelectedLocation, userSelectedFeedback, userSelectedUsername, userSelectedUid, userSelectedToken, userSelectedPic, userSelectedAvailability;
     private UpdatePosition updatePosition;
 
     private int progressToMeters(int progress) {
@@ -208,11 +208,11 @@ public class SaveMeFragment
 
                         userSelectedLocation = "NA";
                         userSelectedFeedback = "NA";
-                        userSelectedEmail = marker.getTitle();
+                        userSelectedUsername = marker.getTitle();
                         userSelectedToken = "";
                         userSelectedUid = "USERNAME_TEST";
                         for (String key : markerPool.keySet()) {
-                            if (markerPool.get(key).getTitle().equals(userSelectedEmail)) {
+                            if (markerPool.get(key).getTitle().equals(userSelectedUsername)) {
                                 userSelectedUid = key;
                             }
                         }
@@ -325,7 +325,7 @@ public class SaveMeFragment
                                 } else {
 
                                     ChatActivity.startActivity(getActivity(),
-                                            userSelectedEmail,
+                                            userSelectedUsername,
                                             userSelectedUid,
                                             userSelectedToken);
 
@@ -603,7 +603,7 @@ public class SaveMeFragment
                                 } else {
                                     String markerTitle = "user@drivembetter.com";
                                     if (data.get(user).get(CHILD_EMAIL) != null)
-                                        markerTitle = (String) data.get(user).get(CHILD_EMAIL);
+                                        markerTitle = (String) data.get(user).get(CHILD_USERNAME);
                                     Marker userMarker;
                                     if (vehicleType == null) {
                                         userMarker = googleMap.addMarker(new MarkerOptions()
