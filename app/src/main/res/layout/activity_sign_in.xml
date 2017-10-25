@@ -75,7 +75,7 @@
             android:layout_marginRight="50dp"
             android:layout_marginTop="100dp"
             android:alpha="0.7"
-            android:background="@drawable/buttonshape_2"
+            android:background="@drawable/buttonshape"
             android:text="@string/sign_in"
             android:textColor="#FFFFFF"
             android:textColorLink="@android:color/background_light"

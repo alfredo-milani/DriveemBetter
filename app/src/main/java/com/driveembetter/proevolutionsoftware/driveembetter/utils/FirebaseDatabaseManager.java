@@ -269,6 +269,7 @@ public class FirebaseDatabaseManager
             newUser.put(CHILD_EMAIL, user.getEmail());
             newUser.put(CHILD_POINTS, String.valueOf(user.getPoints()));
             newUser.put(CHILD_AVAILABILITY, user.getAvailability());
+            newUser.put(ARG_FIREBASE_TOKEN, user.getToken());
             if (user.getPhotoUrl() != null) {
                 newUser.put(CHILD_IMAGE, user.getPhotoUrl().toString());
             }
@@ -284,7 +285,7 @@ public class FirebaseDatabaseManager
         }
     }
 
-    public static void checkOldPositionData() {
+    private static void checkOldPositionData() {
         final SingletonUser user = SingletonUser.getInstance();
         if (user != null) {
             final Query query = FirebaseDatabaseManager.databaseReference
@@ -312,7 +313,8 @@ public class FirebaseDatabaseManager
                                     .child(CHILD_EMAIL)
                                     .setValue(user.getEmail());
                         }
-                        if (!dataSnapshot.hasChild(ARG_FIREBASE_TOKEN)) {
+                        if (!dataSnapshot.hasChild(ARG_FIREBASE_TOKEN) &&
+                                user.getToken() != null) {
                             dataSnapshot.getRef()
                                     .child(ARG_FIREBASE_TOKEN)
                                     .setValue(user.getToken());
@@ -516,8 +518,6 @@ public class FirebaseDatabaseManager
                         updateCurrentUserZona(dataSnapshot.child(CHILD_ZONA).getValue().toString());
                     }
 
-                    checkOldPositionData();
-
                     if (dataSnapshot.child(CHILD_STATISTICS) != null) {
                         FirebaseDatabaseManager.restoreStatisticsState(
                                 dataSnapshot.child(CHILD_STATISTICS),
@@ -525,6 +525,17 @@ public class FirebaseDatabaseManager
                                 user.getMeanWeek()
                         );
                     }
+
+                    if (dataSnapshot.hasChild(ARG_FIREBASE_TOKEN) &&
+                            dataSnapshot.child(ARG_FIREBASE_TOKEN).getValue() != null) {
+                        user.setToken(dataSnapshot
+                                .child(ARG_FIREBASE_TOKEN)
+                                .getValue()
+                                .toString()
+                        );
+                    }
+
+                    checkOldPositionData();
                 }
 
                 dataSnapshot.getRef()

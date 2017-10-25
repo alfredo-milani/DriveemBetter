@@ -84,11 +84,11 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
 
             if (listViewItemType == 0) {
-                row = inflater.from(getContext()).inflate(R.layout.item_car, null);
+                row = inflater.from(getContext()).inflate(R.layout.item_garage_car, null);
             }else if (listViewItemType == 1) {
-                row = inflater.from(getContext()).inflate(R.layout.moto_item, null);
+                row = inflater.from(getContext()).inflate(R.layout.item_garage_moto, null);
             }else if (listViewItemType == 2){
-                row = inflater.from(getContext()).inflate(R.layout.van_item, null);
+                row = inflater.from(getContext()).inflate(R.layout.item_garage_van, null);
             }
 
             holder = new ViewHolder();
