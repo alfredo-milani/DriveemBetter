@@ -69,8 +69,7 @@
                 android:gravity="center"
                 android:text="@string/user_item"
                 android:textColor="@color/colorAccent"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/user"
@@ -78,7 +77,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textColor="@color/colorSchemas" />
+                android:textColor="@color/colorSchemas"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -104,8 +104,7 @@
                 android:gravity="center"
                 android:text="@string/point_item"
                 android:textColor="@color/colorAccent"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/points"
@@ -114,7 +113,8 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="0"
-                android:textColor="@color/colorSchemas" />
+                android:textColor="@color/colorSchemas"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -140,8 +140,7 @@
                 android:gravity="center"
                 android:text="@string/feedback"
                 android:textColor="@color/colorAccent"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/driverFeedbackContent"
@@ -150,7 +149,8 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/not_determinated"
-                android:textColor="@color/colorSchemas" />
+                android:textColor="@color/colorSchemas"
+                android:textStyle="bold" />
         </LinearLayout>
 
     </LinearLayout>

@@ -62,7 +62,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/radioGroupParameter"
         android:layout_marginEnd="75dp"
-        android:layout_marginLeft="46dp">
+        android:layout_marginStart="46dp">
 
         <RadioButton
             android:id="@+id/radio_week"
