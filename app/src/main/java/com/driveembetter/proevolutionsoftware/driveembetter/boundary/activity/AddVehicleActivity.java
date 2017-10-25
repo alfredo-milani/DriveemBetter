@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -68,7 +67,7 @@ public class AddVehicleActivity extends AppCompatActivity {
     private static CheckBox show_again;
     private static EditText insurance_date;
     private static EditText revision_date;
-    SharedPreferences prefs;
+
 
 
     @Override
@@ -78,8 +77,7 @@ public class AddVehicleActivity extends AppCompatActivity {
         init_resources();
         Intent mIntent = getIntent();
         this.plates_list = mIntent.getStringArrayListExtra(PLATE_LIST);
-        System.out.println("agaaaaaaiiiinnnnnn " + again);
-        if (again = false) {
+        if (again == false) {
             show_info_message();
         }
 
@@ -109,8 +107,6 @@ public class AddVehicleActivity extends AppCompatActivity {
                                                       switch (checkedId) {
                                                           case R.id.car:
                                                               setType(car.getText().toString());
-                                                              System.out.println("TEEEEEEEEEEEEEEEEEEEEEEEXXXTTTT " + car.getText().toString());
-
                                                               break;
                                                           case R.id.moto:
                                                               setType(moto.getText().toString());
@@ -182,8 +178,10 @@ public class AddVehicleActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        again = prefs.getBoolean("again", false);
+        SharedPreferences prefs = this.getSharedPreferences("INFO_DETAILS", MODE_PRIVATE);
+        if (prefs != null){
+            again = prefs.getBoolean("AGAIN", false);
+        }
         confirm = (Button)findViewById(R.id.confirm);
         plateNumber = (EditText)findViewById(R.id.newplatenumber);
         owner = (EditText)findViewById(R.id.newowner);
@@ -257,6 +255,7 @@ public class AddVehicleActivity extends AppCompatActivity {
 
 
     private void show_info_message() {
+
             final View popupView = this.getLayoutInflater().inflate(R.layout.popup_info_vehicle, null);
 
             final PopupWindow popupWindow = new PopupWindow(popupView,
@@ -276,13 +275,17 @@ public class AddVehicleActivity extends AppCompatActivity {
                     ok_worry.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+
+                            if (show_again.isChecked()) {
+                                SharedPreferences userDetails = getApplicationContext().getSharedPreferences("INFO_DETAILS", MODE_PRIVATE);
+                                SharedPreferences.Editor edit = userDetails.edit();
+                                edit.clear();
+                                edit.putBoolean("AGAIN", true);
+                                edit.apply();
+                            }
                             popupWindow.dismiss();
                         }
                     });
-
-                    if (show_again.isChecked()) {
-                        Boolean statusLocked = prefs.edit().putBoolean("again", true).commit();
-                    }
                 }
             });
     }
@@ -321,7 +324,6 @@ public class AddVehicleActivity extends AppCompatActivity {
                         if (try_number <= 1) {
                             Toast.makeText(getActivity().getApplicationContext(), "Please control insurance expiration date", Toast.LENGTH_LONG).show();
                             try_number +=1;
-                            System.out.println(" TRY NUMBER <1");
                         }else{
                             if (try_number >1) {
                                 show_alert_message();

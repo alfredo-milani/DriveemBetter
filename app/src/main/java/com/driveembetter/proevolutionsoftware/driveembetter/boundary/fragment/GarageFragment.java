@@ -137,8 +137,6 @@ public class GarageFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-        insurance_date_list.clear();
-        revision_date_list.clear();
         this.singletonUser.getVehicles(this);
         this.showProgress();
 
@@ -146,6 +144,9 @@ public class GarageFragment extends Fragment
 
     @Override
     public void onVehiclesReceive() {
+        if (!this.isAdded()) {
+            return;
+        }
         this.hideProgress();
         this.vehicles = this.singletonUser.getVehicleArrayList();
         vehicles_exist();
@@ -161,7 +162,6 @@ public class GarageFragment extends Fragment
                 clik_event = true;
                 selected_item = index;
                 check_selected_item();
-                v.setBackgroundColor(0xFFedf5ff);
                 showOptions();
 
                 modify.setOnClickListener(new View.OnClickListener(){
@@ -332,6 +332,7 @@ public class GarageFragment extends Fragment
     }
 
     private void show_alert_message(int type_alert) {
+
         if (getActivity() == null) {
             return;
         }
@@ -343,14 +344,19 @@ public class GarageFragment extends Fragment
 
             popupWindow.setFocusable(true);
             ok_alert = (Button) popupView.findViewById(R.id.ok_general);
-            ok_alert.setOnClickListener(new View.OnClickListener() {
+            popupView.post(new Runnable() {
                 @Override
-                public void onClick(View view) {
-                    popupWindow.dismiss();
+                public void run() {
+                    popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER, 0, 0);
+
+                    ok_alert.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            popupWindow.dismiss();
+                        }
+                    });
                 }
             });
-
-            popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER, 0, 0);
         }
 
         if (type_alert == 2) {
@@ -361,15 +367,20 @@ public class GarageFragment extends Fragment
 
             popupWindow.setFocusable(true);
             ok_alert_double = (Button) popupView.findViewById(R.id.ok_general_double);
-            ok_alert_double.setOnClickListener(new View.OnClickListener() {
+            popupView.post(new Runnable() {
                 @Override
-                public void onClick(View view) {
-                    popupWindow.dismiss();
+                public void run() {
+                    popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER, 0, 0);
+
+                    ok_alert_double.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            popupWindow.dismiss();
+                        }
+                    });
+
                 }
             });
-
-
-            popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER, 0, 0);
         }
 
         if (type_alert == 3) {
@@ -380,10 +391,17 @@ public class GarageFragment extends Fragment
 
             popupWindow.setFocusable(true);
             ok_review_alert = (Button) popupView.findViewById(R.id.ok_review_alert);
-            ok_review_alert.setOnClickListener(new View.OnClickListener() {
+
+            popupView.post(new Runnable() {
+
                 @Override
-                public void onClick(View view) {
-                    popupWindow.dismiss();
+                public void run() {
+                    ok_review_alert.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            popupWindow.dismiss();
+                        }
+                    });
                 }
             });
         }
@@ -632,13 +650,14 @@ public class GarageFragment extends Fragment
     }
 
     private void initResources() {
-
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
         this.vehiclesName = new ArrayList<String>();
         this.plates_list = new ArrayList<String>();
         this.revision_date_list = new ArrayList<String>();
         this.insurance_date_list = new ArrayList<String>();
+        insurance_date_list.clear();
+        revision_date_list.clear();
         this.clik_event = false;
     }
 

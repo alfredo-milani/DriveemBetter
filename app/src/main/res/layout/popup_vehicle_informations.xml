@@ -29,7 +29,16 @@
                 android:gravity="center"
                 android:textColor="@android:color/black"
                 android:textSize="40sp"
-                android:textStyle="italic" />
+                android:textStyle="bold" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:background="@color/amber_A700"
+                android:orientation="horizontal" />
 
             <TextView
                 android:id="@+id/textView15"
@@ -37,12 +46,11 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_marginTop="5dp"
-                android:background="@color/amber_500"
                 android:gravity="center"
                 android:text="@string/type"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                android:textStyle="italic"
+                android:textStyle="bold|italic"
                 tools:text="@string/type" />
 
             <TextView
@@ -53,18 +61,26 @@
                 android:textColor="@android:color/black"
                 android:textSize="20sp" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/amber_A700"
+                android:orientation="horizontal" />
+
             <TextView
                 android:id="@+id/textView16"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_marginTop="10dp"
-                android:background="@color/amber_500"
                 android:gravity="center"
                 android:text="@string/plate_number"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                android:textStyle="italic" />
+                android:textStyle="bold|italic" />
 
             <TextView
                 android:id="@+id/plateview"
@@ -74,18 +90,26 @@
                 android:textColor="@color/black"
                 android:textSize="20sp" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/amber_A700"
+                android:orientation="horizontal" />
+
             <TextView
                 android:id="@+id/textView17"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_marginTop="10dp"
-                android:background="@color/amber_500"
                 android:gravity="center"
                 android:text="@string/owner"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                android:textStyle="italic" />
+                android:textStyle="bold|italic" />
 
             <TextView
                 android:id="@+id/ownerview"
@@ -95,6 +119,15 @@
                 android:textColor="@color/black"
                 android:textSize="20sp" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/amber_A700"
+                android:orientation="horizontal" />
+
             <TextView
                 android:id="@+id/textView6"
                 android:layout_width="match_parent"
@@ -102,12 +135,11 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
-                android:background="@color/amber_500"
                 android:gravity="center"
                 android:text="@string/insurance_expiration_date"
                 android:textColor="@android:color/black"
                 android:textSize="20sp"
-                android:textStyle="italic"
+                android:textStyle="bold|italic"
                 tools:text="@string/insurance_expiration_date" />
 
             <TextView
@@ -120,18 +152,26 @@
                 android:textColor="@color/black"
                 android:textSize="20sp" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:background="@color/amber_A700"
+                android:orientation="horizontal" />
+
             <TextView
                 android:id="@+id/textView14"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@color/amber_500"
+                android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:text="@string/last_revision_date"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                android:textStyle="italic"
+                android:textStyle="bold|italic"
                 tools:text="@string/last_revision_date" />
 
             <TextView
@@ -143,6 +183,14 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:background="@color/amber_A700"
+                android:orientation="horizontal" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -159,10 +207,11 @@
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:layout_marginLeft="15dp"
-                    android:layout_marginRight="30dp"
+                    android:layout_marginRight="100dp"
                     android:layout_toStartOf="@+id/ok_worry"
-                    android:background="@color/colorPrimaryDark"
-                    app:srcCompat="@mipmap/wrench" />
+                    android:background="@null"
+                    app:srcCompat="@mipmap/wrench"
+                    android:tint="@color/colorPrimaryDark"/>
 
                 <Button
                     android:id="@+id/ok_worry"
@@ -173,11 +222,11 @@
                     android:layout_marginEnd="44dp"
                     android:layout_marginLeft="100dp"
                     android:layout_marginRight="30dp"
-                    android:background="@color/colorPrimaryDark"
+                    android:background="@null"
                     android:gravity="center"
                     android:text="@string/ok"
-                    android:textColor="@color/white"
-                    android:textSize="30sp" />
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="20sp" />
 
 
             </RelativeLayout>
