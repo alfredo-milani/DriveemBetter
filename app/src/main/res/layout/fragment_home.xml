@@ -176,9 +176,9 @@
         android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/humidity_text"
-        android:layout_alignTop="@+id/speed_limit"
-        android:layout_margin="@dimen/margin_avg"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/margin_small"
         android:clickable="true"
         android:src="@mipmap/ic_friends" />
 

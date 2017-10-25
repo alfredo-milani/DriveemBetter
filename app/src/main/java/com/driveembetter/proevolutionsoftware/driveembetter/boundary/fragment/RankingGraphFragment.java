@@ -148,8 +148,10 @@ public class RankingGraphFragment extends Fragment
     }
 
     private void fillGraph() {
-        this.graphView.removeAllSeries();
-        this.retrieveGraphData();
+        if (this.isAdded() && this.graphView != null) {
+            this.graphView.removeAllSeries();
+            this.retrieveGraphData();
+        }
     }
 
     @Override
@@ -212,7 +214,7 @@ public class RankingGraphFragment extends Fragment
                 break;
 
             case RankingGraphFragment.VELOCITY_GRAPH_WEEKLY:
-                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH + 1, 1, Calendar.WEEK_OF_MONTH + 1);
+                this.setGraphHorizontalScale(Calendar.DAY_OF_WEEK, 1, Calendar.DAY_OF_WEEK);
                 this.initGraphVelocity();
                 break;
 
@@ -222,7 +224,7 @@ public class RankingGraphFragment extends Fragment
                 break;
 
             case RankingGraphFragment.ACCELERATION_GRAPH_WEEKLY:
-                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH + 1, 1, Calendar.WEEK_OF_MONTH + 1);
+                this.setGraphHorizontalScale(Calendar.DAY_OF_WEEK, 1, Calendar.DAY_OF_WEEK);
                 this.initGraphAcceleration();
                 break;
 
@@ -303,6 +305,9 @@ public class RankingGraphFragment extends Fragment
     private void initGraphSeries() {
         //
         this.graphSeries.setDrawAsPath(true);
+        // Set graph dot
+        this.graphSeries.setDrawDataPoints(true);
+        this.graphSeries.setDataPointsRadius(5);
         // Setting line width
         this.graphSeries.setThickness(3);
 
@@ -461,8 +466,8 @@ public class RankingGraphFragment extends Fragment
             );
         } else {
             Log.d(TAG, "Data consistent");
-            DataPoint[] dataPoints = new DataPoint[Calendar.WEEK_OF_MONTH];
-            for (int i = 1; i <= Calendar.WEEK_OF_MONTH; ++i) {
+            DataPoint[] dataPoints = new DataPoint[Calendar.DAY_OF_WEEK];
+            for (int i = 1; i <= Calendar.DAY_OF_WEEK; ++i) {
                 if (meanWeek.getMap().get(i) != null) {
                     float sampleSumVelocity = meanWeek.getMap().get(i).getSampleSumVelocity();
                     int sampleSizeVelocity = meanWeek.getMap().get(i).getSampleSizeVelocity();
@@ -538,8 +543,8 @@ public class RankingGraphFragment extends Fragment
             );
         } else {
             Log.d(TAG, "Data consistent");
-            DataPoint[] dataPoints = new DataPoint[Calendar.WEEK_OF_MONTH];
-            for (int i = 1; i <= Calendar.WEEK_OF_MONTH; ++i) {
+            DataPoint[] dataPoints = new DataPoint[Calendar.DAY_OF_WEEK];
+            for (int i = 1; i <= Calendar.DAY_OF_WEEK; ++i) {
                 if (meanWeek.getMap().get(i) != null) {
                     float sampleSumAcceleration = meanWeek.getMap().get(i).getSampleSumAcceleration();
                     int sampleSizeAcceleration = meanWeek.getMap().get(i).getSampleSizeAcceleration();

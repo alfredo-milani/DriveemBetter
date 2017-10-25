@@ -113,7 +113,7 @@ public class ShowFullscreenGraph extends AppCompatActivity
 
             case RankingGraphFragment.VELOCITY_GRAPH_WEEKLY:
                 string = getString(R.string.velocity_weekly_graph);
-                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.setGraphHorizontalScale(Calendar.DAY_OF_WEEK, 1, Calendar.DAY_OF_WEEK);
                 this.initGraphVelocity();
                 break;
 
@@ -125,7 +125,7 @@ public class ShowFullscreenGraph extends AppCompatActivity
 
             case RankingGraphFragment.ACCELERATION_GRAPH_WEEKLY:
                 string = getString(R.string.acceleration_weekly_graph);
-                this.setGraphHorizontalScale(Calendar.WEEK_OF_MONTH, 1, Calendar.WEEK_OF_MONTH);
+                this.setGraphHorizontalScale(Calendar.DAY_OF_WEEK, 1, Calendar.DAY_OF_WEEK);
                 this.initGraphAcceleration();
                 break;
 
@@ -159,6 +159,9 @@ public class ShowFullscreenGraph extends AppCompatActivity
 
     private void initGraphSeries() {
         this.graphView.removeAllSeries();
+        // Set graph dot
+        this.graphSeries.setDrawDataPoints(true);
+        this.graphSeries.setDataPointsRadius(5);
         //
         this.graphSeries.setDrawAsPath(true);
         // Setting line width

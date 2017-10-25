@@ -29,13 +29,15 @@
         android:layout_alignParentBottom="true"
         android:layout_toStartOf="@+id/send_message_button" />
 
-    <Button
+    <ImageButton
         android:id="@+id/send_message_button"
-        android:background="@mipmap/ic_send_message_2"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignBottom="@+id/edit_text_message"
         android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/edit_text_message" />
+        android:layout_alignTop="@+id/edit_text_message"
+        android:background="@null"
+        android:src="@mipmap/ic_send_message_2"
+        android:tint="@color/colorAccent" />
 
 </RelativeLayout>

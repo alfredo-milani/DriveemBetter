@@ -161,7 +161,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/layout_info"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         card_view:cardBackgroundColor="@android:color/white"
         card_view:cardElevation="2sp"
         card_view:cardUseCompatPadding="true">
