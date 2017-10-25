@@ -141,9 +141,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".boundary.activity.MainFragmentActivity" />
         </activity>
+
         <activity android:name=".boundary.activity.AddFriendsActivity"
             android:theme="@style/AppTheme"
             android:label="Your Friends"
+            android:screenOrientation="portrait"
             android:parentActivityName=".boundary.activity.MainFragmentActivity">
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />

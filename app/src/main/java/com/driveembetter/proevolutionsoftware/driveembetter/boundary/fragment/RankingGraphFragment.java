@@ -126,11 +126,6 @@ public class RankingGraphFragment extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Fragment not when container null
-        if (container == null) {
-            return null;
-        }
-
         return inflater.inflate(R.layout.fragment_pageview_graph_ranking, container, false);
     }
 
@@ -184,7 +179,7 @@ public class RankingGraphFragment extends Fragment
     }
 
     private void startFullscreenGraph() {
-        Log.e(TAG, "GGG: " + typeGraph);
+        Log.e(TAG, "START FULLSCREEN GRAPH: " + typeGraph);
         Intent fullscreenIntent = new Intent(this.getActivity(), ShowFullscreenGraph.class);
         fullscreenIntent.putExtra(ARG_FRAGMENT_GRAPH, this.typeGraph);
 
@@ -211,7 +206,7 @@ public class RankingGraphFragment extends Fragment
     }
 
     private void initGraphView() {
-        Log.d(TAG, "EEE: " + typeGraph);
+        Log.e(TAG, "INIT GRAPH: " + typeGraph);
         switch (this.typeGraph) {
             case RankingGraphFragment.VELOCITY_GRAPH_DAILY:
                 this.setGraphHorizontalScale(-1, 0, HOURS - 1);
@@ -245,7 +240,7 @@ public class RankingGraphFragment extends Fragment
     }
 
     private void retrieveGraphData() {
-        Log.d(TAG, "TEST: " + this.typeGraph);
+        Log.e(TAG, "RETRIEVE GRPH DATA: " + this.typeGraph);
         this.showProgress();
 
         switch (this.typeGraph) {

@@ -4,7 +4,6 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;

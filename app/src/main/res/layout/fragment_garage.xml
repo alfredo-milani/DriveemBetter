@@ -68,7 +68,8 @@
             android:layout_marginBottom="70dp"
             android:layout_marginTop="5dp"
             android:divider="@null"
-            android:choiceMode="singleChoice"/>
+            android:choiceMode="singleChoice"
+            android:dividerHeight="10.0dp" />
 
         <ImageButton
             android:id="@+id/delete"

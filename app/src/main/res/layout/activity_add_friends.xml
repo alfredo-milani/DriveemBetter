@@ -9,12 +9,14 @@
         android:id="@+id/firstFriendCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorPrimary"
-        android:layout_margin="@dimen/margin_avg">
+        android:layout_margin="@dimen/margin_avg"
+        app:cardBackgroundColor="@color/colorPrimaryExtraDark">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:background="@color/colorPrimary">
 
             <TextView
                 android:id="@+id/first_user_name_text"
@@ -50,11 +52,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/first_button"
-                android:layout_toEndOf="@+id/first_button"
-                android:visibility="gone"
                 android:layout_margin="@dimen/margin_avg"
+                android:layout_toEndOf="@+id/first_button"
                 android:background="@null"
                 android:tint="@color/amber_700"
+                android:visibility="gone"
                 app:srcCompat="@mipmap/ic_bin" />
 
 
@@ -67,12 +69,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/firstFriendCard"
-        android:backgroundTint="@color/colorPrimary"
-        android:layout_margin="@dimen/margin_avg">
+        android:layout_margin="@dimen/margin_avg"
+        app:cardBackgroundColor="@color/colorPrimaryExtraDark">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_margin="2dp"
+            android:background="@color/colorPrimary">
 
             <TextView
                 android:id="@+id/second_user_name_text"
@@ -107,13 +111,13 @@
                 android:id="@+id/delete_second_friend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/second_button"
+                android:layout_margin="@dimen/margin_avg"
+                android:layout_toEndOf="@+id/second_button"
                 android:background="@null"
                 android:tint="@color/amber_700"
-                app:srcCompat="@mipmap/ic_bin"
                 android:visibility="gone"
-                android:layout_margin="@dimen/margin_avg"
-                android:layout_alignBottom="@+id/second_button"
-                android:layout_toEndOf="@+id/second_button" />
+                app:srcCompat="@mipmap/ic_bin" />
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 

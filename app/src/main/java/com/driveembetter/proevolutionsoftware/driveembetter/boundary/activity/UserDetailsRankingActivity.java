@@ -93,6 +93,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
 
         final ViewPager pager = findViewById(R.id.vpPager);
         this.adapter = new RankingGraphPageAdapter(
+                this,
                 this.getSupportFragmentManager(),
                 UserDetailsRankingActivity.user.getUid()
         );
@@ -105,6 +106,8 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         // pager.setPageTransformer(true, new ZoomOutSlideTransformer());
         // pager.setPageTransformer(true, new CubeInTransformer());
         pager.setPageTransformer(true, new FlipHorizontalTransformer());
+        // To set default page fragment
+        // pager.setCurrentItem(int currentItem);
 
         if (UserDetailsRankingActivity.user.getUid().equals(SingletonUser.getInstance().getUid())) {
             this.startChatButton.setColorFilter(
