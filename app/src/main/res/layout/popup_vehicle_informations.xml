@@ -160,12 +160,12 @@
                     android:layout_alignParentTop="true"
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="30dp"
-                    android:layout_toStartOf="@+id/ok"
+                    android:layout_toStartOf="@+id/ok_worry"
                     android:background="@color/colorPrimaryDark"
                     app:srcCompat="@mipmap/wrench" />
 
                 <Button
-                    android:id="@+id/ok"
+                    android:id="@+id/ok_worry"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
