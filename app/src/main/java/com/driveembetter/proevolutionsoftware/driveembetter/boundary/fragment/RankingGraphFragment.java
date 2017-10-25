@@ -67,7 +67,7 @@ public class RankingGraphFragment extends Fragment
     private TextView unavailableData;
     private TextView titleGraph;
     private TextView subTitleGraph;
-    private ImageButton fullscreenGraph;
+    private volatile ImageButton fullscreenGraph;
     private ImageButton refreshGraph;
 
     // Resources
@@ -126,6 +126,11 @@ public class RankingGraphFragment extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Fragment not when container null
+        if (container == null) {
+            return null;
+        }
+
         return inflater.inflate(R.layout.fragment_pageview_graph_ranking, container, false);
     }
 

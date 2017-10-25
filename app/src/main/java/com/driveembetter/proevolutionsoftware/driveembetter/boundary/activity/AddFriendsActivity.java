@@ -1,10 +1,14 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -36,7 +40,13 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Con
  * Created by matti on 17/10/2017.
  */
 
-public class AddFriendsActivity extends AppCompatActivity {
+public class AddFriendsActivity extends AppCompatActivity
+        implements View.OnClickListener {
+
+    private final static String TAG = AddFriendsActivity.class.getSimpleName();
+
+    private final static int PICK_FIRST_CONTACT = 120;
+    private final static int PICK_SECOND_CONTACT = 121;
 
     TextView firstFriendName, secondFriendName, firstNumber, secondNumber;
     Button firstButton, secondButton;
@@ -54,14 +64,14 @@ public class AddFriendsActivity extends AppCompatActivity {
 
     private void initResources() {
 
-        this.firstFriendName = (TextView) findViewById(R.id.first_user_name_text);
-        this.secondFriendName = (TextView) findViewById(R.id.second_user_name_text);
-        this.firstNumber = (TextView) findViewById(R.id.first_phone_number_text);
-        this.secondNumber = (TextView) findViewById(R.id.second_phone_number_text);
-        this.firstButton = (Button) findViewById(R.id.first_button);
-        this.secondButton = (Button) findViewById(R.id.second_button);
-        this.firstFriendCard = (CardView) findViewById(R.id.firstFriendCard);
-        this.secondFriendCard = (CardView) findViewById(R.id.secondFriendCard);
+        this.firstFriendName = findViewById(R.id.first_user_name_text);
+        this.secondFriendName = findViewById(R.id.second_user_name_text);
+        this.firstNumber = findViewById(R.id.first_phone_number_text);
+        this.secondNumber = findViewById(R.id.second_phone_number_text);
+        this.firstButton = findViewById(R.id.first_button);
+        this.secondButton = findViewById(R.id.second_button);
+        this.firstFriendCard = findViewById(R.id.firstFriendCard);
+        this.secondFriendCard = findViewById(R.id.secondFriendCard);
 
         SharedPreferences prefs = getSharedPreferences("friends_preference", MODE_PRIVATE);
         this.firstFriendName.setText(prefs.getString("name1", getResources().getString(R.string.empty_friends)));
@@ -91,7 +101,7 @@ public class AddFriendsActivity extends AppCompatActivity {
             Log.d("DB", "PERMISSION GRANTED");
         }
 
-
+        /*
         this.firstButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,7 +121,91 @@ public class AddFriendsActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Sto cercando i tuoi contatti..", Toast.LENGTH_SHORT).show();
             }
         });
+        */
+        this.firstButton.setOnClickListener(this);
+        this.secondButton.setOnClickListener(this);
         getFriends();
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        switch (id) {
+            case R.id.first_button:
+                startActivityForResult(intent, AddFriendsActivity.PICK_FIRST_CONTACT);
+                break;
+
+            case R.id.second_button:
+                startActivityForResult(intent, AddFriendsActivity.PICK_SECOND_CONTACT);
+                break;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+
+        switch (resultCode) {
+            case Activity.RESULT_OK:
+                Uri contactData = data.getData();
+                Cursor c =  this.getContentResolver().query(contactData, null, null, null, null);
+                if (c != null && c.moveToFirst()) {
+                    SharedPreferences.Editor editor = getSharedPreferences("friends_preference", MODE_PRIVATE).edit();
+                    String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    String number = null;
+
+                    String id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+                    String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                    if (hasPhone.equalsIgnoreCase("1")) {
+                        Cursor phones = getContentResolver().query(
+                                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                null,
+                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id,
+                                null,
+                                null
+                        );
+                        if (phones == null) {
+                            return;
+                        }
+                        phones.moveToFirst();
+                        number = phones.getString(phones.getColumnIndex("data1"));
+                        phones.close();
+                    }
+
+                    switch (reqCode) {
+                        case (AddFriendsActivity.PICK_FIRST_CONTACT):
+                            this.firstFriendName.setText(name);
+                            if (number != null) {
+                                this.firstNumber.setText(number);
+                                editor.putString("phone_no" + number, number);
+                            }
+                            FirebaseDatabaseManager.updateFriend(PICK_FIRST_CONTACT, name, number == null ? "null" : number);
+                            editor.putString("name_" + PICK_FIRST_CONTACT, number);
+                            break;
+
+                        case PICK_SECOND_CONTACT:
+                            this.secondFriendName.setText(name);
+                            if (number != null) {
+                                this.secondNumber.setText(number);
+                                editor.putString("phone_no" + number, number);
+                            }
+                            FirebaseDatabaseManager.updateFriend(PICK_SECOND_CONTACT, name, number == null ? "null" : number);
+                            editor.putString("name_" + PICK_SECOND_CONTACT, number);
+                            break;
+                    }
+                    editor.apply();
+                }
+
+                if (c != null) {
+                    c.close();
+                }
+                break;
+
+            case RESULT_CANCELED:
+                Log.d(TAG, "Azione cancellata: lista contatti chiusa");
+                break;
+        }
     }
 
     private boolean checkPermission(){
@@ -132,14 +226,18 @@ public class AddFriendsActivity extends AppCompatActivity {
     }
 
 
-    //TODO SPOSTARLA
-
+    // TODO SPOSTARLA
+    // TODO: 25/10/17 MA CHE TE DICE SA CAPOCCIA?
     private void getFriends() {
         SingletonUser user = SingletonUser.getInstance();
+        if (user == null) {
+            return;
+        }
+
         final DatabaseReference databaseReference = FirebaseDatabaseManager.getDatabaseReference()
                 .child(NODE_USERS)
                 .child(user.getUid());
-        //CASE: FRIEND 1
+
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -152,17 +250,7 @@ public class AddFriendsActivity extends AppCompatActivity {
                     firstFriendName.setText(R.string.empty_friends);
                     firstNumber.setText("");
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        //CASE: FRIEND 2
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(CHILD_SECOND_FRIEND)) {
                     String name = dataSnapshot.child(CHILD_SECOND_FRIEND).child(CHILD_NAME).getValue().toString();
                     String phoneNo = dataSnapshot.child(CHILD_SECOND_FRIEND).child(CHILD_PHONE_NO).getValue().toString();

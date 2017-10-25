@@ -46,8 +46,9 @@
             android:maxLines="3"
             android:padding="10dp"
             android:text="Location"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="14dp" />
+            android:textColor="@color/colorTextOnBlack"
+            android:textSize="14dp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/driverFeedback"

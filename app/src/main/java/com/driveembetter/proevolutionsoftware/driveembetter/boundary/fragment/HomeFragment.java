@@ -25,6 +25,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class HomeFragment extends Fragment {
 
+    private final static String TAG = HomeFragment.class.getSimpleName();
+
     private Speedometer speedometer;
     private ImageView speedLimitSign;
     private double latitude;

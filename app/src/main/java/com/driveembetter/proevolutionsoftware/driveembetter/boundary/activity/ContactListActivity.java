@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -31,6 +32,8 @@ import java.util.Comparator;
 
 public class ContactListActivity extends AppCompatActivity {
 
+    private final static String TAG = ContactListActivity.class.getSimpleName();
+
     ListView contactList;
     EditText inputSearch;
     ContactAdapter contactAdapter;
@@ -40,6 +43,7 @@ public class ContactListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.e(TAG, "DIOCANEEE");
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.contact_list);
         Bundle b = getIntent().getExtras();
@@ -48,13 +52,13 @@ public class ContactListActivity extends AppCompatActivity {
     }
 
     private void initResources() {
-        this.contactList = (ListView) findViewById(R.id.contacts);
-        this.inputSearch = (EditText) findViewById(R.id.input_search);
+        this.contactList = findViewById(R.id.contacts);
+        this.inputSearch = findViewById(R.id.input_search);
         context = this;
         getContactList();
         /**
          * Enabling Search Filter
-         * */
+         **/
         inputSearch.addTextChangedListener(new TextWatcher() {
 
             @Override
