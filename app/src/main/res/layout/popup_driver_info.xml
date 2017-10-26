@@ -5,13 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="380dp"
     map:cardCornerRadius="50dp"
+    map:cardBackgroundColor="@color/colorPrimary"
     map:cardElevation="4dp"
     card_view:cardUseCompatPadding="true"
     android:layout_margin="8dp">
 
-
     <RelativeLayout
-        android:background="@drawable/sig_in"
         android:layout_width="match_parent"
         android:layout_height="400dp">
 
