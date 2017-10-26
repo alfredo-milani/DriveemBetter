@@ -6,14 +6,14 @@
     android:layout_height="380dp"
     map:cardCornerRadius="50dp"
     map:cardElevation="4dp"
-    map:cardBackgroundColor="@color/colorPrimary"
     card_view:cardUseCompatPadding="true"
     android:layout_margin="8dp">
 
 
     <RelativeLayout
+        android:background="@drawable/sig_in"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="400dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/thumbnail"
@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:maxLines="3"
             android:padding="8dp"
-            android:textColor="@color/yellow_500"
+            android:textColor="@color/amber_A700"
             android:textSize="14dp"
             android:layout_alignTop="@+id/driverFeedback"
             android:layout_toEndOf="@+id/driverFeedback"
@@ -78,7 +78,7 @@
             android:id="@+id/ratingBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:progressTint="@color/yellow_500"
+            android:progressTint="@color/amber_A700"
             android:numStars="5"
             android:stepSize="1.0"
             android:layout_below="@+id/driverFeedback"
@@ -89,7 +89,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/circle_blue"
+            android:textColor="@color/white"
+            android:background="@drawable/buttonshape"
             android:layout_marginBottom="@dimen/margin_avg"
             android:text="RATE ME"
             android:onClick="rateMe"/>
@@ -99,6 +100,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@mipmap/ic_chat"
+            android:backgroundTint="@color/amber_A700"
             android:layout_below="@+id/ratingButton"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
