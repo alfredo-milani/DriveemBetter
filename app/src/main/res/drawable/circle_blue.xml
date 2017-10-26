@@ -6,6 +6,10 @@
         android:width="@dimen/user_icon_width"
         android:height="@dimen/user_icon_height"/>
 
-    <solid android:color="@color/grey_400" />
+    <solid android:color="@color/amber_A200" />
+
+    <stroke
+        android:width="1dp"
+        android:color="@color/colorPrimary" />
 
 </shape>
