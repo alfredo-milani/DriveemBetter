@@ -53,7 +53,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser
 import com.driveembetter.proevolutionsoftware.driveembetter.services.SwipeClosureHandler;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.ReauthenticateUserRunnable;
-import com.driveembetter.proevolutionsoftware.driveembetter.threads.RefreshTokenRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.threads.SaveUserStatisticsRunnable;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
@@ -63,7 +62,6 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManage
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
 import com.github.mikephil.charting.charts.ScatterChart;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 
@@ -201,15 +199,11 @@ public class MainFragmentActivity extends AppCompatActivity
         this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
 
         // Sync SingletonUser with DB data
-        if (this.singletonUser.getUid() != null &&
+        if (this.singletonUser.getUid() == null ||
                 !this.singletonUser.getUid().isEmpty()) {
             Log.d(TAG, "Sync user data");
             FirebaseDatabaseManager.syncCurrentUser();
         }
-        // It should refresh automatically
-        new Thread(new RefreshTokenRunnable(
-                FirebaseInstanceId.getInstance().getToken()
-        )).start();
 
         // Start listening to update position
         this.positionManager = PositionManager.getInstance(this);

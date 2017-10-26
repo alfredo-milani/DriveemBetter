@@ -13,6 +13,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.User;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.driveembetter.proevolutionsoftware.driveembetter.exceptions.CallbackNotInitialized;
+import com.driveembetter.proevolutionsoftware.driveembetter.threads.RefreshTokenRunnable;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.jetbrains.annotations.Contract;
 
@@ -68,12 +70,16 @@ public class FirebaseDatabaseManager
                     .child(user.getRegion())
                     .child(user.getSubRegion())
                     .child(user.getUid());
+            DatabaseReference databaseReferenceUser = FirebaseDatabaseManager.databaseReference
+                    .child(NODE_USERS)
+                    .child(user.getUid());
 
             // Set user's token
             Map<String, Object> map = new HashMap<>();
             map.put(ARG_FIREBASE_TOKEN, token);
 
             databaseReferencePosition.updateChildren(map);
+            databaseReferenceUser.updateChildren(map);
         }
     }
 
@@ -255,7 +261,6 @@ public class FirebaseDatabaseManager
         SingletonUser user = SingletonUser.getInstance();
         if (user != null && user.getSubRegion() != null &&
                 user.getRegion() != null && user.getCountry() != null) {
-            Log.d(TAG, "user: " + user.getUid() + " / " + user.getPhotoUrl() + " / " + user.getPoints());
             DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                     .child(NODE_POSITION)
                     .child(user.getCountry())
@@ -269,13 +274,12 @@ public class FirebaseDatabaseManager
             newUser.put(CHILD_EMAIL, user.getEmail());
             newUser.put(CHILD_POINTS, String.valueOf(user.getPoints()));
             newUser.put(CHILD_AVAILABILITY, user.getAvailability());
+            newUser.put(CHILD_FEEDBACK, user.getFeedback());
             newUser.put(ARG_FIREBASE_TOKEN, user.getToken());
             if (user.getPhotoUrl() != null) {
                 newUser.put(CHILD_IMAGE, user.getPhotoUrl().toString());
             }
-            if (user.getFeedback() != null) {
-                newUser.put(CHILD_FEEDBACK, user.getFeedback().toString());
-            }
+            Log.d(TAG, "FEED: " + user.getFeedback() + " / TOK: " + user.getToken());
             databaseReference
                     .child(CHILD_AVAILABILITY)
                     .onDisconnect()
@@ -447,12 +451,12 @@ public class FirebaseDatabaseManager
                                 .child(CHILD_POINTS)
                                 .setValue(user.getPoints());
                     }
-                    if (user.getFeedback() != null &&
+                    if (user.getHistoricalFeedback() != null &&
                             !dataSnapshot.child(CHILD_STATISTICS).hasChild(CHILD_FEEDBACK)) {
                         query.getRef()
                                 .child(CHILD_STATISTICS)
                                 .child(CHILD_FEEDBACK)
-                                .setValue(user.getFeedback().toString());
+                                .setValue(user.getHistoricalFeedback().toString());
                     }
 
                     if (user.getCurrentVehicle() != null &&
@@ -484,6 +488,11 @@ public class FirebaseDatabaseManager
                                 .child(CHILD_EMAIL)
                                 .setValue(user.getEmail());
                     }
+
+                    // It should refresh automatically
+                    new Thread(new RefreshTokenRunnable(
+                            FirebaseInstanceId.getInstance().getToken()
+                    )).start();
 
                     if (dataSnapshot.hasChild(CHILD_ZONA) &&
                             dataSnapshot.child(CHILD_ZONA).getValue() != null) {
@@ -518,6 +527,13 @@ public class FirebaseDatabaseManager
                         updateCurrentUserZona(dataSnapshot.child(CHILD_ZONA).getValue().toString());
                     }
 
+                    if (dataSnapshot.hasChild(CHILD_FEEDBACK) &&
+                            dataSnapshot.child(CHILD_FEEDBACK).getValue() != null) {
+                        user.setFeedback(Double.valueOf(
+                                dataSnapshot.child(CHILD_FEEDBACK).getValue().toString()
+                        ));
+                    }
+
                     if (dataSnapshot.child(CHILD_STATISTICS) != null) {
                         FirebaseDatabaseManager.restoreStatisticsState(
                                 dataSnapshot.child(CHILD_STATISTICS),
@@ -528,11 +544,19 @@ public class FirebaseDatabaseManager
 
                     if (dataSnapshot.hasChild(ARG_FIREBASE_TOKEN) &&
                             dataSnapshot.child(ARG_FIREBASE_TOKEN).getValue() != null) {
-                        user.setToken(dataSnapshot
-                                .child(ARG_FIREBASE_TOKEN)
-                                .getValue()
-                                .toString()
+                        user.setToken(
+                                dataSnapshot
+                                        .child(ARG_FIREBASE_TOKEN)
+                                        .getValue()
+                                        .toString()
                         );
+                    } else {
+                        String token = FirebaseInstanceId.getInstance().getToken();
+                        // It should refresh automatically
+                        new Thread(new RefreshTokenRunnable(
+                                token
+                        )).start();
+                        user.setToken(token);
                     }
 
                     checkOldPositionData();

@@ -121,7 +121,7 @@ public class SingletonUser extends User
         this.providerData = providerData;
     }
 
-    public Double getFeedback() {
+    public Double getHistoricalFeedback() {
         double sum = 0.0;
         if (historicalFeedback != null) {
             for (int i = 0; i < historicalFeedback.size(); i++) {
@@ -132,7 +132,7 @@ public class SingletonUser extends User
         return sum;
     }
 
-    public void updateHistoricalFeedback(Double currentFeedback) {
+    public void setHistoricalFeedback(Double currentFeedback) {
         historicalFeedback.add(currentFeedback);
     }
 
