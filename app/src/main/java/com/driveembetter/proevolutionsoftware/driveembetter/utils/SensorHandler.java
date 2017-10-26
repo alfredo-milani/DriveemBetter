@@ -80,8 +80,6 @@ public class SensorHandler extends Activity
             }
         }
 
-        if (!checkPermission())
-            requestPermission();
     }
 
     public void removeSensorHandler() {
@@ -136,25 +134,6 @@ public class SensorHandler extends Activity
 
     }
 
-
-    private boolean checkPermission(){
-        int result = ContextCompat.checkSelfPermission(activity, Manifest.permission.SEND_SMS);
-        if (result == PackageManager.PERMISSION_GRANTED){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private void requestPermission(){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this.activity, Manifest.permission.SEND_SMS)){
-            Toast.makeText(this.activity, "Please, accept send sms permission.", Toast.LENGTH_LONG).show();
-        } else {
-            ActivityCompat.requestPermissions(this.activity, new String[]{Manifest.permission.SEND_SMS}, 0);
-        }
-    }
-
-
     public class TimeRestorer extends AsyncTask<String, String, String> {
 
         @Override
@@ -170,17 +149,4 @@ public class SensorHandler extends Activity
         }
     }
 
-
-    public void sendSMS(String phoneNo, String msg) {
-        try {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phoneNo, null, msg, null, null);
-            Toast.makeText(this, "Emergency SMS Sent",
-                    Toast.LENGTH_LONG).show();
-        } catch (Exception ex) {
-            Toast.makeText(this,ex.getMessage().toString(),
-                    Toast.LENGTH_LONG).show();
-            ex.printStackTrace();
-        }
-    }
 }

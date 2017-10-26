@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
@@ -85,48 +86,9 @@ public class AddFriendsActivity extends AppCompatActivity
         this.secondFriendName.setText(prefs.getString("name2", getResources().getString(R.string.empty_friends)));
         this.secondNumber.setText(prefs.getString("phone_no2", ""));
 
-        /*
-        //check permissions
-        if (!checkPermission())
-            requestPermission();
+        if (!checkPermissions())
+            requestPermissions();
 
-        if (!checkPermission())
-            this.finish();
-            */
-
-
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_CONTACTS,
-                            Manifest.permission.SEND_SMS}, 1);
-        } else {
-            Log.d("DB", "PERMISSION GRANTED");
-        }
-
-        /*
-        this.firstButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent contactListIntent = new Intent(AddFriendsActivity.this, ContactListActivity.class);
-                contactListIntent.putExtra("number", 1);
-                AddFriendsActivity.this.startActivity(contactListIntent);
-                Toast.makeText(getApplicationContext(), "Sto cercando i tuoi contatti..", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        this.secondButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent contactListIntent = new Intent(AddFriendsActivity.this, ContactListActivity.class);
-                contactListIntent.putExtra("number", 2);
-                AddFriendsActivity.this.startActivity(contactListIntent);
-                Toast.makeText(getApplicationContext(), "Sto cercando i tuoi contatti..", Toast.LENGTH_SHORT).show();
-            }
-        });
-        */
         this.firstButton.setOnClickListener(this);
         this.secondButton.setOnClickListener(this);
         this.deleteFirst.setOnClickListener(this);
@@ -143,11 +105,17 @@ public class AddFriendsActivity extends AppCompatActivity
         Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         switch (id) {
             case R.id.first_button:
-                startActivityForResult(intent, PICK_FIRST_CONTACT);
+                if (checkPermissions())
+                    startActivityForResult(intent, PICK_FIRST_CONTACT);
+                else
+                    requestPermissions();
                 break;
 
             case R.id.second_button:
-                startActivityForResult(intent, PICK_SECOND_CONTACT);
+                if (checkPermissions())
+                    startActivityForResult(intent, PICK_SECOND_CONTACT);
+                else
+                    requestPermissions();
                 break;
             case R.id.delete_first_friend:
 
@@ -244,23 +212,31 @@ public class AddFriendsActivity extends AppCompatActivity
 
                     switch (reqCode) {
                         case (PICK_FIRST_CONTACT):
-                            this.firstFriendName.setText(name);
-                            if (number != null) {
-                                this.firstNumber.setText(number);
-                                editor.putString("phone_no" + number, number);
+                            if (secondNumber.getText().toString().equals(number)) {
+                                alertDialog();
+                            } else {
+                                this.firstFriendName.setText(name);
+                                if (number != null) {
+                                    this.firstNumber.setText(number);
+                                    editor.putString("phone_no" + number, number);
+                                }
+                                FirebaseDatabaseManager.updateFriend(PICK_FIRST_CONTACT, name, number == null ? "null" : number);
+                                editor.putString("name_" + PICK_FIRST_CONTACT, number);
                             }
-                            FirebaseDatabaseManager.updateFriend(PICK_FIRST_CONTACT, name, number == null ? "null" : number);
-                            editor.putString("name_" + PICK_FIRST_CONTACT, number);
                             break;
 
                         case PICK_SECOND_CONTACT:
-                            this.secondFriendName.setText(name);
-                            if (number != null) {
-                                this.secondNumber.setText(number);
-                                editor.putString("phone_no" + number, number);
+                            if (firstNumber.getText().toString().equals(number)) {
+                                alertDialog();
+                            } else {
+                                this.secondFriendName.setText(name);
+                                if (number != null) {
+                                    this.secondNumber.setText(number);
+                                    editor.putString("phone_no" + number, number);
+                                }
+                                FirebaseDatabaseManager.updateFriend(PICK_SECOND_CONTACT, name, number == null ? "null" : number);
+                                editor.putString("name_" + PICK_SECOND_CONTACT, number);
                             }
-                            FirebaseDatabaseManager.updateFriend(PICK_SECOND_CONTACT, name, number == null ? "null" : number);
-                            editor.putString("name_" + PICK_SECOND_CONTACT, number);
                             break;
                     }
                     editor.apply();
@@ -330,6 +306,38 @@ public class AddFriendsActivity extends AppCompatActivity
 
             }
         });
+    }
+
+
+    private Boolean checkPermissions() {
+        return !(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED);
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.SEND_SMS}, 1);
+    }
+
+    private void alertDialog() {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(this);
+        }
+        builder.setTitle("Warning")
+                .setMessage("You have already selected this number as trusted friend!")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
 }
