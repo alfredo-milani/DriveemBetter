@@ -1,18 +1,26 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.EmergencyActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.google.firebase.database.DataSnapshot;
@@ -22,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
+import static android.content.Context.SENSOR_SERVICE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_FIRST_FRIEND;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_SECOND_FRIEND;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NODE_USERS;
@@ -31,12 +40,10 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.utils.PointMa
  * Created by matti on 31/08/2017.
  */
 
-public class SensorHandler extends Activity
+public class SensorHandler
         implements SensorEventListener {
 
     private final static String TAG = SensorHandler.class.getSimpleName();
-
-    private final static int ACC_THRESHOLD = 3;
 
     private SensorManager sensorManager;
     private List<Sensor> sensors;
@@ -48,11 +55,15 @@ public class SensorHandler extends Activity
     private Button emergencyButton;
     private TextToSpeech tts;
     private Boolean canceled = false;
+    private PowerManager.WakeLock wl;
 
 
 
     public SensorHandler(Activity activity) {
         this.activity = activity;
+        final PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+        wl.acquire();
     }
 
     public void setEmergencyButton(Button emergencyButton) {
@@ -70,7 +81,6 @@ public class SensorHandler extends Activity
                     SensorManager.SENSOR_DELAY_FASTEST);
             sensors = sensorManager.getSensorList(Sensor.TYPE_PRESSURE);
             if(sensors.size() > 0) {
-                Log.e("DEBUG", "SENSOR SIZE OK");
                 barometer = sensors.get(0);
                 sensorManager.registerListener(this, barometer, SensorManager.SENSOR_DELAY_NORMAL);
             }
@@ -93,7 +103,8 @@ public class SensorHandler extends Activity
             double z = event.values[2];
             double acceleration = Math.sqrt((x*x) + (y*y) + (z*z))/g;
             if (!crashDetected) {
-                if (acceleration >= ACC_THRESHOLD) {
+                if (acceleration >= 3) {
+                    Log.e("DEBUG", "ACCELERATION WORKING?");
                     crashDetected = true;
                     new TimeRestorer().execute();
                     final DatabaseReference databaseReference = FirebaseDatabaseManager.getDatabaseReference()
@@ -103,16 +114,11 @@ public class SensorHandler extends Activity
                         @Override
                         public void onDataChange(final DataSnapshot dataSnapshot) {
                             if (!dataSnapshot.hasChild(CHILD_FIRST_FRIEND) && !dataSnapshot.hasChild(CHILD_SECOND_FRIEND)) {
-                                Toast.makeText(activity, "You don't have any trusted friends selected", Toast.LENGTH_SHORT).show();
+                                PositionManager.getInstance(activity).noFriendsAlert();
+                                Toast.makeText(activity, context.getResources().getString(R.string.no_friends_alert), Toast.LENGTH_SHORT).show();
                             } else {
+                                PositionManager.getInstance(activity).alertCrash();
                                 Intent emergencyIntent = new Intent(activity.getApplicationContext(), EmergencyActivity.class);
-                                /*
-                                emergencyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                emergencyIntent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED +
-                                        WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD +
-                                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON +
-                                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-                                        */
                                 activity.startActivity(emergencyIntent);
                             }
                         }

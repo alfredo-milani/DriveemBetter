@@ -251,6 +251,9 @@ public class SaveMeFragment
                                         userSelectedPic = dataSnapshot.child(CHILD_IMAGE).getValue().toString();
                                         if (dataSnapshot.hasChild(ARG_FIREBASE_TOKEN)) {
                                             userSelectedToken = dataSnapshot.child("firebaseToken").getValue().toString();
+                                            if (userSelectedToken.equals(""))
+                                                userSelectedToken = "none";
+
                                         } else {
                                             userSelectedToken = "none";
                                         }
@@ -400,6 +403,8 @@ public class SaveMeFragment
             updatePosition.cancel(true);
         }
         FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
+        if (googleMap != null)
+            googleMap.clear();
         mMapView.onPause();
         super.onPause();
     }

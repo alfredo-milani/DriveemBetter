@@ -142,4 +142,13 @@
     <string name="crash_detected">A car accident was detected, please press central button to avoid sending help requests</string>
     <string name="team_name" translatable="false">Pro Evolution Software</string>
     <string name="accept_permissions">You must accept the following permission to continue</string>
+    <string name="acceleration_alert">You are accelerating too much, try to slow down</string>
+    <string name="braking_alert">Please, avoid making abrupt brakes</string>
+    <string name="general_speed_alert">You are going too fast, please slow down</string>
+    <string name="speed_alert">You are going too fast, the speed limit is </string>
+    <string name="kmh">Kilometer per hour</string>
+    <string name="no_friends_alert">You don\'t have any trusted friends selected</string>
+    <string name="sms_sent">Emergency SMS Sent!</string>
+
+
 </resources>
