@@ -5,6 +5,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.GarageFragment">
 
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swiperefresh_garage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/layout_placeholder">
+
     <RelativeLayout
         android:id="@+id/layout_garage"
         android:layout_width="match_parent"
@@ -21,19 +27,6 @@
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintTop_creator="1">
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swiperefresh_garage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/layout_placeholder">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view_user"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-        </android.support.v4.widget.SwipeRefreshLayout>
-
         <TextView
             android:id="@+id/label_garage"
             android:layout_width="match_parent"
@@ -42,7 +35,8 @@
             android:layout_marginRight="30dp"
             android:layout_marginTop="50dp"
             android:gravity="center"
-            android:textColor="@color/black"
+            android:text="@string/empty_garage"
+            android:textColor="@color/amber_A700"
             android:textSize="25sp"
             android:textStyle="bold|italic" />
 
@@ -120,5 +114,6 @@
 
 
     </RelativeLayout>
+</android.support.v4.widget.SwipeRefreshLayout>
 
 </FrameLayout>

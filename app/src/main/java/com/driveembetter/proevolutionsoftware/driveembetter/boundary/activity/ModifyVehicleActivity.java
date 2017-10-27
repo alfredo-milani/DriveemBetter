@@ -143,7 +143,7 @@ public class ModifyVehicleActivity extends AppCompatActivity {
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
         }
-        if( type.equals(MOTO)){
+        if( type.equals(MOTO) || type.equals("Moto")){
 
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
@@ -175,7 +175,7 @@ public class ModifyVehicleActivity extends AppCompatActivity {
                 current_ref.child(vehicle.getNumberPlate())
                         .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
             }
-            if( type.equals(MOTO)){
+            if( type.equals(MOTO) || type.equals("Moto")){
                 current_ref.child(vehicle.getNumberPlate())
                         .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
             }
@@ -332,6 +332,7 @@ public class ModifyVehicleActivity extends AppCompatActivity {
                     if (try_number <= 1) {
                         Toast.makeText(getActivity().getApplicationContext(), "Please control insurance expiration date", Toast.LENGTH_LONG).show();
                         try_number +=1;
+                        insurance_date_plain.setText("");
                         System.out.println(" TRY NUMBER <1");
                     }else{
                         if (try_number >1) {

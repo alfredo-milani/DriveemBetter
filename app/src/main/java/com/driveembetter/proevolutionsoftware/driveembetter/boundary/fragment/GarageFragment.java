@@ -131,7 +131,6 @@ public class GarageFragment extends Fragment
 
         });
 
-        this.singletonUser.getVehicles(this);
     }
 
     @Override
@@ -301,15 +300,15 @@ public class GarageFragment extends Fragment
             boolean insurance = false;
             boolean review = false;
             int i,j;
-            for (i=0;i<insurance_date_list.size();i++){
+            for (i=0;i<vehicles.size();i++){
                 if (insurance_is_expired(i)){
                     insurance = true;
                     break;
                 }
             }
 
-            for (j=0;j<revision_date_list.size();j++){
-                if (review_is_expired(i)){
+            for (j=0;j<vehicles.size();j++){
+                if (review_is_expired(j)){
                     review = true;
                     break;
                 }
@@ -336,6 +335,7 @@ public class GarageFragment extends Fragment
         if (getActivity() == null) {
             return;
         }
+
         if (type_alert == 1) {
             final View popupView = getActivity().getLayoutInflater().inflate(R.layout.item_general_alert, null);
 
@@ -396,6 +396,8 @@ public class GarageFragment extends Fragment
 
                 @Override
                 public void run() {
+                    popupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER, 0, 0);
+
                     ok_review_alert.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -411,13 +413,10 @@ public class GarageFragment extends Fragment
 
         if (vehicles == null){
             this.label.setVisibility(View.VISIBLE);
-            this.label.setText("YOUR GARAGE IS EMPTY");
             listview.setVisibility(View.INVISIBLE);
             this.insurance_date_list.clear();
             this.revision_date_list.clear();
-
         }else {
-
             listview.setVisibility(View.VISIBLE);
             this.label.setVisibility(View.INVISIBLE);
         }
@@ -450,14 +449,14 @@ public class GarageFragment extends Fragment
                 .getFirebaseUser()
                 .getUid() + "/current_vehicle");
 
-        if( vehicles.get(selected_item).getType().equals(CAR) || vehicles.get(selected_item).getType().equals("Auto")){
+        if( vehicles.get(selected_item).getType().equals("") || vehicles.get(selected_item).getType().equals("Auto")){
 
             ref.child(vehicles.get(selected_item).getNumberPlate())
                     .setValue(vehicles.get(selected_item).getType()+ ";" +vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+
                             ";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
         }
 
-        if( vehicles.get(selected_item).getType().equals(MOTO)){
+        if( vehicles.get(selected_item).getType().equals(MOTO) || vehicles.get(selected_item).getType().equals("Moto")){
 
             ref.child(vehicles.get(selected_item).getNumberPlate())
                     .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
@@ -469,13 +468,37 @@ public class GarageFragment extends Fragment
                     .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
         }
 
-        FirebaseDatabaseManager.getDatabaseReference().child(NODE_POSITION)
-                .child(singletonUser.getCountry())
-                .child(singletonUser.getRegion())
-                .child(singletonUser.getSubRegion())
-                .child(singletonUser.getUid())
-                .child("current_vehicle")
-                .setValue(vehicles.get(selected_item).getType());
+        if( vehicles.get(selected_item).getType().equals(CAR) || vehicles.get(selected_item).getType().equals("Auto")){
+
+            FirebaseDatabaseManager.getDatabaseReference().child(NODE_POSITION)
+                    .child(singletonUser.getCountry())
+                    .child(singletonUser.getRegion())
+                    .child(singletonUser.getSubRegion())
+                    .child(singletonUser.getUid())
+                    .child("current_vehicle")
+                    .setValue("Car");
+        }
+
+        if( vehicles.get(selected_item).getType().equals(MOTO)  || vehicles.get(selected_item).getType().equals("Moto")){
+            FirebaseDatabaseManager.getDatabaseReference().child(NODE_POSITION)
+                    .child(singletonUser.getCountry())
+                    .child(singletonUser.getRegion())
+                    .child(singletonUser.getSubRegion())
+                    .child(singletonUser.getUid())
+                    .child("current_vehicle")
+                    .setValue("Moto");
+        }
+
+        if( vehicles.get(selected_item).getType().equals(VAN) || vehicles.get(selected_item).getType().equals("Furgone")){
+
+            FirebaseDatabaseManager.getDatabaseReference().child(NODE_POSITION)
+                    .child(singletonUser.getCountry())
+                    .child(singletonUser.getRegion())
+                    .child(singletonUser.getSubRegion())
+                    .child(singletonUser.getUid())
+                    .child("current_vehicle")
+                    .setValue("Van");
+        }
 
         singletonUser.setCurrentVehicle(vehicles.get(selected_item));
     }
@@ -799,6 +822,8 @@ public class GarageFragment extends Fragment
             if (this.swipeRefreshLayout.isRefreshing()) {
                 this.hideProgress();
             }
+
+            this.label.setVisibility(View.INVISIBLE);
             return;
         }
 
@@ -811,11 +836,13 @@ public class GarageFragment extends Fragment
 
     @Override
     public void hideProgress() {
+        this.label.setVisibility(View.INVISIBLE);
         this.swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public void showProgress() {
+        this.label.setVisibility(View.INVISIBLE);
         this.swipeRefreshLayout.setRefreshing(true);
     }
 }

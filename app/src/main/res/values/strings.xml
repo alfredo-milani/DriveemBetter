@@ -51,6 +51,7 @@
     <string name="dont_worry">Do not worry</string>
     <string name="insert_info">Please enter all required information. If you do not exactly remember something you can add what you remember and change them later.</string>
     <string name="not_show_again">do not show again</string>
+    <string name="empty_garage">Your garage is empty</string>
 
 
     <string name="insurance_alert">Your insurance is exipired! Please update your insurance expiration date as soon as you renew it</string>
