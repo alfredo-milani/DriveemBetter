@@ -542,16 +542,25 @@ public class FirebaseDatabaseManager
                         );
                     }
 
+                    String token = FirebaseInstanceId.getInstance().getToken();
                     if (dataSnapshot.hasChild(ARG_FIREBASE_TOKEN) &&
                             dataSnapshot.child(ARG_FIREBASE_TOKEN).getValue() != null) {
-                        user.setToken(
-                                dataSnapshot
-                                        .child(ARG_FIREBASE_TOKEN)
-                                        .getValue()
-                                        .toString()
-                        );
+                        String tokenDB = dataSnapshot
+                                .child(ARG_FIREBASE_TOKEN)
+                                .getValue()
+                                .toString();
+
+                        if (!token.equals(tokenDB)) {
+                            dataSnapshot
+                                    .getRef()
+                                    .child(ARG_FIREBASE_TOKEN)
+                                    .setValue(token);
+                        } else {
+                            token = tokenDB;
+                        }
+
+                        user.setToken(token);
                     } else {
-                        String token = FirebaseInstanceId.getInstance().getToken();
                         // It should refresh automatically
                         new Thread(new RefreshTokenRunnable(
                                 token

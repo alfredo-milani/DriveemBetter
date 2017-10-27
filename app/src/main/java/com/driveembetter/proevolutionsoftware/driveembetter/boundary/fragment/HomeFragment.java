@@ -40,12 +40,10 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initResources();
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         return init_view(inflater, container);
     }
 
@@ -56,18 +54,18 @@ public class HomeFragment extends Fragment {
     private View init_view(LayoutInflater inflater, ViewGroup container) {
 
         final View view = inflater.inflate(R.layout.fragment_home, container, false);
-        speedometer = (Speedometer) view.findViewById(R.id.Speedometer);
-        this.fab = (FloatingActionButton) view.findViewById(R.id.floatingActionButton);
-        speedLimitSign = (ImageView) view.findViewById(R.id.speed_limit);
-        speedLimitText = (TextView) view.findViewById(R.id.speed_limit_text);
-        weatherIcon = (ImageView) view.findViewById(R.id.weather_icon);
-        windText = (TextView) view.findViewById(R.id.wind_text);
-        windDirectionText = (TextView) view.findViewById(R.id.wind_direction_text);
-        positionText = (TextView) view.findViewById(R.id.position_text);
-        temperatureText = (TextView) view.findViewById(R.id.temperature);
-        humidityText = (TextView) view.findViewById(R.id.humidity_text);
-        visibilityText = (TextView) view.findViewById(R.id.visibility_text);
-        PositionManager.getInstance(getContext()).createTools(view);
+        speedometer = view.findViewById(R.id.Speedometer);
+        this.fab = view.findViewById(R.id.floatingActionButton);
+        speedLimitSign = view.findViewById(R.id.speed_limit);
+        speedLimitText = view.findViewById(R.id.speed_limit_text);
+        weatherIcon = view.findViewById(R.id.weather_icon);
+        windText = view.findViewById(R.id.wind_text);
+        windDirectionText = view.findViewById(R.id.wind_direction_text);
+        positionText = view.findViewById(R.id.position_text);
+        temperatureText = view.findViewById(R.id.temperature);
+        humidityText = view.findViewById(R.id.humidity_text);
+        visibilityText = view.findViewById(R.id.visibility_text);
+        PositionManager.getInstance(this.getActivity()).createTools(view);
         // Set action bar title
 
         this.fab.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +85,7 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, true);
-        PositionManager.getInstance(getContext()).resetCity();
+        PositionManager.resetCity();
     }
 
     @Override

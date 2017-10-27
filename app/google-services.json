@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1019598447876-siuaf1q1id5qqbh8me4ne3vfjljjd78o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.driveembetter.proevolutionsoftware.driveembetter",
+            "certificate_hash": "cf3d985a8ac30682a52758f4ed7c06e83672032d"
+          }
+        },
+        {
           "client_id": "1019598447876-cdugqd4o459q0292n6atpnb8jb3i1f0b.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

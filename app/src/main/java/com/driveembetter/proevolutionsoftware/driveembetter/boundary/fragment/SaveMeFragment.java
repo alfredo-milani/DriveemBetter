@@ -1,18 +1,14 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
@@ -38,6 +34,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NumberManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PermissionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PointManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -119,28 +116,16 @@ public class SaveMeFragment
         // Set action bar title
         activity.setTitle(R.string.save_me);
 
-        // For showing a move to my location button
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    1);
-        }
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                    1);
-        }
-
         //CHECK INTERNET CONNECTION
         if (!NetworkConnectionUtil.isConnectedToInternet(context))
             Toast.makeText(context, "Please, check you Internet connection!", Toast.LENGTH_SHORT).show();
         final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
-        mMapView = (MapView) rootView.findViewById(R.id.mapView);
+        mMapView = rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
-        locationTxt = (TextView) rootView.findViewById(R.id.positionTxt);
-        rangeText = (TextView) rootView.findViewById(R.id.mapRange);
-        seekBar = (SeekBar) rootView.findViewById(R.id.zoomBar);
+        locationTxt = rootView.findViewById(R.id.positionTxt);
+        rangeText = rootView.findViewById(R.id.mapRange);
+        seekBar = rootView.findViewById(R.id.zoomBar);
         radius = progressToMeters(seekBar.getProgress());
         rangeText.setText(radius + "m");
         mMapView.onResume(); // needed to get the map to display immediately
@@ -190,16 +175,15 @@ public class SaveMeFragment
                 googleMap.getUiSettings().setMapToolbarEnabled(false);
                 googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
-                if (ContextCompat.checkSelfPermission(getContext(),
-                        android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                        ContextCompat.checkSelfPermission(getContext(),
-                                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(getActivity(),
-                            new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                                    android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                } else {
-                    Log.e("DB", "PERMISSION GRANTED");
-                }
+                PermissionManager.checkAndAskPermission(
+                        getActivity(),
+                        new int[] {
+                            PermissionManager.FINE_LOCATION,
+                            PermissionManager.COARSE_LOCATION
+                        },
+                        PermissionManager.ASK_FOR_LOCATION
+                );
+
                 googleMap.setMyLocationEnabled(true);
 
                 onMarkerClickListener = new GoogleMap.OnMarkerClickListener() {

@@ -1,19 +1,15 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -24,11 +20,11 @@ import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PermissionManager;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -86,9 +82,6 @@ public class AddFriendsActivity extends AppCompatActivity
         this.secondFriendName.setText(prefs.getString("name2", getResources().getString(R.string.empty_friends)));
         this.secondNumber.setText(prefs.getString("phone_no2", ""));
 
-        if (!checkPermissions())
-            requestPermissions();
-
         this.firstButton.setOnClickListener(this);
         this.secondButton.setOnClickListener(this);
         this.deleteFirst.setOnClickListener(this);
@@ -105,20 +98,38 @@ public class AddFriendsActivity extends AppCompatActivity
         Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
         switch (id) {
             case R.id.first_button:
-                if (checkPermissions())
+                if (PermissionManager.isAllowed(this, PermissionManager.READ_CONTACTS_MANIFEST) &&
+                        PermissionManager.isAllowed(this, PermissionManager.SEND_SMS_MANIFEST)) {
                     startActivityForResult(intent, PICK_FIRST_CONTACT);
-                else
-                    requestPermissions();
+                } else {
+                    PermissionManager.checkAndAskPermission(
+                            this,
+                            new int[] {
+                            PermissionManager.READ_CONTACTS,
+                            PermissionManager.SEND_SMS
+                            },
+                            PermissionManager.ASK_FOR_ACCIDENT
+                    );
+                }
                 break;
 
             case R.id.second_button:
-                if (checkPermissions())
+                if (PermissionManager.isAllowed(this, PermissionManager.READ_CONTACTS_MANIFEST) &&
+                        PermissionManager.isAllowed(this, PermissionManager.SEND_SMS_MANIFEST)) {
                     startActivityForResult(intent, PICK_SECOND_CONTACT);
-                else
-                    requestPermissions();
+                } else {
+                    PermissionManager.checkAndAskPermission(
+                            this,
+                            new int[] {
+                                    PermissionManager.READ_CONTACTS,
+                                    PermissionManager.SEND_SMS
+                            },
+                            PermissionManager.ASK_FOR_ACCIDENT
+                    );
+                }
                 break;
-            case R.id.delete_first_friend:
 
+            case R.id.delete_first_friend:
                 alertDialogBuilder = new AlertDialog.Builder(this);
 
                 // set title
@@ -147,6 +158,7 @@ public class AddFriendsActivity extends AppCompatActivity
                 // show it
                 alertDialog.show();
                 break;
+
             case R.id.delete_second_friend:
                 alertDialogBuilder = new AlertDialog.Builder(this);
 
@@ -306,20 +318,6 @@ public class AddFriendsActivity extends AppCompatActivity
 
             }
         });
-    }
-
-
-    private Boolean checkPermissions() {
-        return !(ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED);
-    }
-
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_CONTACTS,
-                        Manifest.permission.SEND_SMS}, 1);
     }
 
     private void alertDialog() {

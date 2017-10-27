@@ -38,7 +38,7 @@ public class SaveUserStatisticsRunnable
         do {
             if (PositionManager.isStatisticsToPush() &&
                     NetworkConnectionUtil.isConnectedToInternet(this.context) &&
-                    PositionManager.getInstance(this.context).getInitialSpeed() != -1) {
+                    PositionManager.getInitialSpeed() != -1) {
                 PositionManager.setStatisticsToPush(false);
                 FirebaseDatabaseManager.manageUserStatistics();
             }

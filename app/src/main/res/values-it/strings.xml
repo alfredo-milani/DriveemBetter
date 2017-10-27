@@ -172,7 +172,7 @@
     <string name="error">Errore</string>
     <string name="velocity_daily_graph">Grafico giornaliero delle velocità medie</string>
     <string name="acceleration_daily_graph">Grafico giornaliero delle accelerazioni medie</string>
-    <string name="velocity_weekly_graph">Grafico settimanale delle accelerazioni medie</string>
+    <string name="velocity_weekly_graph">Grafico settimanale delle velocità medie</string>
     <string name="acceleration_weekly_graph">Grafico settimanale delle accelerazioni medie</string>
     <string name="updated_graph">Grafico aggiornato</string>
     <string name="date">Data</string>
@@ -193,5 +193,6 @@
     <string name="last_revision_date">Data ultima revisione</string>
     <string name="insurance_expiration_date">Scadenza assicurazione</string>
     <string name="not_show_again">non mostrare più</string>
+    <string name="accept_permissions">Devi accettare i seguenti permessi per continuare</string>
 
 </resources>

@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,8 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -28,6 +26,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.facto
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ManageCache;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PermissionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.common.SignInButton;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
@@ -66,25 +65,37 @@ public class SignInActivity
         super.onCreate(savedInstanceState);
 
         this.initResources();
+
         this.setContentView(R.layout.activity_sign_in);
 
-        if (ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.DISABLE_KEYGUARD) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.DISABLE_KEYGUARD,
-                            Manifest.permission.WAKE_LOCK}, 1);
-        } else {
-            Log.d("DB", "PERMISSION GRANTED");
-        }
+        PermissionManager.checkAndAskPermission(
+                this,
+                new int[] {
+                        PermissionManager.FINE_LOCATION,
+                        PermissionManager.COARSE_LOCATION,
+                        PermissionManager.WAKE_LOCK,
+                        PermissionManager.DISABLE_KEYGUARD
+                },
+                PermissionManager.ASK_FOR_LOCATION
+        );
 
         this.initWidget();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PermissionManager.ASK_FOR_LOCATION:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length < 1 &&
+                        grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
+                }
+                return;
+
+            default:
+                Log.d(TAG, "onRequestPermissionResult: " + requestCode);
+        }
     }
 
     // Defines a Handler object that's attached to the UI thread
@@ -253,6 +264,21 @@ public class SignInActivity
         switch (view.getId()) {
             // Sign in with email and password
             case R.id.sign_in_button:
+                if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
+                        !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
+                    PermissionManager.checkAndAskPermission(
+                            this,
+                            new int[] {
+                                    PermissionManager.FINE_LOCATION,
+                                    PermissionManager.COARSE_LOCATION,
+                                    PermissionManager.WAKE_LOCK,
+                                    PermissionManager.DISABLE_KEYGUARD
+                            },
+                            PermissionManager.ASK_FOR_LOCATION
+                    );
+                    break;
+                }
+
                 // Code strength
                 this.checkEmailBeforeLogIn = true;
                 ////
@@ -277,6 +303,21 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
+                if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
+                        !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
+                    PermissionManager.checkAndAskPermission(
+                            this,
+                            new int[] {
+                                    PermissionManager.FINE_LOCATION,
+                                    PermissionManager.COARSE_LOCATION,
+                                    PermissionManager.WAKE_LOCK,
+                                    PermissionManager.DISABLE_KEYGUARD
+                            },
+                            PermissionManager.ASK_FOR_LOCATION
+                    );
+                    break;
+                }
+
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
                 this.baseProviderArrayList
@@ -286,6 +327,21 @@ public class SignInActivity
 
             // Sign in with Twitter
             case R.id.twitter_login_button:
+                if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
+                        !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
+                    PermissionManager.checkAndAskPermission(
+                            this,
+                            new int[] {
+                                    PermissionManager.FINE_LOCATION,
+                                    PermissionManager.COARSE_LOCATION,
+                                    PermissionManager.WAKE_LOCK,
+                                    PermissionManager.DISABLE_KEYGUARD
+                            },
+                            PermissionManager.ASK_FOR_LOCATION
+                    );
+                    break;
+                }
+
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
                 this.baseProviderArrayList

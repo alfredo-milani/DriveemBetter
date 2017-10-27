@@ -1,21 +1,15 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.telephony.SmsManager;
 import android.util.Log;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -41,6 +35,8 @@ public class SensorHandler extends Activity
         implements SensorEventListener {
 
     private final static String TAG = SensorHandler.class.getSimpleName();
+
+    private final static int ACC_THRESHOLD = 3;
 
     private SensorManager sensorManager;
     private List<Sensor> sensors;
@@ -97,7 +93,7 @@ public class SensorHandler extends Activity
             double z = event.values[2];
             double acceleration = Math.sqrt((x*x) + (y*y) + (z*z))/g;
             if (!crashDetected) {
-                if (acceleration >= 30) {
+                if (acceleration >= ACC_THRESHOLD) {
                     crashDetected = true;
                     new TimeRestorer().execute();
                     final DatabaseReference databaseReference = FirebaseDatabaseManager.getDatabaseReference()
@@ -110,11 +106,13 @@ public class SensorHandler extends Activity
                                 Toast.makeText(activity, "You don't have any trusted friends selected", Toast.LENGTH_SHORT).show();
                             } else {
                                 Intent emergencyIntent = new Intent(activity.getApplicationContext(), EmergencyActivity.class);
+                                /*
                                 emergencyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 emergencyIntent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED +
                                         WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD +
                                         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON +
                                         WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+                                        */
                                 activity.startActivity(emergencyIntent);
                             }
                         }

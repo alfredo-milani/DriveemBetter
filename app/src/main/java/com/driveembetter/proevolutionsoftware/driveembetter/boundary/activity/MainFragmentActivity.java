@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,6 +59,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDataba
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PermissionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
@@ -138,7 +140,11 @@ public class MainFragmentActivity extends AppCompatActivity
                 case USER_LOGOUT:
                     Log.d(TAG, "Log out");
 
-                    positionManager.removeLocationUpdates();
+                    FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
+                    FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
+                    if (positionManager != null) {
+                        positionManager.removeLocationUpdates();
+                    }
                     saveUserDataThread.interrupt();
                     reauthenticationThread.interrupt();
                     SingletonUser.resetSession();
@@ -205,9 +211,6 @@ public class MainFragmentActivity extends AppCompatActivity
             FirebaseDatabaseManager.syncCurrentUser();
         }
 
-        // Start listening to update position
-        this.positionManager = PositionManager.getInstance(this);
-
         // Init fragments
         this.fragmentState = new FragmentState(getSupportFragmentManager());
         this.saveMe = new SaveMeFragment();
@@ -215,7 +218,6 @@ public class MainFragmentActivity extends AppCompatActivity
         this.aboutUs = new AboutUsFragment();
         this.garage = new GarageFragment();
         this.home = new HomeFragment();
-
         // this.statistics = new StatisticsFragment();
 
         // Start service to manage task manager behaviour
@@ -225,10 +227,53 @@ public class MainFragmentActivity extends AppCompatActivity
         // Check protected app feature
         ProtectedAppsManager protectedAppsManager = new ProtectedAppsManager(this);
         protectedAppsManager.checkAlert();
+    }
 
-        // Ask user to enable GPS if it is disabled
-        if (!this.positionManager.isGPSEnabled()) {
-            Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
+    private void checkPermissions() {
+        if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
+                !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
+            Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
+            PermissionManager.checkAndAskPermission(
+                    this,
+                    new int[] {
+                            PermissionManager.FINE_LOCATION,
+                            PermissionManager.COARSE_LOCATION,
+                            PermissionManager.WAKE_LOCK,
+                            PermissionManager.DISABLE_KEYGUARD
+                    },
+                    PermissionManager.ASK_FOR_LOCATION
+            );
+        } else {
+            // Start listening to update position
+            this.positionManager = PositionManager.getInstance(this);
+            // Ask user to enable GPS if it is disabled
+            if (!this.positionManager.isGPSEnabled()) {
+                Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PermissionManager.ASK_FOR_LOCATION:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length < 1 &&
+                        grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
+                    this.logoutCurrentProviders();
+                } else {
+                    // Start listening to update position
+                    this.positionManager = PositionManager.getInstance(this);
+                    // Ask user to enable GPS if it is disabled
+                    if (!this.positionManager.isGPSEnabled()) {
+                        Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
+                    }
+                }
+                return;
+
+            default:
+                Log.d(TAG, "onRequestPermissionResult: " + requestCode);
         }
     }
 
@@ -561,9 +606,9 @@ public class MainFragmentActivity extends AppCompatActivity
 
     @Override
     public void onStart() {
-        super.onStart();
-
         Log.d(TAG, ":start");
+        this.checkPermissions();
+
         this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setContext(this);
@@ -579,6 +624,8 @@ public class MainFragmentActivity extends AppCompatActivity
         } else {
             Toast.makeText(this, getString(R.string.network_error), Toast.LENGTH_SHORT).show();
         }
+
+        super.onStart();
     }
 
     @Override
@@ -695,42 +742,4 @@ public class MainFragmentActivity extends AppCompatActivity
             return false;
         }
     }
-
-
-    // @Override
-    /* Called when a key down event has occurred */
-   /* public boolean onKeyDown(int keyCode,KeyEvent ke){
-        if((keyCode==KeyEvent.KEYCODE_BACK)){
-
-            AlertDialog.Builder ab = new AlertDialog.Builder(this);
-            ab.setMessage(getString(R.string.strSure)).setPositiveButton("yes", dialogClickListener).setNegativeButton("no", dialogClickListener).show();
-            AlertDialog alert11 = ab.create();
-            alert11.show();
-
-            Button buttonbackground = alert11.getButton(DialogInterface.BUTTON_NEGATIVE);
-            buttonbackground.setBackgroundColor(Color.BLUE);
-
-            Button buttonbackground1 = alert11.getButton(DialogInterface.BUTTON_POSITIVE);
-            buttonbackground1.setBackgroundColor(Color.BLUE);
-        }
-        return super.onKeyDown(keyCode, ke);
-    }*/
-
-
-    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    /* "Yes" button clicked: stop task  */
-                    finish();
-                    break;
-
-                case DialogInterface.BUTTON_NEGATIVE:
-                    /* "No" button clicked: do nothing */
-                    break;
-            }
-        }
-    };
-
 }

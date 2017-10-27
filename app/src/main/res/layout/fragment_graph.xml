@@ -44,7 +44,7 @@
             android:checked="true"
             android:onClick="onRadioButtonClicked"
             android:text="@string/velocity"
-            android:theme="@style/MyRadioButton" />
+            android:theme="@style/RadioButtonStyle" />
 
         <RadioButton
             android:id="@+id/radio_acceleration"
@@ -53,7 +53,7 @@
             android:layout_weight="1"
             android:onClick="onRadioButtonClicked"
             android:text="@string/acceleration"
-            android:theme="@style/MyRadioButton" />
+            android:theme="@style/RadioButtonStyle" />
     </RadioGroup>
 
     <RadioGroup
@@ -72,7 +72,7 @@
             android:checked="true"
             android:onClick="onRadioButtonClickedTime"
             android:text="@string/week"
-            android:theme="@style/MyRadioButton" />
+            android:theme="@style/RadioButtonStyle" />
 
         <RadioButton
             android:id="@+id/radio_day"
@@ -81,7 +81,7 @@
             android:layout_weight="1"
             android:onClick="onRadioButtonClickedTime"
             android:text="@string/day"
-            android:theme="@style/MyRadioButton" />
+            android:theme="@style/RadioButtonStyle" />
     </RadioGroup>
 
 </RelativeLayout>

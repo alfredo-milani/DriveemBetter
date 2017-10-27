@@ -1,6 +1,5 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.adapters;
 
-import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -18,13 +17,10 @@ public class RankingGraphPageAdapter extends FragmentPagerAdapter {
 
     private static int NUM_ITEMS = 4;
 
-    private final Activity activity;
-
-    public RankingGraphPageAdapter(Activity activity, FragmentManager fragmentManager, String userID) {
+    public RankingGraphPageAdapter(FragmentManager fragmentManager, String userID) {
         super(fragmentManager);
 
         RankingGraphFragment.setUserID(userID);
-        this.activity = activity;
     }
 
 
@@ -54,37 +50,4 @@ public class RankingGraphPageAdapter extends FragmentPagerAdapter {
                 return null;
         }
     }
-
-    /*
-    @Override
-    public Object instantiateItem(final ViewGroup container, final int position) {
-        ImageButton btn;
-
-        LayoutInflater inflater = (LayoutInflater) this.activity.
-                getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View viewLayout = inflater.inflate(R.layout.test_ranki, container,
-                false);
-
-        btn = viewLayout.findViewById(R.id.fullscreenImageButton);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    Log.d("Info - ", "" + position);
-                } catch (ActivityNotFoundException e) {
-                    Log.d("Error", e.toString());
-                }
-            }
-        });
-
-        ((ViewPager) container).addView(viewLayout);
-
-        return viewLayout;
-    }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        ((ViewPager) container).removeView((RelativeLayout) object);
-    }
-    */
 }

@@ -179,7 +179,6 @@ public class RankingGraphFragment extends Fragment
     }
 
     private void startFullscreenGraph() {
-        Log.e(TAG, "START FULLSCREEN GRAPH: " + typeGraph);
         Intent fullscreenIntent = new Intent(this.getActivity(), ShowFullscreenGraph.class);
         fullscreenIntent.putExtra(ARG_FRAGMENT_GRAPH, this.typeGraph);
 
@@ -206,7 +205,6 @@ public class RankingGraphFragment extends Fragment
     }
 
     private void initGraphView() {
-        Log.e(TAG, "INIT GRAPH: " + typeGraph);
         switch (this.typeGraph) {
             case RankingGraphFragment.VELOCITY_GRAPH_DAILY:
                 this.setGraphHorizontalScale(-1, 0, HOURS - 1);
@@ -240,7 +238,6 @@ public class RankingGraphFragment extends Fragment
     }
 
     private void retrieveGraphData() {
-        Log.e(TAG, "RETRIEVE GRPH DATA: " + this.typeGraph);
         this.showProgress();
 
         switch (this.typeGraph) {
@@ -417,7 +414,6 @@ public class RankingGraphFragment extends Fragment
     public void onDailyVelocityReceived(MeanDay meanDay) {
         this.hideProgress();
 
-        Log.d(TAG, "Data received");
         if (meanDay == null || meanDay.getMap().size() < 1) {
             Log.d(TAG, "Data null");
             this.updateUI(

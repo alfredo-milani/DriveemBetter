@@ -93,14 +93,13 @@ public class UserDetailsRankingActivity extends AppCompatActivity
 
         final ViewPager pager = findViewById(R.id.vpPager);
         this.adapter = new RankingGraphPageAdapter(
-                this,
                 this.getSupportFragmentManager(),
                 UserDetailsRankingActivity.user.getUid()
         );
         pager.setAdapter(this.adapter);
         // Increase cache limit
         // TODO: 18/10/17 Per ora ci sono 5 tipi di grafici, quindi con un valore come 4 non viene distrutto nessun fragment. Nel caso in cui si qualche fragment venisse distrutto (aumento numero fragments o diminuzione valore di offset) gestire la ricostruzione del fragment (rendering legenda ecc...)
-        pager.setOffscreenPageLimit(4);
+        // pager.setOffscreenPageLimit(4); // TODO: 26/10/17 BUG DATO DA QUESTA RIGA DI CODICE
         // pager.setPageTransformer(true, new AccordionTransformer());
         // pager.setPageTransformer(true, new DepthPageTransformer());
         // pager.setPageTransformer(true, new ZoomOutSlideTransformer());

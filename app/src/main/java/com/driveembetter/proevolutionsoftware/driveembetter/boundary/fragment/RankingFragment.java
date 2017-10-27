@@ -86,7 +86,6 @@ public class RankingFragment extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return this.rootView = inflater.inflate(R.layout.fragment_ranking_list, container, false);
     }
 
@@ -242,7 +241,9 @@ public class RankingFragment extends Fragment
 
             // Show DialogFragment
             case R.id.menu_selection_level:
-                this.levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));
+                if (!this.levelMenuFragment.isAdded()) {
+                    this.levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));
+                }
                 return true;
         }
 

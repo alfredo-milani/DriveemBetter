@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -56,7 +55,6 @@ public class ShowFullscreenGraph extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen_graph);
 
-        Log.d(TAG, "ONCREATE");
         this.initResources();
         this.initWidgets();
     }
@@ -69,8 +67,6 @@ public class ShowFullscreenGraph extends AppCompatActivity
         );
 
         this.lastUpdate = this.getIntent().getStringExtra(ARG_FRAGMENT_GRAPH_LAST_UPDATE);
-
-        Log.e(TAG, "T: "  + typeGraph);
     }
 
     private void initWidgets() {
@@ -210,7 +206,6 @@ public class ShowFullscreenGraph extends AppCompatActivity
     }
 
     private void initBaseGraph() {
-        Log.d(TAG, "BASE GRAPH");
         // Legend
         this.graphView.getLegendRenderer().setVisible(true);
         this.graphView.getLegendRenderer().setBackgroundColor(Color.alpha(255));

@@ -3,7 +3,6 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -12,7 +11,6 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -62,9 +60,9 @@ public class PositionManager
     private static Geocoder geocoder;
     private LocationManager locationManager;
     private boolean listenerSetted = false;
-    private Context context;
+    private Activity activity;
     private double initialTime;
-    private float initialSpeed; //Symbolic value just to check when "onLocationChanged" is called for the first time
+    private static float initialSpeed; //Symbolic value just to check when "onLocationChanged" is called for the first time
     private String lastPosition;
     private Response response;
     private static boolean statisticsToPush;
@@ -77,19 +75,19 @@ public class PositionManager
 
 
     // Singleton
-    private PositionManager(Context context) {
-        this.context = context;
+    private PositionManager(Activity activity) {
+        this.activity = activity;
         this.lastPosition = "";
-        PositionManager.geocoder = new Geocoder(context, Locale.ITALIAN);
-        this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        PositionManager.geocoder = new Geocoder(this.activity, Locale.ITALIAN);
+        this.locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
         PositionManager.statisticsToPush = false;
         initialSpeed = -1;
         this.updatePosition();
     }
 
-    public static PositionManager getInstance(Context context) {
+    public static PositionManager getInstance(Activity activity) {
         if (positionManager == null) {
-            positionManager = new PositionManager(context);
+            positionManager = new PositionManager(activity);
         }
 
         return positionManager;
@@ -292,8 +290,6 @@ public class PositionManager
 
 
 
-
-
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
@@ -346,7 +342,7 @@ public class PositionManager
 
                     yahooProgressBar.setVisibility(View.VISIBLE);
                     yahooProgressBar.getIndeterminateDrawable().setColorFilter(
-                            context.getResources().getColor(R.color.colorPrimaryDark),
+                            ContextCompat.getColor(activity, R.color.colorPrimaryDark),
                             android.graphics.PorterDuff.Mode.MULTIPLY
                     );
 
@@ -412,19 +408,22 @@ public class PositionManager
     }
 
     public void updatePosition() {
-        if (ContextCompat.checkSelfPermission(this.context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this.context,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions((Activity) this.context,
-                    new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        } else {
-            Log.d("DB", "PERMISSION GRANTED");
-        }
+        PermissionManager.checkAndAskPermission(
+                this.activity,
+                new int[] {
+                        PermissionManager.FINE_LOCATION,
+                        PermissionManager.COARSE_LOCATION
+                },
+                PermissionManager.ASK_FOR_LOCATION
+        );
 
         this.listenerSetted = true;
-        this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 50, this.locationListener);
+        this.locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000,
+                50,
+                this.locationListener
+        );
     }
 
     public void removeLocationUpdates() {
@@ -511,8 +510,8 @@ public class PositionManager
         return strings;
     }
 
-    public float getInitialSpeed() {
-        return this.initialSpeed;
+    public static float getInitialSpeed() {
+        return PositionManager.initialSpeed;
     }
 
     public synchronized static boolean isStatisticsToPush() {
@@ -638,7 +637,7 @@ public class PositionManager
     }
 
     private void alertSpeed(final Double maxSpeed) {
-        tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+        tts = new TextToSpeech(this.activity, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
                 if(i != TextToSpeech.ERROR) {
@@ -659,7 +658,7 @@ public class PositionManager
     }
 
     private void alertGeneralSpeed() {
-        tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+        tts = new TextToSpeech(this.activity, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR) {
@@ -677,7 +676,7 @@ public class PositionManager
     }
 
     private void alertAcceleration(final int type) {
-        tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+        tts = new TextToSpeech(this.activity, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
                 if(i != TextToSpeech.ERROR) {
