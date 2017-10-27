@@ -59,7 +59,7 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
 
         if(vehicles.get(position).getType().equals(CAR) || vehicles.get(position).getType().equals("Auto")){
             return 0;
-        }else if (vehicles.get(position).getType().equals(MOTO)){
+        }else if (vehicles.get(position).getType().equals(MOTO) || vehicles.get(position).getType().equals("Moto")){
             return 1;
         }else if (vehicles.get(position).getType().equals(VAN) || vehicles.get(position).getType().equals("Furgone")){
             return 2;

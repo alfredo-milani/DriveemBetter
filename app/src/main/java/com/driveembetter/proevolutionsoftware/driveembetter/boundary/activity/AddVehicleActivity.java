@@ -190,11 +190,11 @@ public class AddVehicleActivity extends AppCompatActivity {
         car = (RadioButton)findViewById(R.id.car);
         moto = (RadioButton)findViewById(R.id.moto);
         van = (RadioButton)findViewById(R.id.van);
-        insurance_date = (EditText)findViewById(R.id.insurance_date_plain);
-        revision_date = (EditText)findViewById(R.id.rev);
+        this.insurance_date = (EditText)findViewById(R.id.insurance_date_plain);
+        this.revision_date = (EditText)findViewById(R.id.rev);
         this.plates_list = new ArrayList<String>();
         this.fromInsurance = false;
-        try_number = 1;
+        this.try_number = 1;
         this.alert = (RelativeLayout)findViewById(R.id.alert);
     }
 
@@ -219,7 +219,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                     .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
         }
 
-        if( getType().equals(MOTO)){
+        if( getType().equals(MOTO) || getType().equals("Moto")){
 
             ref.child(vehicle.getNumberPlate())
                     .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
@@ -323,6 +323,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                     if (next.before(current)) {
                         if (try_number <= 1) {
                             Toast.makeText(getActivity().getApplicationContext(), "Please control insurance expiration date", Toast.LENGTH_LONG).show();
+                            insurance_date.setText("");
                             try_number +=1;
                         }else{
                             if (try_number >1) {

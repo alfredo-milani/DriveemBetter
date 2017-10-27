@@ -197,7 +197,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginBottom="30dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginTop="50dp">
+                android:layout_marginTop="5dp">
 
 
                 <ImageButton
@@ -210,8 +210,8 @@
                     android:layout_marginRight="100dp"
                     android:layout_toStartOf="@+id/ok_worry"
                     android:background="@null"
-                    app:srcCompat="@mipmap/wrench"
-                    android:tint="@color/colorPrimaryDark"/>
+                    android:tint="@color/colorPrimaryDark"
+                    app:srcCompat="@mipmap/wrench" />
 
                 <Button
                     android:id="@+id/ok_worry"

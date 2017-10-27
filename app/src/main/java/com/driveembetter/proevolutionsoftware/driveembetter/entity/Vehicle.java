@@ -9,7 +9,7 @@ public class Vehicle {
     private final static String TAG = Vehicle.class.getSimpleName();
 
     public final static String CAR = "Car";
-    public final static String MOTO = "Moto";
+    public final static String MOTO = "Motorcycle";
     public final static String VAN = "Van";
 
     private String numberPlate;
