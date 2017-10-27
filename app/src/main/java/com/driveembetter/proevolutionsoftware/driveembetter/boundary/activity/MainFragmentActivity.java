@@ -259,15 +259,15 @@ public class MainFragmentActivity extends AppCompatActivity
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 &&
                         grantResults[0] == PermissionManager.PERM_OK) {
-                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
-                    this.logoutCurrentProviders();
-                } else {
                     // Start listening to update position
                     this.positionManager = PositionManager.getInstance(this);
                     // Ask user to enable GPS if it is disabled
                     if (!this.positionManager.isGPSEnabled()) {
                         Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
                     }
+                } else {
+                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
+                    this.logoutCurrentProviders();
                 }
                 return;
 

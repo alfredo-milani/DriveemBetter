@@ -410,26 +410,22 @@ public class PositionManager
     }
 
     public void updatePosition() {
-        if (PermissionManager.isAllowed(this.activity, PermissionManager.COARSE_LOCATION_MANIFEST) &&
-                PermissionManager.isAllowed(this.activity, PermissionManager.FINE_LOCATION_MANIFEST)) {
-            this.listenerSetted = true;
-            try {
-                this.locationManager.requestLocationUpdates(
-                        LocationManager.GPS_PROVIDER,
-                        5000,
-                        50,
-                        this.locationListener
-                );
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            }
-        } else {
-            PermissionManager.askForPermission(
-                    this.activity,
-                    new String[] {PermissionManager.COARSE_LOCATION_MANIFEST, PermissionManager.FINE_LOCATION_MANIFEST},
-                    PermissionManager.ASK_FOR_LOCATION
-            );
-        }
+        PermissionManager.checkAndAskPermission(
+                this.activity,
+                new int[] {
+                        PermissionManager.FINE_LOCATION,
+                        PermissionManager.COARSE_LOCATION
+                },
+                PermissionManager.ASK_FOR_LOCATION
+        );
+
+        this.listenerSetted = true;
+        this.locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000,
+                50,
+                this.locationListener
+        );
     }
 
     public void removeLocationUpdates() {

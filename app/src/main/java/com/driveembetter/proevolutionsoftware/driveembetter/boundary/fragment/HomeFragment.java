@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.AddFriendsActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.PermissionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.Speedometer;
 
@@ -65,7 +66,10 @@ public class HomeFragment extends Fragment {
         temperatureText = view.findViewById(R.id.temperature);
         humidityText = view.findViewById(R.id.humidity_text);
         visibilityText = view.findViewById(R.id.visibility_text);
-        PositionManager.getInstance(this.getActivity()).createTools(view);
+        if (PermissionManager.isAllowed(this.getActivity(), PermissionManager.COARSE_LOCATION_MANIFEST) &&
+                PermissionManager.isAllowed(this.getActivity(), PermissionManager.FINE_LOCATION_MANIFEST)) {
+            PositionManager.getInstance(this.getActivity()).createTools(view);
+        }
         // Set action bar title
 
         this.fab.setOnClickListener(new View.OnClickListener() {
