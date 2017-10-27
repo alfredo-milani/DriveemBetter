@@ -189,11 +189,19 @@
     <string name="friends_list">SELEZIONA I TUOI CONTATTI PREFERITI</string>
     <string name="help_request">Aiuto! Sono stato coinvolto in un incidente: </string>
     <string name="nearby_hospitals">Ecco gli ospedali più vicini </string>
-    <string name="crash_detected">A car accident was detected, please press central button to avoid sending help requests</string>
+    <string name="crash_detected">Ho rilevato un incidente, premi il bottone per evitare di inviare una richiesta di aiuto</string>
     <string name="chose_vehicle">Scegli il tipo di veicolo</string>
     <string name="last_revision_date">Data ultima revisione</string>
     <string name="insurance_expiration_date">Scadenza assicurazione</string>
     <string name="not_show_again">non mostrare più</string>
     <string name="accept_permissions">Devi accettare i seguenti permessi per continuare</string>
+
+    <string name="acceleration_alert">Evita accelerazioni brusche</string>
+    <string name="braking_alert">Evita di frenare in maniera troppo energetica</string>
+    <string name="general_speed_alert">Stai correndo troppo, rallenta</string>
+    <string name="speed_alert">Stai correndo troppo, il limite di velocità è di </string>
+    <string name="kmh">Chilometri orari</string>
+    <string name="no_friends_alert">Non hai selezionato nessun amico nella tua lista</string>
+    <string name="sms_sent">SMS di emergenza inviato!</string>
 
 </resources>

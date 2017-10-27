@@ -1472,4 +1472,18 @@ public class FirebaseDatabaseManager
                 .child(receiver + "_" + sender)
                 .removeValue();
     }
+
+
+    public static void deletePositionToken() {
+        SingletonUser user = SingletonUser.getInstance();
+        FirebaseDatabaseManager.databaseReference
+                .child(NODE_POSITION)
+                .child(user.getCountry())
+                .child(user.getRegion())
+                .child(user.getSubRegion())
+                .child(user.getUid())
+                .child(ARG_FIREBASE_TOKEN)
+                .removeValue();
+    }
+
 }

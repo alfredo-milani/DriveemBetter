@@ -81,6 +81,8 @@ public class PositionManager
         PositionManager.geocoder = new Geocoder(this.activity, Locale.ITALIAN);
         this.locationManager = (LocationManager) this.activity.getSystemService(Context.LOCATION_SERVICE);
         PositionManager.statisticsToPush = false;
+        initTextToSpeech();
+
         initialSpeed = -1;
         this.updatePosition();
     }
@@ -641,67 +643,48 @@ public class PositionManager
     }
 
     private void alertSpeed(final Double maxSpeed) {
-        tts = new TextToSpeech(this.activity, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int i) {
-                if(i != TextToSpeech.ERROR) {
-                    double speed = maxSpeed;
-                    int spd = (int) speed;
-                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH)) {
-                        tts.setLanguage(Locale.UK);
-                        tts.speak("You're going too fast, the speed limit is " + spd + " kilometers per hour", TextToSpeech.QUEUE_ADD, null);
-                    }
-                    else {
-                        tts.setLanguage(Locale.ITALY);
-                        tts.speak("Stai correndo troppo, il limite di velocità è di " + spd + " chilometri orari", TextToSpeech.QUEUE_ADD, null);
-                    }
-                }
-            }
-
-        });
+        double speed = maxSpeed;
+        int spd = (int) speed;
+        tts.speak(activity.getResources().getString(R.string.speed_alert) + spd + activity.getResources().getString(R.string.kmh),
+                TextToSpeech.QUEUE_ADD, null);
     }
 
     private void alertGeneralSpeed() {
-        tts = new TextToSpeech(this.activity, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int i) {
-                if (i != TextToSpeech.ERROR) {
-                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH)) {
-                        tts.setLanguage(Locale.UK);
-                        tts.speak("You're going too fast, please slow down", TextToSpeech.QUEUE_ADD, null);
-                    }
-                    else {
-                        tts.setLanguage(Locale.ITALY);
-                        tts.speak("Stai correndo troppo, rallenta", TextToSpeech.QUEUE_ADD, null);
-                    }
-                }
-            }
-        });
+        tts.speak(activity.getResources().getString(R.string.general_speed_alert),
+                TextToSpeech.QUEUE_ADD, null);
     }
 
     private void alertAcceleration(final int type) {
-        tts = new TextToSpeech(this.activity, new TextToSpeech.OnInitListener() {
+        if (type == 1)
+            tts.speak(activity.getResources().getString(R.string.acceleration_alert),
+                    TextToSpeech.QUEUE_ADD, null);
+        else
+            tts.speak(activity.getResources().getString(R.string.braking_alert),
+                    TextToSpeech.QUEUE_ADD, null);
+
+    }
+
+    private void initTextToSpeech() {
+        tts = new TextToSpeech(activity, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
-                if(i != TextToSpeech.ERROR) {
-                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH)) {
+                if (i != TextToSpeech.ERROR) {
+                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH))
                         tts.setLanguage(Locale.UK);
-                        if (type == 1)
-                            tts.speak(ENGLISH_ACCELERATION_ALERT, TextToSpeech.QUEUE_ADD, null);
-                        else
-                            tts.speak(ENGLISH_BRAKING_ALERT, TextToSpeech.QUEUE_ADD, null);
-                    } else {
+                    else
                         tts.setLanguage(Locale.ITALIAN);
-                        if (type == 1)
-                            tts.speak(ITALIAN_ACCELERATION_ALERT, TextToSpeech.QUEUE_ADD, null);
-                        else
-                            tts.speak(ITALIAN_BRAKING_ALERT, TextToSpeech.QUEUE_ADD, null);
-                    }
                 }
-
             }
-
         });
     }
-    //END ADDED BY FROM PONZINO_THE_WOLF_94
+
+    public void alertCrash() {
+        tts.speak(activity.getResources().getString(R.string.crash_detected), TextToSpeech.QUEUE_ADD, null);
+    }
+
+    public void noFriendsAlert() {
+        tts.speak(activity.getResources().getString(R.string.no_friends_alert), TextToSpeech.QUEUE_ADD, null);
+    }
+
+
 }

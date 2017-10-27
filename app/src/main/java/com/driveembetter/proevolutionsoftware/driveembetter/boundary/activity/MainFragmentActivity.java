@@ -432,6 +432,10 @@ public class MainFragmentActivity extends AppCompatActivity
         if (this.singletonFirebaseProvider.getFirebaseUser() != null) {
             this.singletonFirebaseProvider.signOut();
         }
+
+        //delete position token
+        FirebaseDatabaseManager.deletePositionToken();
+
     }
 
     private void manageReathenticationThreadStatus() {
