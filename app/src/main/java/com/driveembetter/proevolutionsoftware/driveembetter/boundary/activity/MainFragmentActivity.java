@@ -6,7 +6,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -258,8 +257,8 @@ public class MainFragmentActivity extends AppCompatActivity
         switch (requestCode) {
             case PermissionManager.ASK_FOR_LOCATION:
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length < 1 &&
-                        grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PermissionManager.PERM_OK) {
                     Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
                     this.logoutCurrentProviders();
                 } else {
@@ -606,6 +605,8 @@ public class MainFragmentActivity extends AppCompatActivity
 
     @Override
     public void onStart() {
+        super.onStart();
+
         Log.d(TAG, ":start");
         this.checkPermissions();
 
@@ -624,8 +625,6 @@ public class MainFragmentActivity extends AppCompatActivity
         } else {
             Toast.makeText(this, getString(R.string.network_error), Toast.LENGTH_SHORT).show();
         }
-
-        super.onStart();
     }
 
     @Override
