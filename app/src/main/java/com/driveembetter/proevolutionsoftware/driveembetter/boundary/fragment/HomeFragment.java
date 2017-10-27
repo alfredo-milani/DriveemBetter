@@ -66,6 +66,8 @@ public class HomeFragment extends Fragment {
         temperatureText = view.findViewById(R.id.temperature);
         humidityText = view.findViewById(R.id.humidity_text);
         visibilityText = view.findViewById(R.id.visibility_text);
+
+        // TODO: 28/10/17 Disaccoppia creazione view da PositionManager
         if (PermissionManager.isAllowed(this.getActivity(), PermissionManager.COARSE_LOCATION_MANIFEST) &&
                 PermissionManager.isAllowed(this.getActivity(), PermissionManager.FINE_LOCATION_MANIFEST)) {
             PositionManager.getInstance(this.getActivity()).createTools(view);
