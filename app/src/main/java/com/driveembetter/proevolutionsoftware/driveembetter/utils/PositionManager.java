@@ -251,7 +251,6 @@ public class PositionManager
                     updateStatistics(initialSpeed, 0);
                     if (speedometer != null)
                         speedometer.onSpeedChanged(initialSpeed);
-                    //TODO
                     //check speed limits
                     SpeedLimitManager speedLimitManager = new SpeedLimitManager();
                     speedLimitManager.execute(String.valueOf(initialSpeed), String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
@@ -265,7 +264,6 @@ public class PositionManager
                     if (speedometer != null)
                         speedometer.onSpeedChanged(speed);
 
-                    //TODO ??
                     //check speed limits or abrupt braking or acceleration
 
                     PointManager.updatePoints(1, acceleration, 0);
@@ -536,16 +534,6 @@ public class PositionManager
             String latitude = strings[1];
             String longitude = strings[2];
             Log.e("DEBUG", latitude +  "   " + longitude);
-            String testLat = "41.850884";
-            String testLong = "12.603843";
-
-
-            //TEST
-
-
-
-            //ENDTEST
-
             //TODO if I had to use google maps api to find speed limits, I would have to create the following url
             //https://roads.googleapis.com/v1/speedLimits?placeId=ChIJX12duJAwGQ0Ra0d4Oi4jOGE&placeId=ChIJLQcticc0GQ0RoiNZJVa5GxU&placeId=ChIJJ4vQRudkJA0RpednU70A-5M&key=YOUR_API_KEY
             //or
@@ -605,7 +593,11 @@ public class PositionManager
                                 maxSpeed = "N/A";
                             }
 
+                        } else {
+                            maxSpeed = "N/A";
                         }
+                    } else {
+                        maxSpeed = "N/A";
                     }
                 }
 
@@ -630,14 +622,16 @@ public class PositionManager
             super.onProgressUpdate(values);
             if (!values[0].equals("design") && !values[0].equals("designStatic")) {
                 speedLimitText.setText(values[0]);
-            } else if (values[0].equals("design")){
+            }
+            if (values[0].equals("design")){
                 AlphaAnimation blinkanimation= new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
                 blinkanimation.setDuration(1000); // duration - half a second
                 blinkanimation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
                 blinkanimation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
                 blinkanimation.setRepeatMode(Animation.REVERSE);
                 speedLimitSign.startAnimation(blinkanimation);
-            } else if (values[0].equals("designStatic")){
+            }
+            if (values[0].equals("designStatic")){
                 Log.e("DEBUG", "QUIVI?");
                 if (speedLimitSign.getAnimation() != null)
                     speedLimitSign.clearAnimation();

@@ -203,5 +203,6 @@
     <string name="kmh">Chilometri orari</string>
     <string name="no_friends_alert">Non hai selezionato nessun amico nella tua lista</string>
     <string name="sms_sent">SMS di emergenza inviato!</string>
+    <string name="press_emergency_button">TOCCA IL BOTTONE PER FERMARE LA RICHIESTA DI AIUTO</string>
 
 </resources>

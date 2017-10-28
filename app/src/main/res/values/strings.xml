@@ -149,6 +149,7 @@
     <string name="kmh">Kilometer per hour</string>
     <string name="no_friends_alert">You don\'t have any trusted friends selected</string>
     <string name="sms_sent">Emergency SMS Sent!</string>
+    <string name="press_emergency_button">PRESS THE BUTTON IF YOU DON\'T NEED HELP</string>
 
 
 </resources>
