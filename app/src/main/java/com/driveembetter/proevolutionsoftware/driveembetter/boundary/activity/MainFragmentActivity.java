@@ -63,7 +63,9 @@ import com.driveembetter.proevolutionsoftware.driveembetter.utils.PositionManage
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.SensorHandler;
 import com.github.mikephil.charting.charts.ScatterChart;
+import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -268,6 +270,16 @@ public class MainFragmentActivity extends AppCompatActivity
                 } else {
                     Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
                     this.logoutCurrentProviders();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                FirebaseInstanceId.getInstance().deleteInstanceId();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
                 }
                 return;
 

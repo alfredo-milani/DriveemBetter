@@ -666,7 +666,7 @@ public class PositionManager
             @Override
             public void onInit(int i) {
                 if (i != TextToSpeech.ERROR) {
-                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.ENGLISH))
+                    if (Locale.getDefault().getLanguage().equals("en"))
                         tts.setLanguage(Locale.UK);
                     else
                         tts.setLanguage(Locale.ITALIAN);

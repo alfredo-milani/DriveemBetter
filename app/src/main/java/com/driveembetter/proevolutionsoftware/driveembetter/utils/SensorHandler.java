@@ -2,6 +2,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,8 +11,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.IBinder;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
@@ -40,7 +43,7 @@ import static com.driveembetter.proevolutionsoftware.driveembetter.utils.PointMa
  * Created by matti on 31/08/2017.
  */
 
-public class SensorHandler
+public class SensorHandler extends Service
         implements SensorEventListener {
 
     private final static String TAG = SensorHandler.class.getSimpleName();
@@ -136,6 +139,12 @@ public class SensorHandler
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     public class TimeRestorer extends AsyncTask<String, String, String> {

@@ -250,7 +250,7 @@ public class SaveMeFragment
                                     if (dataSnapshot.hasChild(CHILD_IMAGE)) {
                                         userSelectedPic = dataSnapshot.child(CHILD_IMAGE).getValue().toString();
                                         if (dataSnapshot.hasChild(ARG_FIREBASE_TOKEN)) {
-                                            userSelectedToken = dataSnapshot.child("firebaseToken").getValue().toString();
+                                            userSelectedToken = dataSnapshot.child(ARG_FIREBASE_TOKEN).getValue().toString();
                                             if (userSelectedToken.equals(""))
                                                 userSelectedToken = "none";
 
