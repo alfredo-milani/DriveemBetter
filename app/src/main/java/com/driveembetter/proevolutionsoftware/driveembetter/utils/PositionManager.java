@@ -3,6 +3,7 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -281,6 +282,8 @@ public class PositionManager
                                 String.valueOf(location.getLatitude()),
                                 String.valueOf(location.getLongitude())
                         );
+                    } else {
+                        PointManager.updatePoints(0, speed, -1);
                     }
                     initialTime = time;
                     initialSpeed = speed;
@@ -588,6 +591,7 @@ public class PositionManager
                                 if (speed > mSpeed) {
                                     //Alert driver
                                     alertSpeed(mSpeed);
+                                    PointManager.updatePoints(0, speed, mSpeed);
                                     if (speedLimitText != null) {
                                         publishProgress("design");
                                     }
@@ -603,7 +607,6 @@ public class PositionManager
 
                         }
                     }
-
                 }
 
             } catch (IOException e) {
@@ -611,8 +614,12 @@ public class PositionManager
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            if (maxSpeed.equals("N/A"))
+            if (maxSpeed.equals("N/A")) {
+                String currentSpeed = strings[0];
+                Double speed = Double.parseDouble(currentSpeed);
+                PointManager.updatePoints(0, speed, -1);
                 publishProgress("designStatic");
+            }
             publishProgress(maxSpeed);
 
             return null;

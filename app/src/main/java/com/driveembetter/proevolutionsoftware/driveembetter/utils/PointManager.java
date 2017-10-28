@@ -1,5 +1,7 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
+import android.util.Log;
+
 /**
  * Created by Mattia on 16/10/2017.
  */
@@ -14,14 +16,14 @@ public class PointManager {
 
     final static long INSURANCE_EXPIRED = -1000;
 
-    final static long BASIC_SPEED_BONUS = 3;
+    final static long BASIC_SPEED_BONUS = 2;
     final static long GENERAL_OVERSPEED_MALUS = -100;
     final static float FIRST_OVERSPEED_COEFFICIENT = -2.5f;
     final static float SECOND_OVERSPEED_COEFFICIENT = -5;
     final static float THIRD_OVERSPEED_COEFFICIENT = -10;
 
     //they should be considered even in the case of deceleration
-    final static long BASIC_ACCELERATION_BONUS = 5;
+    final static long BASIC_ACCELERATION_MALUS = 10;
     final static float FIRST_OVERACCELERATION_COEFFICIENT = -2.5f;
     final static float SECOND_OVERACCELERATION_COEFFICIENT = -6;
     final static float THIRD_OVERACCELERATION_COEFFICIENT =-12;
@@ -126,23 +128,19 @@ public class PointManager {
 
     private static void updateAccelerationPoints(double acceleration) {
         if (acceleration >= 0) {
-            if (acceleration <= FIRST_ACCELERATION_BOUND)
-                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_BONUS);
             if (acceleration > FIRST_ACCELERATION_BOUND && acceleration <= SECOND_ACCELERATION_BOUND)
-                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_BONUS * (long) FIRST_OVERACCELERATION_COEFFICIENT);
+                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_MALUS * (long) FIRST_OVERACCELERATION_COEFFICIENT);
             if (acceleration > SECOND_ACCELERATION_BOUND && acceleration <= THIRD_ACCELERATION_BOUND)
-                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_BONUS * (long) SECOND_OVERACCELERATION_COEFFICIENT);
+                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_MALUS * (long) SECOND_OVERACCELERATION_COEFFICIENT);
             if (acceleration > THIRD_ACCELERATION_BOUND)
-                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_BONUS * (long) THIRD_OVERACCELERATION_COEFFICIENT);
+                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_MALUS * (long) THIRD_OVERACCELERATION_COEFFICIENT);
         } else {
-            if (acceleration >= FIRST_DECELERATION_BOUND)
-                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_BONUS);
             if (acceleration < FIRST_DECELERATION_BOUND && acceleration >= SECOND_DECELERATION_BOUND)
-                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_BONUS * (long) FIRST_OVERACCELERATION_COEFFICIENT);
+                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_MALUS * (long) FIRST_OVERACCELERATION_COEFFICIENT);
             if (acceleration < SECOND_DECELERATION_BOUND && acceleration >= THIRD_DECELERATION_BOUND)
-                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_BONUS * (long) SECOND_OVERACCELERATION_COEFFICIENT);
+                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_MALUS * (long) SECOND_OVERACCELERATION_COEFFICIENT);
             if (acceleration < THIRD_DECELERATION_BOUND)
-                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_BONUS * (long) THIRD_OVERACCELERATION_COEFFICIENT);
+                FirebaseDatabaseManager.updateUserPoints(BASIC_ACCELERATION_MALUS * (long) THIRD_OVERACCELERATION_COEFFICIENT);
         }
     }
 
@@ -152,6 +150,7 @@ public class PointManager {
     }
 
     private static void updateGeneralOverSpeed() {
+        Log.e("DEBUG", "EVER CALLED?");
         FirebaseDatabaseManager.updateUserPoints(GENERAL_OVERSPEED_MALUS);
     }
 }

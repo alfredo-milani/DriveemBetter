@@ -18,8 +18,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -1342,7 +1344,46 @@ public class FirebaseDatabaseManager
         });
     }
 
+    //we should use transaction
+
     public static void updateUserPoints(final long points) {
+        SingletonUser user = SingletonUser.getInstance();
+        final DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
+                .child(NODE_USERS)
+                .child(user.getUid())
+                .child(CHILD_POINTS);
+        databaseReference.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                if (currentData != null) {
+                    String currentPointsString =  currentData.getValue().toString();
+                    Long newPoints = Long.parseLong(currentPointsString) + points;
+                    if (newPoints < 0) {
+                        currentData.setValue(0);
+                        updatePositionPoints(0);
+                    } else {
+                        currentData.setValue(newPoints);
+                        updatePositionPoints(newPoints);
+                    }
+                } else {
+                    Map<String, Object> pointMap = new HashMap<>();
+                    pointMap.put(CHILD_POINTS, points);
+                    currentData.setValue(pointMap);
+                    updatePositionPoints(points);
+                }
+                return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+            }
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot currentData) {
+                //This method will be called once with the results of the transaction.
+
+            }
+        });
+    }
+
+
+
+    /*public static void updateUserPoints(final long points) {
         User user = SingletonUser.getInstance();
         final DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                 .child(NODE_USERS)
@@ -1376,7 +1417,7 @@ public class FirebaseDatabaseManager
 
             }
         });
-    }
+    }*/
 
     private static void updatePositionPoints(long points) {
         SingletonUser user = SingletonUser.getInstance();
