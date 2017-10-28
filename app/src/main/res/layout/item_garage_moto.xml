@@ -11,6 +11,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="1dp"
         android:background="@drawable/style_card_view_ranking_list_user"
         android:descendantFocusability="blocksDescendants"
         android:orientation="horizontal"

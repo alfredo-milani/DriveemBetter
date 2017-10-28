@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RatingBar;
@@ -233,7 +234,7 @@ public class SaveMeFragment
                         driverLocation.setMovementMethod(new ScrollingMovementMethod());
                         driverUsername.setText(marker.getTitle());
                         driverLocation.setText(userSelectedLocation);
-                        Button message = container.findViewById(R.id.messageBtn);
+                        ImageButton message = container.findViewById(R.id.messageBtn);
 
                         //GET THE SELECTED USER PHOTO URL, FEEDBACK, TOKEN AND AVAILABILITY
                         if (!userSelectedUid.equals("USERNAME_TEST")) {

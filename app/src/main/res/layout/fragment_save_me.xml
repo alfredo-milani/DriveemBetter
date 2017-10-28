@@ -39,10 +39,14 @@
         android:max="5"
         android:layout_weight="0.32"
         android:progress="4"
-        android:progressBackgroundTint="@android:color/darker_gray"
+        />
+
+    <!--
+    android:progressBackgroundTint="@android:color/darker_gray"
         android:progressTint="@android:color/darker_gray"
         android:thumbTint="@android:color/black"
-        android:tickMarkTint="@android:color/darker_gray" />
+        android:tickMarkTint="@android:color/darker_gray"
+        -->
 
     <LinearLayout
         android:layout_width="match_parent"

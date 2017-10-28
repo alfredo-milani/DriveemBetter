@@ -247,7 +247,6 @@ public class PositionManager
                     //first time that velocity has been detected, I don't check acceleration
                     initialSpeed = (int) ((location.getSpeed() * 3600) / 1000);
                     initialTime = System.currentTimeMillis();
-                    Log.e("SPEED", "Speed: " + initialSpeed);
                     updateStatistics(initialSpeed, 0);
                     if (speedometer != null)
                         speedometer.onSpeedChanged(initialSpeed);
@@ -533,7 +532,6 @@ public class PositionManager
             OkHttpClient client = new OkHttpClient();
             String latitude = strings[1];
             String longitude = strings[2];
-            Log.e("DEBUG", latitude +  "   " + longitude);
             //TODO if I had to use google maps api to find speed limits, I would have to create the following url
             //https://roads.googleapis.com/v1/speedLimits?placeId=ChIJX12duJAwGQ0Ra0d4Oi4jOGE&placeId=ChIJLQcticc0GQ0RoiNZJVa5GxU&placeId=ChIJJ4vQRudkJA0RpednU70A-5M&key=YOUR_API_KEY
             //or
@@ -556,8 +554,6 @@ public class PositionManager
                 response = client.newCall(request).execute();
                 String jsonData = response.body().string();
 
-                //TEST
-                Log.e("DEBUG", jsonData);
 
                 JSONObject Jobject = new JSONObject(jsonData);
                 JSONArray elements = Jobject.getJSONArray("elements");
@@ -574,7 +570,6 @@ public class PositionManager
                             try
                             {
                                 Double mSpeed = Double.parseDouble(maxSpeed);
-                                Log.e("DEBUG", "MAX SPEED: " + maxSpeed + " CURRENT SPEED: " + speed);
                                 //TODO
                                 if (speed > mSpeed) {
                                     //Alert driver
@@ -632,7 +627,6 @@ public class PositionManager
                 speedLimitSign.startAnimation(blinkanimation);
             }
             if (values[0].equals("designStatic")){
-                Log.e("DEBUG", "QUIVI?");
                 if (speedLimitSign.getAnimation() != null)
                     speedLimitSign.clearAnimation();
             }
@@ -640,24 +634,30 @@ public class PositionManager
     }
 
     private void alertSpeed(final Double maxSpeed) {
-        double speed = maxSpeed;
-        int spd = (int) speed;
-        tts.speak(activity.getResources().getString(R.string.speed_alert) + spd + activity.getResources().getString(R.string.kmh),
-                TextToSpeech.QUEUE_ADD, null);
+        if (tts != null) {
+            double speed = maxSpeed;
+            int spd = (int) speed;
+            tts.speak(activity.getResources().getString(R.string.speed_alert) + spd + activity.getResources().getString(R.string.kmh),
+                    TextToSpeech.QUEUE_ADD, null);
+        }
     }
 
     private void alertGeneralSpeed() {
-        tts.speak(activity.getResources().getString(R.string.general_speed_alert),
-                TextToSpeech.QUEUE_ADD, null);
+        if (tts != null) {
+            tts.speak(activity.getResources().getString(R.string.general_speed_alert),
+                    TextToSpeech.QUEUE_ADD, null);
+        }
     }
 
     private void alertAcceleration(final int type) {
-        if (type == 1)
-            tts.speak(activity.getResources().getString(R.string.acceleration_alert),
-                    TextToSpeech.QUEUE_ADD, null);
-        else
-            tts.speak(activity.getResources().getString(R.string.braking_alert),
-                    TextToSpeech.QUEUE_ADD, null);
+        if (tts != null) {
+            if (type == 1)
+                tts.speak(activity.getResources().getString(R.string.acceleration_alert),
+                        TextToSpeech.QUEUE_ADD, null);
+            else
+                tts.speak(activity.getResources().getString(R.string.braking_alert),
+                        TextToSpeech.QUEUE_ADD, null);
+        }
 
     }
 
@@ -676,11 +676,13 @@ public class PositionManager
     }
 
     public void alertCrash() {
-        tts.speak(activity.getResources().getString(R.string.crash_detected), TextToSpeech.QUEUE_ADD, null);
+        if (tts != null)
+            tts.speak(activity.getResources().getString(R.string.crash_detected), TextToSpeech.QUEUE_ADD, null);
     }
 
     public void noFriendsAlert() {
-        tts.speak(activity.getResources().getString(R.string.no_friends_alert), TextToSpeech.QUEUE_ADD, null);
+        if (tts != null)
+            tts.speak(activity.getResources().getString(R.string.no_friends_alert), TextToSpeech.QUEUE_ADD, null);
     }
 
 

@@ -1,6 +1,7 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="380dp"
@@ -82,6 +83,7 @@
             android:stepSize="1.0"
             android:layout_below="@+id/driverFeedback"
             android:layout_centerHorizontal="true" />
+
         <Button
             android:layout_below="@+id/ratingBar"
             android:id="@+id/ratingButton"
@@ -94,13 +96,15 @@
             android:text="RATE ME"
             android:onClick="rateMe"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/messageBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="@mipmap/ic_chat"
-            android:backgroundTint="@color/amber_A700"
+            android:background="@null"
             android:layout_below="@+id/ratingButton"
+            android:contentDescription="@string/communicate"
+            android:tint="@color/colorAccent"
+            android:src="@mipmap/ic_chat"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
 </android.support.v7.widget.CardView>

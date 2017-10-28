@@ -160,6 +160,7 @@ public class GarageFragment extends Fragment
 
                 clik_event = true;
                 selected_item = index;
+                listview.getChildAt(selected_item).setBackgroundColor(Color.parseColor("#ffab00"));
                 check_selected_item();
                 showOptions();
 
