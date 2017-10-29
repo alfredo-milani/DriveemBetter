@@ -86,6 +86,7 @@ public class SaveMeFragment
     private ImageView driverPic;
     private RatingBar ratingBar;
     private Button ratingButton;
+    private View rootView;
     private String userSelectedLocation, userSelectedFeedback, userSelectedUsername, userSelectedUid, userSelectedToken, userSelectedPic, userSelectedAvailability;
     private UpdatePosition updatePosition;
 
@@ -118,7 +119,7 @@ public class SaveMeFragment
         //CHECK INTERNET CONNECTION
         if (!NetworkConnectionUtil.isConnectedToInternet(this.activity.getApplicationContext()))
             Toast.makeText(this.activity, "Please, check you Internet connection!", Toast.LENGTH_SHORT).show();
-        final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
+        rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
         mMapView = rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -179,208 +180,11 @@ public class SaveMeFragment
                     PermissionManager.ASK_FOR_LOCATION_SAVE_ME
             );
 
-            // TODO: 29/10/17 SE NON HO I PERMESSI ALLORA NON INIZIALIZZO mMapView
+            return rootView;
         }
 
-        // TODO: 29/10/17 SE HO I PERMESSI POSSO INIZIALIZZARE mMapView
+        initMapListener();
 
-        mMapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap mMap) {
-                googleMap = mMap;
-                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                googleMap.getUiSettings().setMapToolbarEnabled(false);
-                googleMap.getUiSettings().setMyLocationButtonEnabled(false);
-
-                try {
-                    googleMap.setMyLocationEnabled(true);
-                } catch (SecurityException e) {
-                    e.printStackTrace();
-                }
-
-                onMarkerClickListener = new GoogleMap.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(final Marker marker) {
-
-                        userSelectedLocation = "NA";
-                        userSelectedFeedback = "NA";
-                        userSelectedUsername = marker.getTitle();
-                        userSelectedToken = "";
-                        userSelectedUid = "USERNAME_TEST";
-                        for (String key : markerPool.keySet()) {
-                            if (markerPool.get(key).getTitle().equals(userSelectedUsername)) {
-                                userSelectedUid = key;
-                            }
-                        }
-
-                        /*
-                        List<Address> addresses;
-                        Geocoder geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
-                        LatLng latLng = marker.getPosition();
-
-                        try {
-                            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                            if (addresses != null && addresses.size() > 0) {
-                                userSelectedLocation = addresses.get(0).getAddressLine(0);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }*/
-                        userSelectedLocation = SingletonUser.getInstance().getSubRegion() + ", " +
-                                SingletonUser.getInstance().getRegion() + ", " +
-                                SingletonUser.getInstance().getCountry();
-
-
-                        relativeLayout = rootView.findViewById(R.id.relative);
-                        layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        final ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup_driver_info, null);
-                        driverInfo = new PopupWindow(container, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
-                        driverInfo.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
-                        driverUsername = container.findViewById(R.id.driverUsernameContent);
-                        driverLocation = container.findViewById(R.id.driverPositionContent);
-                        driverPic = container.findViewById(R.id.thumbnail);
-                        ratingBar = container.findViewById(R.id.ratingBar);
-                        ratingBar.setRating(2.0f);
-                        ratingButton = container.findViewById(R.id.ratingButton);
-                        driverLocation.setMovementMethod(new ScrollingMovementMethod());
-                        driverUsername.setText(marker.getTitle());
-                        driverLocation.setText(userSelectedLocation);
-                        ImageButton message = container.findViewById(R.id.messageBtn);
-
-                        //GET THE SELECTED USER PHOTO URL, FEEDBACK, TOKEN AND AVAILABILITY
-                        if (!userSelectedUid.equals("USERNAME_TEST")) {
-                            DatabaseReference positionRef = database.getReference()
-                                    .child(NODE_POSITION)
-                                    .child(SingletonUser.getInstance().getCountry())
-                                    .child(SingletonUser.getInstance().getRegion())
-                                    .child(SingletonUser.getInstance().getSubRegion())
-                                    .child(userSelectedUid);
-
-                            positionRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.hasChild(CHILD_IMAGE)) {
-                                        userSelectedPic = dataSnapshot.child(CHILD_IMAGE).getValue().toString();
-                                        if (dataSnapshot.hasChild(ARG_FIREBASE_TOKEN)) {
-                                            userSelectedToken = dataSnapshot.child(ARG_FIREBASE_TOKEN).getValue().toString();
-                                            if (userSelectedToken.equals(""))
-                                                userSelectedToken = "none";
-
-                                        } else {
-                                            userSelectedToken = "none";
-                                        }
-                                        userSelectedAvailability = dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString();
-                                        GlideImageLoader.loadImageUri(
-                                                getActivity(),
-                                                driverPic,
-                                                Uri.parse(userSelectedPic),
-                                                R.mipmap.user_icon,
-                                                R.mipmap.user_black_icon
-                                        );
-                                    }
-                                    if (dataSnapshot.hasChild(CHILD_FEEDBACK)) {
-                                        userSelectedFeedback = NumberManager.round(Double.parseDouble(dataSnapshot.child(CHILD_FEEDBACK).getValue().toString()),
-                                                2).toString();
-                                    }
-                                    driverFeedback = container.findViewById(R.id.driverFeedbackContent);
-                                    driverFeedback.setText(userSelectedFeedback);
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-                        }
-
-                        ratingButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) ||
-                                        Locale.getDefault().getDisplayLanguage().equals(Locale.US))
-                                    Toast.makeText(activity, FEEDBACK_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
-                                else
-                                    Toast.makeText(activity, FEEDBACK_SENT_ITALIAN, Toast.LENGTH_SHORT).show();
-                                FirebaseDatabaseManager.updateUserFeedback(userSelectedUid, Double.parseDouble(String.valueOf(ratingBar.getRating())),
-                                        SingletonUser.getInstance().getCountry(), SingletonUser.getInstance().getRegion(),
-                                        SingletonUser.getInstance().getSubRegion());
-                                PointManager.updatePoints(Double.parseDouble(String.valueOf(ratingBar.getRating())), userSelectedUid);
-                                ratingButton.setClickable(false);
-                                ratingButton.setTextColor(Color.BLACK);
-                                if (Locale.getDefault().getDisplayLanguage().equals(Locale.US) ||
-                                        Locale.getDefault().getDisplayLanguage().equals(Locale.UK))
-                                    ratingButton.setText(FEEDBACK_SENT_BUTTON_ENGLISH);
-                                else
-                                    ratingButton.setText(FEEDBACK_SENT_BUTTON_ITALIAN);
-                            }
-                        });
-                        message.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-
-                                if (userSelectedToken.equals("none")) {
-                                    Toast.makeText(activity, activity.getResources().getString(R.string.cannot_contact_user), Toast.LENGTH_LONG)
-                                            .show();
-                                } else {
-
-                                    ChatActivity.startActivity(getActivity(),
-                                            userSelectedUsername,
-                                            userSelectedUid,
-                                            userSelectedToken);
-
-                                /*DatabaseReference userRef = database.getReference("users/" + userSelectedUid);
-                                final DatabaseReference userPositionRef = myRef.child(userSelectedUid);
-
-                                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        userSelectedToken = (String) dataSnapshot.child("firebaseToken").getValue();
-                                        userPositionRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                if (dataSnapshot.child(CHILD_AVAILABILITY).getValue().equals(AVAILABLE)) {
-                                                    //TODO DON'T MAKE MARKER SO DIRTY
-                                                    ChatActivity.startActivity(getActivity(),
-                                                            userSelectedEmail,
-                                                            userSelectedUid,
-                                                            userSelectedToken);
-                                                } else {
-                                                    Toast.makeText(context, "This user is not available anymore", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-                                */
-
-                                }
-                            }
-                        });
-
-                        container.setOnTouchListener(new View.OnTouchListener() {
-                            @Override
-                            public boolean onTouch(View view, MotionEvent motionEvent) {
-                                driverInfo.dismiss();
-                                return true;
-                            }
-                        });
-                        return true;
-                    }
-                };
-
-                googleMap.setOnMarkerClickListener(onMarkerClickListener);
-            }
-        });
         return rootView;
     }
 
@@ -451,13 +255,10 @@ public class SaveMeFragment
         @Override
         protected String doInBackground(String... strings) {
             try {
-                Geocoder geocoder;
-                List<Address> addresses;
                 String oldCountry = "NA";
                 String oldRegion = "NA";
                 String oldSubRegion = "NA";
                 String country, region, subRegion;
-                geocoder = new Geocoder(activity, Locale.ITALIAN);
                 markerPool = new HashMap<>();
                 while (true) {
                     if (updatePosition.isCancelled())
@@ -465,53 +266,6 @@ public class SaveMeFragment
                     if (SingletonUser.getInstance() == null) {
                         return null;
                     }
-                    /*
-                    final double latitude = SingletonUser.getInstance().getLatitude();
-                    final double longitude = SingletonUser.getInstance().getLongitude();
-                    if (latitude != 0 && longitude != 0) {
-                        try {
-                            Log.e("latitude", "inside latitude--" + latitude);
-                            addresses = geocoder.getFromLocation(latitude, longitude, 1);
-
-                            if (addresses != null && addresses.size() > 0) {
-                                final String address = addresses.get(0).getAddressLine(0);
-                                subRegion = addresses.get(0).getSubAdminArea();
-                                country = addresses.get(0).getCountryName();
-                                region = addresses.get(0).getAdminArea();
-                                if (!country.equals(oldCountry) || !oldRegion.equals(oldRegion) || !subRegion.equals(oldSubRegion)) {
-                                    Log.e("DEBUG", oldCountry + " " +  oldRegion + " " + oldSubRegion);
-                                    Log.e("DEBUG", country + " " +  region + " " + subRegion);
-                                    lookForMyNeighbors(country, region, subRegion);
-                                }
-                                oldCountry = country;
-                                oldRegion = region;
-                                oldSubRegion = subRegion;
-                                //publishProgress(address, ""+latitude, ""+longitude);
-                                activity.runOnUiThread(new Runnable()
-                                {
-                                    public void run()
-                                    {
-                                        locationTxt.setText(address);
-                                        // Create a LatLng object for the current location
-                                        LatLng latLng = new LatLng(latitude, longitude);
-
-                                        // Show the current location in Google Map
-                                        if (latLng != null) {
-                                            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                                            circle = googleMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude)).radius(radius).strokeColor(Color.DKGRAY));
-                                            circle.setVisible(false);
-                                            int zoom = getZoomLevel(circle);
-                                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
-                                            Log.e("animate", "camera animated at: " + String.valueOf(zoom));
-                                        }
-                                    }
-                                });
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    */
 
                     final double latitude = SingletonUser.getInstance().getLatitude();
                     final double longitude = SingletonUser.getInstance().getLongitude();
@@ -522,7 +276,6 @@ public class SaveMeFragment
                     if (!country.equals(oldCountry) || !oldRegion.equals(oldRegion) || !subRegion.equals(oldSubRegion)) {
                         Log.e("DEBUG", oldCountry + " " +  oldRegion + " " + oldSubRegion);
                         Log.e("DEBUG", country + " " +  region + " " + subRegion);
-                        // TODO: 28/10/17 SISTEMA NULL POINTER SE NON ACCETTI I PERMESSI
                         lookForMyNeighbors(country, region, subRegion);
                     }
 
@@ -534,7 +287,6 @@ public class SaveMeFragment
                         activity.runOnUiThread(new Runnable() {
                             public void run() {
                                 locationTxt.setText(address);
-                                // TODO adattare i cambiamenti
                                 // Show the current location in Google Map
                                 if (googleMap != null) {
                                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(latitude, longitude)));
@@ -642,5 +394,159 @@ public class SaveMeFragment
 
             }
         });
+    }
+
+    public void initMapListener() {
+        if (mMapView != null) {
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap mMap) {
+                    googleMap = mMap;
+                    googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    googleMap.getUiSettings().setMapToolbarEnabled(false);
+                    googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+
+                    try {
+                        googleMap.setMyLocationEnabled(true);
+                    } catch (SecurityException e) {
+                        e.printStackTrace();
+                    }
+
+                    onMarkerClickListener = new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(final Marker marker) {
+
+                            userSelectedLocation = "NA";
+                            userSelectedFeedback = "NA";
+                            userSelectedUsername = marker.getTitle();
+                            userSelectedToken = "";
+                            userSelectedUid = "USERNAME_TEST";
+                            for (String key : markerPool.keySet()) {
+                                if (markerPool.get(key).getTitle().equals(userSelectedUsername)) {
+                                    userSelectedUid = key;
+                                }
+                            }
+
+                            userSelectedLocation = SingletonUser.getInstance().getSubRegion() + ", " +
+                                    SingletonUser.getInstance().getRegion() + ", " +
+                                    SingletonUser.getInstance().getCountry();
+
+
+                            relativeLayout = rootView.findViewById(R.id.relative);
+                            layoutInflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            final ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup_driver_info, null);
+                            driverInfo = new PopupWindow(container, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
+                            driverInfo.showAtLocation(relativeLayout, Gravity.CENTER, 0, 0);
+                            driverUsername = container.findViewById(R.id.driverUsernameContent);
+                            driverLocation = container.findViewById(R.id.driverPositionContent);
+                            driverPic = container.findViewById(R.id.thumbnail);
+                            ratingBar = container.findViewById(R.id.ratingBar);
+                            ratingBar.setRating(2.0f);
+                            ratingButton = container.findViewById(R.id.ratingButton);
+                            driverLocation.setMovementMethod(new ScrollingMovementMethod());
+                            driverUsername.setText(marker.getTitle());
+                            driverLocation.setText(userSelectedLocation);
+                            ImageButton message = container.findViewById(R.id.messageBtn);
+
+                            //GET THE SELECTED USER PHOTO URL, FEEDBACK, TOKEN AND AVAILABILITY
+                            if (!userSelectedUid.equals("USERNAME_TEST")) {
+                                DatabaseReference positionRef = database.getReference()
+                                        .child(NODE_POSITION)
+                                        .child(SingletonUser.getInstance().getCountry())
+                                        .child(SingletonUser.getInstance().getRegion())
+                                        .child(SingletonUser.getInstance().getSubRegion())
+                                        .child(userSelectedUid);
+
+                                positionRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.hasChild(CHILD_IMAGE)) {
+                                            userSelectedPic = dataSnapshot.child(CHILD_IMAGE).getValue().toString();
+                                            if (dataSnapshot.hasChild(ARG_FIREBASE_TOKEN)) {
+                                                userSelectedToken = dataSnapshot.child(ARG_FIREBASE_TOKEN).getValue().toString();
+                                                if (userSelectedToken.equals(""))
+                                                    userSelectedToken = "none";
+
+                                            } else {
+                                                userSelectedToken = "none";
+                                            }
+                                            userSelectedAvailability = dataSnapshot.child(CHILD_AVAILABILITY).getValue().toString();
+                                            GlideImageLoader.loadImageUri(
+                                                    getActivity(),
+                                                    driverPic,
+                                                    Uri.parse(userSelectedPic),
+                                                    R.mipmap.user_icon,
+                                                    R.mipmap.user_black_icon
+                                            );
+                                        }
+                                        if (dataSnapshot.hasChild(CHILD_FEEDBACK)) {
+                                            userSelectedFeedback = NumberManager.round(Double.parseDouble(dataSnapshot.child(CHILD_FEEDBACK).getValue().toString()),
+                                                    2).toString();
+                                        }
+                                        driverFeedback = container.findViewById(R.id.driverFeedbackContent);
+                                        driverFeedback.setText(userSelectedFeedback);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+
+                            ratingButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) ||
+                                            Locale.getDefault().getDisplayLanguage().equals(Locale.US))
+                                        Toast.makeText(activity, FEEDBACK_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
+                                    else
+                                        Toast.makeText(activity, FEEDBACK_SENT_ITALIAN, Toast.LENGTH_SHORT).show();
+                                    FirebaseDatabaseManager.updateUserFeedback(userSelectedUid, Double.parseDouble(String.valueOf(ratingBar.getRating())),
+                                            SingletonUser.getInstance().getCountry(), SingletonUser.getInstance().getRegion(),
+                                            SingletonUser.getInstance().getSubRegion());
+                                    PointManager.updatePoints(Double.parseDouble(String.valueOf(ratingBar.getRating())), userSelectedUid);
+                                    ratingButton.setClickable(false);
+                                    ratingButton.setTextColor(Color.BLACK);
+                                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.US) ||
+                                            Locale.getDefault().getDisplayLanguage().equals(Locale.UK))
+                                        ratingButton.setText(FEEDBACK_SENT_BUTTON_ENGLISH);
+                                    else
+                                        ratingButton.setText(FEEDBACK_SENT_BUTTON_ITALIAN);
+                                }
+                            });
+                            message.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+
+                                    if (userSelectedToken.equals("none")) {
+                                        Toast.makeText(activity, activity.getResources().getString(R.string.cannot_contact_user), Toast.LENGTH_LONG)
+                                                .show();
+                                    } else {
+
+                                        ChatActivity.startActivity(getActivity(),
+                                                userSelectedUsername,
+                                                userSelectedUid,
+                                                userSelectedToken);
+
+                                    }
+                                }
+                            });
+
+                            container.setOnTouchListener(new View.OnTouchListener() {
+                                @Override
+                                public boolean onTouch(View view, MotionEvent motionEvent) {
+                                    driverInfo.dismiss();
+                                    return true;
+                                }
+                            });
+                            return true;
+                        }
+                    };
+
+                    googleMap.setOnMarkerClickListener(onMarkerClickListener);
+                }
+            });
+        }
     }
 }

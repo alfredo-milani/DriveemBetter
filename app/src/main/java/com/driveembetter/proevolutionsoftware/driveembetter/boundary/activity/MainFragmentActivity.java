@@ -268,7 +268,8 @@ public class MainFragmentActivity extends AppCompatActivity
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 &&
                         grantResults[0] == PermissionManager.PERM_OK) {
-                    // TODO: 29/10/17 AGGIUNGERE QUI LA CHIAMATA PER INIZIALIZZARE QUELLA ROBA CHE TI HO DETTO
+                    if (saveMe != null)
+                        ((SaveMeFragment) saveMe).initMapListener();
                 } else {
                     Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
                     this.logoutCurrentProviders();
