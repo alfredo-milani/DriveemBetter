@@ -621,8 +621,6 @@ public class MainFragmentActivity extends AppCompatActivity
         super.onStart();
 
         Log.d(TAG, ":start");
-        // this.checkPermissions();
-
         this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
         this.singletonFirebaseProvider.setContext(this);

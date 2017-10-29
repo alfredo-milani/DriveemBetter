@@ -69,19 +69,6 @@ public class SignInActivity
 
         this.setContentView(R.layout.activity_sign_in);
 
-        /*
-        PermissionManager.checkAndAskPermission(
-                this,
-                new int[] {
-                        PermissionManager.FINE_LOCATION,
-                        PermissionManager.COARSE_LOCATION,
-                        PermissionManager.WAKE_LOCK,
-                        PermissionManager.DISABLE_KEYGUARD
-                },
-                PermissionManager.ASK_FOR_LOCATION_POS_MAN
-        );
-        */
-
         this.initWidget();
 
         if (!this.termsAccepted) {
@@ -89,24 +76,6 @@ public class SignInActivity
             this.startActivityForResult(termsConditions, TermsActivity.TERMS_ACTIVITY);
         }
     }
-
-    /*
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PermissionManager.ASK_FOR_LOCATION_POS_MAN:
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length < 1 &&
-                        grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
-                }
-                return;
-
-            default:
-                Log.d(TAG, "onRequestPermissionResult: " + requestCode);
-        }
-    }
-*/
 
     // Defines a Handler object that's attached to the UI thread
     private final Handler handler = new Handler(Looper.getMainLooper()) {
@@ -297,23 +266,6 @@ public class SignInActivity
                     break;
                 }
 
-                /*
-                if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
-                        !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
-                    PermissionManager.checkAndAskPermission(
-                            this,
-                            new int[] {
-                                    PermissionManager.FINE_LOCATION,
-                                    PermissionManager.COARSE_LOCATION,
-                                    PermissionManager.WAKE_LOCK,
-                                    PermissionManager.DISABLE_KEYGUARD
-                            },
-                            PermissionManager.ASK_FOR_LOCATION_POS_MAN
-                    );
-                    break;
-                }
-                */
-
                 // Code strength
                 this.checkEmailBeforeLogIn = true;
                 ////
@@ -343,23 +295,6 @@ public class SignInActivity
                     break;
                 }
 
-                /*
-                if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
-                        !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
-                    PermissionManager.checkAndAskPermission(
-                            this,
-                            new int[] {
-                                    PermissionManager.FINE_LOCATION,
-                                    PermissionManager.COARSE_LOCATION,
-                                    PermissionManager.WAKE_LOCK,
-                                    PermissionManager.DISABLE_KEYGUARD
-                            },
-                            PermissionManager.ASK_FOR_LOCATION_POS_MAN
-                    );
-                    break;
-                }
-                */
-
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
                 this.baseProviderArrayList
@@ -373,23 +308,6 @@ public class SignInActivity
                     Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_LONG).show();
                     break;
                 }
-
-                /*
-                if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
-                        !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
-                    PermissionManager.checkAndAskPermission(
-                            this,
-                            new int[] {
-                                    PermissionManager.FINE_LOCATION,
-                                    PermissionManager.COARSE_LOCATION,
-                                    PermissionManager.WAKE_LOCK,
-                                    PermissionManager.DISABLE_KEYGUARD
-                            },
-                            PermissionManager.ASK_FOR_LOCATION_POS_MAN
-                    );
-                    break;
-                }
-                */
 
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
