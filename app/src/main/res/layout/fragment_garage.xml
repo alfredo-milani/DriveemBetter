@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.GarageFragment">
+    tools:context="com.proevolutionsoftware.driveembetter.boundary.fragment.GarageFragment">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swiperefresh_garage"

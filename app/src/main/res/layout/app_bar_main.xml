@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context="com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity">
+    tools:context="com.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"

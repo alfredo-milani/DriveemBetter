@@ -135,7 +135,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/colorText" />
 
-    <com.driveembetter.proevolutionsoftware.driveembetter.utils.Speedometer
+    <com.proevolutionsoftware.driveembetter.utils.Speedometer
         android:id="@+id/Speedometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

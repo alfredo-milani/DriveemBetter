@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.driveembetter.proevolutionsoftware.driveembetter" >
+    package="com.proevolutionsoftware.driveembetter" >
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -29,7 +29,7 @@
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name=".boundary.activity.SignInActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.SignInActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -40,7 +40,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.activity.SignUpActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.SignUpActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait" >
             <!--Default Intent Filter-->
@@ -51,7 +51,7 @@
 
 
         <activity
-            android:name=".boundary.activity.AddVehicleActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.AddVehicleActivity"
             android:label="@string/Add_vehicle"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" >
@@ -62,7 +62,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.activity.ModifyVehicleActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.ModifyVehicleActivity"
             android:label="@string/Modify_vehicle"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" >
@@ -73,7 +73,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.activity.MainFragmentActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait" >
             <!--Default Intent Filter-->
@@ -83,7 +83,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.activity.ChatActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.ChatActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait" >
@@ -93,7 +93,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.activity.UserDetailsRankingActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.UserDetailsRankingActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait" >
             <!--Default Intent Filter-->
@@ -103,7 +103,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.activity.ShowFullscreenGraph"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.ShowFullscreenGraph"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="landscape" >
             <!--Default Intent Filter-->
@@ -113,7 +113,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.activity.SettingsActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.SettingsActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait" >
             <!--Default Intent Filter-->
@@ -123,7 +123,7 @@
         </activity>
 
         <activity
-            android:name=".boundary.activity.EditProfileDataActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.EditProfileDataActivity"
             android:screenOrientation="portrait" >
             <!--Default Intent Filter-->
             <intent-filter>
@@ -132,51 +132,51 @@
         </activity>
 
         <activity
-            android:name=".boundary.activity.ChartActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.ChartActivity"
             android:theme="@style/AppTheme"
             android:label="@string/statistics"
-            android:parentActivityName=".boundary.activity.MainFragmentActivity" >
+            android:parentActivityName="com.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".boundary.activity.MainFragmentActivity" />
+                android:value="com.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity" />
         </activity>
 
-        <activity android:name=".boundary.activity.AddFriendsActivity"
+        <activity android:name="com.proevolutionsoftware.driveembetter.boundary.activity.AddFriendsActivity"
             android:theme="@style/AppTheme"
             android:label="Your Friends"
             android:screenOrientation="portrait"
-            android:parentActivityName=".boundary.activity.MainFragmentActivity">
+            android:parentActivityName="com.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity">
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".boundary.activity.TermsActivity"
+            android:name="com.proevolutionsoftware.driveembetter.boundary.activity.TermsActivity"
             android:theme="@style/AppTheme.NoActionBar" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".boundary.activity.MainFragmentActivity" />
+                android:value="com.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity" />
         </activity>
 
-        <activity android:name=".boundary.activity.ContactListActivity"
+        <activity android:name="com.proevolutionsoftware.driveembetter.boundary.activity.ContactListActivity"
             android:theme="@style/AppTheme"
             android:label="Contacts List"
             android:windowSoftInputMode="stateHidden"
-            android:parentActivityName=".boundary.activity.AddFriendsActivity" >
+            android:parentActivityName="com.proevolutionsoftware.driveembetter.boundary.activity.AddFriendsActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />
             </intent-filter>
         </activity>
 
 
-        <activity android:name=".boundary.activity.EmergencyActivity"
+        <activity android:name="com.proevolutionsoftware.driveembetter.boundary.activity.EmergencyActivity"
             android:theme="@style/AppTheme"
             android:label="Crash Detected!"
             android:windowSoftInputMode="stateHidden"
-            android:parentActivityName=".boundary.activity.MainFragmentActivity" >
+            android:parentActivityName="com.proevolutionsoftware.driveembetter.boundary.activity.MainFragmentActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />
             </intent-filter>
@@ -185,11 +185,11 @@
 
 
         <service
-            android:name=".services.SwipeClosureHandler"
+            android:name="com.proevolutionsoftware.driveembetter.services.SwipeClosureHandler"
             android:stopWithTask="false"/>
 
         <service
-            android:name=".fcm.FirebaseUtility"
+            android:name="com.proevolutionsoftware.driveembetter.fcm.FirebaseUtility"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
@@ -197,7 +197,7 @@
         </service>
 
         <service
-            android:name=".fcm.MyFirebaseMessagingService"
+            android:name="com.proevolutionsoftware.driveembetter.fcm.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
@@ -228,7 +228,7 @@
             android:value="@string/google_maps_key" />
 
         <!-- To manage shutdown event -->
-        <receiver android:name=".events.ShutdownReceiver">
+        <receiver android:name="com.proevolutionsoftware.driveembetter.events.ShutdownReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
                 <!-- To manage some HTC phone -->

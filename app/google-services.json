@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1019598447876:android:1206c0a76604685f",
         "android_client_info": {
-          "package_name": "com.driveembetter.proevolutionsoftware.driveembetter"
+          "package_name": "com.proevolutionsoftware.driveembetter"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "1019598447876-v3284rafontfu3bur09gffb1hegvta9m.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.driveembetter.proevolutionsoftware.driveembetter",
+            "package_name": "com.proevolutionsoftware.driveembetter",
             "certificate_hash": "6936df2a3ff996dd0383c7397f25bd44f6145974"
           }
         },
@@ -26,8 +26,52 @@
           "client_id": "1019598447876-siuaf1q1id5qqbh8me4ne3vfjljjd78o.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.driveembetter.proevolutionsoftware.driveembetter",
+            "package_name": "com.proevolutionsoftware.driveembetter",
             "certificate_hash": "cf3d985a8ac30682a52758f4ed7c06e83672032d"
+          }
+        },
+        {
+          "client_id": "1019598447876-1ao35oa7tgk03e65rkbau3107ap8rvhs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRjaWF8-tK2mOZoGljvZz2zYP7LwqmPq0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1019598447876-1ao35oa7tgk03e65rkbau3107ap8rvhs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1019598447876:android:de617fb444444f6a",
+        "android_client_info": {
+          "package_name": "com.proevolutionsoftware.driveembetter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1019598447876-qhqhger910blirnjlllq4rgq4c8i7bm9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.proevolutionsoftware.driveembetter",
+            "certificate_hash": "6936df2a3ff996dd0383c7397f25bd44f6145974"
           }
         },
         {

@@ -7,7 +7,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion "26.0.1"
     defaultConfig {
-        applicationId "com.driveembetter.proevolutionsoftware.driveembetter"
+        applicationId "com.proevolutionsoftware.driveembetter"
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 1
