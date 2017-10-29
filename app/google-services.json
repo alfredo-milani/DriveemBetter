@@ -15,19 +15,19 @@
       },
       "oauth_client": [
         {
+          "client_id": "1019598447876-v3284rafontfu3bur09gffb1hegvta9m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.driveembetter.proevolutionsoftware.driveembetter",
+            "certificate_hash": "6936df2a3ff996dd0383c7397f25bd44f6145974"
+          }
+        },
+        {
           "client_id": "1019598447876-siuaf1q1id5qqbh8me4ne3vfjljjd78o.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.driveembetter.proevolutionsoftware.driveembetter",
             "certificate_hash": "cf3d985a8ac30682a52758f4ed7c06e83672032d"
-          }
-        },
-        {
-          "client_id": "1019598447876-cdugqd4o459q0292n6atpnb8jb3i1f0b.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.driveembetter.proevolutionsoftware.driveembetter",
-            "certificate_hash": "7c0695fa0e89d83a12f49b26018ada89e0301b46"
           }
         },
         {
