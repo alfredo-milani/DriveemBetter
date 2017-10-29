@@ -161,7 +161,7 @@
     <string name="terms_text">Drive \'Em Better requires access to your location and contacts in the address book. Such data will only be processed for the purposes of the application without being disclosed or shared.</string>
     <string name="dev_description">We are a team of the University of Rome Tor Vergata so composed: Alfredo Milani, Mattia Ponza, Matteo Adriani and Fabiana Rossi.</string>
 
-    <string name="app_name" translatable="false">Drive\'em Better</string>
+    <string name="app_name" translatable="false">Drive \'em Better</string>
 
     <string name="title_activity_save_me">Save Me!</string>
 
