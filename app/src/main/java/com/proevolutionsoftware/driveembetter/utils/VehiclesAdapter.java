@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
-import static com.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
+import static com.proevolutionsoftware.driveembetter.entity.Vehicle.MOTORCYCLE;
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
 import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
@@ -59,7 +59,7 @@ public class VehiclesAdapter extends ArrayAdapter<Vehicle> {
 
         if(vehicles.get(position).getType().equals(CAR) || vehicles.get(position).getType().equals("Auto")){
             return 0;
-        }else if (vehicles.get(position).getType().equals(MOTO) || vehicles.get(position).getType().equals("Moto")){
+        }else if (vehicles.get(position).getType().equals(MOTORCYCLE) || vehicles.get(position).getType().equals("Moto")){
             return 1;
         }else if (vehicles.get(position).getType().equals(VAN) || vehicles.get(position).getType().equals("Furgone")){
             return 2;

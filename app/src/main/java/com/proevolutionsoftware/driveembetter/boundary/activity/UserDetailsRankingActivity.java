@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -31,6 +32,7 @@ import java.util.Locale;
 
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
+import static com.proevolutionsoftware.driveembetter.entity.Vehicle.MOTORCYCLE;
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
 
 /**
@@ -184,8 +186,9 @@ public class UserDetailsRankingActivity extends AppCompatActivity
 
     @Override
     public void onUserVehiclesReceived(ArrayList<Vehicle> vehicles) {
-        if (!vehicles.isEmpty()) {
+        if (vehicles != null && !vehicles.isEmpty()) {
             Uri uri;
+            Log.e(TAG, "VEI: " + vehicles.get(0).getModel() + " / " + vehicles.get(0).getType() + " / " + vehicles.get(0).getNumberPlate());
             switch (vehicles.get(0).getType()) {
                 case CAR:
                     uri = GlideImageLoader.fromResourceToUri(this, R.mipmap.car);
@@ -195,6 +198,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
                     uri = GlideImageLoader.fromResourceToUri(this, R.mipmap.van);
                     break;
 
+                case MOTORCYCLE:
                 case MOTO:
                     uri = GlideImageLoader.fromResourceToUri(this, R.mipmap.moto);
                     break;

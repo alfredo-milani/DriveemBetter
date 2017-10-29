@@ -213,5 +213,6 @@
     <string name="dev_description">Noi siamo un team dell\'Università di Roma Tor Vergata così composto: Alfredo Milani, Mattia Ponza, Matteo Adriani and Fabiana Rossi.</string>
     <string name="insurance_alert">La tua assicurazione è scaduta! Aggiorna la data di scadenza assicurativa non appena lo rinnova</string>
     <string name="insurance_date">Data assicurazione</string>
+    <string name="string_error">La stringa non può contenere  \'.\', \'#\', \'$\', \'=\', \';\', \'[\', or \']\'. Veicolo non salvato.</string>
 
 </resources>

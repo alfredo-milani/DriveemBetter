@@ -228,5 +228,6 @@
     <string name="strGraph">Graphic</string>
     <string name="strNoGraph">Graph is not available.</string>
     <string name="action_delete">Delete</string>
+    <string name="string_error">Firebase paths must not contain \'.\', \'#\', \'$\', \'=\', \';\', \'[\', or \']\'. Vehicle not saved.</string>
 
 </resources>

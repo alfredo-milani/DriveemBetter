@@ -43,6 +43,7 @@ import static com.proevolutionsoftware.driveembetter.constants.Constants.PLATE_L
 import static com.proevolutionsoftware.driveembetter.constants.Constants.VEHICLE_EXISTS_YET;
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
+import static com.proevolutionsoftware.driveembetter.entity.Vehicle.MOTORCYCLE;
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
 
 public class AddVehicleActivity extends AppCompatActivity {
@@ -205,32 +206,54 @@ public class AddVehicleActivity extends AppCompatActivity {
         return true;
     }
 
-    private void addNewVehicle(){
+    private boolean firebaseSyntaxCheck(String string) {
+        return !(string.contains(".") || string.contains("#") ||
+                string.contains("$") || string.contains("[") ||
+                string.contains("]") || string.contains("=") ||
+                string.contains(";")
+        );
+    }
 
+    private void addNewVehicle() {
         this.database = FirebaseDatabase.getInstance();
         this.ref = database.getReference("users/" + SingletonFirebaseProvider
                 .getInstance()
                 .getFirebaseUser()
                 .getUid() + "/vehicles");
 
-        if( getType().equals(CAR) || getType().equals("Auto")){
+        String tmpPath;
+        if( getType().equals(CAR) || getType().equals("Auto")) {
+            tmpPath = vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date();
 
-            ref.child(vehicle.getNumberPlate())
-                    .setValue(vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
+            if (!this.firebaseSyntaxCheck(tmpPath)) {
+                Toast.makeText(this, getString(R.string.string_error), Toast.LENGTH_LONG).show();
+            } else {
+                ref.child(vehicle.getNumberPlate())
+                        .setValue(tmpPath);
+            }
         }
 
-        if( getType().equals(MOTO) || getType().equals("Moto")){
+        if( getType().equals(MOTORCYCLE) || getType().equals(MOTO)){
+            tmpPath = vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date();
 
-            ref.child(vehicle.getNumberPlate())
-                    .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
+            if (!this.firebaseSyntaxCheck(tmpPath)) {
+                Toast.makeText(this, getString(R.string.string_error), Toast.LENGTH_LONG).show();
+            } else {
+                ref.child(vehicle.getNumberPlate())
+                        .setValue(tmpPath);
+            }
         }
 
         if( getType().equals(VAN) || getType().equals("Furgone")){
+            tmpPath = vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date();
 
-            ref.child(vehicle.getNumberPlate())
-                    .setValue(vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date());
+            if (!this.firebaseSyntaxCheck(tmpPath)) {
+                Toast.makeText(this, getString(R.string.string_error), Toast.LENGTH_LONG).show();
+            } else {
+                ref.child(vehicle.getNumberPlate())
+                        .setValue(tmpPath);
+            }
         }
-
     }
 
     public String getType() {

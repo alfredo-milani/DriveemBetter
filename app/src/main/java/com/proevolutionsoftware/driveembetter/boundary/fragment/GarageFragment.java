@@ -63,7 +63,7 @@ import static com.proevolutionsoftware.driveembetter.constants.Constants.REV_DAT
 import static com.proevolutionsoftware.driveembetter.constants.Constants.TYPE;
 import static com.proevolutionsoftware.driveembetter.constants.Constants.YES;
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.CAR;
-import static com.proevolutionsoftware.driveembetter.entity.Vehicle.MOTO;
+import static com.proevolutionsoftware.driveembetter.entity.Vehicle.MOTORCYCLE;
 import static com.proevolutionsoftware.driveembetter.entity.Vehicle.VAN;
 import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
@@ -465,7 +465,7 @@ public class GarageFragment extends Fragment
                             ";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
         }
 
-        if( vehicles.get(selected_item).getType().equals(MOTO) || vehicles.get(selected_item).getType().equals("Moto")){
+        if( vehicles.get(selected_item).getType().equals(MOTORCYCLE) || vehicles.get(selected_item).getType().equals("Moto")){
 
             ref.child(vehicles.get(selected_item).getNumberPlate())
                     .setValue(vehicles.get(selected_item).getType()+";"+vehicles.get(selected_item).getModel()+";"+vehicles.get(selected_item).getNumberPlate()+";"+vehicles.get(selected_item).getOwner()+";"+vehicles.get(selected_item).getInsurance_date()+";"+vehicles.get(selected_item).getRevision_date());
@@ -488,7 +488,7 @@ public class GarageFragment extends Fragment
                     .setValue("Car");
         }
 
-        if( vehicles.get(selected_item).getType().equals(MOTO)  || vehicles.get(selected_item).getType().equals("Moto")){
+        if( vehicles.get(selected_item).getType().equals(MOTORCYCLE)  || vehicles.get(selected_item).getType().equals("Moto")){
             FirebaseDatabaseManager.getDatabaseReference().child(NODE_POSITION)
                     .child(singletonUser.getCountry())
                     .child(singletonUser.getRegion())
