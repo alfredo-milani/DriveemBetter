@@ -215,11 +215,15 @@ public class PositionManager
     }
 
     private void checkSpeedAndAcceleration(Location location) throws IOException {
+        SingletonUser user = SingletonUser.getInstance();
+        if (user == null) {
+            return;
+        }
 
         String currentPosition = "";
 
-        String[] currentAddress = SingletonUser.getInstance().getAddress().split(",");
-        if (currentAddress != null && currentAddress.length > 0) {
+        String[] currentAddress = user.getAddress().split(",");
+        if (currentAddress.length > 0) {
             currentPosition = currentAddress[0];
         }
 
@@ -298,6 +302,8 @@ public class PositionManager
                 Log.d(TAG, "Aggiornamento ultima posizione nota da Firebase. Skipping onLocationChanged");
                 ;
                 return;
+            } else if (user == null) {
+                return;
             }
 
             try {
@@ -338,11 +344,13 @@ public class PositionManager
                     // user.getRegion() + ", " + user.getCountry());
                     user.setCity(strings[3]);
 
-                    yahooProgressBar.setVisibility(View.VISIBLE);
-                    yahooProgressBar.getIndeterminateDrawable().setColorFilter(
-                            ContextCompat.getColor(activity, R.color.colorPrimaryDark),
-                            android.graphics.PorterDuff.Mode.MULTIPLY
-                    );
+                    if (yahooProgressBar != null) {
+                        yahooProgressBar.setVisibility(View.VISIBLE);
+                        yahooProgressBar.getIndeterminateDrawable().setColorFilter(
+                                ContextCompat.getColor(activity, R.color.colorPrimaryDark),
+                                android.graphics.PorterDuff.Mode.MULTIPLY
+                        );
+                    }
 
                     new YahooWeatherParser(
                             weatherIcon,
@@ -621,10 +629,12 @@ public class PositionManager
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-            if (!values[0].equals("design") && !values[0].equals("designStatic")) {
+            if (speedLimitText != null &&
+                    !values[0].equals("design") &&
+                    !values[0].equals("designStatic")) {
                 speedLimitText.setText(values[0]);
             }
-            if (values[0].equals("design")){
+            if (speedLimitSign != null && values[0].equals("design")){
                 AlphaAnimation blinkanimation= new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
                 blinkanimation.setDuration(1000); // duration - half a second
                 blinkanimation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
@@ -632,9 +642,9 @@ public class PositionManager
                 blinkanimation.setRepeatMode(Animation.REVERSE);
                 speedLimitSign.startAnimation(blinkanimation);
             }
-            if (values[0].equals("designStatic")){
-                if (speedLimitSign.getAnimation() != null)
-                    speedLimitSign.clearAnimation();
+            if (speedLimitSign != null && speedLimitSign.getAnimation() != null &&
+                    values[0].equals("designStatic")){
+                speedLimitSign.clearAnimation();
             }
         }
     }

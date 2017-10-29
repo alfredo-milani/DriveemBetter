@@ -3,8 +3,6 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -57,7 +55,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -150,6 +147,11 @@ public class SaveMeFragment
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (googleMap == null) {
+                    initMapListener();
+                    return;
+                }
+
                 radius = progressToMeters(progress);
                 rangeText.setText(radius + " m");
 
@@ -299,6 +301,8 @@ public class SaveMeFragment
                                     int zoom = getZoomLevel(circle);
                                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom));
                                     Log.e("animate", "camera animated at: " + String.valueOf(zoom));
+                                } else {
+                                    initMapListener();
                                 }
                             }
                         });
@@ -356,6 +360,12 @@ public class SaveMeFragment
                                     markerPool.get(user).setPosition(userPos);
                                     Log.e("DEBUG", "GIA' ESISTE");
                                 } else {
+                                    if (googleMap == null) {
+                                        Log.d(TAG, "googleMap object null");
+                                        initMapListener();
+                                        return;
+                                    }
+
                                     String markerTitle = "user@drivembetter.com";
                                     if (data.get(user).get(CHILD_EMAIL) != null)
                                         markerTitle = (String) data.get(user).get(CHILD_USERNAME);

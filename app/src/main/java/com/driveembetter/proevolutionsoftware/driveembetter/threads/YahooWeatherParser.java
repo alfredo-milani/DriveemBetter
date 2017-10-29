@@ -110,40 +110,56 @@ public class YahooWeatherParser extends AsyncTask<String, String, String[]> {
 
     @Override
     protected void onPostExecute(String[] s) {
-        yahooProgressBar.setVisibility(View.GONE);
+        if (yahooProgressBar != null) {
+            yahooProgressBar.setVisibility(View.GONE);
+        }
         super.onPostExecute(s);
         if (s != null) {
-            for (int i = 0; i < s.length; i++) {
-                System.out.println("############" + s[i]);
-            }
-
-                if (s[5].equals("N/A"))
+            if (s[5].equals("N/A"))
                 setWeatherIcon("99");
             else
                 setWeatherIcon(s[5]);
-            if (s[5].equals("N/A"))
-                windText.setText("N/A");
-            else
-                windText.setText((int) Double.parseDouble(s[0]) + " km/h");
-            windDirectionText.setText(s[1]);
-            if (s[4].equals("N/A"))
-                temperatureText.setText("N/A");
-            else {
-                Double temperature = NumberManager.round(Double.parseDouble(s[4]), 1);
-                temperatureText.setText(temperature.toString() + " °C");
+
+            if (windText != null) {
+                if (s[5].equals("N/A"))
+                    windText.setText("N/A");
+                else
+                    windText.setText((int) Double.parseDouble(s[0]) + " km/h");
             }
-            if (s[2].equals("N/A"))
-                humidityText.setText("N/A");
-            else
-                humidityText.setText(s[2] + " %");
-            if (s[3].equals("N/A"))
-                visibilityText.setText("N/A");
-            else
-                visibilityText.setText(s[3] + " km");
+            if (windDirectionText != null) {
+                windDirectionText.setText(s[1]);
+            }
+
+            if (temperatureText != null) {
+                if (s[4].equals("N/A"))
+                    temperatureText.setText("N/A");
+                else {
+                    Double temperature = NumberManager.round(Double.parseDouble(s[4]), 1);
+                    temperatureText.setText(temperature.toString() + " °C");
+                }
+            }
+
+            if (humidityText != null) {
+                if (s[2].equals("N/A"))
+                    humidityText.setText("N/A");
+                else
+                    humidityText.setText(s[2] + " %");
+            }
+
+            if (visibilityText != null) {
+                if (s[3].equals("N/A"))
+                    visibilityText.setText("N/A");
+                else
+                    visibilityText.setText(s[3] + " km");
+            }
         }
     }
 
     private void setWeatherIcon(String weather) {
+        if (weatherIcon == null) {
+            return;
+        }
+
         weatherIcon.setImageResource(0);
         weatherIcon.setTag(0);
         Integer code = Integer.parseInt(weather);

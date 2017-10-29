@@ -210,5 +210,9 @@
     <string name="decline">Declina</string>
     <string name="terms">Termini</string>
     <string name="terms_text">Drive \'Em Better necessita l\'accesso alla tua posizione ed ai contatti della tua rubrica. Tali dati verranno trattati ai soli fini dell\'applicazione, senza essere divulgati o condivisi.</string>
+    <string name="dev_description">Noi siamo un team dell\'Università di Roma Tor Vergata così composto: Alfredo Milani, Mattia Ponza, Matteo Adriani and Fabiana Rossi.</string>
+    <string name="insurance_alert">La tua assicurazione è scaduta! Aggiorna la data di scadenza assicurativa non appena lo rinnova</string>
+    <string name="insurance_date">Data assicurazione</string>
+    <string name="fragment_tag"></string>
 
 </resources>

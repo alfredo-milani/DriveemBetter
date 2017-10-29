@@ -30,7 +30,7 @@
         android:layout_height="match_parent"
         android:layout_margin="25dp"
         android:layout_weight="0.5"
-        android:text="DEV description"
+        android:text="@string/dev_description"
         android:textColor="@color/colorText" />
 
 </LinearLayout>

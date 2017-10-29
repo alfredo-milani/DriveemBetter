@@ -156,6 +156,48 @@
     <string name="decline">Decline</string>
     <string name="terms">Terms</string>
     <string name="terms_text">Drive \'Em Better requires access to your location and contacts in the address book. Such data will only be processed for the purposes of the application without being disclosed or shared.</string>
+    <string name="dev_description">We are a team of the University of Rome Tor Vergata so composed: Alfredo Milani, Mattia Ponza, Matteo Adriani and Fabiana Rossi.</string>
+
+
+
+
+
+
+    <string name="com.twitter.sdk.android.CONSUMER_KEY" translatable="false">G8IMz4pduHEMTKGodH5Mha7mo</string>
+    <string name="com.twitter.sdk.android.CONSUMER_SECRET" translatable="false">bJEXoU3BXNlgo82t50VN4hTdIyxaUKqTABjiDksKTdOOfetqD8</string>
+    <string name="default_web_client_id_backup" translatable="false">1019598447876-cdugqd4o459q0292n6atpnb8jb3i1f0b.apps.googleusercontent.com</string>
+
+
+
+    <!--
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=CA:31:2A:82:E2:FA:B0:E0:31:77:40:03:D2:28:30:E2:0B:AE:D5:27%3Bcom.driveembetter.proevolutionsoftware.driveembetter
+
+    You can also add your credentials to an existing key, using these values:
+
+    Package name:
+    CA:31:2A:82:E2:FA:B0:E0:31:77:40:03:D2:28:30:E2:0B:AE:D5:27
+
+    SHA-1 certificate fingerprint:
+    CA:31:2A:82:E2:FA:B0:E0:31:77:40:03:D2:28:30:E2:0B:AE:D5:27
+
+    Alternatively, follow the directions here:
+    https://developers.google.com/maps/documentation/android/start#get-key
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    -->
+    <!--
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+        AIzaSyDeT1BnKRZst9K5u8CB-GwHCsbtIXxiIhw
+    </string>
+    -->
+
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+        AIzaSyC_GcddbZDTIw_15-pC5A2MWqKNyD196WA
+    </string>
+
 
 
 </resources>

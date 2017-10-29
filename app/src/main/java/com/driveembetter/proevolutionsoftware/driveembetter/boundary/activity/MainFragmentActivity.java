@@ -259,7 +259,7 @@ public class MainFragmentActivity extends AppCompatActivity
                     }
                     this.positionManager.updatePosition();
                 } else {
-                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_SHORT).show();
                     this.logoutCurrentProviders();
                 }
                 return;
@@ -268,10 +268,14 @@ public class MainFragmentActivity extends AppCompatActivity
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 &&
                         grantResults[0] == PermissionManager.PERM_OK) {
-                    if (saveMe != null)
+                    if (saveMe != null) {
                         ((SaveMeFragment) saveMe).initMapListener();
+                        if (this.positionManager != null) {
+                            this.positionManager.updatePosition();
+                        }
+                    }
                 } else {
-                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_SHORT).show();
                     this.logoutCurrentProviders();
                 }
                 return;
