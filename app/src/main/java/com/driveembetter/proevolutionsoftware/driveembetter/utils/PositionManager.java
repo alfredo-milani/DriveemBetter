@@ -3,7 +3,6 @@ package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -74,7 +73,6 @@ public class PositionManager
     private ProgressBar yahooProgressBar;
 
 
-
     // Singleton
     private PositionManager(Activity activity) {
         this.activity = activity;
@@ -95,7 +93,6 @@ public class PositionManager
 
         return positionManager;
     }
-
 
 
     public void createTools(View view) {
@@ -291,7 +288,6 @@ public class PositionManager
     }
 
 
-
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
@@ -299,7 +295,8 @@ public class PositionManager
             if (user != null && (user.getMtxUpdatePosition().isLocked() ||
                     user.getUid().isEmpty())) {
                 // Al posto di prendere lock appensantendo il workflow skip se è in corso il processo di aggiornameto dei dati della posizione
-                Log.d(TAG, "Aggiornamento ultima posizione nota da Firebase. Skipping onLocationChanged");;
+                Log.d(TAG, "Aggiornamento ultima posizione nota da Firebase. Skipping onLocationChanged");
+                ;
                 return;
             }
 
@@ -333,7 +330,6 @@ public class PositionManager
                 user.setCity(strings[3]);
                 user.setAddress(strings[4]);
                 Log.d(TAG, "PositionNEW: " + user.getCountry() + " / " + user.getRegion() + " / " + user.getSubRegion() + " / " + user.getCity() + " / " + user.getAddress());
-
 
 
                 if (!oldCity.equals(strings[3])) {
@@ -376,7 +372,7 @@ public class PositionManager
                         !oldCountry.equals(user.getCountry())) {
                     Log.d(TAG, "Removing old position");
                     // Remove user from position node only if his position has changed
-                    FirebaseDatabaseManager.removeOldPosition(new String[] {oldCountry, oldRegion, oldSubRegion});
+                    FirebaseDatabaseManager.removeOldPosition(new String[]{oldCountry, oldRegion, oldSubRegion});
                     // Create user in new position
                     FirebaseDatabaseManager.createNewUserPosition();
                     // Update users node
@@ -410,22 +406,32 @@ public class PositionManager
     }
 
     public void updatePosition() {
-        PermissionManager.checkAndAskPermission(
-                this.activity,
-                new int[] {
-                        PermissionManager.FINE_LOCATION,
-                        PermissionManager.COARSE_LOCATION
-                },
-                PermissionManager.ASK_FOR_LOCATION
-        );
+        if (!PermissionManager.isAllowed(this.activity, PermissionManager.COARSE_LOCATION_MANIFEST) ||
+                !PermissionManager.isAllowed(this.activity, PermissionManager.FINE_LOCATION_MANIFEST)) {
+            PermissionManager.askForPermission(
+                    this.activity,
+                    new String[] {
+                            PermissionManager.COARSE_LOCATION_MANIFEST,
+                            PermissionManager.FINE_LOCATION_MANIFEST,
+                            PermissionManager.WAKE_LOCK_MANIFEST,
+                            PermissionManager.DISABLE_KEYGUARD_MANIFEST
+                    },
+                    PermissionManager.ASK_FOR_LOCATION_POS_MAN
+            );
+            return;
+        }
 
         this.listenerSetted = true;
-        this.locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                5000,
-                50,
-                this.locationListener
-        );
+        try {
+            this.locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    5000,
+                    50,
+                    this.locationListener
+            );
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     public void removeLocationUpdates() {
@@ -674,6 +680,14 @@ public class PositionManager
             }
         });
     }
+
+    public void removeTextToSpeech() {
+        if(this.tts != null) {
+            this.tts.stop();
+            this.tts.shutdown();
+        }
+    }
+
 
     public void alertCrash() {
         if (tts != null)

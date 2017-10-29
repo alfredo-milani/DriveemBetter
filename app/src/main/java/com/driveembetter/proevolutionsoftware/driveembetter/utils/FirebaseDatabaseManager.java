@@ -552,7 +552,8 @@ public class FirebaseDatabaseManager
                                 .getValue()
                                 .toString();
 
-                        if (!token.equals(tokenDB)) {
+                        if (token != null && tokenDB != null &&
+                                !token.equals(tokenDB)) {
                             dataSnapshot
                                     .getRef()
                                     .child(ARG_FIREBASE_TOKEN)

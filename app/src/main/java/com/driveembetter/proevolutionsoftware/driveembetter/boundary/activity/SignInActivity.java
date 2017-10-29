@@ -2,12 +2,10 @@ package com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -26,7 +24,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.authentication.facto
 import com.driveembetter.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonTwitterProvider;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.ManageCache;
-import com.driveembetter.proevolutionsoftware.driveembetter.utils.PermissionManager;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.SharedPrefUtil;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.StringParser;
 import com.google.android.gms.common.SignInButton;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
@@ -43,6 +41,8 @@ public class SignInActivity
     private final static String TAG = SignInActivity.class.getSimpleName();
 
     // Activity resources
+    private SharedPrefUtil sharedPrefUtil;
+    private boolean termsAccepted;
     private ArrayList<BaseProvider> baseProviderArrayList;
     private SingletonFirebaseProvider singletonFirebaseProvider;
 
@@ -54,6 +54,7 @@ public class SignInActivity
     private EditText emailField;
     private EditText passwordField;
     private ProgressBar progressBar;
+    private Button termsButton;
 
     // If we are authenticated with Firebase we check if email is verified before log in
     private boolean checkEmailBeforeLogIn;
@@ -68,6 +69,7 @@ public class SignInActivity
 
         this.setContentView(R.layout.activity_sign_in);
 
+        /*
         PermissionManager.checkAndAskPermission(
                 this,
                 new int[] {
@@ -76,16 +78,23 @@ public class SignInActivity
                         PermissionManager.WAKE_LOCK,
                         PermissionManager.DISABLE_KEYGUARD
                 },
-                PermissionManager.ASK_FOR_LOCATION
+                PermissionManager.ASK_FOR_LOCATION_POS_MAN
         );
+        */
 
         this.initWidget();
+
+        if (!this.termsAccepted) {
+            Intent termsConditions = new Intent(SignInActivity.this, TermsActivity.class);
+            this.startActivityForResult(termsConditions, TermsActivity.TERMS_ACTIVITY);
+        }
     }
 
+    /*
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
-            case PermissionManager.ASK_FOR_LOCATION:
+            case PermissionManager.ASK_FOR_LOCATION_POS_MAN:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length < 1 &&
                         grantResults[0] == PackageManager.PERMISSION_DENIED) {
@@ -97,6 +106,7 @@ public class SignInActivity
                 Log.d(TAG, "onRequestPermissionResult: " + requestCode);
         }
     }
+*/
 
     // Defines a Handler object that's attached to the UI thread
     private final Handler handler = new Handler(Looper.getMainLooper()) {
@@ -214,11 +224,13 @@ public class SignInActivity
         this.signInButton = findViewById(R.id.sign_in_button);
         this.signInGoogleButton = findViewById(R.id.sign_in_google_button);
         this.twitterLoginButton = findViewById(R.id.twitter_login_button);
-        this.signUpButton = findViewById(R.id.sign_up_button);
+        this.signUpButton = findViewById(R.id.signup_button);
         this.emailField = findViewById(R.id.email_field);
         this.passwordField = findViewById(R.id.password_field);
         this.progressBar = findViewById(R.id.progress_bar);
+        this.termsButton = findViewById(R.id.terms_button);
 
+        this.termsButton.setOnClickListener(this);
         this.signInButton.setOnClickListener(this);
         this.signInGoogleButton.setOnClickListener(this);
         this.signUpButton.setOnClickListener(this);
@@ -231,6 +243,8 @@ public class SignInActivity
     private void initResources() {
         Log.d(TAG, "init resources");
 
+        this.sharedPrefUtil = new SharedPrefUtil(this);
+        this.termsAccepted = this.sharedPrefUtil.getBoolean(TermsActivity.TERMS_RESULT, false);
         this.checkEmailBeforeLogIn = true;
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
@@ -244,14 +258,23 @@ public class SignInActivity
         switch (requestCode) {
             case SingletonGoogleProvider.RC_SIGN_IN:
                 Log.d(TAG, "GOOGLE onActivityResult: " + requestCode);
+                // Redirection to GoogleProvider's class
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                         .activityResult(requestCode, resultCode, data);
                 break;
 
             case SingletonTwitterProvider.RC_SIGN_IN:
                 Log.d(TAG, "TWITTER onActivityResult: " + requestCode);
+                // Redirection to TwitterProvider's class
                 // Pass the activity result to the login button.
                 this.twitterLoginButton.onActivityResult(requestCode, resultCode, data);
+                break;
+
+            case TermsActivity.TERMS_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    this.termsAccepted = data.getBooleanExtra(TermsActivity.TERMS_RESULT, false);
+                    this.sharedPrefUtil.saveBoolean(TermsActivity.TERMS_RESULT, this.termsAccepted);
+                }
                 break;
 
             default:
@@ -262,8 +285,19 @@ public class SignInActivity
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.terms_button:
+                Intent termsConditions = new Intent(SignInActivity.this, TermsActivity.class);
+                this.startActivityForResult(termsConditions, TermsActivity.TERMS_ACTIVITY);
+                break;
+
             // Sign in with email and password
             case R.id.sign_in_button:
+                if (!this.termsAccepted) {
+                    Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_LONG).show();
+                    break;
+                }
+
+                /*
                 if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
                         !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
                     PermissionManager.checkAndAskPermission(
@@ -274,10 +308,11 @@ public class SignInActivity
                                     PermissionManager.WAKE_LOCK,
                                     PermissionManager.DISABLE_KEYGUARD
                             },
-                            PermissionManager.ASK_FOR_LOCATION
+                            PermissionManager.ASK_FOR_LOCATION_POS_MAN
                     );
                     break;
                 }
+                */
 
                 // Code strength
                 this.checkEmailBeforeLogIn = true;
@@ -303,6 +338,12 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
+                if (!this.termsAccepted) {
+                    Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_LONG).show();
+                    break;
+                }
+
+                /*
                 if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
                         !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
                     PermissionManager.checkAndAskPermission(
@@ -313,10 +354,11 @@ public class SignInActivity
                                     PermissionManager.WAKE_LOCK,
                                     PermissionManager.DISABLE_KEYGUARD
                             },
-                            PermissionManager.ASK_FOR_LOCATION
+                            PermissionManager.ASK_FOR_LOCATION_POS_MAN
                     );
                     break;
                 }
+                */
 
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
@@ -327,6 +369,12 @@ public class SignInActivity
 
             // Sign in with Twitter
             case R.id.twitter_login_button:
+                if (!this.termsAccepted) {
+                    Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_LONG).show();
+                    break;
+                }
+
+                /*
                 if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
                         !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
                     PermissionManager.checkAndAskPermission(
@@ -337,10 +385,11 @@ public class SignInActivity
                                     PermissionManager.WAKE_LOCK,
                                     PermissionManager.DISABLE_KEYGUARD
                             },
-                            PermissionManager.ASK_FOR_LOCATION
+                            PermissionManager.ASK_FOR_LOCATION_POS_MAN
                     );
                     break;
                 }
+                */
 
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
@@ -350,7 +399,12 @@ public class SignInActivity
                 break;
 
             // Sign up
-            case R.id.sign_up_button:
+            case R.id.signup_button:
+                if (!this.termsAccepted) {
+                    Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_LONG).show();
+                    break;
+                }
+
                 // Code strength
                 this.checkEmailBeforeLogIn = true;
                 ////

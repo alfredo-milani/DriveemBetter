@@ -69,7 +69,6 @@ public class SaveMeFragment
 
     MapView mMapView;
     private GoogleMap googleMap;
-    private Context context;
     private Activity activity;
     double latitude, longitude;
     private TextView locationTxt, rangeText;
@@ -109,7 +108,6 @@ public class SaveMeFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        context = getActivity().getApplicationContext();
         activity = getActivity();
 
         this.setRetainInstance(true);
@@ -118,8 +116,8 @@ public class SaveMeFragment
         activity.setTitle(R.string.save_me);
 
         //CHECK INTERNET CONNECTION
-        if (!NetworkConnectionUtil.isConnectedToInternet(context))
-            Toast.makeText(context, "Please, check you Internet connection!", Toast.LENGTH_SHORT).show();
+        if (!NetworkConnectionUtil.isConnectedToInternet(this.activity.getApplicationContext()))
+            Toast.makeText(this.activity, "Please, check you Internet connection!", Toast.LENGTH_SHORT).show();
         final View rootView = inflater.inflate(R.layout.fragment_save_me, container, false);
 
         mMapView = rootView.findViewById(R.id.mapView);
@@ -168,6 +166,24 @@ public class SaveMeFragment
             e.printStackTrace();
         }
 
+        if (!PermissionManager.isAllowed(activity, PermissionManager.COARSE_LOCATION_MANIFEST) ||
+                !PermissionManager.isAllowed(activity, PermissionManager.FINE_LOCATION_MANIFEST)) {
+            PermissionManager.askForPermission(
+                    activity,
+                    new String[] {
+                            PermissionManager.COARSE_LOCATION_MANIFEST,
+                            PermissionManager.FINE_LOCATION_MANIFEST,
+                            PermissionManager.WAKE_LOCK_MANIFEST,
+                            PermissionManager.DISABLE_KEYGUARD_MANIFEST
+                    },
+                    PermissionManager.ASK_FOR_LOCATION_SAVE_ME
+            );
+
+            // TODO: 29/10/17 SE NON HO I PERMESSI ALLORA NON INIZIALIZZO mMapView
+        }
+
+        // TODO: 29/10/17 SE HO I PERMESSI POSSO INIZIALIZZARE mMapView
+
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap mMap) {
@@ -176,16 +192,11 @@ public class SaveMeFragment
                 googleMap.getUiSettings().setMapToolbarEnabled(false);
                 googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
-                PermissionManager.checkAndAskPermission(
-                        getActivity(),
-                        new int[] {
-                            PermissionManager.FINE_LOCATION,
-                            PermissionManager.COARSE_LOCATION
-                        },
-                        PermissionManager.ASK_FOR_LOCATION
-                );
-
-                googleMap.setMyLocationEnabled(true);
+                try {
+                    googleMap.setMyLocationEnabled(true);
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                }
 
                 onMarkerClickListener = new GoogleMap.OnMarkerClickListener() {
                     @Override
@@ -287,9 +298,9 @@ public class SaveMeFragment
                             public void onClick(View view) {
                                 if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) ||
                                         Locale.getDefault().getDisplayLanguage().equals(Locale.US))
-                                    Toast.makeText(context, FEEDBACK_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, FEEDBACK_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
                                 else
-                                    Toast.makeText(context, FEEDBACK_SENT_ITALIAN, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(activity, FEEDBACK_SENT_ITALIAN, Toast.LENGTH_SHORT).show();
                                 FirebaseDatabaseManager.updateUserFeedback(userSelectedUid, Double.parseDouble(String.valueOf(ratingBar.getRating())),
                                         SingletonUser.getInstance().getCountry(), SingletonUser.getInstance().getRegion(),
                                         SingletonUser.getInstance().getSubRegion());
@@ -308,7 +319,7 @@ public class SaveMeFragment
                             public void onClick(View view) {
 
                                 if (userSelectedToken.equals("none")) {
-                                    Toast.makeText(context, activity.getResources().getString(R.string.cannot_contact_user), Toast.LENGTH_LONG)
+                                    Toast.makeText(activity, activity.getResources().getString(R.string.cannot_contact_user), Toast.LENGTH_LONG)
                                             .show();
                                 } else {
 
@@ -446,7 +457,7 @@ public class SaveMeFragment
                 String oldRegion = "NA";
                 String oldSubRegion = "NA";
                 String country, region, subRegion;
-                geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.ITALIAN);
+                geocoder = new Geocoder(activity, Locale.ITALIAN);
                 markerPool = new HashMap<>();
                 while (true) {
                     if (updatePosition.isCancelled())
@@ -511,6 +522,7 @@ public class SaveMeFragment
                     if (!country.equals(oldCountry) || !oldRegion.equals(oldRegion) || !subRegion.equals(oldSubRegion)) {
                         Log.e("DEBUG", oldCountry + " " +  oldRegion + " " + oldSubRegion);
                         Log.e("DEBUG", country + " " +  region + " " + subRegion);
+                        // TODO: 28/10/17 SISTEMA NULL POINTER SE NON ACCETTI I PERMESSI
                         lookForMyNeighbors(country, region, subRegion);
                     }
 
@@ -567,7 +579,8 @@ public class SaveMeFragment
                 Map<String, Map<String, Object>> data = (Map<String, Map<String, Object>>) dataSnapshot.getValue();
                 if (data != null && data.keySet().size() != 0) {
                     for (String user : data.keySet()) {
-                        if (!user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        if (FirebaseAuth.getInstance().getCurrentUser() != null &&
+                                !user.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                             if (data.get(user) != null &&
                                     data.get(user).get(CHILD_AVAILABILITY) != null &&
                                     data.get(user).get(CHILD_AVAILABILITY).equals(UNAVAILABLE)) {

@@ -1,11 +1,9 @@
 package com.driveembetter.proevolutionsoftware.driveembetter.utils;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -15,11 +13,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.telephony.SmsManager;
 import android.util.Log;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -33,7 +27,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
-import static android.content.Context.SENSOR_SERVICE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_FIRST_FRIEND;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.CHILD_SECOND_FRIEND;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.NODE_USERS;
@@ -47,6 +40,8 @@ public class SensorHandler extends Service
         implements SensorEventListener {
 
     private final static String TAG = SensorHandler.class.getSimpleName();
+
+    private final static int THRESHOULD_DETECT_CRASH = 30;
 
     private SensorManager sensorManager;
     private List<Sensor> sensors;
@@ -106,7 +101,7 @@ public class SensorHandler extends Service
             double z = event.values[2];
             double acceleration = Math.sqrt((x*x) + (y*y) + (z*z))/g;
             if (!crashDetected) {
-                if (acceleration >= 3) {
+                if (acceleration >= THRESHOULD_DETECT_CRASH) {
                     Log.e("DEBUG", "ACCELERATION WORKING?");
                     crashDetected = true;
                     new TimeRestorer().execute();

@@ -141,6 +141,16 @@ public class MainFragmentActivity extends AppCompatActivity
                 case USER_LOGOUT:
                     Log.d(TAG, "Log out");
 
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                FirebaseInstanceId.getInstance().deleteInstanceId();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
                     FirebaseDatabaseManager.manageUserAvailability(UNAVAILABLE);
                     FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
                     if (positionManager != null) {
@@ -228,58 +238,40 @@ public class MainFragmentActivity extends AppCompatActivity
         // Check protected app feature
         ProtectedAppsManager protectedAppsManager = new ProtectedAppsManager(this);
         protectedAppsManager.checkAlert();
-    }
 
-    private void checkPermissions() {
-        if (!PermissionManager.isAllowed(this, PermissionManager.COARSE_LOCATION_MANIFEST) ||
-                !PermissionManager.isAllowed(this, PermissionManager.FINE_LOCATION_MANIFEST)) {
-            Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
-            PermissionManager.checkAndAskPermission(
-                    this,
-                    new int[] {
-                            PermissionManager.FINE_LOCATION,
-                            PermissionManager.COARSE_LOCATION,
-                            PermissionManager.WAKE_LOCK,
-                            PermissionManager.DISABLE_KEYGUARD
-                    },
-                    PermissionManager.ASK_FOR_LOCATION
-            );
-        } else {
-            // Start listening to update position
-            this.positionManager = PositionManager.getInstance(this);
-            // Ask user to enable GPS if it is disabled
-            if (!this.positionManager.isGPSEnabled()) {
-                Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
-            }
+        // Start listening to update position
+        this.positionManager = PositionManager.getInstance(this);
+        // Ask user to enable GPS if it is disabled
+        if (!this.positionManager.isGPSEnabled()) {
+            Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
-            case PermissionManager.ASK_FOR_LOCATION:
+            case PermissionManager.ASK_FOR_LOCATION_POS_MAN:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 &&
                         grantResults[0] == PermissionManager.PERM_OK) {
-                    // Start listening to update position
-                    this.positionManager = PositionManager.getInstance(this);
-                    // Ask user to enable GPS if it is disabled
-                    if (!this.positionManager.isGPSEnabled()) {
-                        Toast.makeText(this, R.string.gps_ask_enable, Toast.LENGTH_LONG).show();
+                    if (this.positionManager == null) {
+                        this.positionManager = PositionManager.getInstance(this);
                     }
+                    this.positionManager.updatePosition();
                 } else {
                     Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
                     this.logoutCurrentProviders();
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                FirebaseInstanceId.getInstance().deleteInstanceId();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).start();
+                }
+                return;
+
+            case PermissionManager.ASK_FOR_LOCATION_SAVE_ME:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PermissionManager.PERM_OK) {
+                    // TODO: 29/10/17 AGGIUNGERE QUI LA CHIAMATA PER INIZIALIZZARE QUELLA ROBA CHE TI HO DETTO
+                } else {
+                    Toast.makeText(this, this.getString(R.string.accept_permissions), Toast.LENGTH_LONG).show();
+                    this.logoutCurrentProviders();
                 }
                 return;
 
@@ -624,7 +616,7 @@ public class MainFragmentActivity extends AppCompatActivity
         super.onStart();
 
         Log.d(TAG, ":start");
-        this.checkPermissions();
+        // this.checkPermissions();
 
         this.singletonFirebaseProvider.setListenerOwner(this.hashCode());
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
@@ -690,6 +682,9 @@ public class MainFragmentActivity extends AppCompatActivity
         FirebaseDatabaseManager.managePositionAvailability(UNAVAILABLE);
         this.singletonFirebaseProvider.removeStateListener(this.hashCode());
 
+        if (this.positionManager != null) {
+            this.positionManager.removeTextToSpeech();
+        }
         //((SingletonGoogleProvider) this.singletonFirebaseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
         //.removeGoogleClient();
     }

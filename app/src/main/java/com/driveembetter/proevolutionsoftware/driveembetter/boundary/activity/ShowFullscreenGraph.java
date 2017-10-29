@@ -19,10 +19,14 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import java.util.Calendar;
 import java.util.Locale;
 
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.ACCELERATION_GRAPH_DAILY;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.ACCELERATION_GRAPH_WEEKLY;
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.ARG_FRAGMENT_GRAPH;
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.ARG_FRAGMENT_GRAPH_LAST_UPDATE;
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.ARG_FRAGMENT_GRAPH_SERIES;
 import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.GRAPH_ERROR;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.VELOCITY_GRAPH_DAILY;
+import static com.driveembetter.proevolutionsoftware.driveembetter.boundary.fragment.RankingGraphFragment.VELOCITY_GRAPH_WEEKLY;
 import static com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants.HOURS;
 
 /**
@@ -91,8 +95,20 @@ public class ShowFullscreenGraph extends AppCompatActivity
         }
 
         DataPoint[] dataPoints = new DataPoint[values.length];
-        for (int i = 0; i < values.length; ++i) {
-            dataPoints[i] = new DataPoint(i, values[i]);
+        switch (this.typeGraph) {
+            case VELOCITY_GRAPH_WEEKLY:
+            case ACCELERATION_GRAPH_WEEKLY:
+                for (int i = 0; i < values.length; ++i) {
+                    dataPoints[i] = new DataPoint(i + 1, values[i]);
+                }
+                break;
+
+            case VELOCITY_GRAPH_DAILY:
+            case ACCELERATION_GRAPH_DAILY:
+                for (int i = 0; i < values.length; ++i) {
+                    dataPoints[i] = new DataPoint(i, values[i]);
+                }
+                break;
         }
 
         return new LineGraphSeries<>(dataPoints);

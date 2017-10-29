@@ -150,6 +150,12 @@
     <string name="no_friends_alert">You don\'t have any trusted friends selected</string>
     <string name="sms_sent">Emergency SMS Sent!</string>
     <string name="press_emergency_button">PRESS THE BUTTON IF YOU DON\'T NEED HELP</string>
+    <string name="terms_conditions">Terms and conditions</string>
+    <string name="accept_terms">You must accept terms to continue!</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="terms">Terms</string>
+    <string name="terms_text">Drive \'Em Better requires access to your location and contacts in the address book. Such data will only be processed for the purposes of the application without being disclosed or shared.</string>
 
 
 </resources>

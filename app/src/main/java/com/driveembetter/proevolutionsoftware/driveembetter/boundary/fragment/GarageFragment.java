@@ -97,17 +97,17 @@ public class GarageFragment extends Fragment
     private FirebaseDatabase database;
     private DatabaseReference ref;
     private DatabaseReference current_ref;
-    private Boolean clik_event;
+    private Boolean click_event;
     private String current_vehicle;
     private InsuranceRevisionMetronome insuranceRevisionMetronome;
     private SwipeRefreshLayout swipeRefreshLayout;
+
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initResources();
-
     }
 
     @Override
@@ -136,9 +136,10 @@ public class GarageFragment extends Fragment
     @Override
     public void onStart() {
         super.onStart();
-        this.singletonUser.getVehicles(this);
+        if (this.singletonUser != null) {
+            this.singletonUser.getVehicles(this);
+        }
         this.showProgress();
-
     }
 
     @Override
@@ -147,7 +148,10 @@ public class GarageFragment extends Fragment
             return;
         }
         this.hideProgress();
-        this.vehicles = this.singletonUser.getVehicleArrayList();
+        this.vehicles = null;
+        if (this.singletonUser != null) {
+            this.vehicles = this.singletonUser.getVehicleArrayList();
+        }
         vehicles_exist();
         getCurrentVhicle();
         control_insurance_review_expiration();
@@ -158,7 +162,7 @@ public class GarageFragment extends Fragment
             public boolean onItemLongClick(AdapterView<?> arg0, View v, int index, long arg3) {
 
 
-                clik_event = true;
+                click_event = true;
                 selected_item = index;
                 listview.getChildAt(selected_item).setBackgroundColor(Color.parseColor("#ffab00"));
                 check_selected_item();
@@ -184,7 +188,7 @@ public class GarageFragment extends Fragment
                         startActivity(intent);
                         hideOptions();
                         onStart();
-                        clik_event = false;
+                        click_event = false;
 
                     }
                 });
@@ -197,7 +201,7 @@ public class GarageFragment extends Fragment
                         remove_old_current_vehicle();
                         add_new_current_vehicle(selected_item);
                         hideOptions();
-                        clik_event = false;
+                        click_event = false;
                         onStart();
 
                     }
@@ -225,7 +229,7 @@ public class GarageFragment extends Fragment
                                         plates_list.remove(selected_item);
                                         hideOptions();
                                         dialog.cancel();
-                                        clik_event = false;
+                                        click_event = false;
                                         onStart();
                                     }
                                 });
@@ -254,7 +258,7 @@ public class GarageFragment extends Fragment
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                if (clik_event == true){
+                if (click_event == true){
 
                     if (position==selected_item){
                         view.setBackgroundColor(Color.TRANSPARENT);
@@ -265,9 +269,9 @@ public class GarageFragment extends Fragment
                         listview.getChildAt(selected_item).setBackgroundColor(Color.TRANSPARENT);
                         hideOptions();
                     }
-                    clik_event =false;
+                    click_event =false;
 
-                }else if (clik_event == false) {
+                }else if (click_event == false) {
 
                     show_details(position);
                 }
@@ -292,8 +296,6 @@ public class GarageFragment extends Fragment
         insuranceRevisionMetronome = new InsuranceRevisionMetronome();
         insuranceRevisionMetronome.one_day_passed();
     }
-
-
 
     private void control_insurance_review_expiration() {
         if (insurance_date_list == null || insurance_date_list.size()==0 || revision_date_list==null || revision_date_list.size()==0){
@@ -425,6 +427,9 @@ public class GarageFragment extends Fragment
     }
 
     private void remove_old_current_vehicle() {
+        if (this.singletonUser == null) {
+            return;
+        }
 
         this.database = FirebaseDatabase.getInstance();
         this.ref = database.getReference("users/" + SingletonFirebaseProvider
@@ -443,6 +448,9 @@ public class GarageFragment extends Fragment
     }
 
     private void add_new_current_vehicle(int selected_item) {
+        if (this.singletonUser == null) {
+            return;
+        }
 
         this.database = FirebaseDatabase.getInstance();
         this.ref = database.getReference("users/" + SingletonFirebaseProvider
@@ -543,6 +551,9 @@ public class GarageFragment extends Fragment
     }
 
     private void removeVehicleFromDb() {
+        if (this.singletonUser == null) {
+            return;
+        }
 
         this.database = FirebaseDatabase.getInstance();
         this.ref = database.getReference("users/" + SingletonFirebaseProvider
@@ -614,7 +625,7 @@ public class GarageFragment extends Fragment
                 startActivity(intent);
                 popupWindow.dismiss();
                 hideOptions();
-                clik_event = false;
+                click_event = false;
                 onStart();
 
             }
@@ -653,6 +664,9 @@ public class GarageFragment extends Fragment
     }
 
     private void populateListView() {
+        if (this.singletonUser == null) {
+            return;
+        }
 
         this.plates_list.clear();
         this.vehicles = this.singletonUser.getVehicleArrayList();
@@ -660,29 +674,28 @@ public class GarageFragment extends Fragment
             return;
         }
 
-        int i;
-        for(i=0; i<vehicles.size();i++){
+        for(int i = 0; i < vehicles.size(); i++) {
             this.vehiclesName.add(i, vehicles.get(i).getModel());
             this.plates_list.add(i, vehicles.get(i).getNumberPlate());
             this.insurance_date_list.add(i, vehicles.get(i).getInsurance_date());
             this.revision_date_list.add(i, vehicles.get(i).getRevision_date());
-
         }
 
         listview.setAdapter(new VehiclesAdapter(getContext(), vehicles , current_vehicle, revision_date_list, insurance_date_list));
-
     }
 
     private void initResources() {
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
-        this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
+        if (this.singletonFirebaseProvider != null) {
+            this.singletonUser = this.singletonFirebaseProvider.getUserInformations();
+        }
         this.vehiclesName = new ArrayList<String>();
         this.plates_list = new ArrayList<String>();
         this.revision_date_list = new ArrayList<String>();
         this.insurance_date_list = new ArrayList<String>();
-        insurance_date_list.clear();
-        revision_date_list.clear();
-        this.clik_event = false;
+        this.insurance_date_list.clear();
+        this.revision_date_list.clear();
+        this.click_event = false;
     }
 
     private void getCurrentVhicle() {
@@ -752,19 +765,15 @@ public class GarageFragment extends Fragment
             e.printStackTrace();
         }
         int years_ago = getDiffYears(givenDate, today);
-        System.out.println("DDDDIIIIIIFFFFFFFFFFF + " + years_ago);
         if (years_ago>=2){
             return true;
         }
         return false;
     }
 
-
     public static int getDiffYears(Date first, Date last) {
         Calendar a = getCalendar(first);
         Calendar b = getCalendar(last);
-        System.out.println("DDDDIIIIIIFFFFFFFFFFF + " + b.get(YEAR));
-        System.out.println("DDDDIIIIIIFFFFFFFFFFF + " + a.get(YEAR));
 
         int diff = b.get(YEAR) - a.get(YEAR);
         if (a.get(MONTH) > b.get(MONTH) ||

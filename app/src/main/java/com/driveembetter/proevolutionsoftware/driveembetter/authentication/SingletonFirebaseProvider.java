@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
@@ -66,6 +67,7 @@ public class SingletonFirebaseProvider
         return SingletonFirebaseProvider.getInstance();
     }
 
+    @Nullable
     public static SingletonFirebaseProvider getInstance() {
         return SingletonFirebaseProvider.singletonInstance;
     }

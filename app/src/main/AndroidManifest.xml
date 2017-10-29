@@ -152,6 +152,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".boundary.activity.TermsActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".boundary.activity.MainFragmentActivity" />
+        </activity>
+
         <activity android:name=".boundary.activity.ContactListActivity"
             android:theme="@style/AppTheme"
             android:label="Contacts List"

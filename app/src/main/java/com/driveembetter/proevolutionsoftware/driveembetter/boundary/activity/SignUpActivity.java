@@ -195,7 +195,7 @@ public class SignUpActivity
     }
 
     private void initWidget() {
-        this.signUpButton = findViewById(R.id.sign_up_button);
+        this.signUpButton = findViewById(R.id.terms_button);
         this.usernameField = findViewById(R.id.username_field);
         this.emailField = findViewById(R.id.email_field);
         this.passwordField = findViewById(R.id.password_field);
@@ -212,7 +212,7 @@ public class SignUpActivity
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.sign_up_button:
+            case R.id.terms_button:
                 Log.d(TAG, "onClick:signUp");
 
                 String psw = this.passwordField.getText().toString();

@@ -14,7 +14,8 @@ public class PermissionManager {
 
     private final static String TAG = PermissionManager.class.getSimpleName();
 
-    public final static int ASK_FOR_LOCATION = 139;
+    public final static int ASK_FOR_LOCATION_POS_MAN = 139;
+    public final static int ASK_FOR_LOCATION_SAVE_ME = 189;
     public final static int ASK_FOR_ACCIDENT = 142;
     public final static int ASK_FOR_ALL = 189;
     public final static int ASK_FOR_READ_CONTACTS = 140;
