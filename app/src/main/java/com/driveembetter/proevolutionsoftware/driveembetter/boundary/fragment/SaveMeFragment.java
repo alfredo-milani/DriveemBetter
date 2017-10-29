@@ -28,6 +28,7 @@ import com.driveembetter.proevolutionsoftware.driveembetter.R;
 import com.driveembetter.proevolutionsoftware.driveembetter.boundary.activity.ChatActivity;
 import com.driveembetter.proevolutionsoftware.driveembetter.constants.Constants;
 import com.driveembetter.proevolutionsoftware.driveembetter.entity.SingletonUser;
+import com.driveembetter.proevolutionsoftware.driveembetter.utils.DailyMetrometer;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.FragmentState;
 import com.driveembetter.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
@@ -507,23 +508,54 @@ public class SaveMeFragment
                             ratingButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.UK) ||
-                                            Locale.getDefault().getDisplayLanguage().equals(Locale.US))
-                                        Toast.makeText(activity, FEEDBACK_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
-                                    else
-                                        Toast.makeText(activity, FEEDBACK_SENT_ITALIAN, Toast.LENGTH_SHORT).show();
-                                    FirebaseDatabaseManager.updateUserFeedback(userSelectedUid, Double.parseDouble(String.valueOf(ratingBar.getRating())),
-                                            SingletonUser.getInstance().getCountry(), SingletonUser.getInstance().getRegion(),
-                                            SingletonUser.getInstance().getSubRegion());
-                                    PointManager.updatePoints(Double.parseDouble(String.valueOf(ratingBar.getRating())), userSelectedUid);
-                                    ratingButton.setClickable(false);
-                                    ratingButton.setTextColor(Color.BLACK);
-                                    if (Locale.getDefault().getDisplayLanguage().equals(Locale.US) ||
-                                            Locale.getDefault().getDisplayLanguage().equals(Locale.UK))
-                                        ratingButton.setText(FEEDBACK_SENT_BUTTON_ENGLISH);
-                                    else
-                                        ratingButton.setText(FEEDBACK_SENT_BUTTON_ITALIAN);
-                                }
+                                        if (DailyMetrometer.checkFeedbackNumber(activity) < 3) {
+                                            if (DailyMetrometer.checkFeedbackNumber(activity) == 0)
+                                                //update first daily feedback
+                                                DailyMetrometer.firstFeedbackTime(activity);
+                                            DailyMetrometer.updateFeedbackNumber(activity);
+                                            if (Locale.getDefault().getDisplayLanguage().equals("en"))
+                                                Toast.makeText(activity, FEEDBACK_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
+                                            else
+                                                Toast.makeText(activity, FEEDBACK_SENT_ITALIAN, Toast.LENGTH_SHORT).show();
+                                            FirebaseDatabaseManager.updateUserFeedback(userSelectedUid, Double.parseDouble(String.valueOf(ratingBar.getRating())),
+                                                    SingletonUser.getInstance().getCountry(), SingletonUser.getInstance().getRegion(),
+                                                    SingletonUser.getInstance().getSubRegion());
+                                            PointManager.updatePoints(Double.parseDouble(String.valueOf(ratingBar.getRating())), userSelectedUid);
+                                            ratingButton.setClickable(false);
+                                            ratingButton.setTextColor(Color.BLACK);
+                                            if (Locale.getDefault().getDisplayLanguage().equals(Locale.US) ||
+                                                    Locale.getDefault().getDisplayLanguage().equals(Locale.UK))
+                                                ratingButton.setText(FEEDBACK_SENT_BUTTON_ENGLISH);
+                                            else
+                                                ratingButton.setText(FEEDBACK_SENT_BUTTON_ITALIAN);
+                                        } else {
+                                            if (DailyMetrometer.dayExpired(activity)) {
+                                                DailyMetrometer.firstFeedbackTime(activity);
+                                                DailyMetrometer.updateFeedbackNumber(activity);
+                                                if (Locale.getDefault().getDisplayLanguage().equals("en"))
+                                                    Toast.makeText(activity, FEEDBACK_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
+                                                else
+                                                    Toast.makeText(activity, FEEDBACK_SENT_ITALIAN, Toast.LENGTH_SHORT).show();
+                                                FirebaseDatabaseManager.updateUserFeedback(userSelectedUid, Double.parseDouble(String.valueOf(ratingBar.getRating())),
+                                                        SingletonUser.getInstance().getCountry(), SingletonUser.getInstance().getRegion(),
+                                                        SingletonUser.getInstance().getSubRegion());
+                                                PointManager.updatePoints(Double.parseDouble(String.valueOf(ratingBar.getRating())), userSelectedUid);
+                                                ratingButton.setClickable(false);
+                                                ratingButton.setTextColor(Color.BLACK);
+                                                if (Locale.getDefault().getDisplayLanguage().equals(Locale.US) ||
+                                                        Locale.getDefault().getDisplayLanguage().equals(Locale.UK))
+                                                    ratingButton.setText(FEEDBACK_SENT_BUTTON_ENGLISH);
+                                                else
+                                                    ratingButton.setText(FEEDBACK_SENT_BUTTON_ITALIAN);
+
+                                            } else {
+                                                if (Locale.getDefault().getDisplayLanguage().equals("en"))
+                                                    Toast.makeText(activity, FEEDBACK_NOT_SENT_ENGLISH, Toast.LENGTH_SHORT).show();
+                                                else
+                                                    Toast.makeText(activity, FEEDBACK_NOT_SENT_ITALIAN, Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    }
                             });
                             message.setOnClickListener(new View.OnClickListener() {
                                 @Override

@@ -130,7 +130,9 @@ public interface Constants {
 
     //Feedback
     String FEEDBACK_SENT_ITALIAN = "Il tuo feedback è stato inviato!";
+    String FEEDBACK_NOT_SENT_ITALIAN = "Hai superato il numero di feedback concessi per oggi!";
     String FEEDBACK_SENT_ENGLISH = "Your feedback has been sent!";
+    String FEEDBACK_NOT_SENT_ENGLISH = "You have exceeded the number of allowed daily feedbacks";
     String FEEDBACK_SENT_BUTTON_ITALIAN = "FATTO!";
     String FEEDBACK_SENT_BUTTON_ENGLISH = "DONE!";
 }
