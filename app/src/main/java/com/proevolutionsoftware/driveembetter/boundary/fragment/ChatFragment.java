@@ -28,6 +28,7 @@ import com.proevolutionsoftware.driveembetter.chat.ChatContract;
 import com.proevolutionsoftware.driveembetter.chat.ChatPresenter;
 import com.proevolutionsoftware.driveembetter.constants.Constants;
 import com.proevolutionsoftware.driveembetter.entity.Chat;
+import com.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.proevolutionsoftware.driveembetter.events.PushNotificationEvent;
 import com.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
 
@@ -177,15 +178,31 @@ public class ChatFragment extends Fragment implements ChatContract.View, TextVie
         if (message.trim().length() > 0) {
             String receiver = getArguments().getString(Constants.ARG_RECEIVER);
             String receiverUid = getArguments().getString(Constants.ARG_RECEIVER_UID);
-            String sender = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-            String senderUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            String sender;
+            SingletonUser user = SingletonUser.getInstance();
+            if (user != null) {
+                sender = user.getUsername();
+            } else {
+                sender = getString(R.string.error);
+            }
+
+            String senderUid;
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            if (firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
+                senderUid = firebaseAuth.getCurrentUser().getUid();
+            } else {
+                senderUid = getString(R.string.error);
+            }
+
             String receiverFirebaseToken = getArguments().getString(Constants.ARG_FIREBASE_TOKEN);
             Chat chat = new Chat(sender,
                     receiver,
                     senderUid,
                     receiverUid,
                     message,
-                    System.currentTimeMillis());
+                    System.currentTimeMillis()
+            );
             mChatPresenter.sendMessage(getActivity().getApplicationContext(),
                     chat,
                     receiverFirebaseToken);

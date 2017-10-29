@@ -522,7 +522,7 @@ public class SaveMeFragment
                                                     SingletonUser.getInstance().getSubRegion());
                                             PointManager.updatePoints(Double.parseDouble(String.valueOf(ratingBar.getRating())), userSelectedUid);
                                             ratingButton.setClickable(false);
-                                            ratingButton.setTextColor(Color.BLACK);
+                                            ratingButton.setTextColor(Color.parseColor("#3e4a4f"));
                                             if (Locale.getDefault().getDisplayLanguage().equals(Locale.US) ||
                                                     Locale.getDefault().getDisplayLanguage().equals(Locale.UK))
                                                 ratingButton.setText(FEEDBACK_SENT_BUTTON_ENGLISH);
