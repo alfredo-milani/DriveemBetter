@@ -136,8 +136,7 @@ public class ModifyVehicleActivity extends AppCompatActivity {
     private boolean firebaseSyntaxCheck(String string) {
         return !(string.contains(".") || string.contains("#") ||
                 string.contains("$") || string.contains("[") ||
-                string.contains("]") || string.contains("=") ||
-                string.contains(";")
+                string.contains("]")
         );
     }
 
@@ -151,7 +150,12 @@ public class ModifyVehicleActivity extends AppCompatActivity {
 
         String tmpPath;
         if( type.equals(CAR) || type.equals("Auto")) {
-            tmpPath = vehicle.getType()+ ";" +vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date();
+            tmpPath = vehicle.getType().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getModel().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getNumberPlate().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getOwner().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getInsurance_date() + ";" +
+                    vehicle.getRevision_date();
 
             if (!this.firebaseSyntaxCheck(tmpPath)) {
                 Toast.makeText(this, getString(R.string.string_error), Toast.LENGTH_LONG).show();
@@ -162,7 +166,12 @@ public class ModifyVehicleActivity extends AppCompatActivity {
         }
 
         if( type.equals(MOTORCYCLE) || type.equals(MOTO)){
-            tmpPath = vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date();
+            tmpPath = vehicle.getType().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getModel().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getNumberPlate().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getOwner().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getInsurance_date() + ";" +
+                    vehicle.getRevision_date();
 
             if (!this.firebaseSyntaxCheck(tmpPath)) {
                 Toast.makeText(this, getString(R.string.string_error), Toast.LENGTH_LONG).show();
@@ -173,7 +182,12 @@ public class ModifyVehicleActivity extends AppCompatActivity {
         }
 
         if( type.equals(VAN) || type.equals("Furgone")){
-            tmpPath = vehicle.getType()+";"+vehicle.getModel()+";"+vehicle.getNumberPlate()+";"+vehicle.getOwner()+";"+vehicle.getInsurance_date()+";"+vehicle.getRevision_date();
+            tmpPath = vehicle.getType().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getModel().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getNumberPlate().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getOwner().replaceAll(";", "").replaceAll("=", "") + ";" +
+                    vehicle.getInsurance_date() + ";" +
+                    vehicle.getRevision_date();
 
             if (!this.firebaseSyntaxCheck(tmpPath)) {
                 Toast.makeText(this, getString(R.string.string_error), Toast.LENGTH_LONG).show();
