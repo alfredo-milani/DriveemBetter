@@ -50,6 +50,7 @@ import com.proevolutionsoftware.driveembetter.boundary.fragment.HomeFragment;
 import com.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
 import com.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
+import com.proevolutionsoftware.driveembetter.boundary.fragment.StatisticsFragment;
 import com.proevolutionsoftware.driveembetter.constants.Constants;
 import com.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.proevolutionsoftware.driveembetter.services.SwipeClosureHandler;
@@ -229,7 +230,7 @@ public class MainFragmentActivity extends AppCompatActivity
         this.aboutUs = new AboutUsFragment();
         this.garage = new GarageFragment();
         this.home = new HomeFragment();
-        // this.statistics = new StatisticsFragment();
+        this.statistics = new StatisticsFragment();
 
         // Start service to manage task manager behaviour
         Intent serviceIntent = new Intent(getApplicationContext(), SwipeClosureHandler.class);
@@ -531,7 +532,6 @@ public class MainFragmentActivity extends AppCompatActivity
                 break;
 
             case R.id.statistics:
-                /*
                 if (!FragmentState.isFragmentOpen(FragmentState.STATISTICS_FRAGMENT)) {
                     this.fragmentState.replaceFragment(
                             R.id.fragment_placeholder,
@@ -539,8 +539,8 @@ public class MainFragmentActivity extends AppCompatActivity
                     );
                     FragmentState.setFragmentState(FragmentState.STATISTICS_FRAGMENT, true);
                 }
-                */
-                this.startNewActivity(MainFragmentActivity.this, ChartActivity.class);
+
+                // this.startNewActivity(MainFragmentActivity.this, ChartActivity.class);
                 break;
 
             case R.id.ranking:

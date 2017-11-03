@@ -9,7 +9,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -17,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
+import com.ToxicBakery.viewpager.transforms.DepthPageTransformer;
 import com.proevolutionsoftware.driveembetter.R;
 import com.proevolutionsoftware.driveembetter.adapters.RankingGraphPageAdapter;
 import com.proevolutionsoftware.driveembetter.constants.Constants;
@@ -56,7 +55,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     private ImageView availability;
     private TextView feedback;
     private ImageButton startChatButton;
-    private PagerAdapter adapter;
+    private PagerAdapter pagerAdapter;
     private ImageView currentImageVehicle;
 
 
@@ -94,19 +93,19 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         this.currentImageVehicle = findViewById(R.id.currentVehicle);
 
         final ViewPager pager = findViewById(R.id.vpPager);
-        this.adapter = new RankingGraphPageAdapter(
+        this.pagerAdapter = new RankingGraphPageAdapter(
                 this.getSupportFragmentManager(),
                 UserDetailsRankingActivity.user.getUid()
         );
-        pager.setAdapter(this.adapter);
+        pager.setAdapter(this.pagerAdapter);
         // Increase cache limit
         // TODO: 18/10/17 Per ora ci sono 5 tipi di grafici, quindi con un valore come 4 non viene distrutto nessun fragment. Nel caso in cui si qualche fragment venisse distrutto (aumento numero fragments o diminuzione valore di offset) gestire la ricostruzione del fragment (rendering legenda ecc...)
         // pager.setOffscreenPageLimit(4); // TODO: 26/10/17 BUG DATO DA QUESTA RIGA DI CODICE
         // pager.setPageTransformer(true, new AccordionTransformer());
-        // pager.setPageTransformer(true, new DepthPageTransformer());
+        pager.setPageTransformer(true, new DepthPageTransformer());
         // pager.setPageTransformer(true, new ZoomOutSlideTransformer());
         // pager.setPageTransformer(true, new CubeInTransformer());
-        pager.setPageTransformer(true, new FlipHorizontalTransformer());
+        // pager.setPageTransformer(true, new FlipHorizontalTransformer());
         // To set default page fragment
         // pager.setCurrentItem(int currentItem);
 
@@ -188,7 +187,6 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     public void onUserVehiclesReceived(ArrayList<Vehicle> vehicles) {
         if (vehicles != null && !vehicles.isEmpty()) {
             Uri uri;
-            Log.e(TAG, "VEI: " + vehicles.get(0).getModel() + " / " + vehicles.get(0).getType() + " / " + vehicles.get(0).getNumberPlate());
             switch (vehicles.get(0).getType()) {
                 case CAR:
                     uri = GlideImageLoader.fromResourceToUri(this, R.mipmap.car);
