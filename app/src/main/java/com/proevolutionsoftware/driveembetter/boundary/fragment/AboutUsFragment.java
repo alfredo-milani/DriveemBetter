@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.proevolutionsoftware.driveembetter.R;
-import com.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.proevolutionsoftware.driveembetter.utils.FragmentsState;
 
 /**
  * Created by alfredo on 26/08/17.
@@ -71,7 +71,7 @@ public class AboutUsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        FragmentState.setFragmentState(FragmentState.ABOUT_US, true);
+        FragmentsState.setFragmentState(FragmentsState.ABOUT_US, true);
     }
 
     @Override
@@ -79,13 +79,13 @@ public class AboutUsFragment extends Fragment {
         super.onPause();
 
         Log.d(TAG, "onPause");
-        FragmentState.setFragmentState(FragmentState.ABOUT_US, false);
+        FragmentsState.setFragmentState(FragmentsState.ABOUT_US, false);
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        FragmentState.setFragmentState(FragmentState.ABOUT_US, false);
+        FragmentsState.setFragmentState(FragmentsState.ABOUT_US, false);
     }
 }

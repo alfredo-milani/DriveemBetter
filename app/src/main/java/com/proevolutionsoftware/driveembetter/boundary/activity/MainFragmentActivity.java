@@ -58,7 +58,7 @@ import com.proevolutionsoftware.driveembetter.threads.ChartAsyncTask;
 import com.proevolutionsoftware.driveembetter.threads.ReauthenticateUserRunnable;
 import com.proevolutionsoftware.driveembetter.threads.SaveUserStatisticsRunnable;
 import com.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
-import com.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.proevolutionsoftware.driveembetter.utils.FragmentsState;
 import com.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 import com.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.proevolutionsoftware.driveembetter.utils.PermissionManager;
@@ -89,7 +89,7 @@ public class MainFragmentActivity extends AppCompatActivity
     private Thread saveUserDataThread;
 
     // Fragments
-    private FragmentState fragmentState;
+    private FragmentsState fragmentsState;
     private Fragment saveMe;
     private Fragment ranking;
     private Fragment aboutUs;
@@ -224,7 +224,7 @@ public class MainFragmentActivity extends AppCompatActivity
         }
 
         // Init fragments
-        this.fragmentState = new FragmentState(getSupportFragmentManager());
+        this.fragmentsState = new FragmentsState(getSupportFragmentManager());
         this.saveMe = new SaveMeFragment();
         this.ranking = new RankingFragment();
         this.aboutUs = new AboutUsFragment();
@@ -511,55 +511,55 @@ public class MainFragmentActivity extends AppCompatActivity
     private void manageActionOnNavigationItemSelected(int action) {
         switch (action) {
             case R.id.home:
-                if (!FragmentState.isFragmentOpen(FragmentState.HOME_FRAGMENT)) {
-                    this.fragmentState.replaceFragment(
+                if (!FragmentsState.isFragmentOpen(FragmentsState.HOME_FRAGMENT)) {
+                    this.fragmentsState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.home
                     );
 
-                    FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, true);
+                    FragmentsState.setFragmentState(FragmentsState.HOME_FRAGMENT, true);
                 }
                 break;
 
             case R.id.garage:
-                if (!FragmentState.isFragmentOpen(FragmentState.GARAGE_FRAGMENT)) {
-                    this.fragmentState.replaceFragment(
+                if (!FragmentsState.isFragmentOpen(FragmentsState.GARAGE_FRAGMENT)) {
+                    this.fragmentsState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.garage
                     );
-                    FragmentState.setFragmentState(FragmentState.GARAGE_FRAGMENT, true);
+                    FragmentsState.setFragmentState(FragmentsState.GARAGE_FRAGMENT, true);
                 }
                 break;
 
             case R.id.statistics:
-                if (!FragmentState.isFragmentOpen(FragmentState.STATISTICS_FRAGMENT)) {
-                    this.fragmentState.replaceFragment(
+                if (!FragmentsState.isFragmentOpen(FragmentsState.STATISTICS_FRAGMENT)) {
+                    this.fragmentsState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.statistics
                     );
-                    FragmentState.setFragmentState(FragmentState.STATISTICS_FRAGMENT, true);
+                    FragmentsState.setFragmentState(FragmentsState.STATISTICS_FRAGMENT, true);
                 }
 
                 // this.startNewActivity(MainFragmentActivity.this, ChartActivity.class);
                 break;
 
             case R.id.ranking:
-                if (!FragmentState.isFragmentOpen(FragmentState.RANKING_FRAGMENT)) {
-                    this.fragmentState.replaceFragment(
+                if (!FragmentsState.isFragmentOpen(FragmentsState.RANKING_FRAGMENT)) {
+                    this.fragmentsState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.ranking
                     );
-                    FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, true);
+                    FragmentsState.setFragmentState(FragmentsState.RANKING_FRAGMENT, true);
                 }
                 break;
 
             case R.id.save_me:
-                if (!FragmentState.isFragmentOpen(FragmentState.SAVE_ME_FRAGMENT)) {
-                    this.fragmentState.replaceFragment(
+                if (!FragmentsState.isFragmentOpen(FragmentsState.SAVE_ME_FRAGMENT)) {
+                    this.fragmentsState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.saveMe
                     );
-                    FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, true);
+                    FragmentsState.setFragmentState(FragmentsState.SAVE_ME_FRAGMENT, true);
                 }
                 break;
 
@@ -574,12 +574,12 @@ public class MainFragmentActivity extends AppCompatActivity
                 break;
 
             case R.id.about_us:
-                if (!FragmentState.isFragmentOpen(FragmentState.ABOUT_US)) {
-                    this.fragmentState.replaceFragment(
+                if (!FragmentsState.isFragmentOpen(FragmentsState.ABOUT_US)) {
+                    this.fragmentsState.replaceFragment(
                             R.id.fragment_placeholder,
                             this.aboutUs
                     );
-                    FragmentState.setFragmentState(FragmentState.ABOUT_US, true);
+                    FragmentsState.setFragmentState(FragmentsState.ABOUT_US, true);
                 }
                 break;
 

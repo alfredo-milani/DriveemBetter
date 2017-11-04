@@ -1,6 +1,5 @@
 package com.proevolutionsoftware.driveembetter.utils;
 
-import android.app.Application;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -19,9 +18,9 @@ import com.proevolutionsoftware.driveembetter.exceptions.WrongResourceType;
  * Created by matti on 23/08/2017.
  */
 
-public class FragmentState extends Application {
+public class FragmentsState {
 
-    private final static String TAG = FragmentState.class.getSimpleName();
+    private final static String TAG = FragmentsState.class.getSimpleName();
 
     // Resources
     private static FragmentManager fragmentManager;
@@ -49,10 +48,10 @@ public class FragmentState extends Application {
 
 
 
-    public FragmentState(FragmentManager fragmentManager) {
-        FragmentState.fragmentManager = fragmentManager;
-        FragmentState.currentInAnimation = R.anim.fragment_fade_in;
-        FragmentState.currentOutAnimation = R.anim.fragment_fade_out;
+    public FragmentsState(FragmentManager fragmentManager) {
+        FragmentsState.fragmentManager = fragmentManager;
+        FragmentsState.currentInAnimation = R.anim.fragment_fade_in;
+        FragmentsState.currentOutAnimation = R.anim.fragment_fade_out;
     }
 
 
@@ -61,22 +60,22 @@ public class FragmentState extends Application {
             throws WrongResourceType {
         switch (fragmentType) {
             case SAVE_ME_FRAGMENT:
-                return FragmentState.fragmentState[SAVE_ME_FRAGMENT];
+                return FragmentsState.fragmentState[SAVE_ME_FRAGMENT];
 
             case STATISTICS_FRAGMENT:
-                return FragmentState.fragmentState[STATISTICS_FRAGMENT];
+                return FragmentsState.fragmentState[STATISTICS_FRAGMENT];
 
             case RANKING_FRAGMENT:
-                return FragmentState.fragmentState[RANKING_FRAGMENT];
+                return FragmentsState.fragmentState[RANKING_FRAGMENT];
 
             case GARAGE_FRAGMENT:
-                return FragmentState.fragmentState[GARAGE_FRAGMENT];
+                return FragmentsState.fragmentState[GARAGE_FRAGMENT];
 
             case ABOUT_US:
-                return FragmentState.fragmentState[ABOUT_US];
+                return FragmentsState.fragmentState[ABOUT_US];
 
             case HOME_FRAGMENT:
-                return FragmentState.fragmentState[HOME_FRAGMENT];
+                return FragmentsState.fragmentState[HOME_FRAGMENT];
 
             default:
                 Log.w(TAG, "Error in isFragmentOpen:wrong fragment type: " + fragmentType);
@@ -85,8 +84,8 @@ public class FragmentState extends Application {
     }
 
     public static boolean wasFragmentCreated(int fragmentType) {
-        return FragmentState.fragmentManager.findFragmentByTag(
-                FragmentState.fragmetsTag[fragmentType]
+        return FragmentsState.fragmentManager.findFragmentByTag(
+                FragmentsState.fragmetsTag[fragmentType]
         ) != null;
     }
 
@@ -94,27 +93,27 @@ public class FragmentState extends Application {
             throws WrongResourceType {
         switch (fragmentType) {
             case SAVE_ME_FRAGMENT:
-                FragmentState.fragmentState[SAVE_ME_FRAGMENT] = status;
+                FragmentsState.fragmentState[SAVE_ME_FRAGMENT] = status;
                 break;
 
             case STATISTICS_FRAGMENT:
-                FragmentState.fragmentState[STATISTICS_FRAGMENT] = status;
+                FragmentsState.fragmentState[STATISTICS_FRAGMENT] = status;
                 break;
 
             case RANKING_FRAGMENT:
-                FragmentState.fragmentState[RANKING_FRAGMENT] = status;
+                FragmentsState.fragmentState[RANKING_FRAGMENT] = status;
                 break;
 
             case GARAGE_FRAGMENT:
-                FragmentState.fragmentState[GARAGE_FRAGMENT] = status;
+                FragmentsState.fragmentState[GARAGE_FRAGMENT] = status;
                 break;
 
             case ABOUT_US:
-                FragmentState.fragmentState[ABOUT_US] = status;
+                FragmentsState.fragmentState[ABOUT_US] = status;
                 break;
 
             case HOME_FRAGMENT:
-                FragmentState.fragmentState[HOME_FRAGMENT] = status;
+                FragmentsState.fragmentState[HOME_FRAGMENT] = status;
                 break;
 
             default:
@@ -124,10 +123,10 @@ public class FragmentState extends Application {
     }
 
     public static void addFragmentToUI(int placeholder, Fragment fragment) {
-        FragmentTransaction fragmentTransaction = FragmentState.fragmentManager.beginTransaction();
+        FragmentTransaction fragmentTransaction = FragmentsState.fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(
-                FragmentState.currentInAnimation,
-                FragmentState.currentOutAnimation
+                FragmentsState.currentInAnimation,
+                FragmentsState.currentOutAnimation
         );
         fragmentTransaction
                 .add(placeholder, fragment)
@@ -135,10 +134,10 @@ public class FragmentState extends Application {
     }
 
     public void replaceFragment(int placeholder, Fragment fragment) {
-        FragmentTransaction fragmentTransaction = FragmentState.fragmentManager.beginTransaction();
+        FragmentTransaction fragmentTransaction = FragmentsState.fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(
-                FragmentState.currentInAnimation,
-                FragmentState.currentOutAnimation
+                FragmentsState.currentInAnimation,
+                FragmentsState.currentOutAnimation
         );
         fragmentTransaction
                 .replace(placeholder, fragment, fragment.getClass().getSimpleName())
@@ -148,10 +147,10 @@ public class FragmentState extends Application {
     }
 
     public void removeFragment(Fragment fragment) {
-        FragmentTransaction fragmentTransaction = FragmentState.fragmentManager.beginTransaction();
+        FragmentTransaction fragmentTransaction = FragmentsState.fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(
-                FragmentState.currentInAnimation,
-                FragmentState.currentOutAnimation
+                FragmentsState.currentInAnimation,
+                FragmentsState.currentOutAnimation
         );
         fragmentTransaction
                 .remove(fragment)
@@ -159,10 +158,10 @@ public class FragmentState extends Application {
     }
 
     public static void setCurrentInAnimation(int currentInAnimation) {
-        FragmentState.currentInAnimation = currentInAnimation;
+        FragmentsState.currentInAnimation = currentInAnimation;
     }
 
     public static void setCurrentOutAnimation(int currentOutAnimation) {
-        FragmentState.currentOutAnimation = currentOutAnimation;
+        FragmentsState.currentOutAnimation = currentOutAnimation;
     }
 }

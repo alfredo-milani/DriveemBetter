@@ -29,7 +29,7 @@ import com.proevolutionsoftware.driveembetter.constants.Constants;
 import com.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.proevolutionsoftware.driveembetter.entity.User;
 import com.proevolutionsoftware.driveembetter.threads.RetrieveRankingRunnable;
-import com.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.proevolutionsoftware.driveembetter.utils.FragmentsState;
 import com.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 
 import java.util.ArrayList;
@@ -345,7 +345,7 @@ public class RankingFragment extends Fragment
     public void onResume() {
         super.onResume();
 
-        FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, true);
+        FragmentsState.setFragmentState(FragmentsState.RANKING_FRAGMENT, true);
     }
 
     @Override
@@ -354,13 +354,13 @@ public class RankingFragment extends Fragment
 
         this.refreshListOnFirstStart = false;
         Log.d(TAG, "onPause");
-        FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.RANKING_FRAGMENT, false);
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        FragmentState.setFragmentState(FragmentState.RANKING_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.RANKING_FRAGMENT, false);
     }
 }

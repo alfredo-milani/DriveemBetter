@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.proevolutionsoftware.driveembetter.R;
 import com.proevolutionsoftware.driveembetter.boundary.activity.AddFriendsActivity;
-import com.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.proevolutionsoftware.driveembetter.utils.FragmentsState;
 import com.proevolutionsoftware.driveembetter.utils.PermissionManager;
 import com.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.proevolutionsoftware.driveembetter.utils.Speedometer;
@@ -90,7 +90,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, true);
+        FragmentsState.setFragmentState(FragmentsState.HOME_FRAGMENT, true);
         PositionManager.resetCity();
     }
 
@@ -112,14 +112,14 @@ public class HomeFragment extends Fragment {
             edit.putInt("WEATHER_ICON", (Integer) weatherIcon.getTag());
         edit.apply();
 
-        FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.HOME_FRAGMENT, false);
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        FragmentState.setFragmentState(FragmentState.HOME_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.HOME_FRAGMENT, false);
     }
 
     @Override

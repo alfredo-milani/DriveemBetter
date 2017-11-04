@@ -40,7 +40,7 @@ import com.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.proevolutionsoftware.driveembetter.entity.Vehicle;
 import com.proevolutionsoftware.driveembetter.threads.InsuranceRevisionMetronome;
 import com.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
-import com.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.proevolutionsoftware.driveembetter.utils.FragmentsState;
 import com.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.proevolutionsoftware.driveembetter.utils.VehiclesAdapter;
 
@@ -800,21 +800,21 @@ public class GarageFragment extends Fragment
     public void onResume() {
         super.onResume();
 
-        FragmentState.setFragmentState(FragmentState.GARAGE_FRAGMENT, true);
+        FragmentsState.setFragmentState(FragmentsState.GARAGE_FRAGMENT, true);
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        FragmentState.setFragmentState(FragmentState.GARAGE_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.GARAGE_FRAGMENT, false);
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        FragmentState.setFragmentState(FragmentState.GARAGE_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.GARAGE_FRAGMENT, false);
     }
 
 

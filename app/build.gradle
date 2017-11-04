@@ -7,17 +7,17 @@ android {
     signingConfigs {
         config {
             keyAlias 'keyrelease'
-            keyPassword '3268alfred'
             storeFile file('/media/Data/Projects_JetBrains/AndroidStudioProjects/keystore/key_ProEvolutionSoftware.jks')
+            keyPassword '3268alfred'
             storePassword '3268alfred'
         }
     }
-    compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    compileSdkVersion 27
+    buildToolsVersion '27.0.0'
     defaultConfig {
         applicationId "com.proevolutionsoftware.driveembetter"
         minSdkVersion 19
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 3
         versionName "1.0.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -39,9 +39,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     //// Google serivices
-    ////
     //// Firebase services
-    ////
     //// Twitter
     // Include all the Twitter APIs
     // (Optional) Monetize using mopub
@@ -50,41 +48,34 @@ dependencies {
     // compile 'com.twitter.sdk.android:tweet-ui:3.1.1'
     // compile 'com.twitter.sdk.android:tweet-composer:3.1.1'
     // compile 'com.twitter.sdk.android:twitter-mopub:3.1.1'
-    ////
     //// To retrieve time from Internet
-    ////
     //// Rounded ImageView
-    ////
     //// Chart build alf
     //// Chart build fab
-    ////
     //// okhttp
-    ////
     //// event bus
-    ////
     //// Glide support
-    ////
-    compile 'com.android.support:appcompat-v7:26.0.+'
-    compile 'com.android.support:cardview-v7:26.0.+'
-    compile 'com.android.support:design:26.0.+'
-    compile 'com.android.support:support-v4:26.0.+'
+    compile 'com.android.support:appcompat-v7:27.0.0'
+    compile 'com.android.support:cardview-v7:27.0.0'
+    compile 'com.android.support:design:27.0.0'
+    compile 'com.android.support:support-v4:27.0.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.google.android.gms:play-services-location:11.0.4'
-    compile 'com.google.android.gms:play-services-places:11.0.4'
-    compile 'com.google.android.gms:play-services-maps:11.0.4'
-    compile 'com.google.android.gms:play-services-auth:11.0.4'
-    compile 'com.google.firebase:firebase-auth:11.0.4'
-    compile 'com.google.firebase:firebase-core:11.0.4'
-    compile 'com.google.firebase:firebase-database:11.0.4'
-    compile 'com.google.firebase:firebase-storage:11.0.4'
-    compile 'com.google.firebase:firebase-messaging:11.0.4'
+    compile 'com.google.android.gms:play-services-location:11.4.2'
+    compile 'com.google.android.gms:play-services-places:11.4.2'
+    compile 'com.google.android.gms:play-services-maps:11.4.2'
+    compile 'com.google.android.gms:play-services-auth:11.4.2'
+    compile 'com.google.firebase:firebase-auth:11.4.2'
+    compile 'com.google.firebase:firebase-core:11.4.2'
+    compile 'com.google.firebase:firebase-database:11.4.2'
+    compile 'com.google.firebase:firebase-storage:11.4.2'
+    compile 'com.google.firebase:firebase-messaging:11.4.2'
     compile 'com.twitter.sdk.android:twitter:3.1.1'
     compile 'commons-net:commons-net:3.3'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.jjoe64:graphview:4.2.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.3'
     compile 'com.fathzer:javaluator:3.0.1'
-    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'com.squareup.okhttp3:okhttp:3.7.0'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.github.ronaldsmartin:Material-ViewPagerIndicator:1.0.4'

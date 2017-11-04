@@ -12,10 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.ToxicBakery.viewpager.transforms.DepthPageTransformer;
 import com.proevolutionsoftware.driveembetter.R;
 import com.proevolutionsoftware.driveembetter.adapters.RankingGraphPageAdapter;
 import com.proevolutionsoftware.driveembetter.entity.SingletonUser;
-import com.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.proevolutionsoftware.driveembetter.utils.FragmentsState;
 
 /**
  * Created by alfredo on 03/11/17.
@@ -86,7 +87,7 @@ public class StatisticsFragment extends Fragment {
         // TODO: 18/10/17 Per ora ci sono 5 tipi di grafici, quindi con un valore come 4 non viene distrutto nessun fragment. Nel caso in cui si qualche fragment venisse distrutto (aumento numero fragments o diminuzione valore di offset) gestire la ricostruzione del fragment (rendering legenda ecc...)
         // pager.setOffscreenPageLimit(4); // TODO: 26/10/17 BUG DATO DA QUESTA RIGA DI CODICE
         // pager.setPageTransformer(true, new AccordionTransformer());
-        // pager.setPageTransformer(true, new DepthPageTransformer());
+        pager.setPageTransformer(true, new DepthPageTransformer());
         // pager.setPageTransformer(true, new ZoomOutSlideTransformer());
         // pager.setPageTransformer(true, new CubeInTransformer());
         // pager.setPageTransformer(true, new FlipHorizontalTransformer());
@@ -98,7 +99,7 @@ public class StatisticsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        FragmentState.setFragmentState(FragmentState.STATISTICS_FRAGMENT, true);
+        FragmentsState.setFragmentState(FragmentsState.STATISTICS_FRAGMENT, true);
     }
 
     @Override
@@ -106,13 +107,13 @@ public class StatisticsFragment extends Fragment {
         super.onPause();
 
         Log.d(TAG, "onPause");
-        FragmentState.setFragmentState(FragmentState.STATISTICS_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.STATISTICS_FRAGMENT, false);
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        FragmentState.setFragmentState(FragmentState.STATISTICS_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.STATISTICS_FRAGMENT, false);
     }
 }

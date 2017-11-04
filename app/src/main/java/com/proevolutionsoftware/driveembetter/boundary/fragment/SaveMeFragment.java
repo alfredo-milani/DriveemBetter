@@ -47,7 +47,7 @@ import com.proevolutionsoftware.driveembetter.constants.Constants;
 import com.proevolutionsoftware.driveembetter.entity.SingletonUser;
 import com.proevolutionsoftware.driveembetter.utils.DailyMetrometer;
 import com.proevolutionsoftware.driveembetter.utils.FirebaseDatabaseManager;
-import com.proevolutionsoftware.driveembetter.utils.FragmentState;
+import com.proevolutionsoftware.driveembetter.utils.FragmentsState;
 import com.proevolutionsoftware.driveembetter.utils.GlideImageLoader;
 import com.proevolutionsoftware.driveembetter.utils.NetworkConnectionUtil;
 import com.proevolutionsoftware.driveembetter.utils.NumberManager;
@@ -211,7 +211,7 @@ public class SaveMeFragment
             updatePosition = new UpdatePosition();
             updatePosition.execute();
         }
-        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, true);
+        FragmentsState.setFragmentState(FragmentsState.SAVE_ME_FRAGMENT, true);
         super.onResume();
     }
 
@@ -221,7 +221,7 @@ public class SaveMeFragment
         if (updatePosition != null) {
             updatePosition.cancel(true);
         }
-        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.SAVE_ME_FRAGMENT, false);
         if (googleMap != null)
             googleMap.clear();
         mMapView.onPause();
@@ -233,7 +233,7 @@ public class SaveMeFragment
         if (updatePosition != null) {
             updatePosition.cancel(true);
         }
-        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.SAVE_ME_FRAGMENT, false);
         mMapView.onDestroy();
         super.onDestroy();
     }
@@ -249,7 +249,7 @@ public class SaveMeFragment
         if (updatePosition != null) {
             updatePosition.cancel(true);
         }
-        FragmentState.setFragmentState(FragmentState.SAVE_ME_FRAGMENT, false);
+        FragmentsState.setFragmentState(FragmentsState.SAVE_ME_FRAGMENT, false);
         super.onStop();
     }
 
