@@ -18,8 +18,7 @@
             android:id="@+id/view_pager_indicator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:gravity="center_vertical"
+            android:layout_gravity="center_horizontal"
             app:dotPadding="20dp"
             app:selectedDotColor="@color/colorAccent"
             app:unselectedDotColor="@color/colorPrimaryDark" />
