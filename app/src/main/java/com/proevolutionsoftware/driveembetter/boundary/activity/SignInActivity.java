@@ -227,6 +227,10 @@ public class SignInActivity
         switch (requestCode) {
             case SingletonGoogleProvider.RC_SIGN_IN:
                 Log.d(TAG, "GOOGLE onActivityResult: " + requestCode);
+                if (!this.termsAccepted) {
+                    Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 // Redirection to GoogleProvider's class
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                         .activityResult(requestCode, resultCode, data);
@@ -234,6 +238,10 @@ public class SignInActivity
 
             case SingletonTwitterProvider.RC_SIGN_IN:
                 Log.d(TAG, "TWITTER onActivityResult: " + requestCode);
+                if (!this.termsAccepted) {
+                    Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 // Redirection to TwitterProvider's class
                 // Pass the activity result to the login button.
                 this.twitterLoginButton.onActivityResult(requestCode, resultCode, data);

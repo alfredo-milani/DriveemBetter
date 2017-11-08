@@ -418,7 +418,7 @@ public class RankingGraphFragment extends Fragment
             Log.d(TAG, "Data null");
             this.updateUI(
                     null,
-                    getString(R.string.velocity_daily_graph),
+                    this.isAdded() ? this.getString(R.string.velocity_daily_graph) : null,
                     0,
                     false
             );
@@ -439,7 +439,7 @@ public class RankingGraphFragment extends Fragment
             if (this.isAdded()) {
                 this.updateUI(
                         dataPoints,
-                        this.getString(R.string.velocity_daily_graph),
+                        this.isAdded() ? this.getString(R.string.velocity_daily_graph) : null,
                         meanDay.getTimestamp(),
                         true
                 );
@@ -456,7 +456,7 @@ public class RankingGraphFragment extends Fragment
             Log.d(TAG, "Data null");
             this.updateUI(
                     null,
-                    getString(R.string.velocity_weekly_graph),
+                    this.isAdded() ? this.getString(R.string.velocity_weekly_graph) : null,
                     0,
                     false
             );
@@ -478,7 +478,7 @@ public class RankingGraphFragment extends Fragment
             if (this.isAdded()) {
                 this.updateUI(
                         dataPoints,
-                        this.getString(R.string.velocity_weekly_graph),
+                        this.isAdded() ? this.getString(R.string.velocity_weekly_graph) : null,
                         meanWeek.getTimestamp(),
                         true
                 );
@@ -495,7 +495,7 @@ public class RankingGraphFragment extends Fragment
             Log.d(TAG, "Data null");
             this.updateUI(
                     null,
-                    getString(R.string.acceleration_daily_graph),
+                    this.isAdded() ? this.getString(R.string.acceleration_daily_graph) : null,
                     0,
                     false
             );
@@ -516,7 +516,7 @@ public class RankingGraphFragment extends Fragment
             if (this.isAdded()) {
                 this.updateUI(
                         dataPoints,
-                        this.getString(R.string.acceleration_daily_graph),
+                        this.isAdded() ? this.getString(R.string.acceleration_daily_graph) : null,
                         meanDay.getTimestamp(),
                         true
                 );
@@ -533,7 +533,7 @@ public class RankingGraphFragment extends Fragment
             Log.d(TAG, "Data null");
             this.updateUI(
                     null,
-                    getString(R.string.acceleration_weekly_graph),
+                    this.isAdded() ? this.getString(R.string.acceleration_weekly_graph) : null,
                     0,
                     false
             );
@@ -554,7 +554,7 @@ public class RankingGraphFragment extends Fragment
             if (this.isAdded()) {
                 this.updateUI(
                         dataPoints,
-                        this.getString(R.string.acceleration_weekly_graph),
+                        this.isAdded() ? this.getString(R.string.acceleration_weekly_graph) : null,
                         meanWeek.getTimestamp(),
                         true
                 );
@@ -571,7 +571,7 @@ public class RankingGraphFragment extends Fragment
             Log.d(TAG, "Data null");
             this.updateUI(
                     null,
-                    getString(R.string.feedback_graph),
+                    this.isAdded() ? this.getString(R.string.feedback_graph) : null,
                     0,
                     false
             );
@@ -596,7 +596,7 @@ public class RankingGraphFragment extends Fragment
             if (this.isAdded()) {
                 this.updateUI(
                         dataPoints,
-                        this.getString(R.string.feedback_graph),
+                        this.isAdded() ? this.getString(R.string.feedback_graph) : null,
                         lastUpdate == null ? 0 : lastUpdate.getTime(),
                         true
                 );
@@ -613,7 +613,7 @@ public class RankingGraphFragment extends Fragment
         if (this.isAdded()) {
             this.updateUI(
                     null,
-                    this.getString(R.string.points_graph),
+                    this.isAdded() ? this.getString(R.string.points_graph) : null,
                     0,
                     false
             );
@@ -622,7 +622,7 @@ public class RankingGraphFragment extends Fragment
         // TODO: 17/10/17
     }
 
-    public void updateUI(DataPoint[] dataPoint, String title, long subTitle, boolean clickable) {
+    public void updateUI(@Nullable DataPoint[] dataPoint, @Nullable String title, long subTitle, boolean clickable) {
         if (this.isAdded()) {
             if (title != null) {
                 this.titleGraph.setText(title);

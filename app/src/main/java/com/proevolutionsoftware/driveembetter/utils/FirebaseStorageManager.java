@@ -60,8 +60,9 @@ public class FirebaseStorageManager
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                    if (SingletonUser.getInstance() != null) {
-                        SingletonUser.getInstance().setPhotoUrl(downloadUrl);
+                    SingletonUser user = SingletonUser.getInstance();
+                    if (user != null && downloadUrl != null) {
+                        user.setPhotoUrl(downloadUrl);
                     }
                     callback.onProfileModified(SingletonEmailAndPasswordProvider.EditProfileCallback.UP_PICTURE_SUCCESS_STORAGE);
                     FirebaseDatabaseManager.updateUserData(Constants.CHILD_IMAGE, downloadUrl.toString());
