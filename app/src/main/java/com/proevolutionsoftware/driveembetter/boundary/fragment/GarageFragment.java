@@ -387,7 +387,7 @@ public class GarageFragment extends Fragment
         }
 
         if (type_alert == 3) {
-            final View popupView = getActivity().getLayoutInflater().inflate(R.layout.review_alert, null);
+            final View popupView = getActivity().getLayoutInflater().inflate(R.layout.popup_review_alert, null);
 
             final PopupWindow popupWindow = new PopupWindow(popupView,
                     FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);

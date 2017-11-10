@@ -238,6 +238,7 @@ public class SignInActivity
 
             case SingletonTwitterProvider.RC_SIGN_IN:
                 Log.d(TAG, "TWITTER onActivityResult: " + requestCode);
+                // TODO: 08/11/17 verificare che non si possa accedere con Twitter se non sono stati accettati i termini
                 if (!this.termsAccepted) {
                     Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_SHORT).show();
                     break;

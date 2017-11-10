@@ -5,6 +5,10 @@ package com.proevolutionsoftware.driveembetter.constants;
  */
 
 public interface Constants {
+    String APP_LINK_TO_GOOGLE_PLAY_STORE = "https://play.google.com/store/apps/details?id=com.proevolutionsoftware.driveembetter";
+
+
+
     // Informations exchanged between Activities
     String USER = "user_info";
     String PROVIDER_TYPE = "provider_type";

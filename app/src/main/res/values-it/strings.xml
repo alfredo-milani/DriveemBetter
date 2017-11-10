@@ -214,5 +214,7 @@
     <string name="insurance_alert">La tua assicurazione è scaduta! Aggiorna la data di scadenza assicurativa non appena lo rinnova</string>
     <string name="insurance_date">Data assicurazione</string>
     <string name="string_error">La stringa non può contenere  \'.\', \'#\', \'$\', \'=\', \';\', \'[\', or \']\'. Veicolo non salvato.</string>
+    <string name="share_app">Condividi con</string>
+    <string name="link_app"><p> Segui il link per installare l\'app %s! <br /> %s </p></string>
 
 </resources>

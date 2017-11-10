@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -85,12 +86,12 @@ public class RankingFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         return this.rootView = inflater.inflate(R.layout.fragment_ranking_list, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         this.initWidgets();
@@ -141,9 +142,10 @@ public class RankingFragment extends Fragment
     }
 
     private int getPositionCurrentUser(ArrayList<User> arrayList) {
+        SingletonUser user = SingletonUser.getInstance();
         for (int i = 0; i < arrayList.size(); ++i) {
-            if (SingletonUser.getInstance() != null && arrayList.get(i).getUid() != null &&
-                    SingletonUser.getInstance().getUid().equals(arrayList.get(i).getUid())) {
+            if (user != null && arrayList.get(i).getUid() != null &&
+                    user.getUid().equals(arrayList.get(i).getUid())) {
                 return i;
             }
         }
@@ -241,8 +243,8 @@ public class RankingFragment extends Fragment
 
             // Show DialogFragment
             case R.id.menu_selection_level:
-                if (!this.levelMenuFragment.isAdded()) {
-                    this.levelMenuFragment.show(getFragmentManager(), getString(R.string.dialogue_level_menu));
+                if (!this.levelMenuFragment.isAdded() && this.getFragmentManager() != null) {
+                    this.levelMenuFragment.show(this.getFragmentManager(), getString(R.string.dialogue_level_menu));
                 }
                 return true;
         }
@@ -294,9 +296,9 @@ public class RankingFragment extends Fragment
         this.recycleView.setLayoutManager(this.layoutManager);
         this.swipeRefreshLayout = this.rootView.findViewById(R.id.swiperefresh_ranking);
         this.swipeRefreshLayout.setColorSchemeColors(
-                ContextCompat.getColor(getContext(), R.color.colorPrimaryDark),
-                ContextCompat.getColor(getContext(), R.color.colorItemList),
-                ContextCompat.getColor(getContext(), R.color.colorItemList2)
+                ContextCompat.getColor(this.context, R.color.colorPrimaryDark),
+                ContextCompat.getColor(this.context, R.color.colorItemList),
+                ContextCompat.getColor(this.context, R.color.colorItemList2)
         );
         this.swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -323,12 +325,14 @@ public class RankingFragment extends Fragment
     @Override
     public void onRefresh() {
         if (!NetworkConnectionUtil.isConnectedToInternet(this.context)) {
-            this.getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getActivity(), getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
-                }
-            });
+            if (this.getActivity() != null) {
+                this.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
             if (this.swipeRefreshLayout.isRefreshing()) {
                 this.hideProgress();
             }

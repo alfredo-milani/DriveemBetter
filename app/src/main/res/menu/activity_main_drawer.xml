@@ -35,15 +35,9 @@
                 android:title="@string/share" />
 
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="@string/send" />
-
-            <item
                 android:id="@+id/about_us"
                 android:icon="@mipmap/about_us_icon"
-                android:title="@string/about_us"
-                />
+                android:title="@string/about_us" />
         </menu>
     </item>
 

@@ -1,13 +1,8 @@
 package com.proevolutionsoftware.driveembetter.boundary.activity;
 
-import android.annotation.TargetApi;
-import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,11 +14,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +29,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.ScatterChart;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.proevolutionsoftware.driveembetter.R;
 import com.proevolutionsoftware.driveembetter.authentication.BaseProvider;
@@ -44,11 +38,9 @@ import com.proevolutionsoftware.driveembetter.authentication.factoryProvider.Fac
 import com.proevolutionsoftware.driveembetter.authentication.factoryProvider.SingletonGoogleProvider;
 import com.proevolutionsoftware.driveembetter.boundary.TaskProgressInterface;
 import com.proevolutionsoftware.driveembetter.boundary.fragment.AboutUsFragment;
-import com.proevolutionsoftware.driveembetter.boundary.fragment.ChartFragment;
 import com.proevolutionsoftware.driveembetter.boundary.fragment.GarageFragment;
 import com.proevolutionsoftware.driveembetter.boundary.fragment.HomeFragment;
 import com.proevolutionsoftware.driveembetter.boundary.fragment.RankingFragment;
-import com.proevolutionsoftware.driveembetter.boundary.fragment.RetainedFragment;
 import com.proevolutionsoftware.driveembetter.boundary.fragment.SaveMeFragment;
 import com.proevolutionsoftware.driveembetter.boundary.fragment.StatisticsFragment;
 import com.proevolutionsoftware.driveembetter.constants.Constants;
@@ -98,6 +90,7 @@ public class MainFragmentActivity extends AppCompatActivity
     private Fragment statistics;
 
     // Widgets
+    private ShareActionProvider mShareActionProvider;
     private ProgressBar progressBar;
     private TextView usernameTextView;
     private TextView emailTextView;
@@ -333,64 +326,6 @@ public class MainFragmentActivity extends AppCompatActivity
         this.settingsImageButton = this.headerView.findViewById(R.id.imageViewSettings);
         this.userSync();
         this.settingsImageButton.setOnClickListener(this);
-
-
-
-        // Plot part
-        /* Check if the device is a tablet */
-        ChartFragment chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
-
-        if (chartFragment != null) {
-            /* Chart fragment is shown */
-
-            /* Find retained fragment by tag: return null if fragment is not found */
-            FragmentManager fragmentManager = getFragmentManager();
-            RetainedFragment retainedFragment = (RetainedFragment) fragmentManager
-                    .findFragmentByTag(getString(R.string.fragment_tag));
-
-            if (retainedFragment != null) {
-                /* Retained fragment already exists; activity has been recreated */
-
-                if (retainedFragment.getTask() != null) {
-                    /* A task is running */
-
-                    /* Get chart fragment */
-                    chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
-
-                    /* Create and set a new progress dialog */
-                    progress = new ProgressDialog(MainFragmentActivity.this);
-                    progress.setMax(100);
-                    progress.setMessage(getString(R.string.strProgressDialogMessage));
-                    progress.setTitle(getString(R.string.strProgressDialogTitle));
-                    progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    progress.setCancelable(true);
-                    progress.setCanceledOnTouchOutside(false);
-                    progress.setOnKeyListener(new KeyListener());
-                    progress.show();
-                    chartFragment.setProgressDialog(progress);
-                    retainedFragment.setProgressDialog(progress);
-
-                    /* Get chart from chart fragment */
-                    ScatterChart chart = chartFragment.getChart();
-                    retainedFragment.setChart(chart);
-                } else {
-                    /* Task is not running */
-
-                    /* Get chart fragment */
-                    chartFragment = (ChartFragment) getFragmentManager().findFragmentById(R.id.chartFragment);
-
-                    if (retainedFragment.getData() != null) {
-                        /* Get chart */
-                        ScatterChart chart = chartFragment.getChart();
-                        chart.setData(retainedFragment.getData());
-
-                        /* Redraw chart */
-                        chart.invalidate();
-                    }
-                }
-            }
-
-        }
     }
 
     private void startNewActivityCloseCurrent(Context context, Class newClass) {
@@ -489,7 +424,7 @@ public class MainFragmentActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.action_bar_fragment_level, menu);
         return true;
     }
 
@@ -509,6 +444,7 @@ public class MainFragmentActivity extends AppCompatActivity
     }
 
     private void manageActionOnNavigationItemSelected(int action) {
+        Log.e(TAG, "ENTER_DISPACHER: " + action);
         switch (action) {
             case R.id.home:
                 if (!FragmentsState.isFragmentOpen(FragmentsState.HOME_FRAGMENT)) {
@@ -564,13 +500,14 @@ public class MainFragmentActivity extends AppCompatActivity
                 break;
 
             case R.id.nav_share:
-                // DEBUG
-                ////
-                break;
-
-            case R.id.nav_send:
-                // DEBUG
-                ////
+                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                sharingIntent.setType("text/html");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(String.format(
+                        this.getString(R.string.link_app),
+                        this.getString(R.string.app_name),
+                        Constants.APP_LINK_TO_GOOGLE_PLAY_STORE
+                )));
+                startActivity(Intent.createChooser(sharingIntent,this.getString(R.string.share_app)));
                 break;
 
             case R.id.about_us:
@@ -699,60 +636,6 @@ public class MainFragmentActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-        }
-    }
-
-
-
-
-
-
-    /* This method will be invoked when a button in the dialog is clicked */
-    private class DialogClickListener implements DialogInterface.OnClickListener {
-
-        @TargetApi(Build.VERSION_CODES.CUPCAKE)
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    /* "Yes" button clicked: stop task  */
-                    task.cancel(true);
-                    break;
-
-                case DialogInterface.BUTTON_NEGATIVE:
-                    /* "No" button clicked: do nothing */
-                    break;
-            }
-        }
-    }
-
-    // This method will be invoked when a hardware key event is dispatched to this dialog */
-    private class KeyListener implements DialogInterface.OnKeyListener {
-
-        @TargetApi(Build.VERSION_CODES.ECLAIR)
-        @Override
-        public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-            if (keyCode == KeyEvent.KEYCODE_BACK && !event.isCanceled()) {
-                /* "Back" button pressed */
-                if (progress.isShowing()) {
-                    /* If a progress dialog is showing, create a new dialog with "Yes" and "No" buttons */
-                    DialogClickListener listener = new DialogClickListener();
-                    AlertDialog.Builder ab = new AlertDialog.Builder(MainFragmentActivity.this);
-                    ab.setMessage(getString(R.string.strAreYouSure)).setNegativeButton(android.R.string.no, listener).setPositiveButton(android.R.string.yes, listener).show();
-                    AlertDialog alert11 = ab.create();
-                    alert11.show();
-
-                    Button buttonbackground = alert11.getButton(DialogInterface.BUTTON_NEGATIVE);
-                    buttonbackground.setBackgroundColor(Color.BLUE);
-
-                    Button buttonbackground1 = alert11.getButton(DialogInterface.BUTTON_POSITIVE);
-                    buttonbackground1.setBackgroundColor(Color.BLUE);
-
-
-                }
-                return true;
-            }
-            return false;
         }
     }
 }
