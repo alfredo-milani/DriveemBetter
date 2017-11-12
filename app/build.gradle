@@ -18,8 +18,8 @@ android {
         applicationId "com.proevolutionsoftware.driveembetter"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 3
-        versionName "1.0.6"
+        versionCode 4
+        versionName "1.0.8"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -55,10 +55,10 @@ dependencies {
     //// okhttp
     //// event bus
     //// Glide support
-    compile 'com.android.support:appcompat-v7:27.0.0'
-    compile 'com.android.support:cardview-v7:27.0.0'
-    compile 'com.android.support:design:27.0.0'
-    compile 'com.android.support:support-v4:27.0.0'
+    compile 'com.android.support:appcompat-v7:27.0.1'
+    compile 'com.android.support:cardview-v7:27.0.1'
+    compile 'com.android.support:design:27.0.1'
+    compile 'com.android.support:support-v4:27.0.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.android.gms:play-services-location:11.4.2'
     compile 'com.google.android.gms:play-services-places:11.4.2'

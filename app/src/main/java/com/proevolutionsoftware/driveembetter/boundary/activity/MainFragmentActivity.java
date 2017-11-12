@@ -1,6 +1,7 @@
 package com.proevolutionsoftware.driveembetter.boundary.activity;
 
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,7 +18,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,6 +57,7 @@ import com.proevolutionsoftware.driveembetter.utils.PermissionManager;
 import com.proevolutionsoftware.driveembetter.utils.PositionManager;
 import com.proevolutionsoftware.driveembetter.utils.ProtectedAppsManager;
 import com.proevolutionsoftware.driveembetter.utils.SensorHandler;
+import com.proevolutionsoftware.driveembetter.utils.SharedPrefUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,6 +73,8 @@ public class MainFragmentActivity extends AppCompatActivity
 
     private final static String TAG = MainFragmentActivity.class.getSimpleName();
 
+    public final static String DIRECT_ACCESS = "direct_access";
+
     // Resources
     private ArrayList<BaseProvider> baseProviderArrayList;
     private SingletonFirebaseProvider singletonFirebaseProvider;
@@ -79,6 +82,7 @@ public class MainFragmentActivity extends AppCompatActivity
     private PositionManager positionManager;
     private Thread reauthenticationThread;
     private Thread saveUserDataThread;
+    private SharedPrefUtil sharedPrefUtil;
 
     // Fragments
     private FragmentsState fragmentsState;
@@ -153,6 +157,7 @@ public class MainFragmentActivity extends AppCompatActivity
                     saveUserDataThread.interrupt();
                     reauthenticationThread.interrupt();
                     SingletonUser.resetSession();
+                   sharedPrefUtil.saveBoolean(MainFragmentActivity.DIRECT_ACCESS, false);
                     startNewActivityCloseCurrent(MainFragmentActivity.this, SignInActivity.class);
                     break;
 
@@ -190,6 +195,8 @@ public class MainFragmentActivity extends AppCompatActivity
     }
 
     private void initResources() {
+        this.sharedPrefUtil = new SharedPrefUtil(this);
+        this.sharedPrefUtil.saveBoolean(MainFragmentActivity.DIRECT_ACCESS, true);
         // Get all providers to manage user's connection state
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance();
@@ -501,13 +508,19 @@ public class MainFragmentActivity extends AppCompatActivity
 
             case R.id.nav_share:
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                sharingIntent.setType("text/html");
-                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(String.format(
+                sharingIntent.setType("text/plain");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, String.format(
                         this.getString(R.string.link_app),
                         this.getString(R.string.app_name),
                         Constants.APP_LINK_TO_GOOGLE_PLAY_STORE
-                )));
-                startActivity(Intent.createChooser(sharingIntent,this.getString(R.string.share_app)));
+                ));
+
+                try {
+                    this.startActivity(Intent.createChooser(sharingIntent, this.getString(R.string.share_app)));
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(MainFragmentActivity.this, this.getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
                 break;
 
             case R.id.about_us:

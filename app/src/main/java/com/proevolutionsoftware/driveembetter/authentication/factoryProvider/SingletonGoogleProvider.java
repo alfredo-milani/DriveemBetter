@@ -142,7 +142,9 @@ public class SingletonGoogleProvider
                         } else {
                             // Sign in fails
                             try {
-                                throw task.getException();
+                                if (task.getException() != null) {
+                                    throw task.getException();
+                                }
                             } catch (FirebaseException e2) {
                                 Log.d(TAG, "firebaseAuthWithGoogle:failed", task.getException());
                                 singletonFirebaseProvider.sendMessageToUI(INTERNAL_FIREBASE_ERROR_LOGIN);

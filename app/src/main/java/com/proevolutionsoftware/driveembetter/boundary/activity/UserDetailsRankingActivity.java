@@ -46,6 +46,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     private final static String TAG = UserDetailsRankingActivity.class.getSimpleName();
 
     // Resources
+    private SingletonUser singletonUser;
     private static User user;
 
     // Widgets
@@ -70,6 +71,7 @@ public class UserDetailsRankingActivity extends AppCompatActivity
     }
 
     private void initResources() {
+        this.singletonUser = SingletonUser.getInstance();
         UserDetailsRankingActivity.user = this.getIntent().getParcelableExtra(USER);
     }
 
@@ -109,7 +111,8 @@ public class UserDetailsRankingActivity extends AppCompatActivity
         // To set default page fragment
         // pager.setCurrentItem(int currentItem);
 
-        if (UserDetailsRankingActivity.user.getUid().equals(SingletonUser.getInstance().getUid())) {
+        if (this.singletonUser != null &&
+                UserDetailsRankingActivity.user.getUid().equals(singletonUser.getUid())) {
             this.startChatButton.setColorFilter(
                     ContextCompat.getColor(this, R.color.colorSchemasComplementary),
                     android.graphics.PorterDuff.Mode.MULTIPLY

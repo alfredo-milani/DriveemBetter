@@ -58,6 +58,7 @@ public class SignInActivity
 
     // If we are authenticated with Firebase we check if email is verified before log in
     private boolean checkEmailBeforeLogIn;
+    private boolean signInTriggered;
 
 
 
@@ -90,11 +91,13 @@ public class SignInActivity
             int id = msg.what;
             switch (id) {
                 case USER_LOGIN:
-                    // TODO a volte a seguito del logout, il silent-signin di google manda un segnale di login (causato dalla onStart)
                     hideProgress();
                     Log.d(TAG, "handleMessage:Login");
                     // Check if email has been verified
-                    if (checkEmailBeforeLogIn && (singletonFirebaseProvider
+                    if (!signInTriggered) {
+                        Log.d(TAG, "False login signal");
+                        break;
+                    } else if (checkEmailBeforeLogIn && (singletonFirebaseProvider
                             .getFirebaseUser() == null ||
                             !singletonFirebaseProvider
                                     .getFirebaseUser()
@@ -104,6 +107,7 @@ public class SignInActivity
                     }
 
                     Log.d(TAG, "Login: email verified");
+                    signInTriggered = false;
                     startNewActivity(SignInActivity.this, MainFragmentActivity.class);
                     break;
 
@@ -167,7 +171,6 @@ public class SignInActivity
                     hideProgress();
                     Log.d(TAG, "handleMessage:signin_error:action_canceled");
                     Toast.makeText(SignInActivity.this, getString(R.string.canceled_action), Toast.LENGTH_SHORT).show();
-                    // TODO: 14/10/17 vedere se cancellando la cache il problema viene risolto
                     ManageCache.deleteCache(getApplicationContext());
                     break;
 
@@ -215,6 +218,7 @@ public class SignInActivity
         this.sharedPrefUtil = new SharedPrefUtil(this);
         this.termsAccepted = this.sharedPrefUtil.getBoolean(TermsActivity.TERMS_RESULT, false);
         this.checkEmailBeforeLogIn = true;
+        this.signInTriggered = this.sharedPrefUtil.getBoolean(MainFragmentActivity.DIRECT_ACCESS, false);
         FactoryProviders factoryProviders = new FactoryProviders(this, this.handler);
         this.singletonFirebaseProvider = SingletonFirebaseProvider.getInstance(this, this.handler);
         this.baseProviderArrayList = factoryProviders.getAllProviders();
@@ -238,7 +242,6 @@ public class SignInActivity
 
             case SingletonTwitterProvider.RC_SIGN_IN:
                 Log.d(TAG, "TWITTER onActivityResult: " + requestCode);
-                // TODO: 08/11/17 verificare che non si possa accedere con Twitter se non sono stati accettati i termini
                 if (!this.termsAccepted) {
                     Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_SHORT).show();
                     break;
@@ -287,6 +290,7 @@ public class SignInActivity
                 }
 
                 this.showProgress();
+                this.signInTriggered = true;
                 this.baseProviderArrayList
                         .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
                         .signIn(
@@ -306,6 +310,7 @@ public class SignInActivity
 
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
+                this.signInTriggered = true;
                 this.baseProviderArrayList
                         .get(FactoryProviders.GOOGLE_PROVIDER)
                         .signIn(null, null);
@@ -313,13 +318,11 @@ public class SignInActivity
 
             // Sign in with Twitter
             case R.id.twitter_login_button:
-                if (!this.termsAccepted) {
-                    Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_SHORT).show();
-                    break;
-                }
+                // If this.termsAccepted is false then this button is not clickable at all
 
                 this.checkEmailBeforeLogIn = false;
                 this.showProgress();
+                this.signInTriggered = true;
                 this.baseProviderArrayList
                         .get(FactoryProviders.TWITTER_PROVIDER)
                         .signIn(null, null);
@@ -392,6 +395,10 @@ public class SignInActivity
         super.onResume();
 
         Log.d(TAG, ":resume");
+        if (!this.termsAccepted) {
+            Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_SHORT).show();
+        }
+        this.twitterLoginButton.setClickable(this.termsAccepted);
         this.singletonFirebaseProvider.setStateListener(this.hashCode());
     }
 
