@@ -254,7 +254,8 @@ public class RankingGraphFragment extends Fragment
                 FirebaseDatabaseManager.retrieveWeeklyData(
                         this,
                         VELOCITY_GRAPH_WEEKLY,
-                        RankingGraphFragment.userID
+                        RankingGraphFragment.userID,
+                        "VEL_" + this.typeGraph
                 );
                 break;
 
@@ -270,7 +271,8 @@ public class RankingGraphFragment extends Fragment
                 FirebaseDatabaseManager.retrieveWeeklyData(
                         this,
                         ACCELERATION_GRAPH_WEEKLY,
-                        RankingGraphFragment.userID
+                        RankingGraphFragment.userID,
+                        "ACC_" + this.typeGraph
                 );
                 break;
 
@@ -449,7 +451,9 @@ public class RankingGraphFragment extends Fragment
     }
 
     @Override
-    public void onWeeklyVelocityReceived(MeanWeek meanWeek) {
+    public void onWeeklyVelocityReceived(MeanWeek meanWeek, int type) {
+        Log.d(TAG, "GRAPH_VEL_C: " + type);
+
         this.hideProgress();
 
         Log.d(TAG, "Data received");
@@ -526,7 +530,9 @@ public class RankingGraphFragment extends Fragment
     }
 
     @Override
-    public void onWeeklyAccelerationReceived(MeanWeek meanWeek) {
+    public void onWeeklyAccelerationReceived(MeanWeek meanWeek, int type) {
+        Log.d(TAG, "GRAPH_ACC_C: " + type);
+
         this.hideProgress();
 
         Log.d(TAG, "Data received");

@@ -1,6 +1,7 @@
 package com.proevolutionsoftware.driveembetter.utils;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
@@ -59,6 +60,7 @@ public class FirebaseDatabaseManager
     /**
      *  MISCELLANEOUS METHODS
      */
+    @Contract(pure = true)
     public static DatabaseReference getDatabaseReference() {
         return FirebaseDatabaseManager.databaseReference;
     }
@@ -649,14 +651,14 @@ public class FirebaseDatabaseManager
      */
     public interface RetrieveDataDB {
         void onDailyVelocityReceived(MeanDay meanDay);
-        void onWeeklyVelocityReceived(MeanWeek meanWeek);
+        void onWeeklyVelocityReceived(MeanWeek meanWeek, int t);
         void onDailyAccelerationReceived(MeanDay meanDay);
-        void onWeeklyAccelerationReceived(MeanWeek meanWeek);
+        void onWeeklyAccelerationReceived(MeanWeek meanWeek, int t);
         void onFeedbackReceived(Map<Date, Double> map);
         void onPointsDataReceived();
     }
 
-    @org.jetbrains.annotations.Contract("null, _, _ -> fail")
+    @Contract("null, _, _ -> fail")
     public static void retrieveDailyData(final RetrieveDataDB callback, final int typeDataRequested, String userID) {
         if (callback == null) {
             throw new CallbackNotInitialized(TAG);
@@ -706,7 +708,8 @@ public class FirebaseDatabaseManager
     }
 
     @Contract("null, _, _ -> fail")
-    public static void retrieveWeeklyData(final RetrieveDataDB callback, final int typeDataRequested, String userID) {
+    public static void retrieveWeeklyData(final RetrieveDataDB callback, final int typeDataRequested, String userID, String debugTypeGraph) {
+        Log.d(TAG, "TYPE:  " + debugTypeGraph + " / " + typeDataRequested);
         if (callback == null) {
             throw new CallbackNotInitialized(TAG);
         } else if (userID == null) {
@@ -738,11 +741,11 @@ public class FirebaseDatabaseManager
 
                 switch (typeDataRequested) {
                     case VELOCITY_GRAPH_WEEKLY:
-                        callback.onWeeklyVelocityReceived(meanWeek);
+                        callback.onWeeklyVelocityReceived(meanWeek, typeDataRequested);
                         break;
 
                     case ACCELERATION_GRAPH_WEEKLY:
-                        callback.onWeeklyAccelerationReceived(meanWeek);
+                        callback.onWeeklyAccelerationReceived(meanWeek, typeDataRequested);
                         break;
                 }
             }
@@ -926,7 +929,7 @@ public class FirebaseDatabaseManager
     }
 
     @Contract("null -> fail")
-    public static void getUsersRank(final RetrieveRankFromDB retrieveRankFromDB, final boolean checkForDouble)
+    public static void getUsersRank(final RetrieveRankFromDB retrieveRankFromDB)
             throws CallbackNotInitialized {
         SingletonUser user = SingletonUser.getInstance();
 
@@ -958,7 +961,7 @@ public class FirebaseDatabaseManager
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         ArrayList<User> arrayList = FirebaseDatabaseManager.getUsersList(dataSnapshot);
-                        if (checkForDouble) {
+                        if (false) {
                             arrayList = checkForDouble(arrayList);
                         }
                         retrieveRankFromDB.onUsersRankingReceived(
@@ -993,7 +996,7 @@ public class FirebaseDatabaseManager
                                 arrayList.addAll(FirebaseDatabaseManager.getUsersList(district));
                             }
                         }
-                        if (checkForDouble) {
+                        if (false) {
                             arrayList = checkForDouble(arrayList);
                         }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
@@ -1028,7 +1031,7 @@ public class FirebaseDatabaseManager
                                 }
                             }
                         }
-                        if (checkForDouble) {
+                        if (false) {
                             arrayList = checkForDouble(arrayList);
                         }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
@@ -1062,7 +1065,7 @@ public class FirebaseDatabaseManager
                                 }
                             }
                         }
-                        if (checkForDouble) {
+                        if (false) {
                             arrayList = checkForDouble(arrayList);
                         }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
@@ -1104,7 +1107,7 @@ public class FirebaseDatabaseManager
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         ArrayList<User> arrayList = FirebaseDatabaseManager.getUsersList(dataSnapshot);
-                        if (checkForDouble) {
+                        if (false) {
                             arrayList = checkForDouble(arrayList);
                         }
                         retrieveRankFromDB.onUsersRankingReceived(
@@ -1138,7 +1141,7 @@ public class FirebaseDatabaseManager
                                 }
                             }
                         }
-                        if (checkForDouble) {
+                        if (false) {
                             arrayList = checkForDouble(arrayList);
                         }
                         retrieveRankFromDB.onUsersRankingReceived(arrayList);
@@ -1194,6 +1197,7 @@ public class FirebaseDatabaseManager
         return arrayList;
     }
 
+    @NonNull
     private static User getUserFromData(DataSnapshot user) {
         String username = null;
         String email = null;
@@ -1318,7 +1322,8 @@ public class FirebaseDatabaseManager
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(CHILD_POINTS)) {
+                if (dataSnapshot.hasChild(CHILD_POINTS) &&
+                        dataSnapshot.child(CHILD_POINTS).getValue() != null) {
                     String currentPointsString = dataSnapshot.child(CHILD_POINTS).getValue().toString();
                     Long newPoints = Long.parseLong(currentPointsString) + points;
                     if (newPoints < 0) {
@@ -1349,6 +1354,10 @@ public class FirebaseDatabaseManager
 
     public static void updateUserPoints(final long points) {
         SingletonUser user = SingletonUser.getInstance();
+        if (user == null) {
+            return;
+        }
+
         final DatabaseReference databaseReference = FirebaseDatabaseManager.databaseReference
                 .child(NODE_USERS)
                 .child(user.getUid())
@@ -1422,45 +1431,51 @@ public class FirebaseDatabaseManager
 
     private static void updatePositionPoints(long points) {
         SingletonUser user = SingletonUser.getInstance();
-        FirebaseDatabaseManager.databaseReference
-                .child(NODE_POSITION)
-                .child(user.getCountry())
-                .child(user.getRegion())
-                .child(user.getSubRegion())
-                .child(user.getUid())
-                .child(CHILD_POINTS)
-                .setValue(points);
+        if (user != null) {
+            FirebaseDatabaseManager.databaseReference
+                    .child(NODE_POSITION)
+                    .child(user.getCountry())
+                    .child(user.getRegion())
+                    .child(user.getSubRegion())
+                    .child(user.getUid())
+                    .child(CHILD_POINTS)
+                    .setValue(points);
+        }
     }
 
     private static void updatePositionPoints(long points, String uid) {
         SingletonUser user = SingletonUser.getInstance();
-        FirebaseDatabaseManager.databaseReference
-                .child(NODE_POSITION)
-                .child(user.getCountry())
-                .child(user.getRegion())
-                .child(user.getSubRegion())
-                .child(uid)
-                .child(CHILD_POINTS)
-                .setValue(points);
+        if (user != null) {
+            FirebaseDatabaseManager.databaseReference
+                    .child(NODE_POSITION)
+                    .child(user.getCountry())
+                    .child(user.getRegion())
+                    .child(user.getSubRegion())
+                    .child(uid)
+                    .child(CHILD_POINTS)
+                    .setValue(points);
+        }
     }
 
     public static void deleteFriend(int number) {
         SingletonUser user = SingletonUser.getInstance();
-        switch (number) {
-            case 1:
-                FirebaseDatabaseManager.databaseReference
-                        .child(NODE_USERS)
-                        .child(user.getUid())
-                        .child(CHILD_FIRST_FRIEND)
-                        .removeValue();
-                break;
-            case 2:
-                FirebaseDatabaseManager.databaseReference
-                        .child(NODE_USERS)
-                        .child(user.getUid())
-                        .child(CHILD_SECOND_FRIEND)
-                        .removeValue();
-                break;
+        if (user != null) {
+            switch (number) {
+                case 1:
+                    FirebaseDatabaseManager.databaseReference
+                            .child(NODE_USERS)
+                            .child(user.getUid())
+                            .child(CHILD_FIRST_FRIEND)
+                            .removeValue();
+                    break;
+                case 2:
+                    FirebaseDatabaseManager.databaseReference
+                            .child(NODE_USERS)
+                            .child(user.getUid())
+                            .child(CHILD_SECOND_FRIEND)
+                            .removeValue();
+                    break;
+            }
         }
     }
 
@@ -1473,34 +1488,36 @@ public class FirebaseDatabaseManager
 
     public static void updateFriend(int number, String name, String phoneNo) {
         SingletonUser user = SingletonUser.getInstance();
-        switch (number) {
-            case PICK_FIRST_CONTACT:
-                FirebaseDatabaseManager.databaseReference
-                        .child(NODE_USERS)
-                        .child(user.getUid())
-                        .child(CHILD_FIRST_FRIEND)
-                        .child(CHILD_NAME)
-                        .setValue(name);
-                FirebaseDatabaseManager.databaseReference
-                        .child(NODE_USERS)
-                        .child(user.getUid())
-                        .child(CHILD_FIRST_FRIEND)
-                        .child(CHILD_PHONE_NO)
-                        .setValue(phoneNo);
-                break;
-            case PICK_SECOND_CONTACT:
-                FirebaseDatabaseManager.databaseReference
-                        .child(NODE_USERS)
-                        .child(user.getUid())
-                        .child(CHILD_SECOND_FRIEND)
-                        .child(CHILD_NAME)
-                        .setValue(name);
-                FirebaseDatabaseManager.databaseReference
-                        .child(NODE_USERS)
-                        .child(user.getUid())
-                        .child(CHILD_SECOND_FRIEND)
-                        .child(CHILD_PHONE_NO)
-                        .setValue(phoneNo);
+        if (user != null) {
+            switch (number) {
+                case PICK_FIRST_CONTACT:
+                    FirebaseDatabaseManager.databaseReference
+                            .child(NODE_USERS)
+                            .child(user.getUid())
+                            .child(CHILD_FIRST_FRIEND)
+                            .child(CHILD_NAME)
+                            .setValue(name);
+                    FirebaseDatabaseManager.databaseReference
+                            .child(NODE_USERS)
+                            .child(user.getUid())
+                            .child(CHILD_FIRST_FRIEND)
+                            .child(CHILD_PHONE_NO)
+                            .setValue(phoneNo);
+                    break;
+                case PICK_SECOND_CONTACT:
+                    FirebaseDatabaseManager.databaseReference
+                            .child(NODE_USERS)
+                            .child(user.getUid())
+                            .child(CHILD_SECOND_FRIEND)
+                            .child(CHILD_NAME)
+                            .setValue(name);
+                    FirebaseDatabaseManager.databaseReference
+                            .child(NODE_USERS)
+                            .child(user.getUid())
+                            .child(CHILD_SECOND_FRIEND)
+                            .child(CHILD_PHONE_NO)
+                            .setValue(phoneNo);
+            }
         }
     }
 
@@ -1516,16 +1533,18 @@ public class FirebaseDatabaseManager
     }
 
 
+
     public static void deletePositionToken() {
         SingletonUser user = SingletonUser.getInstance();
-        FirebaseDatabaseManager.databaseReference
-                .child(NODE_POSITION)
-                .child(user.getCountry())
-                .child(user.getRegion())
-                .child(user.getSubRegion())
-                .child(user.getUid())
-                .child(ARG_FIREBASE_TOKEN)
-                .removeValue();
+        if (user != null) {
+            FirebaseDatabaseManager.databaseReference
+                    .child(NODE_POSITION)
+                    .child(user.getCountry())
+                    .child(user.getRegion())
+                    .child(user.getSubRegion())
+                    .child(user.getUid())
+                    .child(ARG_FIREBASE_TOKEN)
+                    .removeValue();
+        }
     }
-
 }

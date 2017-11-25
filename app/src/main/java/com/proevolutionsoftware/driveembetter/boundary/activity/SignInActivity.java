@@ -151,12 +151,14 @@ public class SignInActivity
                 case NETWORK_ERROR:
                     hideProgress();
                     Log.d(TAG, "handleMessage:network_error");
+                    signInTriggered = true;
                     Toast.makeText(SignInActivity.this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
                     break;
 
                 case INTERNAL_FIREBASE_ERROR_LOGIN:
                     hideProgress();
                     Log.d(TAG, "handleMessage:internal firebase signin error");
+                    signInTriggered = true;
                     Toast.makeText(SignInActivity.this, getString(R.string.internal_firebase_login_error), Toast.LENGTH_LONG).show();
                     Toast.makeText(SignInActivity.this, getString(R.string.restart_device), Toast.LENGTH_SHORT).show();
                     break;
@@ -164,12 +166,14 @@ public class SignInActivity
                 case GOOGLE_SIGNIN_ERROR:
                     hideProgress();
                     Log.d(TAG, "handleMessage:google_signin_error");
+                    signInTriggered = true;
                     // Toast.makeText(SignInActivity.this, getString(R.string.google_signin_error), Toast.LENGTH_LONG).show();
                     break;
 
                 case CANCELED_ACTION:
                     hideProgress();
                     Log.d(TAG, "handleMessage:signin_error:action_canceled");
+                    signInTriggered = true;
                     Toast.makeText(SignInActivity.this, getString(R.string.canceled_action), Toast.LENGTH_SHORT).show();
                     ManageCache.deleteCache(getApplicationContext());
                     break;
@@ -177,6 +181,7 @@ public class SignInActivity
                 case UNKNOWN_ERROR:
                     hideProgress();
                     Log.d(TAG, "handleMessage:unknwown error");
+                    signInTriggered = true;
                     Toast.makeText(SignInActivity.this, getString(R.string.unknown_error), Toast.LENGTH_LONG).show();
                     break;
 
@@ -235,6 +240,9 @@ public class SignInActivity
                     Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_SHORT).show();
                     break;
                 }
+
+                this.checkEmailBeforeLogIn = false;
+                this.signInTriggered = true;
                 // Redirection to GoogleProvider's class
                 ((SingletonGoogleProvider) this.baseProviderArrayList.get(FactoryProviders.GOOGLE_PROVIDER))
                         .activityResult(requestCode, resultCode, data);
@@ -246,6 +254,9 @@ public class SignInActivity
                     Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_SHORT).show();
                     break;
                 }
+
+                this.checkEmailBeforeLogIn = false;
+                this.signInTriggered = true;
                 // Redirection to TwitterProvider's class
                 // Pass the activity result to the login button.
                 this.twitterLoginButton.onActivityResult(requestCode, resultCode, data);
@@ -278,9 +289,6 @@ public class SignInActivity
                     break;
                 }
 
-                // Code strength
-                this.checkEmailBeforeLogIn = true;
-                ////
                 if (TextUtils.isEmpty(this.emailField.getText().toString())) {
                     this.emailField.setError(getString(R.string.field_required));
                     break;
@@ -290,6 +298,9 @@ public class SignInActivity
                 }
 
                 this.showProgress();
+                // Code strength
+                this.checkEmailBeforeLogIn = true;
+                ////
                 this.signInTriggered = true;
                 this.baseProviderArrayList
                         .get(FactoryProviders.EMAIL_AND_PASSWORD_PROVIDER)
@@ -303,14 +314,13 @@ public class SignInActivity
 
             // Sign in with Google
             case R.id.sign_in_google_button:
+                // TODO: 13/11/17 se si interrompe la procedura di login con twitter e si torna nalla SignInActivity, il silent login delle API Google fa loggare automaticamente l'utente... non viene asspettata la chiamata dell'handler (CANCELED_ACTION) che setta il flag loginTriggered = false
                 if (!this.termsAccepted) {
                     Toast.makeText(this, this.getString(R.string.accept_terms), Toast.LENGTH_SHORT).show();
                     break;
                 }
 
-                this.checkEmailBeforeLogIn = false;
                 this.showProgress();
-                this.signInTriggered = true;
                 this.baseProviderArrayList
                         .get(FactoryProviders.GOOGLE_PROVIDER)
                         .signIn(null, null);
@@ -320,9 +330,7 @@ public class SignInActivity
             case R.id.twitter_login_button:
                 // If this.termsAccepted is false then this button is not clickable at all
 
-                this.checkEmailBeforeLogIn = false;
                 this.showProgress();
-                this.signInTriggered = true;
                 this.baseProviderArrayList
                         .get(FactoryProviders.TWITTER_PROVIDER)
                         .signIn(null, null);
