@@ -7,7 +7,7 @@ android {
     signingConfigs {
         config {
             keyAlias 'keyrelease'
-            storeFile file('/media/Data/Projects_JetBrains/AndroidStudioProjects/keystore/key_ProEvolutionSoftware.jks')
+            storeFile file('/media/Data/Projects/Java_Android/keystore/key_ProEvolutionSoftware.jks')
             keyPassword '3268alfred'
             storePassword '3268alfred'
         }
