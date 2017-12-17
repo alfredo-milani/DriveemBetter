@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 
 public class DailyMetrometer {
 
-
     public static void firstFeedbackTime(Activity activity) {
         SharedPreferences pref = activity.getSharedPreferences("feedback_preferences", 0);
         SharedPreferences.Editor editor = pref.edit();
@@ -43,5 +42,4 @@ public class DailyMetrometer {
         }
         return false;
     }
-
 }

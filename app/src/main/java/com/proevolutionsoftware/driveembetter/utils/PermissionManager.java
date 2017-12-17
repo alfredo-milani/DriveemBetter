@@ -55,6 +55,7 @@ public class PermissionManager {
 
 
 
+    // TODO se vengono revocati i permessi dalle impostazioni -> PermissionException
     public static void checkAndAskPermission(Activity activity, int[] permissions, int code) {
         int permsLen = permissions.length;
         if (permsLen < 1)   return;
@@ -123,7 +124,7 @@ public class PermissionManager {
             }
         }
         String[] perms = new String[requiredPermsLen];
-        for (int i = 0; i < permsLen; ++i) {
+        for (int i = 0; i < requiredPermsLen; ++i) {
             switch (permissions[i]) {
                 case FINE_LOCATION:
                     perms[i] = FINE_LOCATION_MANIFEST;

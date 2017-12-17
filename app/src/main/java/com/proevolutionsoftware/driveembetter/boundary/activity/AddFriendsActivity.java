@@ -104,9 +104,9 @@ public class AddFriendsActivity extends AppCompatActivity
                 } else {
                     PermissionManager.checkAndAskPermission(
                             this,
-                            new int[] {
-                            PermissionManager.READ_CONTACTS,
-                            PermissionManager.SEND_SMS
+                            new int[]{
+                                    PermissionManager.READ_CONTACTS,
+                                    PermissionManager.SEND_SMS
                             },
                             PermissionManager.ASK_FOR_ACCIDENT
                     );
@@ -120,7 +120,7 @@ public class AddFriendsActivity extends AppCompatActivity
                 } else {
                     PermissionManager.checkAndAskPermission(
                             this,
-                            new int[] {
+                            new int[]{
                                     PermissionManager.READ_CONTACTS,
                                     PermissionManager.SEND_SMS
                             },
@@ -198,7 +198,7 @@ public class AddFriendsActivity extends AppCompatActivity
         switch (resultCode) {
             case Activity.RESULT_OK:
                 Uri contactData = data.getData();
-                Cursor c =  this.getContentResolver().query(contactData, null, null, null, null);
+                Cursor c = this.getContentResolver().query(contactData, null, null, null, null);
                 if (c != null && c.moveToFirst()) {
                     SharedPreferences.Editor editor = getSharedPreferences("friends_preference", MODE_PRIVATE).edit();
                     String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
